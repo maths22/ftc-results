@@ -38,6 +38,7 @@ gem 'devise_token_auth'
 # gem 'omniauth-github'
 # gem 'omniauth-facebook'
 # gem 'omniauth-google-oauth2'
+gem 'aws-sdk-s3', require: false
 gem 'rails_admin', '~> 1.3'
 gem 'rails_admin_import', '~> 2.1'
 # gem 'redis'
