@@ -19,6 +19,6 @@
 
 # Learn more: http://github.com/javan/whenever
 
-every 1.minute do # 1.minute 1.day 1.week 1.month 1.year is also supported
-  rake 'teams:refresh'
+every 1.hour, at: 5 do # 1.minute 1.day 1.week 1.month 1.year is also supported
+  rake 'teams:refresh events:generate_dbs'
 end
