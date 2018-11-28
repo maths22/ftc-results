@@ -1,0 +1,29 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  robots_landed: 
+  depots_claimed: 
+  robots_parked_auto: 
+  fields_sampled: 
+  depot_minerals: 
+  gold_cargo: 
+  silver_cargo: 
+  latched_robots: 
+  robots_in_crater: 
+  robots_completely_in_crater: 
+  minor_penalties: 
+  major_penalties: 
+
+two:
+  robots_landed: 
+  depots_claimed: 
+  robots_parked_auto: 
+  fields_sampled: 
+  depot_minerals: 
+  gold_cargo: 
+  silver_cargo: 
+  latched_robots: 
+  robots_in_crater: 
+  robots_completely_in_crater: 
+  minor_penalties: 
+  major_penalties: 
