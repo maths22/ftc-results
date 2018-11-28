@@ -1,26 +1,26 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Typography from '@material-ui/core/Typography';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import {Link} from 'react-router-dom';
 
 class App extends Component {
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+        <div>
+          <Typography variant="h5">FTC League Rankings</Typography>
+          <List component="nav">
+            <ListItem  component={Link} to="/teams/rankings" button>
+              <ListItemText primary="All Team Rankings" />
+            </ListItem>
+            <ListItem  component={Link} to="/divisions/summary" button>
+              <ListItemText primary="Rankings By Division" />
+            </ListItem>
+          </List>
+        </div>
     );
   }
 }
