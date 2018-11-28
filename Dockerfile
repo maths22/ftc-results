@@ -11,4 +11,4 @@ WORKDIR $INSTALL_PATH
 RUN bundle install --binstubs --without development test
 COPY . .
 RUN bundle exec whenever --update-crontab
-CMD cron && bundle exec puma
+CMD ./entrypoint.sh
