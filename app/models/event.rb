@@ -19,7 +19,7 @@ class Event < ApplicationRecord
     return unless (ctx_id = record[:context_id]) && (ctx_type = record[:context_type])
 
     self.context = Division.find_by id: ctx_id if ctx_type == 'Division'
-    self.context = League.find_by ctx_id if ctx_type == 'League'
+    self.context = League.find_by id: ctx_id if ctx_type == 'League'
   end
 
   def league_meet?
