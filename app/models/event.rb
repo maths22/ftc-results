@@ -15,12 +15,12 @@ class Event < ApplicationRecord
   belongs_to :context, polymorphic: true, optional: true
 
   # TODO: don't use ID
-  # def before_import_associations(record)
-  #   return unless (ctx_id = record[:context_id]) && (ctx_type = record[:context_type])
-  #
-  #   self.context = Division.find_by id: ctx_id if ctx_type == 'Division'
-  #   self.context = League.find_by ctx_id if ctx_type == 'League'
-  # end
+  def before_import_associations(record)
+    return unless (ctx_id = record[:context_id]) && (ctx_type = record[:context_type])
+
+    self.context = Division.find_by id: ctx_id if ctx_type == 'Division'
+    self.context = League.find_by ctx_id if ctx_type == 'League'
+  end
 
   def league_meet?
     context.is_a? Division
