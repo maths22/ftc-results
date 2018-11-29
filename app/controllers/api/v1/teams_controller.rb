@@ -12,6 +12,17 @@ module Api
       def show
         render json: @team, except: %i[created_at]
       end
+
+      # GET /teams/1
+      def details
+        @team
+
+        match_ids = @team.match_alliances_for_season(::CurrentScope.season_or_default)
+                         .map(&:match).map(&:id)
+
+        @matches = Match.includes(red_alliance: {alliance: :teams}, blue_alliance: {alliance: :teams}).find(match_ids)
+
+      end
     end
   end
 end

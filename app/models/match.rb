@@ -22,5 +22,13 @@ class Match < ApplicationRecord
     end
   end
 
+  def red_score_total
+    red_score.auto + red_score.teleop + red_score.endgame + blue_score.penalty
+  end
+
+  def blue_score_total
+    blue_score.auto + blue_score.teleop + blue_score.endgame + red_score.penalty
+  end
+
   enum phase: %i[qual semi final]
 end

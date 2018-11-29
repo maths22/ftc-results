@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :teams
+      get 'teams/details/:id', to: 'teams#details'
       resources :events
       resources :leagues
       get 'leagues/details/:slug', to: 'leagues#details'
