@@ -13,17 +13,19 @@ import {getEvents, importEventResults} from '../actions/api';
 import activeStorageUpload from '../actions/upload';
 import Grid from '@material-ui/core/Grid/Grid';
 import {invalidateRankings} from '../actions/util';
+import CircularProgress from '@material-ui/core/es/CircularProgress/CircularProgress';
 
 class DivisionsSummary extends Component {
 
   constructor(props) {
     super(props);
     this.fileInput = React.createRef();
-    this.state = {error: null};
+    this.state = {error: null, inProgress: false};
   }
 
   import = async () => {
     if(this.fileInput.current.files.length === 0) return;
+    this.setState({inProgress: true});
     try {
       const blob = await this.props.activeStorageUpload(this.fileInput.current.files[0]);
       const results = await this.props.importEventResults(this.props.event.id, blob['signed_id']);
@@ -37,6 +39,7 @@ class DivisionsSummary extends Component {
     } catch (ex) {
       console.log(ex);
     }
+    this.setState({inProgress: false});
   };
 
 
@@ -80,7 +83,9 @@ class DivisionsSummary extends Component {
         <Button onClick={this.props.onClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={this.import} color="primary" disabled={this.fileInput.current && this.fileInput.current.files.length === 0}>
+        { this.state.inProgress ?
+            <CircularProgress size="1.5em"/>
+           : <Button onClick={this.import} color="primary" disabled={this.fileInput.current && this.fileInput.current.files.length === 0}>
           Import
         </Button>
       </DialogActions>
