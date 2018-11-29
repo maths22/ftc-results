@@ -97,7 +97,7 @@ class EventsSummary extends Component {
                       <TableCell component={Link} to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TableCell>
                       : <TableCell/> }
                   <TableCell>{e.name}</TableCell>
-                  <TableCell>{e.location}, {e.city}, {e.state}, {e.country}</TableCell>
+                  <TableCell>{e.location}<br/>{e.city}, {e.state}, {e.country}</TableCell>
                   <TableCell>{e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
                   <TableCell>{e.aasm_state === 'finalized' ? <CheckIcon/> :
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
