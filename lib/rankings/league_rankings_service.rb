@@ -52,17 +52,17 @@ module Rankings
 
     def raw_team_rankings
       alliances.each_with_object(Hash.new { |h, k| h[k] = [] }) do |alliance, rankings|
-        alliance.alliance.teams.each do |team|
+        alliance.alliance.alliance_teams.each do |at|
           # TODO: should I have this?
           # next unless alliance.counts_for_ranking? team
 
           ranking = TeamRanking.new
-          ranking.team = team
-          ranking.division = team.divisions.first
-          ranking.rp = alliance.rp_for_team team
-          ranking.tbp = alliance.tbp_for_team team
-          ranking.high_score = alliance.score_for_team team
-          rankings[team.number] << ranking
+          ranking.team = at.team
+          ranking.division = at.team.divisions.first
+          ranking.rp = alliance.rp[at.position - 1]
+          ranking.tbp = alliance.tbp[at.position - 1]
+          ranking.high_score = alliance.score[at.position - 1]
+          rankings[at.team.number] << ranking
         end
       end
     end
@@ -70,7 +70,7 @@ module Rankings
     def alliances
       @alliances ||= MatchAlliance
                      .joins(alliance: :event)
-                     .includes(alliance: { teams: :divisions })
+                     .includes(alliance: { alliance_teams: { team: :divisions } } )
                      .where(alliance: { events: { season: ::CurrentScope.season_or_default } })
     end
   end
