@@ -8,6 +8,8 @@ default: &default
 
 development:
   <<: *default
+  adapter: mysql2
+  encoding: utf8
   database: ftc_results_development
 
 # Warning: The database defined as "test" will be erased and

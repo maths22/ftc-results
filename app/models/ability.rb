@@ -36,6 +36,7 @@ class Ability
     else
       can :read, :all
       can :download_scoring_system, :all
+      can :details, :all
     end
   end
 end
