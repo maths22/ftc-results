@@ -12,6 +12,18 @@ import {getDivisions, getLeagues} from '../actions/api';
 import {Link} from 'react-router-dom';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
+import {withStyles} from '@material-ui/core';
+
+const styles = (theme) => ({
+  root: {
+    width: '100%',
+    marginTop: theme.spacing.unit,
+    overflowX: 'auto',
+  },
+  table: {
+    minWidth: '30em',
+  },
+});
 
 class DivisionsSummary extends Component {
 
@@ -40,8 +52,8 @@ class DivisionsSummary extends Component {
 
     const rowStyle = { height: '2rem' };
 
-    return <Paper>
-      <Table>
+    return <Paper className={this.props.classes.root}>
+      <Table className={this.props.classes.table}>
         <TableHead>
           <TableRow style={rowStyle}>
             <TableCell>League</TableCell>
@@ -85,4 +97,4 @@ const mapDispatchToProps = {
   setTitle,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DivisionsSummary);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DivisionsSummary));

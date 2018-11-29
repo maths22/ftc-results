@@ -15,8 +15,20 @@ import {Link} from 'react-router-dom';
 import EventImportDialog from './EventImportDialog';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
+import {withStyles} from '@material-ui/core';
 
-class DivisionsSummary extends Component {
+const styles = (theme) => ({
+  root: {
+    width: '100%',
+    marginTop: theme.spacing.unit,
+    overflowX: 'auto',
+  },
+  table: {
+    minWidth: '30em',
+  },
+});
+
+class EventsSummary extends Component {
 
   constructor(props) {
     super(props);
@@ -61,8 +73,8 @@ class DivisionsSummary extends Component {
 
     const rowStyle = { height: '2rem' };
 
-    return <Paper>
-      <Table>
+    return <Paper className={this.props.classes.root}>
+      <Table className={this.props.classes.table}>
         <TableHead>
           <TableRow style={rowStyle}>
             <TableCell>Type</TableCell>
@@ -135,4 +147,4 @@ const mapDispatchToProps = {
   setTitle,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DivisionsSummary);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventsSummary));

@@ -15,14 +15,22 @@ import ChevronRight from '@material-ui/icons/ChevronRight';
 import {withStyles} from '@material-ui/core';
 import LoadingSpinner from './LoadingSpinner';
 
-const styles = {
+const styles = (theme) => ({
   breadcrumbParent: {
     display: 'flex',
     height: '2em',
     alignItems: 'center',
     padding: '1em',
-  }
-};
+  },
+  root: {
+    width: '100%',
+    marginTop: theme.spacing.unit,
+    overflowX: 'auto',
+  },
+  table: {
+    minWidth: '30em',
+  },
+});
 
 class DivisionsSummary extends Component {
 
@@ -83,9 +91,9 @@ class DivisionsSummary extends Component {
 
     const rowStyle = { height: '2rem' };
 
-    return <Paper>
+    return <Paper className={this.props.classes.root}>
       {this.renderBreadcrumbs()}
-          <Table>
+          <Table className={this.props.classes.table}>
             <TableHead>
               <TableRow style={rowStyle}>
                 <TableCell>Rank</TableCell>

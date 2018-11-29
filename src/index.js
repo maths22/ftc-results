@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createBrowserHistory } from 'history';
+import ReactGA from 'react-ga'
 
 import configureStore from './store';
 
@@ -19,8 +20,7 @@ const theme = createMuiTheme({
 });
 
 
-//TODO THEME
-window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true;
+ReactGA.initialize('UA-88371688-1');
 
 const history = createBrowserHistory();
 const store = configureStore(history);
