@@ -84,10 +84,10 @@ class DivisionsSummary extends Component {
           Cancel
         </Button>
         { this.state.inProgress ?
-            <CircularProgress size="1.5em"/>
-           : <Button onClick={this.import} color="primary" disabled={this.fileInput.current && this.fileInput.current.files.length === 0}>
+           <CircularProgress size="1.5em"/> :
+           <Button onClick={this.import} color="primary" disabled={this.fileInput.current && this.fileInput.current.files.length === 0}>
           Import
-        </Button>
+        </Button> }
       </DialogActions>
     </Dialog>;
   }
