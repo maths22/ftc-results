@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_27_230949) do
+ActiveRecord::Schema.define(version: 2018_11_28_210325) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -82,6 +82,7 @@ ActiveRecord::Schema.define(version: 2018_11_27_230949) do
     t.boolean "has_finals"
     t.string "aasm_state"
     t.string "slug"
+    t.string "address"
     t.index ["context_type", "context_id"], name: "index_events_on_context_type_and_context_id"
     t.index ["season_id"], name: "index_events_on_season_id"
   end
@@ -98,6 +99,7 @@ ActiveRecord::Schema.define(version: 2018_11_27_230949) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "season_id"
+    t.string "slug"
     t.index ["season_id"], name: "index_leagues_on_season_id"
   end
 
