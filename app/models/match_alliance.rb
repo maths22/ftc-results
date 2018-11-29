@@ -39,6 +39,10 @@ class MatchAlliance < ApplicationRecord
   end
 
   def counts_for_ranking?(team)
-    !surrogate_for_team(team) && present_for_team(team) && !red_card_for_team(team)
+    raw_counts_for_ranking?(alliance.teams.index(team))
+  end
+
+  def raw_counts_for_ranking?(pos)
+    !surrogate[pos] && present[pos] && !red_card[pos]
   end
 end
