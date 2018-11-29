@@ -53,8 +53,7 @@ module Rankings
     def raw_team_rankings
       alliances.each_with_object(Hash.new { |h, k| h[k] = [] }) do |alliance, rankings|
         alliance.alliance.alliance_teams.each do |at|
-          # TODO: should I have this?
-          # next unless alliance.counts_for_ranking? team
+          next unless alliance.raw_counts_for_ranking?(at.position - 1)
 
           ranking = TeamRanking.new
           ranking.team = at.team
