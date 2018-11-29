@@ -27,7 +27,7 @@ export const IMPORT_EVENT_RESULTS_REQUEST = 'IMPORT_EVENT_RESULTS_REQUEST';
 export const IMPORT_EVENT_RESULTS_SUCCESS = 'IMPORT_EVENT_RESULTS_SUCCESS';
 export const IMPORT_EVENT_RESULTS_FAILURE = 'IMPORT_EVENT_RESULTS_FAILURE';
 
-export const API_HOST = process.env.REACT_APP_API_HOST;
+export const API_HOST = process.env.REACT_APP_API_HOST || '';
 export const API_BASE = `${API_HOST}/api/v1`;
 
 export const login = ({email, password}) => ({
