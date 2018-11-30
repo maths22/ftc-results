@@ -20,6 +20,9 @@ export const GET_LEAGUES_FAILURE = 'GET_LEAGUES_FAILURE';
 export const GET_TEAMS_REQUEST = 'GET_TEAMS_REQUEST';
 export const GET_TEAMS_SUCCESS = 'GET_TEAMS_SUCCESS';
 export const GET_TEAMS_FAILURE = 'GET_TEAMS_FAILURE';
+export const GET_TEAM_DETAILS_REQUEST = 'GET_TEAM_DETAILS_REQUEST';
+export const GET_TEAM_DETAILS_SUCCESS = 'GET_TEAM_DETAILS_SUCCESS';
+export const GET_TEAM_DETAILS_FAILURE = 'GET_TEAM_DETAILS_FAILURE';
 export const GET_LEAGUE_RANKINGS_REQUEST = 'GET_LEAGUE_RANKINGS_REQUEST';
 export const GET_LEAGUE_RANKINGS_SUCCESS = 'GET_LEAGUE_RANKINGS_SUCCESS';
 export const GET_LEAGUE_RANKINGS_FAILURE = 'GET_LEAGUE_RANKINGS_FAILURE';
@@ -32,7 +35,7 @@ export const API_BASE = `${API_HOST}/api/v1`;
 
 export const login = ({email, password}) => ({
   [RSAA]: {
-    endpoint: API_BASE + '/auth/sign_in',
+    endpoint: `${API_BASE}/auth/sign_in`,
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: formurlencoded({email, password}),
@@ -46,7 +49,7 @@ export const login = ({email, password}) => ({
 
 export const logout = () => ({
   [RSAA]: {
-    endpoint: API_BASE + '/auth/sign_out',
+    endpoint: `${API_BASE}/auth/sign_out`,
     method: 'DELETE',
     types: [
       LOGOUT_REQUEST,
@@ -59,7 +62,7 @@ export const logout = () => ({
 //TODO generalize season
 export const getDivisions = () => ({
   [RSAA]: {
-    endpoint: API_BASE + '/divisions',
+    endpoint: `${API_BASE}/divisions`,
     method: 'GET',
     types: [
       GET_DIVISIONS_REQUEST,
@@ -71,7 +74,7 @@ export const getDivisions = () => ({
 
 export const getEvents = () => ({
   [RSAA]: {
-    endpoint: API_BASE + '/events',
+    endpoint: `${API_BASE}/events`,
     method: 'GET',
     types: [
       GET_EVENTS_REQUEST,
@@ -83,7 +86,7 @@ export const getEvents = () => ({
 
 export const getLeagues = () => ({
   [RSAA]: {
-    endpoint: API_BASE + '/leagues',
+    endpoint: `${API_BASE}/leagues`,
     method: 'GET',
     types: [
       GET_LEAGUES_REQUEST,
@@ -95,7 +98,7 @@ export const getLeagues = () => ({
 
 export const getTeams = () => ({
   [RSAA]: {
-    endpoint: API_BASE + '/teams',
+    endpoint: `${API_BASE}/teams`,
     method: 'GET',
     types: [
       GET_TEAMS_REQUEST,
@@ -105,10 +108,22 @@ export const getTeams = () => ({
   }
 });
 
+export const getTeamDetails = (id) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/teams/details/${id}`,
+    method: 'GET',
+    types: [
+      GET_TEAM_DETAILS_REQUEST,
+      GET_TEAM_DETAILS_SUCCESS,
+      GET_TEAM_DETAILS_FAILURE
+    ]
+  }
+});
+
 
 export const getLeagueRankings = () => ({
   [RSAA]: {
-    endpoint: API_BASE + '/rankings/league',
+    endpoint: `${API_BASE}/rankings/league`,
     method: 'GET',
     types: [
       GET_LEAGUE_RANKINGS_REQUEST,
@@ -120,7 +135,7 @@ export const getLeagueRankings = () => ({
 
 export const importEventResults = (id, signedId) => ({
   [RSAA]: {
-    endpoint: API_BASE + `/events/import_results/${id}`,
+    endpoint: `${API_BASE}/events/import_results/${id}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({import: signedId}),

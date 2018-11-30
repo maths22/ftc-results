@@ -112,7 +112,7 @@ class DivisionsSummary extends Component {
                 return (
                     <TableRow key={r.team.number} style={rowStyle}>
                       <TableCell>{idx + 1}</TableCell>
-                      <TableCell>{r.team.number}</TableCell>
+                      <TableCell><Link to={`/teams/summary/${r.team.number}`}>{r.team.number}</Link></TableCell>
                       <TableCell>{r.team.name}</TableCell>
                       { ['all'].includes(this.props.type) ?
                           <TableCell component={Link} to={`/leagues/rankings/${r.league.id}`}>{r.league.name}</TableCell>
