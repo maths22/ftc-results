@@ -202,7 +202,7 @@ module ScoringSystem
     end
 
     def create_rankings(event)
-      Rankings::EventRankingsService.new(Event.find(3)).compute.values.sort.reverse.map.with_index do |tr, idx|
+        Rankings::EventRankingsService.new(event).compute.values.sort.reverse.map.with_index do |tr, idx|
         rank = Ranking.new team: tr.team,
                            event: event,
                            ranking: idx + 1,
