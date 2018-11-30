@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createBrowserHistory } from 'history';
-import ReactGA from 'react-ga'
+import ReactGA from 'react-ga';
 
 import configureStore from './store';
 

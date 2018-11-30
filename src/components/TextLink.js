@@ -18,7 +18,7 @@ function TextLink(props) {
     <Component to={props.to} href={props.href} className={props.classes.myTextStyle} >
       {props.children}
     </Component>
-  )
+  );
 }
 
 export default withStyles(styles)(TextLink);
