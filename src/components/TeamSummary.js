@@ -101,7 +101,7 @@ const mapStateToProps = (state, props) => {
     ret.events = ret.team.events.map((e) => state.events[e]);
   }
   if(ret.team) {
-    ret.matches = Object.values(state.matches).filter((m) => m.red_alliance.includes(id) || m.blue_alliance.includes(id))
+    ret.matches = Object.values(state.matches).filter((m) => m.red_alliance.includes(id) || m.blue_alliance.includes(id));
   }
   if(ret.team && ret.team.division_id && state.divisions && state.leagues) {
     ret.division = state.divisions[ret.team.division_id];

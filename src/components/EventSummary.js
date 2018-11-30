@@ -5,9 +5,9 @@ import Paper from '@material-ui/core/Paper';
 
 import {
   getDivisions,
-  getEventMatches,
+  getEventMatches, getEventRankings,
   getEvents,
-  getLeagues,
+  getLeagues, getTeams,
 } from '../actions/api';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
@@ -16,6 +16,9 @@ import Typography from '@material-ui/core/Typography';
 import Chip from '@material-ui/core/Chip';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
+import RankingsTable from './RankingsTable';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 const styles = (theme) => ({
   root: {
@@ -25,14 +28,18 @@ const styles = (theme) => ({
   },
   heading: {
     padding: 2 * theme.spacing.unit,
+  },
+  tabPanel: {
+    width: '100%',
+    overflow: 'auto'
   }
 });
 
-class EventsSummary extends Component {
+class EventSummary extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {importEvent: null};
+    this.state = {selectedTab: 0};
   }
 
   componentDidMount() {
@@ -42,8 +49,12 @@ class EventsSummary extends Component {
       this.props.getLeagues();
       this.props.getDivisions();
     }
+    if(!this.teams) {
+      this.props.getTeams();
+    }
 
     this.props.getEventMatches(this.props.id);
+    this.props.getEventRankings(this.props.id);
     this.setTitle();
   }
 
@@ -52,6 +63,7 @@ class EventsSummary extends Component {
       this.setTitle();
 
       this.props.getEventMatches(this.props.id);
+      this.props.getEventRankings(this.props.id);
     }
   }
 
@@ -63,12 +75,17 @@ class EventsSummary extends Component {
     this.props.setTitle(null);
   }
 
+  selectTab = (selectedTab) => {
+    this.setState({ selectedTab });
+  };
+
   render () {
     if(!this.props.event) {
       return <LoadingSpinner/>;
     }
 
-    const {event, league, division, matches} = this.props;
+    const { classes, event, league, division, matches, rankings } = this.props;
+    const { selectedTab } = this.state;
 
     const stateTag = {
       finalized: {
@@ -84,8 +101,8 @@ class EventsSummary extends Component {
       },
     };
 
-    return <Paper className={this.props.classes.root}>
-      <div className={this.props.classes.heading}>
+    return <Paper className={classes.root}>
+      <div className={classes.heading}>
         <Typography variant="h4" gutterBottom>{event.name} <Chip {...stateTag[event.aasm_state]}/></Typography>
         <b>Date:</b> {event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
         <b>Location:</b> {event.location}{event.location && <br/>}
@@ -98,7 +115,22 @@ class EventsSummary extends Component {
 
       </div>
 
-      <MatchTable matches={matches}/>
+      <Tabs
+          value={selectedTab}
+          onChange={(_, tab) => this.selectTab(tab)}
+          indicatorColor="primary"
+          textColor="primary"
+          centered
+      >
+        <Tab label="Rankings"/>
+        <Tab label="Matches" />
+      </Tabs>
+
+      {/*TODO consider swipeable views if table scroll can work*/}
+      {[
+        <div className={classes.tabPanel}><RankingsTable rankings={rankings}/></div>,
+        <div className={classes.tabPanel}><MatchTable matches={matches}/></div>
+      ][selectedTab]}
     </Paper>;
   }
 }
@@ -112,7 +144,12 @@ const mapStateToProps = (state, props) => {
   if (state.events) {
     ret.event = state.events[id];
   }
-  ret.matches = Object.values(state.matches).filter((m) => m.event_id === id)
+  ret.matches = Object.values(state.matches).filter((m) => m.event_id === id);
+  if(state.teams) {
+    ret.rankings = Object.values(state.rankings).filter((m) => m.event_id === id)
+        .sort((a, b) => a.ranking - b.ranking)
+        .map((r) => Object.assign({}, r, {team: state.teams[r.team_id]}));
+  }
   if (state.divisions && state.leagues && ret.event && ret.event.context_type === 'Division') {
     ret.division = state.divisions[ret.event.context_id];
     ret.league = state.leagues[ret.division.league_id];
@@ -126,8 +163,10 @@ const mapDispatchToProps = {
   getDivisions,
   getEvents,
   getEventMatches,
+  getEventRankings,
   getLeagues,
+  getTeams,
   setTitle,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventsSummary));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventSummary));
