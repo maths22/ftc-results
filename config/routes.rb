@@ -13,10 +13,11 @@ Rails.application.routes.draw do
       resources :teams
       get 'teams/details/:id', to: 'teams#details'
       resources :events
+      get 'events/matches/:id', to: 'events#view_matches'
+      get 'events/download_scoring_system/:id', to: 'events#download_scoring_system'
       resources :leagues
       get 'leagues/details/:slug', to: 'leagues#details'
       resources :divisions
-      get 'events/download_scoring_system/:id', to: 'events#download_scoring_system'
       post 'events/import_results/:id', to: 'events#import_results'
       get 'rankings/league', to: 'league_rankings#index'
 
