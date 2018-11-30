@@ -9,6 +9,7 @@ import DivisionsSummary from './components/DivisionsSummary';
 import LeagueRankings from './components/LeagueRankings';
 import EventsSummary from './components/EventsSummary';
 import DefaultLayout from './components/DefaultLayout';
+import TeamSummary from './components/TeamSummary';
 
 class AppRouter extends Component {
 
@@ -22,6 +23,7 @@ class AppRouter extends Component {
           <DefaultLayout exact path="/teams/rankings" component={() => <LeagueRankings type="all"/>}/>
           <DefaultLayout exact path="/leagues/rankings/:id" component={({match}) => <LeagueRankings type="league" id={match.params.id}/>}/>
           <DefaultLayout exact path="/divisions/rankings/:id" component={({match}) => <LeagueRankings type="division" id={match.params.id}/>}/>
+          <DefaultLayout exact path="/teams/summary/:id" component={({match}) => <TeamSummary id={match.params.id}/>}/>
           <DefaultLayout component={() => (<div>404 — Page Not Found</div>)} />
         </Switch>
       </div>
