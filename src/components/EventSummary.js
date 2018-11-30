@@ -101,14 +101,17 @@ class EventSummary extends Component {
       },
     };
 
+    const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
+    const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
+
     return <Paper className={classes.root}>
       <div className={classes.heading}>
         <Typography variant="h4" gutterBottom>{event.name} <Chip {...stateTag[event.aasm_state]}/></Typography>
         <b>Date:</b> {event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
-        <b>Location:</b> {event.location}{event.location && <br/>}
+        <b>Location:</b> <TextLink href={maps_url} target="_blank">{event.location}{event.location && ', '}
         {event.city}{event.city && ', '}
         {event.state}{event.state && ', '}
-        {event.country}<br/>{league ?
+        {event.country}</TextLink><br/>{league ?
           <span><b>League:</b> <TextLink to={`/leagues/rankings/${league.id}`}>{league.name}</TextLink></span> : null }<br/>
         {division ?
           <span><b>Division:</b> <TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }<br/>
