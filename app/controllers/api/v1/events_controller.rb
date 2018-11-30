@@ -24,6 +24,10 @@ module Api
         render json: @event
       end
 
+      def view_matches
+        @matches = Match.includes([:red_score, :blue_score, red_alliance: {alliance: :teams}, blue_alliance: {alliance: :teams}]).where(event: @event)
+      end
+
       def download_scoring_system
         zip = ::ScoringSystem::ZipService.new
         db_service = ::ScoringSystem::SqlitedbExportService
