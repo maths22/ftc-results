@@ -19,6 +19,9 @@ class App extends Component {
             <ListItem  component={Link} to="/divisions/summary" button>
               <ListItemText primary="Rankings By Division" />
             </ListItem>
+            <ListItem  component={Link} to="/events/all" button>
+              <ListItemText primary="Events" />
+            </ListItem>
           </List>
         </div>
     );

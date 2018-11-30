@@ -11,11 +11,11 @@ import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/CheckCircle';
 
 import {API_HOST, getDivisions, getEvents, getLeagues, scoring_download_url} from '../actions/api';
-import {Link} from 'react-router-dom';
 import EventImportDialog from './EventImportDialog';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
+import TextLink from './TextLink';
 
 const styles = (theme) => ({
   root: {
@@ -77,10 +77,10 @@ class EventsSummary extends Component {
       <Table className={this.props.classes.table}>
         <TableHead>
           <TableRow style={rowStyle}>
+            <TableCell>Name</TableCell>
             <TableCell>Type</TableCell>
             <TableCell>League</TableCell>
             <TableCell>Division</TableCell>
-            <TableCell>Name</TableCell>
             <TableCell>Location</TableCell>
             <TableCell>Date</TableCell>
             <TableCell>Imported</TableCell>
@@ -91,19 +91,19 @@ class EventsSummary extends Component {
           {vals.map(e => {
             return (
                 <TableRow key={e.id} style={rowStyle}>
+                  <TableCell><TextLink to={`/events/summary/${e.id}`}>{e.name}</TextLink></TableCell>
                   <TableCell>{e.context_type === 'Division' ? 'Meet' : 'Championship'}</TableCell>
-                  <TableCell component={Link} to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TableCell>
+                  <TableCell><TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink></TableCell>
                   { e.division ?
-                      <TableCell component={Link} to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TableCell>
+                      <TableCell><TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink></TableCell>
                       : <TableCell/> }
-                  <TableCell>{e.name}</TableCell>
                   <TableCell>{e.location}<br/>{e.city}, {e.state}, {e.country}</TableCell>
                   <TableCell>{e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
                   <TableCell>{e.aasm_state === 'finalized' ? <CheckIcon/> :
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
                   {e.aasm_state === 'finalized'
-                      ? (e.import ? <TableCell component="a" href={API_HOST + e.import}>Database</TableCell> : <TableCell/>)
-                      : <TableCell component="a" href={scoring_download_url(e.id)}>Scoring System</TableCell> }
+                      ? (e.import ? <TableCell><TextLink href={API_HOST + e.import}>Database</TextLink></TableCell> : <TableCell/>)
+                      : <TableCell><TextLink href={scoring_download_url(e.id)}>Scoring System</TextLink></TableCell> }
                 </TableRow>
             );
           })}

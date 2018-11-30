@@ -14,6 +14,7 @@ import {setTitle} from '../actions/ui';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import {withStyles} from '@material-ui/core';
 import LoadingSpinner from './LoadingSpinner';
+import TextLink from './TextLink';
 
 const styles = (theme) => ({
   breadcrumbParent: {
@@ -112,13 +113,13 @@ class DivisionsSummary extends Component {
                 return (
                     <TableRow key={r.team.number} style={rowStyle}>
                       <TableCell>{idx + 1}</TableCell>
-                      <TableCell><Link to={`/teams/summary/${r.team.number}`}>{r.team.number}</Link></TableCell>
+                      <TableCell><TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink></TableCell>
                       <TableCell>{r.team.name}</TableCell>
                       { ['all'].includes(this.props.type) ?
-                          <TableCell component={Link} to={`/leagues/rankings/${r.league.id}`}>{r.league.name}</TableCell>
+                          <TableCell><TextLink to={`/leagues/rankings/${r.league.id}`}>{r.league.name}</TextLink></TableCell>
                           : null }
                       { ['all', 'league'].includes(this.props.type) ?
-                          <TableCell component={Link} to={`/divisions/rankings/${r.division.id}`}>{r.division.name}</TableCell>
+                          <TableCell><TextLink to={`/divisions/rankings/${r.division.id}`}>{r.division.name}</TextLink></TableCell>
                           : null }
                       <TableCell>{r.rp}</TableCell>
                       <TableCell>{r.tbp}</TableCell>
