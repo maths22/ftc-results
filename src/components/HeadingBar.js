@@ -83,7 +83,7 @@ class HeadingBar extends Component {
             </Typography>
             <Button color="inherit" to="/events/all"
                     component={props => <Link {...props}/>}>Events</Button>
-            { isLoggedIn ? [`Welcome ${uid} `, <Button color="inherit" onClick={this.logout}>Logout</Button>]
+            { isLoggedIn ? <span>Welcome {uid} <Button color="inherit" onClick={this.logout}>Logout</Button></span>
                 : <Button color="inherit" onClick={this.openLoginMenu}>Login</Button> }
           </Toolbar>
         </AppBar>
