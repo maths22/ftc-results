@@ -45,4 +45,8 @@ class MatchAlliance < ApplicationRecord
   def raw_counts_for_ranking?(pos)
     !surrogate[pos] && present[pos] && !red_card[pos]
   end
+
+  def is_degenerate?(pos)
+    present.zip(red_card).all? { |arr| !arr[0] || arr[1] }
+  end
 end

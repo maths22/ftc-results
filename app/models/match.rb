@@ -22,12 +22,61 @@ class Match < ApplicationRecord
     end
   end
 
-  def red_score_total
-    red_score.auto + red_score.teleop + red_score.endgame + blue_score.penalty
+  %i[red blue].each do |color|
+    other_color = color == :red ? :blue : :red
+
+    define_method :"#{color}_score_total" do
+      send(:"#{color}_score").earned + send(:"#{other_color}_score").penalty
+    end
+
+    define_method :"#{color}_wins?" do
+      send(:"#{color}_score_total") > send(:"#{other_color}_score_total")
+    end
+
+    define_method :"#{color}_rp" do
+      return 2 if send(:"#{color}_wins?")
+      return 1 if tie?
+
+      0
+    end
   end
 
-  def blue_score_total
-    blue_score.auto + blue_score.teleop + blue_score.endgame + red_score.penalty
+  def normal_tbp
+    return red_score.earned if blue_wins?
+    return blue_score.earned if red_wins?
+
+    [red_score.earned, blue_score.earned].min
+  end
+
+  def is_degenerate?
+    red_wins? && blue_alliance.is_degenerate? ||
+      blue_wins? && red_alliance.is_degenerate?
+  end
+
+  def tie?
+    blue_score_total == red_score_total
+  end
+
+  def update_ranking_data
+    red_alliance.rp[0] = red_rp if red_alliance.raw_counts_for_ranking? 0
+    red_alliance.rp[1] = red_rp if red_alliance.raw_counts_for_ranking? 1
+    blue_alliance.rp[0] = blue_rp if blue_alliance.raw_counts_for_ranking? 0
+    blue_alliance.rp[1] = blue_rp if blue_alliance.raw_counts_for_ranking? 1
+
+    red_alliance.rp[0] = red_score if is_degenerate? && red_wins? && red_alliance.raw_counts_for_ranking?(0)
+    red_alliance.rp[1] = red_score if is_degenerate? && red_wins? && red_alliance.raw_counts_for_ranking?(1)
+    blue_alliance.rp[0] = blue_score if is_degenerate? && blue_wins? && blue_alliance.raw_counts_for_ranking?(0)
+    blue_alliance.rp[1] = blue_score if is_degenerate? && blue_wins? && blue_alliance.raw_counts_for_ranking?(1)
+
+    red_alliance.tbp[0] = normal_tbp if red_alliance.raw_counts_for_ranking? 0
+    red_alliance.tbp[1] = normal_tbp if red_alliance.raw_counts_for_ranking? 1
+    blue_alliance.tbp[0] = normal_tbp if blue_alliance.raw_counts_for_ranking? 0
+    blue_alliance.tbp[1] = normal_tbp if blue_alliance.raw_counts_for_ranking? 1
+
+    red_alliance.score[0] = red_score unless red_alliance.surrogate[0]
+    red_alliance.score[1] = red_score unless red_alliance.surrogate[1]
+    blue_alliance.score[0] = blue_score unless blue_alliance.surrogate[0]
+    blue_alliance.score[1] = blue_score unless blue_alliance.surrogate[1]
   end
 
   enum phase: %i[qual semi final]

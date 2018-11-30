@@ -15,6 +15,9 @@ module ScoringSystem
           import_quals(event)
           import_elims(event)
           import_league_results(event)
+          generate_rankings(event) unless event.context_type == 'Division'
+          create_rankings(event)
+
           event.finalize!
           event.save!
         end
@@ -188,6 +191,25 @@ module ScoringSystem
         match.set_tbp_for_team(team, r['tbp'])
         match.set_score_for_team(team, r['score'])
         match.save!
+      end
+    end
+
+    def generate_rankings(event)
+      event.matches.each do |m|
+        m.update_ranking_data
+        m.save!
+      end
+    end
+
+    def create_rankings(event)
+      Rankings::EventRankingsService.new(Event.find(3)).compute.values.sort.reverse.map.with_index do |tr, idx|
+        rank = Ranking.new team: tr.team,
+                           event: event,
+                           ranking: idx + 1,
+                           ranking_points: tr.rp,
+                           tie_breaker_points: tr.tbp,
+                           matches_played: tr.matches_played
+        rank.save!
       end
     end
   end
