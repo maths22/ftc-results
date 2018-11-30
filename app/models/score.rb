@@ -10,6 +10,10 @@ class Score < ApplicationRecord
     s.penalty = s.season_score.calc_penalty
   end
 
+  def earned
+    auto + teleop + penalty
+  end
+
   def match
     Match.where('red_score = ? OR blue_score = ?', id, id)
   end

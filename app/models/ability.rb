@@ -38,6 +38,7 @@ class Ability
       can :download_scoring_system, :all
       can :details, :all
       can :view_matches, :all
+      can :view_rankings, :all
     end
   end
 end
