@@ -7,7 +7,6 @@ class Event < ApplicationRecord
   belongs_to :season
   has_many :rankings, dependent: :destroy
   has_many :matches, dependent: :destroy
-  has_many :rankings, dependent: :destroy
   has_many :alliances, dependent: :destroy
 
   has_one_attached :import
@@ -30,6 +29,7 @@ class Event < ApplicationRecord
     context.is_a? League
   end
 
+
   aasm do
     state :not_started, initial: true
     state :in_progress,
@@ -43,5 +43,19 @@ class Event < ApplicationRecord
     event :finalize do
       transitions from: %i[not_started in_progress], to: :finalized
     end
+
+    event :reset do
+      transitions to: :not_started
+      after :clear_associated_data
+    end
+  end
+
+  private
+
+  def clear_associated_data
+    self.teams = []
+    rankings.destroy_all
+    matches.destroy_all
+    alliances.destroy_all
   end
 end
