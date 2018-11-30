@@ -43,6 +43,8 @@ module ScoringSystem
       quals.each do |q|
         red_alliance = Alliance.new event: event, is_elims: false, teams: Team.find([q['red1'], q['red2']])
         blue_alliance = Alliance.new event: event, is_elims: false, teams: Team.find([q['blue1'], q['blue2']])
+        red_alliance.save!
+        blue_alliance.save!
         red_match_alliance = MatchAlliance.new alliance: red_alliance
         blue_match_alliance = MatchAlliance.new alliance: blue_alliance
         red_match_alliance.surrogate[0] = true if q['red1S'].positive?
@@ -119,16 +121,16 @@ module ScoringSystem
 
       season_results.each do |r|
         match = ss_match_to_results_match(event, phase, r['match'])
-        score = r['alliance'] == 0 ? match.red_score : match.blue_score
+        score = r['alliance'].zero? ? match.red_score : match.blue_score
         rr_score = score.season_score
-        rr_score.robots_landed = (r['landed1'] ? 1 : 0) + (r['landed2'] ? 1 : 0)
-        rr_score.depots_claimed = (r['claimed1'] ? 1 : 0) + (r['claimed2'] ? 1 : 0)
-        rr_score.robots_parked_auto = (r['autoParking1'] ? 1 : 0) + (r['autoParking2'] ? 1 : 0)
+        rr_score.robots_landed = (r['landed1']) + (r['landed2'])
+        rr_score.depots_claimed = (r['claimed1']) + (r['claimed2'])
+        rr_score.robots_parked_auto = (r['autoParking1']) + (r['autoParking2'])
         rr_score.fields_sampled = compute_fields(r['match'], table, r['sampleFieldState'])
         rr_score.depot_minerals = r['depot']
         rr_score.gold_cargo = r['gold']
         rr_score.silver_cargo = r['silver']
-        rr_score.latched_robots = (r['latched1'] ? 1 : 0) + (r['latched2'] ? 1 : 0)
+        rr_score.latched_robots = (r['latched1']) + (r['latched2'])
         rr_score.robots_in_crater = (r['endParked1'] == 1 ? 1 : 0) + (r['endParked2'] == 1 ? 1 : 0)
         rr_score.robots_completely_in_crater = (r['endParked1'] == 2 ? 1 : 0) + (r['endParked2'] == 2 ? 1 : 0)
         rr_score.save!
@@ -167,12 +169,11 @@ module ScoringSystem
     def compute_fields(match, table, val)
       stmt = 'SELECT randomization FROM ' + (table.gsub 'GameSpecific', 'Data') + " WHERE match LIKE '#{match}'"
       r = @db.execute(stmt)[0]['randomization']
-      puts r
 
       r = 1 if r <= 0
 
       sf1 = val & 7
-      sf2 = val & 56 >> 3
+      sf2 = (val & 56) >> 3
       map = [3, 5, 6, 6, 5, 3]
       (sf1 == map[r - 1] ? 1 : 0) + (sf2 == map[r - 1] ? 1 : 0)
     end

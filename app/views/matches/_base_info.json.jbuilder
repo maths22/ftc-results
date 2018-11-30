@@ -3,7 +3,9 @@ json.event_id match.event_id
 json.phase match.phase
 json.series match.series
 json.number match.number
-json.red_alliance match.red_alliance.alliance.teams.pluck(:number)
-json.blue_alliance match.blue_alliance.alliance.teams.pluck(:number)
+json.red_alliance match.red_alliance.alliance.alliance_teams.order(:position).pluck(:team_id)
+json.red_surrogate match.red_alliance.surrogate
+json.blue_alliance match.blue_alliance.alliance.alliance_teams.order(:position).pluck(:team_id)
+json.blue_surrogate match.blue_alliance.surrogate
 json.red_score match.red_score_total
 json.blue_score match.blue_score_total
