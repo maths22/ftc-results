@@ -29,6 +29,9 @@ export const GET_EVENT_MATCHES_FAILURE = 'GET_EVENT_MATCHES_FAILURE';
 export const GET_EVENT_RANKINGS_REQUEST = 'GET_EVENT_RANKINGS_REQUEST';
 export const GET_EVENT_RANKINGS_SUCCESS = 'GET_EVENT_RANKINGS_SUCCESS';
 export const GET_EVENT_RANKINGS_FAILURE = 'GET_EVENT_RANKINGS_FAILURE';
+export const GET_MATCH_DETAILS_REQUEST = 'GET_MATCH_DETAILS_REQUEST';
+export const GET_MATCH_DETAILS_SUCCESS = 'GET_MATCH_DETAILS_SUCCESS';
+export const GET_MATCH_DETAILS_FAILURE = 'GET_MATCH_DETAILS_FAILURE';
 export const GET_LEAGUE_RANKINGS_REQUEST = 'GET_LEAGUE_RANKINGS_REQUEST';
 export const GET_LEAGUE_RANKINGS_SUCCESS = 'GET_LEAGUE_RANKINGS_SUCCESS';
 export const GET_LEAGUE_RANKINGS_FAILURE = 'GET_LEAGUE_RANKINGS_FAILURE';
@@ -150,6 +153,17 @@ export const getEventRankings = (id) => ({
   }
 });
 
+export const getMatchDetails = (id) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/matches/details/${id}`,
+    method: 'GET',
+    types: [
+      GET_MATCH_DETAILS_REQUEST,
+      GET_MATCH_DETAILS_SUCCESS,
+      GET_MATCH_DETAILS_FAILURE
+    ]
+  }
+});
 
 export const getLeagueRankings = () => ({
   [RSAA]: {
