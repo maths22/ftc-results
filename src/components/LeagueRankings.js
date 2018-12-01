@@ -29,8 +29,16 @@ const styles = (theme) => ({
     overflowX: 'auto',
   },
   table: {
-    minWidth: '30em',
+    minWidth: '20em',
   },
+  tableCell: {
+    paddingLeft: 1 * theme.spacing.unit,
+    paddingRight: 1 * theme.spacing.unit,
+    textAlign: 'left',
+    '&:last-child': {
+      paddingRight: 1 * theme.spacing.unit,
+    }
+  }
 });
 
 class DivisionsSummary extends Component {
@@ -90,41 +98,42 @@ class DivisionsSummary extends Component {
       return <LoadingSpinner/>;
     }
 
+    const {classes} = this.props;
     const rowStyle = { height: '2rem' };
 
-    return <Paper className={this.props.classes.root}>
+    return <Paper className={classes.root}>
       {this.renderBreadcrumbs()}
-          <Table className={this.props.classes.table}>
+          <Table className={classes.table}>
             <TableHead>
               <TableRow style={rowStyle}>
-                <TableCell>Rank</TableCell>
-                <TableCell>Number</TableCell>
-                <TableCell>Name</TableCell>
-                { ['all'].includes(this.props.type) ? <TableCell>League</TableCell> : null }
-                { ['all', 'league'].includes(this.props.type) ? <TableCell>Division</TableCell> : null }
-                <TableCell>RP</TableCell>
-                <TableCell>TBP</TableCell>
-                <TableCell>High Score</TableCell>
-                <TableCell>Matches Played</TableCell>
+                <TableCell className={classes.tableCell}>Rank</TableCell>
+                <TableCell className={classes.tableCell}>Number</TableCell>
+                <TableCell className={classes.tableCell}>Name</TableCell>
+                { ['all'].includes(this.props.type) ? <TableCell className={classes.tableCell}>League</TableCell> : null }
+                { ['all', 'league'].includes(this.props.type) ? <TableCell className={classes.tableCell}>Division</TableCell> : null }
+                <TableCell className={classes.tableCell}>RP</TableCell>
+                <TableCell className={classes.tableCell}>TBP</TableCell>
+                <TableCell className={classes.tableCell}>High Score</TableCell>
+                <TableCell className={classes.tableCell}>Matches Played</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {this.props.rankings.map((r, idx) => {
                 return (
                     <TableRow key={r.team.number} style={rowStyle}>
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell><TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink></TableCell>
-                      <TableCell>{r.team.name}</TableCell>
+                      <TableCell className={classes.tableCell}>{idx + 1}</TableCell>
+                      <TableCell className={classes.tableCell}><TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink></TableCell>
+                      <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
                       { ['all'].includes(this.props.type) ?
-                          <TableCell><TextLink to={`/leagues/rankings/${r.league.id}`}>{r.league.name}</TextLink></TableCell>
+                          <TableCell className={classes.tableCell}><TextLink to={`/leagues/rankings/${r.league.id}`}>{r.league.name}</TextLink></TableCell>
                           : null }
                       { ['all', 'league'].includes(this.props.type) ?
-                          <TableCell><TextLink to={`/divisions/rankings/${r.division.id}`}>{r.division.name}</TextLink></TableCell>
+                          <TableCell className={classes.tableCell}><TextLink to={`/divisions/rankings/${r.division.id}`}>{r.division.name}</TextLink></TableCell>
                           : null }
-                      <TableCell>{r.rp}</TableCell>
-                      <TableCell>{r.tbp}</TableCell>
-                      <TableCell>{r.high_score}</TableCell>
-                      <TableCell>{r.matches_played}</TableCell>
+                      <TableCell className={classes.tableCell}>{r.rp}</TableCell>
+                      <TableCell className={classes.tableCell}>{r.tbp}</TableCell>
+                      <TableCell className={classes.tableCell}>{r.high_score}</TableCell>
+                      <TableCell className={classes.tableCell}>{r.matches_played}</TableCell>
                     </TableRow>
                 );
               })}

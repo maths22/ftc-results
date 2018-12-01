@@ -26,6 +26,14 @@ const styles = (theme) => ({
   table: {
     minWidth: '30em',
   },
+  tableCell: {
+    paddingLeft: 1 * theme.spacing.unit,
+    paddingRight: 1 * theme.spacing.unit,
+    textAlign: 'left',
+    '&:last-child': {
+      paddingRight: 1 * theme.spacing.unit,
+    }
+  }
 });
 
 class EventsSummary extends Component {
@@ -72,8 +80,9 @@ class EventsSummary extends Component {
     } );
 
     const rowStyle = { height: '2rem' };
+    const { classes } = this.props;
 
-    return <Paper className={this.props.classes.root}>
+    return <Paper className={classes.root}>
       {/* TODO Make this unnecessary */}
       <div style={{padding: '1em'}}>
         {'Event hosts: Please remember after your event to submit event results here: '}
@@ -82,33 +91,33 @@ class EventsSummary extends Component {
       <Table className={this.props.classes.table}>
         <TableHead>
           <TableRow style={rowStyle}>
-            <TableCell>Name</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell>League</TableCell>
-            <TableCell>Division</TableCell>
-            <TableCell>Location</TableCell>
-            <TableCell>Date</TableCell>
-            <TableCell>Imported</TableCell>
-            <TableCell>Download</TableCell>
+            <TableCell className={classes.tableCell}>Name</TableCell>
+            <TableCell className={classes.tableCell}>Type</TableCell>
+            <TableCell className={classes.tableCell}>League</TableCell>
+            <TableCell className={classes.tableCell}>Division</TableCell>
+            <TableCell className={classes.tableCell}>Location</TableCell>
+            <TableCell className={classes.tableCell}>Date</TableCell>
+            <TableCell className={classes.tableCell}>Imported</TableCell>
+            <TableCell className={classes.tableCell}>Download</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {vals.map(e => {
             return (
                 <TableRow key={e.id} style={rowStyle}>
-                  <TableCell><TextLink to={`/events/summary/${e.id}`}>{e.name}</TextLink></TableCell>
-                  <TableCell>{e.context_type === 'Division' ? 'Meet' : 'Championship'}</TableCell>
-                  <TableCell><TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink></TableCell>
+                  <TableCell className={classes.tableCell}><TextLink to={`/events/summary/${e.id}`}>{e.name}</TextLink></TableCell>
+                  <TableCell className={classes.tableCell}>{e.context_type === 'Division' ? 'Meet' : 'Championship'}</TableCell>
+                  <TableCell className={classes.tableCell}><TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink></TableCell>
                   { e.division ?
-                      <TableCell><TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink></TableCell>
-                      : <TableCell/> }
-                  <TableCell>{e.location}<br/>{e.city}, {e.state}, {e.country}</TableCell>
-                  <TableCell>{e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
-                  <TableCell>{e.aasm_state === 'finalized' ? <CheckIcon/> :
+                      <TableCell className={classes.tableCell}><TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink></TableCell>
+                      : <TableCell className={classes.tableCell}/> }
+                  <TableCell className={classes.tableCell}>{e.location}<br/>{e.city}, {e.state}, {e.country}</TableCell>
+                  <TableCell className={classes.tableCell}>{e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
+                  <TableCell className={classes.tableCell}>{e.aasm_state === 'finalized' ? <CheckIcon/> :
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
                   {e.aasm_state === 'finalized'
-                      ? (e.import ? <TableCell><TextLink href={API_HOST + e.import}>Database</TextLink></TableCell> : <TableCell/>)
-                      : <TableCell><TextLink href={scoring_download_url(e.id)}>Scoring System</TextLink></TableCell> }
+                      ? (e.import ? <TableCell className={classes.tableCell}><TextLink href={API_HOST + e.import}>Database</TextLink></TableCell> : <TableCell/>)
+                      : <TableCell className={classes.tableCell}><TextLink href={scoring_download_url(e.id)}>Scoring System</TextLink></TableCell> }
                 </TableRow>
             );
           })}
