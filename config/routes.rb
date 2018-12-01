@@ -22,6 +22,9 @@ Rails.application.routes.draw do
       post 'events/import_results/:id', to: 'events#import_results'
       get 'rankings/league', to: 'league_rankings#index'
 
+      get 'matches/details/:id', to: 'matches#details'
+
+
       post 'active_storage/direct_uploads' => 'direct_uploads#create'
 
       mount_devise_token_auth_for 'User', at: 'auth'
