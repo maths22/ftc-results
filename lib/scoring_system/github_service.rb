@@ -35,11 +35,11 @@ module ScoringSystem
     end
 
     def client
-      @client ||= Octokit::Client.new
+      @client ||= Octokit::Client.new(access_token: ENV['GITHUB_API_TOKEN'])
     end
 
     def asset
-      @asset ||= client.latest_release(SCORING_REPO)
+      @asset ||= client.releases(SCORING_REPO).sort_by(&:tag_name).last
                        .assets.find { |a| a.content_type == ZIP_MIME_TYPE }
     end
   end
