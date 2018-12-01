@@ -11,7 +11,7 @@ class Score < ApplicationRecord
   end
 
   def earned
-    auto + teleop + penalty
+    auto + teleop + endgame
   end
 
   def match
