@@ -113,8 +113,8 @@ function matchTable({classes, match}) {
     },
     {
       desc: 'Robots Latched',
-      red: red_det.depot_minerals,
-      blue: blue_det.depot_minerals,
+      red: red_det.latched_robots,
+      blue: blue_det.latched_robots,
       value: 50
     },
     {
