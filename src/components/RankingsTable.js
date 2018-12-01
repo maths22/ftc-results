@@ -6,23 +6,26 @@ import TableBody from '@material-ui/core/TableBody/TableBody';
 import React from 'react';
 import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
+import Typography from '@material-ui/core/Typography';
 
 const styles = (theme) => ({
   table: {
-    minWidth: '30em',
+    minWidth: '20em',
   },
   tableCell: {
-    paddingLeft: 2 * theme.spacing.unit,
-    paddingRight: 2 * theme.spacing.unit,
+    paddingLeft: 1 * theme.spacing.unit,
+    paddingRight: 1 * theme.spacing.unit,
     textAlign: 'center',
     '&:last-child': {
-      paddingRight: 2 * theme.spacing.unit,
+      paddingRight: 1 * theme.spacing.unit,
     }
   }
 });
 
 function rankingsTable({rankings, classes}) {
-  if(!rankings || rankings.length === 0) return null;
+  if(!rankings || rankings.length === 0) {
+    return <Typography variant="body1" style={{textAlign: 'center'}}>Rankings are not currently available</Typography>;
+  }
 
   const rowStyle = { height: '2rem' };
 

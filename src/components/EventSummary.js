@@ -19,6 +19,7 @@ import TextLink from './TextLink';
 import RankingsTable from './RankingsTable';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import SwipeableViews from 'react-swipeable-views';
 
 const styles = (theme) => ({
   root: {
@@ -129,11 +130,11 @@ class EventSummary extends Component {
         <Tab label="Matches" />
       </Tabs>
 
-      {/*TODO consider swipeable views if table scroll can work*/}
-      {[
-        <div className={classes.tabPanel}><RankingsTable rankings={rankings}/></div>,
+      <SwipeableViews index={selectedTab}
+                      onChangeIndex={this.selectTab}>
+        <div className={classes.tabPanel}><RankingsTable rankings={rankings}/></div>
         <div className={classes.tabPanel}><MatchTable matches={matches}/></div>
-      ][selectedTab]}
+      </SwipeableViews>
     </Paper>;
   }
 }

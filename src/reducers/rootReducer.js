@@ -13,6 +13,7 @@ import uiReducer from './uiReducer';
 import matchesReducer from './matchesReducer';
 import teamDetailsReducer from './teamDetailsReducer';
 import rankingsReducer from './rankingsReducer';
+import matchDetailsReducer from './matchDetailsReducer';
 
 export default (history) => combineReducers({
   divisions: divisionsReducer,
@@ -20,6 +21,7 @@ export default (history) => combineReducers({
   form: formReducer,
   leagueRankings: leagueRankingsReducer,
   leagues: leaguesReducer,
+  matchDetails: matchDetailsReducer,
   matches: matchesReducer,
   promises: promisesReducer,
   rankings: rankingsReducer,
