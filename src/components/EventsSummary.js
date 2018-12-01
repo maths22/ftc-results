@@ -74,6 +74,11 @@ class EventsSummary extends Component {
     const rowStyle = { height: '2rem' };
 
     return <Paper className={this.props.classes.root}>
+      {/* TODO Make this unnecessary */}
+      <div style={{padding: '1em'}}>
+        {'Event hosts: Please remember after your event to submit event results here: '}
+      <TextLink href="https://goo.gl/forms/iJU3Z0EghiYVp8UF3">Upload Results Form</TextLink>
+      </div>
       <Table className={this.props.classes.table}>
         <TableHead>
           <TableRow style={rowStyle}>
