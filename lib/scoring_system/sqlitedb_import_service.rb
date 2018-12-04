@@ -71,10 +71,12 @@ module ScoringSystem
         match_alliance.present[0] = false if s['noshow1'].positive?
         match_alliance.present[1] = false if s['noshow2'].positive?
         match_alliance.save!
+        #TODO generalize
         rr_score = RoverRuckusScore.new major_penalties: s['major'], minor_penalties: s['minor']
         score = Score.new season_score: rr_score
         match.red_score = score if s['alliance'] == 0
         match.blue_score = score if s['alliance'] == 1
+        match.played = true
         match.save!
       end
 

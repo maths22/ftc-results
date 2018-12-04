@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_28_210325) do
+ActiveRecord::Schema.define(version: 2018_12_04_175229) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -128,6 +128,7 @@ ActiveRecord::Schema.define(version: 2018_11_28_210325) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "event_id"
+    t.boolean "played"
     t.index ["blue_alliance_id"], name: "index_matches_on_blue_alliance_id"
     t.index ["blue_score_id"], name: "index_matches_on_blue_score_id"
     t.index ["event_id"], name: "index_matches_on_event_id"

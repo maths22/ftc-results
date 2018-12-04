@@ -28,6 +28,14 @@ Rails.application.routes.draw do
       post 'active_storage/direct_uploads' => 'direct_uploads#create'
 
       mount_devise_token_auth_for 'User', at: 'auth'
+
+      #Upload routes
+      post 'events/rankings/:id', to: 'events#post_rankings'
+      post 'events/teams/:id', to: 'events#post_teams'
+      post 'events/alliances/:id', to: 'events#post_alliances'
+      post 'events/matches/:id', to: 'events#post_matches'
+      post 'events/matches/:id/:mid', to: 'events#post_match'
+
     end
   end
 end

@@ -18,7 +18,7 @@ module Api
         @team
 
         match_ids = @team.match_alliances_for_season(::CurrentScope.season_or_default)
-                         .map(&:match).map(&:id)
+                         .map(&:match).compact.map(&:id)
 
         @matches = Match.includes(red_alliance: {alliance: :teams}, blue_alliance: {alliance: :teams}).find(match_ids)
 
@@ -26,3 +26,4 @@ module Api
     end
   end
 end
+

@@ -51,7 +51,155 @@ module Api
       def import_results
         @event.import.attach(params[:import])
         begin
-          ::ScoringSystem::SqlitedbImportService.new.import_to_event @event
+          ActiveRecord::Base.transaction do
+            @event.reset!
+            ::ScoringSystem::SqlitedbImportService.new.import_to_event @event
+          end
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+      end
+
+      def post_rankings
+        begin
+          raise 'Event already finalized' if @event.finalized?
+
+          ActiveRecord::Base.transaction do
+            @event.start! if @event.not_started?
+            @event.rankings.destroy_all
+            params[:rankings].each do |rk|
+              ranking = Ranking.new(rk.permit(:team_id,
+                                              :ranking,
+                                              :ranking_points,
+                                              :tie_breaker_points,
+                                              :matches_played))
+              ranking.event = @event
+              ranking.save!
+            end
+          end
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+      end
+
+      def post_teams
+        begin
+          raise 'Event already finalized' if @event.finalized?
+
+          ActiveRecord::Base.transaction do
+            @event.start! if @event.not_started?
+            teams = params[:teams].map { |t| Team.find_or_create_by(number: t) }
+            @event.teams = teams
+            @event.save!
+          end
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+      end
+
+      def post_alliances
+        begin
+          raise 'Event already finalized' if @event.finalized?
+
+          ActiveRecord::Base.transaction do
+            @event.start! if @event.not_started?
+            params[:alliances].each do |a|
+              alliance = Alliance.find_or_create_by event: @event, is_elims: true, seed: a[:seed]
+              alliance.teams = Team.find(a[:teams])
+              alliance.save!
+            end
+          end
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+
+      end
+
+      def generate_qual_match(m)
+        match = Match.create_with(played: false)
+                     .find_or_create_by(event: @event, phase: 'qual', number: m[:number])
+        unless match.red_alliance
+          red_alliance = Alliance.new event: @event, is_elims: false, teams: Team.find(m[:red_alliance])
+          red_alliance.save!
+          red_match_alliance = MatchAlliance.new alliance: red_alliance
+          red_match_alliance.surrogate = m[:red_surrogate]
+          match.red_alliance = red_match_alliance
+        end
+        unless match.blue_alliance
+          blue_alliance = Alliance.new event: @event, is_elims: false, teams: Team.find(m[:blue_alliance])
+          blue_alliance.save!
+          blue_match_alliance = MatchAlliance.new alliance: blue_alliance
+          blue_match_alliance.surrogate = m[:blue_surrogate]
+          match.blue_alliance = blue_match_alliance
+        end
+        match.save!
+      end
+
+      def generate_elim_match(m)
+        match = Match.create_with(played: false)
+                    .find_or_create_by(event: @event, phase: m[:phase], series: m[:series], number: m[:number])
+        red_alliance = Alliance.find_by(event: @event, is_elims: true, seed: m[:red_alliance])
+        red_match_alliance = MatchAlliance.new alliance: red_alliance
+        red_match_alliance.present = m[:red_present]
+        blue_alliance = Alliance.find_by(event: @event, is_elims: true, seed: m[:blue_alliance])
+        blue_match_alliance = MatchAlliance.new alliance: blue_alliance
+        blue_match_alliance.present = m[:blue_present]
+
+        match.red_alliance = red_match_alliance
+        match.blue_alliance = blue_match_alliance
+        match.save!
+      end
+
+      def post_matches
+        begin
+          raise 'Event already finalized' if @event.finalized?
+
+          ActiveRecord::Base.transaction do
+            @event.start! if @event.not_started?
+            params[:matches].each do |m|
+              generate_qual_match(m) if m[:phase] == 'qual'
+              generate_elim_match(m) unless m[:phase] == 'qual'
+            end
+          end
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+      end
+
+      def post_match
+        begin
+          raise 'Event already finalized' if @event.finalized?
+
+          split_id = params[:mid].split('-')
+          phase = split_id[0]
+          series = split_id.length > 2 ? split_id[1] : nil
+          number = split_id.length > 2 ? split_id[2] : split_id[1]
+          m = Match.where(event: @event, phase: phase, series: series, number: number).first
+
+          ActiveRecord::Base.transaction do
+            params[:red_score].permit!
+            params[:blue_score].permit!
+            m.red_score.destroy! if m.red_score
+            m.blue_score.destroy! if m.blue_score
+            rr_red_score = RoverRuckusScore.new params[:red_score]
+            red_score = Score.new season_score: rr_red_score
+            rr_blue_score = RoverRuckusScore.new params[:blue_score]
+            blue_score = Score.new season_score: rr_blue_score
+            m.red_score = red_score
+            m.blue_score = blue_score
+            m.played = true
+            m.save!
+          end
         rescue StandardError => exception
           render json: { error: exception.message }, status: :internal_server_error
           return

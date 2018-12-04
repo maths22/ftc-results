@@ -2,8 +2,8 @@ class Match < ApplicationRecord
   belongs_to :event
   belongs_to :red_alliance, class_name: 'MatchAlliance', autosave: true
   belongs_to :blue_alliance, class_name: 'MatchAlliance', autosave: true
-  belongs_to :red_score, class_name: 'Score', dependent: :destroy
-  belongs_to :blue_score, class_name: 'Score', dependent: :destroy
+  belongs_to :red_score, class_name: 'Score', dependent: :destroy, optional: true
+  belongs_to :blue_score, class_name: 'Score', dependent: :destroy, optional: true
 
   scope :in_season_meet, ->(season) { where(event: where(season: season, context_type: 'Division')) }
 
