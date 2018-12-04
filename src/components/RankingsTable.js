@@ -43,14 +43,14 @@ function rankingsTable({rankings, classes}) {
     </TableHead>
     <TableBody>
       {rankings.map((r) => (<TableRow key={r.id} style={rowStyle}>
-        <TableCell className={classes.tableCell}>{r.ranking}</TableCell>
+        <TableCell className={classes.tableCell}>{r.ranking < 0 ? 'NP' : r.ranking}</TableCell>
         <TableCell className={classes.tableCell}>
           <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
         </TableCell>
         <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
-        <TableCell className={classes.tableCell}>{r.ranking_points}</TableCell>
-        <TableCell className={classes.tableCell}>{r.tie_breaker_points}</TableCell>
-        <TableCell className={classes.tableCell}>{r.matches_played}</TableCell>
+        <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.ranking_points}</TableCell>
+        <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.tie_breaker_points}</TableCell>
+        <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
         </TableRow>
       ))}
     </TableBody>

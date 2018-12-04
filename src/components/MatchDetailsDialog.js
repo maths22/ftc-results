@@ -12,7 +12,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import {getMatchDetails} from '../actions/api';
 import RoverRuckusScoreTable from './RoverRuckusScoreTable';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
-import IconButton from '@material-ui/core/es/IconButton/IconButton';
+import IconButton from '@material-ui/core/IconButton';
 
 class MatchDetailsDialog extends Component {
 

@@ -15,6 +15,8 @@ import teamDetailsReducer from './teamDetailsReducer';
 import rankingsReducer from './rankingsReducer';
 import matchDetailsReducer from './matchDetailsReducer';
 
+import localScoringReducer from './localScoring/rootReducer';
+
 export default (history) => combineReducers({
   divisions: divisionsReducer,
   events: eventsReducer,
@@ -29,5 +31,7 @@ export default (history) => combineReducers({
   teamDetails: teamDetailsReducer,
   teams: teamsReducer,
   token: tokenReducer,
-  ui: uiReducer
+  ui: uiReducer,
+
+  localScoring: localScoringReducer
 });

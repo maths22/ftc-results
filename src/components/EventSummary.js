@@ -20,6 +20,8 @@ import RankingsTable from './RankingsTable';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import SwipeableViews from 'react-swipeable-views';
+import IconButton from '@material-ui/core/es/IconButton/IconButton';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 const styles = (theme) => ({
   root: {
@@ -40,7 +42,7 @@ class EventSummary extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {selectedTab: 0};
+    this.state = {selectedTab: 1};
   }
 
   componentDidMount() {
@@ -54,8 +56,8 @@ class EventSummary extends Component {
       this.props.getTeams();
     }
 
-    this.props.getEventMatches(this.props.id);
-    this.props.getEventRankings(this.props.id);
+    this.refresh();
+    this.enablePersistentRefresh();
     this.setTitle();
   }
 
@@ -63,10 +65,23 @@ class EventSummary extends Component {
     if(oldProps.event !== this.props.event) {
       this.setTitle();
 
-      this.props.getEventMatches(this.props.id);
-      this.props.getEventRankings(this.props.id);
+      this.refresh();
+      this.enablePersistentRefresh();
     }
   }
+
+  enablePersistentRefresh() {
+    if(this.props.event && this.props.event.aasm_state === 'in_progress') {
+      this.interval = setInterval(this.refresh, 30000);
+    } else {
+      clearInterval(this.interval);
+    }
+  }
+
+  refresh = () => {
+    this.props.getEventMatches(this.props.id);
+    this.props.getEventRankings(this.props.id);
+  };
 
   setTitle() {
     this.props.setTitle(this.props.event ? this.props.event.name : 'Event');
@@ -74,10 +89,14 @@ class EventSummary extends Component {
 
   componentWillUnmount() {
     this.props.setTitle(null);
+    clearInterval(this.interval);
   }
 
   selectTab = (selectedTab) => {
     this.setState({ selectedTab });
+    if(this.props.event.status === 'in_progress') {
+      this.refresh();
+    }
   };
 
   render () {
@@ -119,20 +138,25 @@ class EventSummary extends Component {
 
       </div>
 
-      <Tabs
-          value={selectedTab}
-          onChange={(_, tab) => this.selectTab(tab)}
-          indicatorColor="primary"
-          textColor="primary"
-          centered
-      >
-        <Tab label="Rankings"/>
-        <Tab label="Matches" />
-      </Tabs>
+      <div>
+        <Tabs
+            value={selectedTab}
+            onChange={(_, tab) => this.selectTab(tab)}
+            indicatorColor="primary"
+            textColor="primary"
+        >
+          <span style={{width: '48px'}}/>
+          <Tab label="Rankings" style={{marginLeft: 'auto'}}/>
+          <Tab label="Matches" />
+          {event.aasm_state === 'in_progress' ?
+              <IconButton onClick={this.refresh} style={{marginLeft: 'auto', width: '48px'}}><RefreshIcon/></IconButton>
+              : <span style={{marginLeft: 'auto', width: '48px'}}/> }
+        </Tabs>
+      </div>
 
-      <SwipeableViews index={selectedTab}
+      <SwipeableViews index={selectedTab - 1}
                       onChangeIndex={this.selectTab}>
-        <div className={classes.tabPanel}><RankingsTable rankings={rankings}/></div>
+        <div className={classes.tabPanel}><RankingsTable rankings={rankings} onRefresh={this.refresh}/></div>
         <div className={classes.tabPanel}><MatchTable matches={matches}/></div>
       </SwipeableViews>
     </Paper>;
@@ -151,7 +175,11 @@ const mapStateToProps = (state, props) => {
   ret.matches = Object.values(state.matches).filter((m) => m.event_id === id);
   if(state.teams) {
     ret.rankings = Object.values(state.rankings).filter((m) => m.event_id === id)
-        .sort((a, b) => a.ranking - b.ranking)
+        .sort((a, b) => {
+          const ar = a.ranking < 0 ? 1000000 : a.ranking;
+          const br = b.ranking < 0 ? 1000000 : b.ranking;
+          return ar - br;
+        })
         .map((r) => Object.assign({}, r, {team: state.teams[r.team_id]}));
   }
   if (state.divisions && state.leagues && ret.event && ret.event.context_type === 'Division') {

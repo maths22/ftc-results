@@ -12,6 +12,7 @@ import AppRouter from './AppRouter';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import orange from '@material-ui/core/colors/orange';
+import {TOKEN_UPDATE_RAW, LOCAL_STORAGE_KEY} from './reducers/tokenReducer';
 
 const theme = createMuiTheme({
   palette: {
@@ -24,6 +25,17 @@ ReactGA.initialize('UA-88371688-1');
 
 const history = createBrowserHistory();
 const store = configureStore(history);
+
+const onStorageUpdate = (e) => {
+  if(e.key === LOCAL_STORAGE_KEY) {
+    store.dispatch({
+      type: TOKEN_UPDATE_RAW,
+      payload: JSON.parse(e.newValue)
+    });
+  }
+};
+
+window.addEventListener('storage', onStorageUpdate, false);
 
 ReactDOM.render(
     <MuiThemeProvider theme={theme}>
