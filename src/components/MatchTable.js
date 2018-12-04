@@ -92,7 +92,7 @@ class MatchTable extends React.Component {
         return <TableRow key={m.id} style={rowStyle}>
           <TableCell
               className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>
-            <TextLink onClick={() => this.showDetails(m.id)}>{matchDisp}</TextLink>
+            {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>{matchDisp}</TextLink> : matchDisp}
           </TableCell>
           {m.red_alliance.map((t, idx) => {
             const Component = t === team ? 'span' : TextLink;
@@ -108,12 +108,15 @@ class MatchTable extends React.Component {
                 {m.blue_surrogate[idx] ? '*' : ''}</Component>
             </TableCell>;
           })}
-          <TableCell className={redClassnames}>
+          {m.played ? <TableCell className={redClassnames}>
             <span>{m.red_score}</span>
-          </TableCell>
-          <TableCell className={blueClassnames}>
+          </TableCell> : null}
+          {m.played ? <TableCell className={blueClassnames}>
             <span>{m.blue_score}</span>
-          </TableCell>
+          </TableCell>: null}
+          {!m.played ? <TableCell className={classes.tableCell} colSpan={2}>
+            <span>Awaiting results</span>
+          </TableCell>: null}
         </TableRow>;
       });
     });
@@ -128,18 +131,18 @@ class MatchTable extends React.Component {
         </TableRow>
       </TableHead>
       <TableBody>
+        {groupedMatches['final'] ? <TableRow style={rowStyle}>
+          <TableCell className={classes.tableCell} colSpan={15}>Finals</TableCell>
+        </TableRow> : null}
+        {groupedMatches['final'] ? groupedMatches['final'] : null}
+        {groupedMatches['semi'] ? <TableRow style={rowStyle}>
+          <TableCell className={classes.tableCell} colSpan={15}>Semi-Finals</TableCell>
+        </TableRow> : null}
+        {groupedMatches['semi'] ? groupedMatches['semi'] : null}
         {groupedMatches['qual'] ? <TableRow style={rowStyle}>
           <TableCell className={classes.tableCell} colSpan={15}>Qualifications</TableCell>
         </TableRow> : null}
         {groupedMatches['qual'] ? groupedMatches['qual'] : null}
-        {groupedMatches['semi'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={15}>Semi-Finals</TableCell>
-        </TableRow> : null}
-        {groupedMatches['semi'] ? groupedMatches['qual'] : null}
-        {groupedMatches['final'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={15}>Finals</TableCell>
-        </TableRow> : null}
-        {groupedMatches['final'] ? groupedMatches['qual'] : null}
       </TableBody>
     </Table>, <MatchDetailsDialog key={2} id={selectedMatch} onClose={() => this.setState({selectedMatch: null})}/>];
   }

@@ -1,27 +1,44 @@
 import {getJSON, isRSAA, RSAA} from 'redux-api-middleware';
-import {logout, TOKEN_UPDATE} from '../actions/api';
+import {API_BASE, logout, TOKEN_UPDATE} from '../actions/api';
 
 export default store => next => action => {
   if (!isRSAA(action)) {
     return next(action);
   }
 
+  const rawEndpoint = action[RSAA].endpoint;
+  const endpoint = (typeof rawEndpoint === 'function') ? rawEndpoint(store.getState()) : rawEndpoint;
+  if(!endpoint.startsWith(API_BASE)) {
+    return next(action);
+  }
+
+  const metaFunc = (action, state, res) => {
+    if(!res || !res.headers) {
+      return {};
+    }
+    const headers = {};
+    for (const pair of res.headers.entries()) {
+      if(pair[0].toLowerCase().startsWith('x-')) {
+        headers[pair[0].toLowerCase()] =  pair[1];
+      }
+    }
+    return {headers};
+  };
+
   const finalAction = Object.assign({}, action, {
     [RSAA]: Object.assign({}, action[RSAA], {
       headers: Object.assign({}, store.getState().token, action[RSAA].headers),
-      types: [action[RSAA].types[0], {
-        type: action[RSAA].types[1],
-        payload: (action, state, res) => getJSON(res),
-        meta: (action, state, res) => {
-          const headers = {};
-          for (const pair of res.headers.entries()) {
-            if(pair[0].toLowerCase().startsWith('x-')) {
-              headers[pair[0].toLowerCase()] =  pair[1];
-            }
-          }
-          return {headers};
+      types: [action[RSAA].types[0],
+        {
+          type: action[RSAA].types[1],
+          payload: (action, state, res) => getJSON(res),
+          meta: metaFunc
+        },
+        {
+          type: action[RSAA].types[2],
+          meta: metaFunc
         }
-      }, action[RSAA].types[2]]
+      ]
     })
   });
 
