@@ -74,6 +74,7 @@ module Api
             zip.add_db(f, 'server', sdb)
           end
           zip.add_db(f, @event.slug, db_service.event_db(@event))
+          zip.add_lib(f, Rails.root.join('vendor', 'scoring', 'FTCLiveExtras.jar'))
           File.open(f, 'r') do |data|
             headers['Content-Length'] = data.length if data.respond_to?(:length)
             send_data(data.read, filename: "ftc-scoring-il-#{@event.slug}-#{@event.season.year}.zip")
