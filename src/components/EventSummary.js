@@ -38,6 +38,10 @@ const styles = (theme) => ({
   }
 });
 
+function Wrapper(props) {
+  return <div style={props.style}/>;
+}
+
 class EventSummary extends Component {
 
   constructor(props) {
@@ -145,12 +149,12 @@ class EventSummary extends Component {
             indicatorColor="primary"
             textColor="primary"
         >
-          <span style={{width: '48px'}}/>
+          <Wrapper style={{width: '48px'}}/>
           <Tab label="Rankings" style={{marginLeft: 'auto'}}/>
           <Tab label="Matches" />
           {event.aasm_state === 'in_progress' ?
               <IconButton onClick={this.refresh} style={{marginLeft: 'auto', width: '48px'}}><RefreshIcon/></IconButton>
-              : <span style={{marginLeft: 'auto', width: '48px'}}/> }
+              : <Wrapper style={{marginLeft: 'auto', width: '48px'}}/> }
         </Tabs>
       </div>
 

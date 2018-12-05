@@ -1,11 +1,8 @@
 import React, {Component} from 'react';
-import {Field, reduxForm, SubmissionError} from 'redux-form';
-import TextField from '@material-ui/core/TextField';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core';
-import {getDivisions, getEvents, getLeagues} from '../../actions/api';
+import {getEvents} from '../../actions/api';
+import {resetEvent} from '../../actions/uploaderApi';
 import connect from 'react-redux/es/connect/connect';
 import {
   getLocalEvents,
@@ -91,13 +88,27 @@ class Uploader extends Component {
     }
   };
 
+  resetEvent = () => {
+    if(window.confirm(`Are you sure you want to reset ${this.props.event.name}?`)) {
+      const wasRunning = this.props.localServer.uploadRunning;
+      if(wasRunning) {
+        this.props.setRunning(false);
+      }
+      this.props.resetEvent(this.props.event.id).then((arg) => {
+        if(wasRunning && !arg.error) {
+          this.props.setRunning(true);
+        }
+      });
+    }
+  };
+
   render() {
     if(!this.props.event) {
       return <LoadingSpinner/>;
     }
 
     const {classes, localEvents, localServer} = this.props;
-    console.log(localEvents);
+
     return (
       <Paper className={classes.root}>
         <ScoringServerPicker
@@ -118,9 +129,11 @@ class Uploader extends Component {
           </Select>
         </div> : null}
         {localServer.event !== '' ?
-            <Button onClick={this.toggleRunning} >{localServer.uploadRunning ? 'Stop' : 'Start'}</Button>
+            <Button onClick={this.toggleRunning} variant="contained">{localServer.uploadRunning ? 'Stop' : 'Start'}</Button>
         : null}
-        <InternalUploader event={this.props.id} />
+        <InternalUploader event={this.props.id} /><br/>
+
+        <Button onClick={this.resetEvent} variant="contained">Reset Event</Button>
       </Paper>
     );
   }
@@ -142,11 +155,11 @@ const mapDispatchToProps = {
   getLocalEvents,
   getLocalVersion,
   localReset,
+  resetEvent,
   setEvent,
   setServer,
   setTitle,
   setRunning
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)
-  (withStyles(styles)(Uploader));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Uploader));

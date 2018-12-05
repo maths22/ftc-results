@@ -5,14 +5,15 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core';
-import {login} from '../actions/api';
-import {clearUserDependentState} from '../actions/util';
+import {createAccount, resetPassword} from '../../actions/api';
+import {clearUserDependentState} from '../../actions/util';
 
 const validate = values => {
   const errors = {};
   const requiredFields = [
     'email',
-    'password'
+    'password',
+    'password_confirmation'
   ];
   requiredFields.forEach(field => {
     if (!values[field]) {
@@ -36,7 +37,7 @@ const renderTextField = ({
                          }) => (
     <TextField
         label={label}
-        error={touched && error}
+        error={touched && !!error}
         helperText={touched && error}
         {...input}
         {...custom}
@@ -53,10 +54,15 @@ const styles = theme => ({
 });
 
 const onSubmit = (values, dispatch) => {
-  return dispatch(login(values)).then((resp) => {
+  function getRootUrl(url) {
+    return url.toString().replace(/^(.*\/\/[^/?#]*).*$/,'$1');
+  }
+
+  return dispatch(createAccount(values, getRootUrl(window.location) + '/account/confirm')).then((resp) => {
     if(resp.error) {
-      throw new SubmissionError({_error: resp.payload.response.errors});
+      throw new SubmissionError(resp.payload.response.errors);
     }
+    window.alert('Registration successful.\nCheck your email to confirm your account and sign in.');
     dispatch(clearUserDependentState());
     return true;
   });
@@ -73,12 +79,15 @@ const LoginForm = props => {
           <Grid item xs={12}>
             <Field name="password" component={renderTextField} label="Password" type="password" className={classes.input} />
           </Grid>
+          <Grid item xs={12}>
+            <Field name="password_confirmation" component={renderTextField} label="Confirm password" type="password" className={classes.input} />
+          </Grid>
           {error && <Grid item xs={12}>
             <Typography color="error">{error.join(', ')}</Typography>
           </Grid> }
           <Grid item xs={12}>
             <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid} className={classes.button}>
-              Login
+              Register
             </Button>
             {/*<Button variant="contained" type="button" disabled={pristine || submitting || invalid} onClick={reset} className={classes.button}>*/}
               {/*Clear*/}
@@ -90,7 +99,7 @@ const LoginForm = props => {
 };
 
 export default reduxForm({
-  form: 'LoginForm', // a unique identifier for this form
+  form: 'RegisterForm', // a unique identifier for this form
   validate,
   // asyncValidate,
   onSubmit

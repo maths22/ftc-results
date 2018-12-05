@@ -42,7 +42,7 @@ class Uploader extends Component {
   }
 
   componentDidUpdate(oldProps) {
-    if(!oldProps.localServer.uploadRunning && this.props.localServer.uploadRunning) {
+    if(oldProps.localServer.uploadRunning && !this.props.localServer.uploadRunning) {
       this.stopUpload();
     }
 

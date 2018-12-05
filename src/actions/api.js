@@ -4,6 +4,18 @@ import formurlencoded from 'form-urlencoded';
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
+export const SET_PASSWORD_REQUEST = 'SET_PASSWORD_REQUEST';
+export const SET_PASSWORD_SUCCESS = 'SET_PASSWORD_SUCCESS';
+export const SET_PASSWORD_FAILURE = 'SET_PASSWORD_FAILURE';
+export const RESET_PASSWORD_REQUEST = 'RESET_PASSWORD_REQUEST';
+export const RESET_PASSWORD_SUCCESS = 'RESET_PASSWORD_SUCCESS';
+export const RESET_PASSWORD_FAILURE = 'RESET_PASSWORD_FAILURE';
+export const UPDATE_ACCOUNT_REQUEST = 'UPDATE_ACCOUNT_REQUEST';
+export const UPDATE_ACCOUNT_SUCCESS = 'UPDATE_ACCOUNT_SUCCESS';
+export const UPDATE_ACCOUNT_FAILURE = 'UPDATE_ACCOUNT_FAILURE';
+export const CREATE_ACCOUNT_REQUEST = 'CREATE_ACCOUNT_REQUEST';
+export const CREATE_ACCOUNT_SUCCESS = 'CREATE_ACCOUNT_SUCCESS';
+export const CREATE_ACCOUNT_FAILURE = 'CREATE_ACCOUNT_FAILURE';
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
@@ -38,6 +50,9 @@ export const GET_LEAGUE_RANKINGS_FAILURE = 'GET_LEAGUE_RANKINGS_FAILURE';
 export const IMPORT_EVENT_RESULTS_REQUEST = 'IMPORT_EVENT_RESULTS_REQUEST';
 export const IMPORT_EVENT_RESULTS_SUCCESS = 'IMPORT_EVENT_RESULTS_SUCCESS';
 export const IMPORT_EVENT_RESULTS_FAILURE = 'IMPORT_EVENT_RESULTS_FAILURE';
+export const REQUEST_ACCESS_REQUEST = 'REQUEST_ACCESS_REQUEST';
+export const REQUEST_ACCESS_SUCCESS = 'REQUEST_ACCESS_SUCCESS';
+export const REQUEST_ACCESS_FAILURE = 'REQUEST_ACCESS_FAILURE';
 
 export const API_HOST = process.env.REACT_APP_API_HOST || '';
 export const API_BASE = `${API_HOST}/api/v1`;
@@ -56,6 +71,62 @@ export const login = ({email, password}) => ({
   }
 });
 
+export const resetPassword = ({email}, target) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/auth/password`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formurlencoded({email, redirect_url: target}),
+    types: [
+      RESET_PASSWORD_REQUEST,
+      RESET_PASSWORD_SUCCESS,
+      RESET_PASSWORD_FAILURE
+    ]
+  }
+});
+
+export const setPassword = ({password, password_confirmation, current_password}) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/auth/password`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formurlencoded({password, password_confirmation, current_password}),
+    types: [
+      SET_PASSWORD_REQUEST,
+      SET_PASSWORD_SUCCESS,
+      SET_PASSWORD_FAILURE
+    ]
+  }
+});
+
+export const updateAccount = ({email, password, password_confirmation, current_password}) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/auth`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formurlencoded({email, password, password_confirmation, current_password}),
+    types: [
+      UPDATE_ACCOUNT_REQUEST,
+      UPDATE_ACCOUNT_SUCCESS,
+      UPDATE_ACCOUNT_FAILURE
+    ]
+  }
+});
+
+export const createAccount = ({email, password, password_confirmation}, target) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/auth`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formurlencoded({email, password, password_confirmation, confirm_success_url: target}),
+    types: [
+      CREATE_ACCOUNT_REQUEST,
+      CREATE_ACCOUNT_SUCCESS,
+      CREATE_ACCOUNT_FAILURE
+    ]
+  }
+});
+
 export const logout = () => ({
   [RSAA]: {
     endpoint: `${API_BASE}/auth/sign_out`,
@@ -67,6 +138,7 @@ export const logout = () => ({
     ]
   }
 });
+
 
 //TODO generalize season
 export const getDivisions = () => ({
@@ -187,6 +259,20 @@ export const importEventResults = (id, signedId) => ({
       IMPORT_EVENT_RESULTS_REQUEST,
       IMPORT_EVENT_RESULTS_SUCCESS,
       IMPORT_EVENT_RESULTS_FAILURE
+    ]
+  }
+});
+
+export const requestAccess = (id, user, message) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/requestAccess/${id}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({user, message}),
+    types: [
+      REQUEST_ACCESS_REQUEST,
+      REQUEST_ACCESS_SUCCESS,
+      REQUEST_ACCESS_FAILURE
     ]
   }
 });
