@@ -55,6 +55,9 @@ class EventsSummary extends Component {
 
   renderEvents = () => {
     const {events, matches} = this.props;
+    if(!events || !matches) {
+      return <LoadingSpinner/>;
+    }
 
     return events.sort((a, b) => {
       const diff = a.start_date.localeCompare(b.start_date);
