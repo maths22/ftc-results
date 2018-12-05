@@ -68,7 +68,7 @@ Rails.application.configure do
     domain: ENV['EMAIL_DEFAULT_URL'],
     user_name: ENV['SMTP_USER'],
     password: ENV['SMTP_PASS'],
-    authentication: 'login',
+    authentication: 'plain',
     ssl: true
   }
 
