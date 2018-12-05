@@ -73,7 +73,7 @@ class DivisionsSummary extends Component {
         { this.state.inProgress ?
            <CircularProgress size="1.5em"/> :
            <Button onClick={this.requestAccess} color="primary" disabled={this.state.accessMessage.length === 0}>
-          Import
+          Submit Request
         </Button> }
       </DialogActions>
     </Dialog>;
