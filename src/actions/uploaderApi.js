@@ -16,6 +16,9 @@ export const POST_MATCHES_FAILURE = 'POST_MATCHES_FAILURE';
 export const POST_MATCH_REQUEST = 'POST_MATCH_REQUEST';
 export const POST_MATCH_SUCCESS = 'POST_MATCH_SUCCESS';
 export const POST_MATCH_FAILURE = 'POST_MATCH_FAILURE';
+export const POST_RESET_REQUEST = 'POST_RESET_REQUEST';
+export const POST_RESET_SUCCESS = 'POST_RESET_SUCCESS';
+export const POST_RESET_FAILURE = 'POST_RESET_FAILURE';
 
 
 export const postRankings = (event, rankings) => ({
@@ -84,6 +87,20 @@ export const postMatch = (event, id, match) => ({
       POST_MATCH_REQUEST,
       POST_MATCH_SUCCESS,
       POST_MATCH_FAILURE
+    ]
+  }
+});
+
+export const resetEvent = (event) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/reset/${event}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({}),
+    types: [
+      POST_RESET_REQUEST,
+      POST_RESET_SUCCESS,
+      POST_RESET_FAILURE
     ]
   }
 });

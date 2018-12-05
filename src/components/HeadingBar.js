@@ -10,11 +10,18 @@ import HomeIcon from '@material-ui/icons/Home';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Popover from '@material-ui/core/Popover';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 import { logout } from '../actions/api';
 import {Link} from 'react-router-dom';
-import LoginForm from './LoginForm';
+import LoginForm from './users/LoginForm';
 import {clearUserDependentState} from '../actions/util';
+import MenuList from '@material-ui/core/MenuList';
+import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
+import { push } from 'connected-react-router';
+import RegisterForm from './users/RegisterForm';
 
 const styles = {
   root: {
@@ -28,21 +35,25 @@ const styles = {
     marginRight: 20,
   },
   loginForm: {
-    width: '15em',
+    width: '18em',
     padding: '1em'
+  },
+  tab: {
+    minWidth: 0
   }
 };
 
 class HeadingBar extends Component {
   state = {
     anchorEl: null,
+    selectedTab: 'login'
   };
 
   componentWillUpdate(nextProps) {
     document.title = nextProps.title || 'FTC Results';
   }
 
-  openLoginMenu = event => {
+  openUserMenu = event => {
     this.setState({
       anchorEl: event.currentTarget,
     });
@@ -56,6 +67,10 @@ class HeadingBar extends Component {
 
   logout = () => {
     this.props.logout().then(() => this.props.clearUserDependentState());
+  };
+
+  selectTab = (_, selectedTab) => {
+    this.setState({ selectedTab });
   };
 
 
@@ -83,8 +98,7 @@ class HeadingBar extends Component {
             </Typography>
             <Button color="inherit" to="/events/all"
                     component={props => <Link {...props}/>}>Events</Button>
-            { isLoggedIn ? <span>Welcome {uid} <Button color="inherit" onClick={this.logout}>Logout</Button></span>
-                : <Button color="inherit" onClick={this.openLoginMenu}>Login</Button> }
+            <Button color="inherit" onClick={this.openUserMenu}>{ isLoggedIn ? `Welcome ${uid}` : 'Login'}</Button>
           </Toolbar>
         </AppBar>
       </div>
@@ -102,9 +116,32 @@ class HeadingBar extends Component {
             horizontal: 'center',
           }}
       >
-        <div className={this.props.classes.loginForm}>
-          <LoginForm onSubmitSuccess={this.handleClose}/>
-        </div>
+        { isLoggedIn ?
+            <Paper>
+              {/*<ClickAwayListener onClickAway={this.handleClose}>*/}
+                <MenuList>
+                  {/*<MenuItem onClick={this.handleClose}>Profile</MenuItem>*/}
+                  <MenuItem onClick={() => {this.props.push('/account'); this.handleClose()}}>My Account</MenuItem>
+                  <MenuItem onClick={() => {this.logout(); this.handleClose()}}>Logout</MenuItem>
+                </MenuList>
+              {/*</ClickAwayListener>*/}
+            </Paper>
+            : <div className={this.props.classes.loginForm}>
+              <Tabs
+                  value={this.state.selectedTab}
+                  onChange={this.selectTab}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  fullWidth
+              >
+                <Tab classes={{root: this.props.classes.tab}} value="login" label="Login" />
+                <Tab classes={{root: this.props.classes.tab}} value="register" label="Register" />
+              </Tabs>
+            {this.state.selectedTab === 'login' ? <LoginForm onSubmitSuccess={this.handleClose}/> : null}
+            {this.state.selectedTab === 'register' ? <RegisterForm onSubmitSuccess={this.handleClose}/> : null}
+
+
+        </div> }
       </Popover>
     </div>;
   }
@@ -125,6 +162,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = {
   clearUserDependentState,
   logout,
+  push,
 };
 
 

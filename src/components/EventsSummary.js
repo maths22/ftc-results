@@ -16,6 +16,7 @@ import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
+import RequestAccessDialog from './RequestAccessDialog';
 
 const styles = (theme) => ({
   root: {
@@ -40,7 +41,7 @@ class EventsSummary extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {importEvent: null};
+    this.state = {importEvent: null, accessEvent: null};
   }
 
   componentDidMount() {
@@ -68,6 +69,9 @@ class EventsSummary extends Component {
     this.setState({importEvent: id});
   };
 
+  requestAccess = (id) => {
+    this.setState({accessEvent: id});
+  };
 
   render () {
     if(!this.props.events) {
@@ -80,7 +84,8 @@ class EventsSummary extends Component {
     } );
 
     const rowStyle = { height: '2rem' };
-    const { classes } = this.props;
+    const { classes, uid } = this.props;
+    const isLoggedIn = !!uid;
 
     return <Paper className={classes.root}>
       {/* TODO Make this unnecessary */}
@@ -99,6 +104,7 @@ class EventsSummary extends Component {
             <TableCell className={classes.tableCell}>Date</TableCell>
             <TableCell className={classes.tableCell}>Imported</TableCell>
             <TableCell className={classes.tableCell}>Download</TableCell>
+            {isLoggedIn ? <TableCell className={classes.tableCell}>Live Uploader</TableCell> : null}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -118,12 +124,17 @@ class EventsSummary extends Component {
                   {e.aasm_state === 'finalized'
                       ? (e.import ? <TableCell className={classes.tableCell}><TextLink href={API_HOST + e.import}>Database</TextLink></TableCell> : <TableCell/>)
                       : <TableCell className={classes.tableCell}><TextLink href={scoring_download_url(e.id)}>Scoring System</TextLink></TableCell> }
+                  {isLoggedIn ? <TableCell className={classes.tableCell}>
+                    {e.can_import && e.aasm_state !== 'finalized' ? <TextLink to={`/events/uploader/${e.id}`}>Live Upload</TextLink> : null}
+                    {!e.can_import && e.aasm_state !== 'finalized' ? <TextLink onClick={() => this.requestAccess(e.id)}>Request Access</TextLink> : null}
+                  </TableCell>: null}
                 </TableRow>
             );
           })}
         </TableBody>
       </Table>
       <EventImportDialog id={this.state.importEvent} onClose={() => this.setState({importEvent: null})}/>
+      <RequestAccessDialog id={this.state.accessEvent} onClose={() => this.setState({accessEvent: null})}/>
     </Paper>;
   }
 }
