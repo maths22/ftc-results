@@ -13,6 +13,8 @@ class Event < ApplicationRecord
 
   belongs_to :context, polymorphic: true, optional: true
 
+  has_and_belongs_to_many :owners, class_name: 'User'
+
   # TODO: don't use ID
   def before_import_associations(record)
     return unless (ctx_id = record[:context_id]) && (ctx_type = record[:context_type])

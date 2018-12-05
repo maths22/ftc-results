@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_04_175229) do
+ActiveRecord::Schema.define(version: 2018_12_05_025235) do
+
+  create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "event_id"
+    t.string "message"
+    t.string "access_token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_access_requests_on_event_id"
+    t.index ["user_id"], name: "index_access_requests_on_user_id"
+  end
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -92,6 +103,11 @@ ActiveRecord::Schema.define(version: 2018_12_04_175229) do
     t.bigint "event_id", null: false
     t.index ["event_id", "team_id"], name: "index_events_teams_on_event_id_and_team_id"
     t.index ["team_id", "event_id"], name: "index_events_teams_on_team_id_and_event_id"
+  end
+
+  create_table "events_users", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "user_id", null: false
   end
 
   create_table "leagues", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|

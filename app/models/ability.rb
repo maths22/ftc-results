@@ -39,6 +39,20 @@ class Ability
       can :details, :all
       can :view_matches, :all
       can :view_rankings, :all
+      can :request_access, :all
+
+      can %i[
+        import_results
+        reset
+        post_rankings
+        post_teams
+        post_alliances
+        post_matches
+        post_match
+      ], Event do |evt|
+        evt.owner_ids.include? user.id
+      end
+
     end
   end
 end
