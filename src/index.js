@@ -9,6 +9,7 @@ import configureStore from './store';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import AppRouter from './AppRouter';
+import * as Sentry from '@sentry/browser';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import orange from '@material-ui/core/colors/orange';
@@ -20,8 +21,11 @@ const theme = createMuiTheme({
   },
 });
 
+Sentry.init({
+ dsn: process.env.REACT_APP_SENTRY_DSN
+});
 
-ReactGA.initialize('UA-88371688-1');
+ReactGA.initialize(process.env.REACT_APP_GA_KEY);
 
 const history = createBrowserHistory();
 const store = configureStore(history);

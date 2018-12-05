@@ -4,6 +4,7 @@ import React from 'react';
 import HeadingBar from './HeadingBar';
 import {withStyles} from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import ErrorBoundary from './ErrorBoundary';
 
 
 const styles = theme => ({
@@ -18,14 +19,19 @@ class DefaultLayout extends Component {
     const {component: Component, classes, ...rest} = this.props; 
     return (
         <Route {...rest} render={matchProps => (
-            <div className={classes.root}>
-              <CssBaseline />
-              <HeadingBar/>
-              <main className={classes.content}>
-                <div className={classes.appBarSpacer} />
-                <Component {...matchProps} />
-              </main>
-            </div>
+            <ErrorBoundary>
+              <div className={classes.root}>
+                <CssBaseline />
+                <HeadingBar/>
+                <main className={classes.content}>
+                  <div className={classes.appBarSpacer} />
+
+                  <ErrorBoundary>
+                    <Component {...matchProps} />
+                  </ErrorBoundary>
+                </main>
+              </div>
+            </ErrorBoundary>
         )} />
     );
   }
