@@ -30,11 +30,16 @@ Rails.application.routes.draw do
       mount_devise_token_auth_for 'User', at: 'auth'
 
       #Upload routes
+      post 'events/reset/:id', to: 'events#reset'
       post 'events/rankings/:id', to: 'events#post_rankings'
       post 'events/teams/:id', to: 'events#post_teams'
       post 'events/alliances/:id', to: 'events#post_alliances'
       post 'events/matches/:id', to: 'events#post_matches'
       post 'events/matches/:id/:mid', to: 'events#post_match'
+
+
+      post 'events/requestAccess/:id', to: 'events#request_access'
+      get 'events/approveAccess/:token', to: 'events#approve_access', as: 'approve_access'
 
     end
   end

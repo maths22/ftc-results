@@ -2,7 +2,9 @@ module Api
   module V1
     class EventsController < ::ApiController
       load_and_authorize_resource
-      skip_load_resource only: :index
+      skip_load_resource only: %i[index approve_access]
+      skip_authorize_resource only: %i[approve_access]
+      skip_authorization_check only: %i[approve_access]
 
       # skip_before_action :doorkeeper_authorize!, only: %i[download_scoring_system]
 
@@ -13,10 +15,41 @@ module Api
 
         render json: (@events.map do |e|
           evt = e.attributes
-          evt[:can_import] = can? :import, e
+          evt[:can_import] = can? :import_results, e
           evt[:import] = rails_blob_path(e.import, disposition: 'attachment') if e.import.attached?
           evt
         end)
+      end
+
+      def request_access
+        begin
+          request = AccessRequest.new(
+            user: current_user,
+            event: @event,
+            message: params[:message],
+            access_token: SecureRandom.hex(64)
+          )
+          request.save!
+          AccessMailer.with(request: request).request_email.deliver_now
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+      end
+
+      def approve_access
+        begin
+          request = AccessRequest.find_by(access_token: params[:token])
+          request.event.owners << request.user
+          request.event.save!
+          AccessMailer.with(request: request).approved_email.deliver_now
+          request.destroy!
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
       end
 
       # GET /events/1
@@ -55,6 +88,16 @@ module Api
             @event.reset!
             ::ScoringSystem::SqlitedbImportService.new.import_to_event @event
           end
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+      end
+
+      def reset
+        begin
+          @event.reset!
         rescue StandardError => exception
           render json: { error: exception.message }, status: :internal_server_error
           return
