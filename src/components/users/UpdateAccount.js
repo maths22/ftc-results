@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core';
-import {getDivisions, getLeagues, setPassword, updateAccount, TOKEN_UPDATE, logout} from '../../actions/api';
+import {setPassword, updateAccount, TOKEN_UPDATE, logout} from '../../actions/api';
 import {clearUserDependentState} from '../../actions/util';
 import {setTitle} from '../../actions/ui';
 import {connect} from 'react-redux';
@@ -78,6 +78,11 @@ class UpdateAccount extends React.Component {
     if(values['token']) {
       this.props.setToken(values);
     }
+    this.props.setTitle('Update Account');
+  }
+
+  componentWillUnmount() {
+    this.props.setTitle(null);
   }
 
   render() {
@@ -141,7 +146,8 @@ const setToken = (values) => {
 };
 
 const mapDispatchToProps = {
-  setToken
+  setToken,
+  setTitle
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({

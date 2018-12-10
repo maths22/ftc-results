@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import React from 'react';
-import TextLink from './TextLink';
+// import TextLink from './TextLink';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
