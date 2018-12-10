@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core';
-import {createAccount, resetPassword} from '../../actions/api';
+import {createAccount} from '../../actions/api';
 import {clearUserDependentState} from '../../actions/util';
 
 const validate = values => {

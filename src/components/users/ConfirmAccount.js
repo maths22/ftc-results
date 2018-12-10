@@ -6,7 +6,7 @@ import { push } from 'connected-react-router';
 
 
 
-class UpdateAccount extends React.Component {
+class ConfirmAccount extends React.Component {
   componentDidMount() {
     const values = queryString.parse(window.location.search);
     if(values['token']) {
@@ -41,4 +41,4 @@ const mapDispatchToProps = {
   push
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(UpdateAccount);
+export default connect(mapStateToProps, mapDispatchToProps)(ConfirmAccount);
