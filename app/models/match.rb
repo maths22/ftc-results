@@ -7,18 +7,20 @@ class Match < ApplicationRecord
 
   scope :in_season_meet, ->(season) { where(event: where(season: season, context_type: 'Division')) }
 
-  %i[rp tbp score].each do |attribute|
+  %i[rp tbp score surrogate].each do |attribute|
     define_method :"#{attribute}_for_team" do |team|
-      return red_alliance.send("#{attribute}_for_team", team) if red_alliance.alliance.teams.include? team
-      return blue_alliance.send("#{attribute}_for_team", team) if blue_alliance.alliance.teams.include? team
+      team = team.number unless team.is_a? Integer
+      return red_alliance.send("#{attribute}_for_team", team) if red_alliance.alliance.team_ids.include? team
+      return blue_alliance.send("#{attribute}_for_team", team) if blue_alliance.alliance.team_ids.include? team
 
-      raise "Team #{team.number} not found for match"
+      raise "Team #{team} not found for match"
     end
     define_method :"set_#{attribute}_for_team" do |team, val|
-      return red_alliance.send("set_#{attribute}_for_team", team, val) if red_alliance.alliance.teams.include? team
-      return blue_alliance.send("set_#{attribute}_for_team", team, val) if blue_alliance.alliance.teams.include? team
+      team = team.number unless team.is_a? Integer
+      return red_alliance.send("set_#{attribute}_for_team", team, val) if red_alliance.alliance.team_ids.include? team
+      return blue_alliance.send("set_#{attribute}_for_team", team, val) if blue_alliance.alliance.team_ids.include? team
 
-      raise "Team #{team.number} not found for match"
+      raise "Team #{team} not found for match"
     end
   end
 
@@ -39,6 +41,11 @@ class Match < ApplicationRecord
 
       0
     end
+  end
+
+  def match_for_team?(team)
+    team = team.number unless team.is_a? Integer
+    red_alliance.alliance.team_ids.include?(team) || blue_alliance.alliance.team_ids.include?(team)
   end
 
   def normal_tbp

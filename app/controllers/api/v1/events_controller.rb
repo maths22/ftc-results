@@ -62,7 +62,8 @@ module Api
       end
 
       def view_rankings
-        render json: @event.rankings
+        @matches = Match.includes([:red_score, :blue_score, red_alliance: {alliance: :teams}, blue_alliance: {alliance: :teams}]).where(event: @event)
+        @rankings = @event.rankings.includes(:team)
       end
 
       def download_scoring_system
@@ -242,6 +243,7 @@ module Api
             m.red_score = red_score
             m.blue_score = blue_score
             m.played = true
+            m.update_ranking_data
             m.save!
           end
         rescue StandardError => exception
