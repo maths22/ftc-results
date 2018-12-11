@@ -11,6 +11,15 @@ class Team < ApplicationRecord
              .where(events: { season: season }).flat_map(&:match_alliances)
   end
 
+  def record(matches)
+    results = matches.find_all { |m| m.match_for_team?(self) && !m.surrogate_for_team(self) }.group_by { |m| m.rp_for_team self }.map{|k,v| [k,v.size]}.to_h
+    {
+      win: results[2] || 0,
+      loss: results[0] || 0,
+      tie: results[1] || 0
+    }
+  end
+
   def display_name
     name_display = name.nil? ? '' : (' (' + name + ')')
     number.to_s + name_display

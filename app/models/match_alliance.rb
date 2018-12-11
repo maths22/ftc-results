@@ -24,22 +24,25 @@ class MatchAlliance < ApplicationRecord
 
   %i[rp tbp score surrogate red_card yellow_card present].each do |attribute|
     define_method :"#{attribute}_for_team" do |team|
-      idx = alliance.teams.index(team)
-      raise "Team #{team.number} not found for alliance" if idx.nil?
+      team = team.number unless team.is_a? Integer
+      idx = alliance.team_ids.index(team)
+      raise "Team #{team} not found for alliance" if idx.nil?
 
       send(attribute)[idx]
     end
 
     define_method :"set_#{attribute}_for_team" do |team, val|
-      idx = alliance.teams.index(team)
-      raise "Team #{team.number} not found for alliance" if idx.nil?
+      team = team.number unless team.is_a? Integer
+      idx = alliance.team_ids.index(team)
+      raise "Team #{team} not found for alliance" if idx.nil?
 
       send(attribute)[idx] = val
     end
   end
 
   def counts_for_ranking?(team)
-    raw_counts_for_ranking?(alliance.teams.index(team))
+    team = team.number unless team.is_a? Integer
+    raw_counts_for_ranking?(alliance.team_ids.index(team))
   end
 
   def raw_counts_for_ranking?(pos)
