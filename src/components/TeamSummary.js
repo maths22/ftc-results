@@ -68,6 +68,7 @@ class EventsSummary extends Component {
       if(diff !== 0) return diff;
       return a.name.localeCompare(b.name);
     } ).map((evt) => {
+      const theMatches = matches.filter((m) => m.event_id === evt.id);
       return <div key={evt.id}>
         <div className={this.props.classes.heading}>
           <div className={this.props.classes.eventHeader}>
@@ -75,12 +76,13 @@ class EventsSummary extends Component {
             <EventChip event={evt}/>
           </div>
 
-          {matches.length > 0 ? <p style={{marginBottom: 0, marginTop: 0}}>
-            Team {team.number} was <b>Rank {team.rankings[evt.id]}</b>{' with a record of '}
+          {theMatches.filter((m) => m.played).length > 0 ? <p style={{marginBottom: 0, marginTop: 0}}>
+            {`Team ${team.number} ${evt.aasm_state === 'in_progress' ? 'is' : 'was'} `}
+            <b>Rank {team.rankings[evt.id]}</b>{' with a record of '}
             <b style={{whiteSpace: 'nowrap'}}>{`${team.records[evt.id].win}-${team.records[evt.id].loss}-${team.records[evt.id].tie}`}</b>
           </p> : null}
         </div>
-        <MatchTable team={this.props.team.number} matches={matches.filter((m) => m.event_id === evt.id)}/>
+        <MatchTable team={this.props.team.number} matches={theMatches}/>
       </div>});
   };
 

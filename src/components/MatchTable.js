@@ -77,8 +77,9 @@ class MatchTable extends React.Component {
           isRedTeam = m.red_alliance.includes(team);
           idx = isRedTeam ? m.red_alliance.indexOf(team) : m.blue_alliance.indexOf(team);
           isSurrogate = isRedTeam ? m.red_surrogate[idx] : m.blue_surrogate[idx];
-          if(m.red_score === m.blue_score) result = 'T';
-          if((isRedTeam && m.red_score > m.blue_score) || (!isRedTeam && m.red_score < m.blue_score)) {
+          if(m.red_score === m.blue_score) {
+            result = 'T';
+          } else if((isRedTeam && m.red_score > m.blue_score) || (!isRedTeam && m.red_score < m.blue_score)) {
             result = 'W';
           } else {
             result = 'L';
@@ -102,7 +103,7 @@ class MatchTable extends React.Component {
             {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>{matchDisp}</TextLink> : matchDisp}
           </TableCell>
           <Hidden xsDown>
-            {team ? <TableCell className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})gi}>{result}</TableCell> : null}
+            {team ? <TableCell className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>{m.played ? result : '-'}</TableCell> : null}
           </Hidden>
           {m.red_alliance.map((t, idx) => {
             const Component = t === team ? 'span' : TextLink;
