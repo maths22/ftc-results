@@ -12,6 +12,7 @@ import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
 import Typography from '@material-ui/core/Typography/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
+import Hidden from '@material-ui/core/Hidden/Hidden';
 
 const styles = (theme) => ({
   table: {
@@ -71,11 +72,17 @@ class MatchTable extends React.Component {
         const matchDisp = prefixes[m.phase] + (m.series ? (m.series + '-') : '') + m.number;
         const teamSpan = m.blue_alliance.length === 3 ? 2 : 3;
 
-        let isRedTeam, isSurrogate = false, idx = -1;
+        let isRedTeam, isSurrogate = false, idx = -1, result;
         if (team) {
           isRedTeam = m.red_alliance.includes(team);
           idx = isRedTeam ? m.red_alliance.indexOf(team) : m.blue_alliance.indexOf(team);
           isSurrogate = isRedTeam ? m.red_surrogate[idx] : m.blue_surrogate[idx];
+          if(m.red_score === m.blue_score) result = 'T';
+          if((isRedTeam && m.red_score > m.blue_score) || (!isRedTeam && m.red_score < m.blue_score)) {
+            result = 'W';
+          } else {
+            result = 'L';
+          }
         }
 
         const redClassnames = classNames(classes.tableCell, classes.redCell, {
@@ -94,6 +101,9 @@ class MatchTable extends React.Component {
               className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>
             {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>{matchDisp}</TextLink> : matchDisp}
           </TableCell>
+          <Hidden xsDown>
+            {team ? <TableCell className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})gi}>{result}</TableCell> : null}
+          </Hidden>
           {m.red_alliance.map((t, idx) => {
             const Component = t === team ? 'span' : TextLink;
             return <TableCell key={t} colSpan={teamSpan} className={redClassnames}>
@@ -125,6 +135,9 @@ class MatchTable extends React.Component {
       <TableHead>
         <TableRow style={rowStyle}>
           <TableCell className={classes.tableCell}>Match</TableCell>
+          <Hidden xsDown>
+            {team ? <TableCell className={classes.tableCell}>Result</TableCell> : null}
+          </Hidden>
           <TableCell className={classes.tableCell} colSpan={6}>Red Alliance</TableCell>
           <TableCell className={classes.tableCell} colSpan={6}>Blue Alliance</TableCell>
           <TableCell className={classes.tableCell} colSpan={2}>Scores</TableCell>

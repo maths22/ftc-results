@@ -13,7 +13,6 @@ import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import Chip from '@material-ui/core/Chip';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
 import RankingsTable from './RankingsTable';
@@ -22,6 +21,7 @@ import Tab from '@material-ui/core/Tab';
 import SwipeableViews from 'react-swipeable-views';
 import IconButton from '@material-ui/core/es/IconButton/IconButton';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import EventChip from './EventChip';
 
 const styles = (theme) => ({
   root: {
@@ -111,26 +111,14 @@ class EventSummary extends Component {
     const { classes, event, league, division, matches, rankings } = this.props;
     const { selectedTab } = this.state;
 
-    const stateTag = {
-      finalized: {
-        label: 'Complete',
-        color: 'primary'
-      },
-      in_progress: {
-        label: 'In Progress',
-        color: 'secondary'
-      },
-      not_started: {
-        label: Date.parse(event.start_date) > new Date() ? 'Upcoming' : 'Awaiting results'
-      },
-    };
+
 
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
 
     return <Paper className={classes.root}>
       <div className={classes.heading}>
-        <Typography variant="h4" gutterBottom>{event.name} <Chip {...stateTag[event.aasm_state]}/></Typography>
+        <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
         <b>Date:</b> {event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
         <b>Location:</b> <TextLink href={maps_url} target="_blank">{event.location}{event.location && ', '}
         {event.city}{event.city && ', '}
@@ -160,7 +148,7 @@ class EventSummary extends Component {
 
       <SwipeableViews index={selectedTab - 1}
                       onChangeIndex={this.selectTab}>
-        <div className={classes.tabPanel}><RankingsTable rankings={rankings} onRefresh={this.refresh}/></div>
+        <div className={classes.tabPanel}><RankingsTable rankings={rankings} showRecord onRefresh={this.refresh}/></div>
         <div className={classes.tabPanel}><MatchTable matches={matches}/></div>
       </SwipeableViews>
     </Paper>;
