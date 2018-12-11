@@ -22,7 +22,7 @@ const styles = (theme) => ({
   }
 });
 
-function rankingsTable({rankings, classes}) {
+function rankingsTable({rankings, classes, showRecord}) {
   if(!rankings || rankings.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>Rankings are not currently available</Typography>;
   }
@@ -38,21 +38,28 @@ function rankingsTable({rankings, classes}) {
         <TableCell className={classes.tableCell}>Team Name</TableCell>
         <TableCell className={classes.tableCell}>Ranking Points</TableCell>
         <TableCell className={classes.tableCell}>Tie Breaker Points</TableCell>
+        {showRecord ? <TableCell className={classes.tableCell}>Record (W-L-T)</TableCell> : null}
         <TableCell className={classes.tableCell}>Matches Played</TableCell>
       </TableRow>
     </TableHead>
     <TableBody>
-      {rankings.map((r) => (<TableRow key={r.id} style={rowStyle}>
-        <TableCell className={classes.tableCell}>{r.ranking < 0 ? 'NP' : r.ranking}</TableCell>
-        <TableCell className={classes.tableCell}>
-          <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
-        </TableCell>
-        <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
-        <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.ranking_points}</TableCell>
-        <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.tie_breaker_points}</TableCell>
-        <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
+      {rankings.map((r) => {
+        let recordLine;
+        if(showRecord){
+          recordLine = `${r.record.win}-${r.record.loss}-${r.record.tie}`;
+        }
+        return <TableRow key={r.id} style={rowStyle}>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? 'NP' : r.ranking}</TableCell>
+          <TableCell className={classes.tableCell}>
+            <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
+          </TableCell>
+          <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.ranking_points}</TableCell>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.tie_breaker_points}</TableCell>
+          {showRecord ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : recordLine}</TableCell> : null}
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
         </TableRow>
-      ))}
+      })}
     </TableBody>
   </Table>;
 }

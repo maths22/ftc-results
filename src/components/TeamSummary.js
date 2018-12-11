@@ -10,6 +10,7 @@ import {withStyles} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
+import EventChip from './EventChip';
 
 const styles = (theme) => ({
   root: {
@@ -19,6 +20,9 @@ const styles = (theme) => ({
   },
   heading: {
     padding: 2 * theme.spacing.unit,
+  },
+  eventHeader: {
+    display: 'flex'
   }
 });
 
@@ -54,7 +58,7 @@ class EventsSummary extends Component {
   }
 
   renderEvents = () => {
-    const {events, matches} = this.props;
+    const {events, matches, team} = this.props;
     if(!events || !matches) {
       return <LoadingSpinner/>;
     }
@@ -63,12 +67,21 @@ class EventsSummary extends Component {
       const diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
       return a.name.localeCompare(b.name);
-    } ).map((evt) => (<div key={evt.id}>
-      <div className={this.props.classes.heading}>
-        <Typography variant="h6" gutterBottom><TextLink to={`/events/summary/${evt.id}`}>{evt.name}</TextLink></Typography>
-      </div>
-      <MatchTable team={this.props.team.number} matches={matches.filter((m) => m.event_id === evt.id)}/>
-    </div>));
+    } ).map((evt) => {
+      return <div key={evt.id}>
+        <div className={this.props.classes.heading}>
+          <div className={this.props.classes.eventHeader}>
+            <Typography variant="h6" gutterBottom><TextLink to={`/events/summary/${evt.id}`}>{evt.name}</TextLink></Typography>
+            <EventChip event={evt}/>
+          </div>
+
+          {matches.length > 0 ? <p style={{marginBottom: 0, marginTop: 0}}>
+            Team {team.number} was <b>Rank {team.rankings[evt.id]}</b>{' with a record of '}
+            <b style={{whiteSpace: 'nowrap'}}>{`${team.records[evt.id].win}-${team.records[evt.id].loss}-${team.records[evt.id].tie}`}</b>
+          </p> : null}
+        </div>
+        <MatchTable team={this.props.team.number} matches={matches.filter((m) => m.event_id === evt.id)}/>
+      </div>});
   };
 
   render () {
@@ -76,16 +89,22 @@ class EventsSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const {team, league, division} = this.props;
+    const {team, league, division, matches} = this.props;
 
     return <Paper className={this.props.classes.root}>
       <div className={this.props.classes.heading}>
-        <Typography variant="h4" gutterBottom>Team {team.number} – {team.name}</Typography>
-        <b>Organization:</b> {team.organization}<br/>
-        <b>Location:</b> {team.city}, {team.state}, {team.country}<br/>
-        {division ?
-            <span><b>League:</b> <TextLink to={`/leagues/rankings/${league.id}`}>{league.name}</TextLink>
-              {' – '}<TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }
+        <Typography variant="h4">Team {team.number} – {team.name}</Typography>
+        <p>
+          <b>Organization:</b> {team.organization}<br/>
+          <b>Location:</b> {team.city}, {team.state}, {team.country}<br/>
+          {division ?
+              <span><b>League:</b> <TextLink to={`/leagues/rankings/${league.id}`}>{league.name}</TextLink>
+                {' – '}<TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }
+        </p>
+
+        {matches.length > 0 ? <p style={{marginBottom: 0}}>
+          <b>Season Record:</b> {`${team.record.win}-${team.record.loss}-${team.record.tie}`}
+        </p> : null}
       </div>
 
       {this.renderEvents()}
