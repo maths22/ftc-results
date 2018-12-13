@@ -17,6 +17,7 @@ import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
 import RequestAccessDialog from './RequestAccessDialog';
+import TwitchSetupDialog from './TwitchSetupDialog';
 
 const styles = (theme) => ({
   root: {
@@ -41,7 +42,7 @@ class EventsSummary extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {importEvent: null, accessEvent: null};
+    this.state = {importEvent: null, accessEvent: null, streamEvent: null};
   }
 
   componentDidMount() {
@@ -71,6 +72,10 @@ class EventsSummary extends Component {
 
   requestAccess = (id) => {
     this.setState({accessEvent: id});
+  };
+
+  setupStream = (id) => {
+    this.setState({streamEvent: id});
   };
 
   render () {
@@ -105,6 +110,7 @@ class EventsSummary extends Component {
             <TableCell className={classes.tableCell}>Imported</TableCell>
             <TableCell className={classes.tableCell}>Download</TableCell>
             {isLoggedIn ? <TableCell className={classes.tableCell}>Live Uploader</TableCell> : null}
+            {isLoggedIn ? <TableCell className={classes.tableCell}>Live Stream (Twitch)</TableCell> : null}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -128,6 +134,10 @@ class EventsSummary extends Component {
                     {e.can_import && e.aasm_state !== 'finalized' ? <TextLink to={`/events/uploader/${e.id}`}>Live Upload</TextLink> : null}
                     {!e.can_import && e.aasm_state !== 'finalized' ? <TextLink onClick={() => this.requestAccess(e.id)}>Request Access</TextLink> : null}
                   </TableCell>: null}
+                  {isLoggedIn ? <TableCell className={classes.tableCell}>
+                    {e.can_import && e.aasm_state !== 'finalized' ? <Button variant="contained" size="small" onClick={() => this.setupStream(e.id)}>{e.channel ? 'Configure Stream' : 'Enable Stream'}</Button> : null}
+                    {!e.can_import && e.aasm_state !== 'finalized' ? <TextLink onClick={() => this.requestAccess(e.id)}>Request Access</TextLink> : null}
+                  </TableCell>: null}
                 </TableRow>
             );
           })}
@@ -135,6 +145,7 @@ class EventsSummary extends Component {
       </Table>
       <EventImportDialog id={this.state.importEvent} onClose={() => this.setState({importEvent: null})}/>
       <RequestAccessDialog id={this.state.accessEvent} onClose={() => this.setState({accessEvent: null})}/>
+      <TwitchSetupDialog id={this.state.streamEvent} onClose={() => this.setState({streamEvent: null})}/>
     </Paper>;
   }
 }

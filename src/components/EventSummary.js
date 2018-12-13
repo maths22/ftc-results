@@ -103,6 +103,29 @@ class EventSummary extends Component {
     }
   };
 
+  renderVideo = () => {
+    const { event } = this.props;
+    const startDateParts = event.start_date.split('-');
+    const endDateParts = event.end_date.split('-');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const isHappening = new Date(startDateParts[0],startDateParts[1]-1,startDateParts[2]) <= today
+        && new Date(endDateParts[0],endDateParts[1]-1,endDateParts[2]) >= today;
+    if(!event.channel || !isHappening) return null;
+
+    return  <div style={{maxWidth: '50em', margin: '0 auto'}}>
+        <div style={{position:'relative', paddingTop: '56%'}}>
+          <iframe
+              style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
+              src={`https://player.twitch.tv/?channel=${event.channel}`}
+              frameBorder="0"
+              scrolling="no"
+              allowFullScreen>
+          </iframe>
+        </div>
+      </div>;
+  };
+
   render () {
     if(!this.props.event) {
       return <LoadingSpinner/>;
@@ -129,6 +152,8 @@ class EventSummary extends Component {
           <span><b>Division:</b> <TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }<br/>
 
       </div>
+
+      {this.renderVideo()}
 
       <div>
         <Tabs
