@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_05_025235) do
+ActiveRecord::Schema.define(version: 2018_12_12_205616) do
 
   create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -75,6 +75,20 @@ ActiveRecord::Schema.define(version: 2018_12_05_025235) do
     t.bigint "division_id", null: false
     t.index ["division_id", "team_id"], name: "index_divisions_teams_on_division_id_and_team_id"
     t.index ["team_id", "division_id"], name: "index_divisions_teams_on_team_id_and_division_id"
+  end
+
+  create_table "event_channel_assignments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "event_id"
+    t.bigint "twitch_channel_id"
+    t.date "start_date"
+    t.date "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "aasm_state"
+    t.bigint "user_id"
+    t.index ["event_id"], name: "index_event_channel_assignments_on_event_id"
+    t.index ["twitch_channel_id"], name: "index_event_channel_assignments_on_channel_id"
+    t.index ["user_id"], name: "index_event_channel_assignments_on_user_id"
   end
 
   create_table "events", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -212,6 +226,13 @@ ActiveRecord::Schema.define(version: 2018_12_05_025235) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "twitch_channels", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.string "access_token"
+    t.string "refresh_token"
+    t.timestamp "expires_at"
+  end
+
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
@@ -244,4 +265,5 @@ ActiveRecord::Schema.define(version: 2018_12_05_025235) do
   end
 
   add_foreign_key "divisions", "leagues"
+  add_foreign_key "event_channel_assignments", "users"
 end

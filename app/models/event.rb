@@ -1,6 +1,8 @@
 class Event < ApplicationRecord
   default_scope { where season: CurrentScope.season_or_default }
 
+  scope :with_channel, -> { includes(event_channel_assignment: :twitch_channel)}
+
   include AASM
 
   has_and_belongs_to_many :teams
@@ -8,6 +10,7 @@ class Event < ApplicationRecord
   has_many :rankings, dependent: :destroy
   has_many :matches, dependent: :destroy
   has_many :alliances, dependent: :destroy
+  has_one :event_channel_assignment, dependent: :destroy
 
   has_one_attached :import
 
@@ -21,6 +24,12 @@ class Event < ApplicationRecord
 
     self.context = Division.find_by id: ctx_id if ctx_type == 'Division'
     self.context = League.find_by id: ctx_id if ctx_type == 'League'
+  end
+
+  def channel_name
+    return nil if event_channel_assignment.nil?
+
+    event_channel_assignment.twitch_channel.name
   end
 
   def league_meet?
