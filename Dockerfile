@@ -1,6 +1,6 @@
 FROM ruby:2.5-slim
 RUN apt-get update && \
-  apt-get install -qq -y --no-install-recommends build-essential default-libmysqlclient-dev libpq-dev libsqlite3-dev cron postgresql-client && \
+  apt-get install -qq -y --no-install-recommends git build-essential default-libmysqlclient-dev libpq-dev libsqlite3-dev cron postgresql-client && \
   rm -rf /var/lib/apt/lists/*
 ENV LANG C.UTF-8
 ENV RAILS_ENV production
