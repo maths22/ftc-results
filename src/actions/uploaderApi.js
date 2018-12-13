@@ -19,6 +19,9 @@ export const POST_MATCH_FAILURE = 'POST_MATCH_FAILURE';
 export const POST_RESET_REQUEST = 'POST_RESET_REQUEST';
 export const POST_RESET_SUCCESS = 'POST_RESET_SUCCESS';
 export const POST_RESET_FAILURE = 'POST_RESET_FAILURE';
+export const POST_TWITCH_REQUEST = 'POST_TWITCH_REQUEST';
+export const POST_TWITCH_SUCCESS = 'POST_TWITCH_SUCCESS';
+export const POST_TWITCH_FAILURE = 'POST_TWITCH_FAILURE';
 
 
 export const postRankings = (event, rankings) => ({
@@ -101,6 +104,34 @@ export const resetEvent = (event) => ({
       POST_RESET_REQUEST,
       POST_RESET_SUCCESS,
       POST_RESET_FAILURE
+    ]
+  }
+});
+
+export const setupTwitch = (event) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/twitch/${event}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({}),
+    types: [
+      POST_TWITCH_REQUEST,
+      POST_TWITCH_SUCCESS,
+      POST_TWITCH_FAILURE
+    ]
+  }
+});
+
+export const removeTwitch = (event) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/twitch/${event}`,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({}),
+    types: [
+      POST_TWITCH_REQUEST,
+      POST_TWITCH_SUCCESS,
+      POST_TWITCH_FAILURE
     ]
   }
 });
