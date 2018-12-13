@@ -25,3 +25,7 @@ set :job_template, "bash -l -c 'set -a; . /opt/environment; :job'"
 every 1.hour, at: 5 do # 1.minute 1.day 1.week 1.month 1.year is also supported
   rake 'teams:refresh events:generate_dbs'
 end
+
+every 1.hour, at: 15 do
+  rake 'twitch:update'
+end

@@ -11,12 +11,13 @@ module Api
       # GET /events
       def index
         authorize!(:index, Event)
-        @events = Event.with_attached_import
+        @events = Event.with_attached_import.with_channel
 
         render json: (@events.map do |e|
           evt = e.attributes
           evt[:can_import] = can? :import_results, e
           evt[:import] = rails_blob_path(e.import, disposition: 'attachment') if e.import.attached?
+          evt[:channel] = e.channel_name
           evt
         end)
       end
@@ -58,11 +59,11 @@ module Api
       end
 
       def view_matches
-        @matches = Match.includes([:red_score, :blue_score, red_alliance: {alliance: :teams}, blue_alliance: {alliance: :teams}]).where(event: @event)
+        @matches = Match.includes([:red_score, :blue_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
       end
 
       def view_rankings
-        @matches = Match.includes([:red_score, :blue_score, red_alliance: {alliance: :teams}, blue_alliance: {alliance: :teams}]).where(event: @event)
+        @matches = Match.includes([:red_score, :blue_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
         @rankings = @event.rankings.includes(:team)
       end
 
@@ -165,7 +166,6 @@ module Api
           return
         end
         render json: { success: true }
-
       end
 
       def generate_qual_match(m)
@@ -190,7 +190,7 @@ module Api
 
       def generate_elim_match(m)
         match = Match.create_with(played: false)
-                    .find_or_create_by(event: @event, phase: m[:phase], series: m[:series], number: m[:number])
+                     .find_or_create_by(event: @event, phase: m[:phase], series: m[:series], number: m[:number])
         red_alliance = Alliance.find_by(event: @event, is_elims: true, seed: m[:red_alliance])
         red_match_alliance = MatchAlliance.new alliance: red_alliance
         red_match_alliance.present = m[:red_present]
@@ -251,6 +251,21 @@ module Api
           return
         end
         render json: { success: true }
+      end
+
+      def twitch
+        assignment = Twitch::AssignmentService.new.find_or_create_assignment(@event, current_user)
+        StreamMailer.with(assignment: assignment).created_email.deliver_now
+        render json: { channel_name: true }
+      rescue StandardError => exception
+        render json: { error: exception.message }, status: :internal_server_error
+      end
+
+      def remove_twitch
+        @event.event_channel_assignment.destroy!
+        render json: { channel_name: true }
+      rescue StandardError => exception
+        render json: { error: exception.message }, status: :internal_server_error
       end
 
       # POST /events

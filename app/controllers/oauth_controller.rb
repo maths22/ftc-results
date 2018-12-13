@@ -1,6 +1,6 @@
 class OauthController < ApplicationController
   ANON_USER_ID = 0
-  ADMIN_USER_ID = 1
+  ADMIN_USER_ID = -1
 
   def anon_token
     render json: permanent_token_for_user(ANON_USER_ID)

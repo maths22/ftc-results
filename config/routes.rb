@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
 
   # mount Logster::Web => "/logs", constraints: Constraints::CanCan.new(:manage, :logs)
+  #
+  get 'twitch/authorize', to: 'twitch_oauth#authorize'
+  get 'twitch/callback', to: 'twitch_oauth#callback', as: 'twitch_oauth_callback'
 
   namespace :api do
     namespace :v1 do
@@ -37,6 +40,8 @@ Rails.application.routes.draw do
       post 'events/matches/:id', to: 'events#post_matches'
       post 'events/matches/:id/:mid', to: 'events#post_match'
 
+      post 'events/twitch/:id', to: 'events#twitch'
+      delete 'events/twitch/:id', to: 'events#remove_twitch'
 
       post 'events/requestAccess/:id', to: 'events#request_access'
       get 'events/approveAccess/:token', to: 'events#approve_access', as: 'approve_access'

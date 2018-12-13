@@ -49,6 +49,8 @@ class Ability
         post_alliances
         post_matches
         post_match
+        twitch
+        remove_twitch
       ], Event do |evt|
         evt.owner_ids.include? user.id
       end
