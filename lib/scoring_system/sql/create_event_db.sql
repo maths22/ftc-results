@@ -31,6 +31,8 @@ CREATE TABLE elimsScoresHistory (match INTEGER REFERENCES elims(match), ts INTEG
 CREATE TABLE elimsGameSpecificHistory (match INTEGER REFERENCES elims(match), ts INTEGER REFERENCES elimsCommitHistory(ts), alliance INTEGER, init1 INTEGER, init2 INTEGER, landed1 INTEGER, landed2 INTEGER, claimed1 INTEGER, claimed2 INTEGER, autoParking1 INTEGER, autoParking2 INTEGER, sampleFieldState INTEGER, depot INTEGER, gold INTEGER, silver INTEGER, latched1 INTEGER, latched2 INTEGER, endParked1 INTEGER, endParked2 INTEGER, PRIMARY KEY (match, ts, alliance));
 CREATE TABLE awardInfo(id INTEGER PRIMARY KEY, name VARCHAR, description VARCHAR, teamAward BOOLEAN, editable BOOLEAN, required BOOLEAN, awardOrder INTEGER, presented BOOLEAN);
 CREATE TABLE awardAssignment(id INTEGER PRIMARY KEY, winnerName VARCHAR, winnerTeam INTEGER REFERENCES teams(number), winnerDescription VARCHAR, secondName VARCHAR, secondTeam INTEGER REFERENCES teams(number), thirdName VARCHAR, thirdTeam INTEGER REFERENCES teams(number) );
+CREATE TABLE inspectionScheduleForm(id INTEGER PRIMARY KEY, str VARCHAR);
+CREATE TABLE inspectionScheduleItems(id INTEGER PRIMARY KEY, team INTEGER REFERENCES teams(number), name VARCHAR, stationNumber INTEGER, startTime INTEGER, totalTime INTEGER, month INTEGER, day INTEGER, year INTEGER );
 CREATE TABLE sponsors (id INTEGER PRIMARY KEY, name VARCHAR, level INTEGER, logoPath VARCHAR);
 CREATE TABLE config (key VARCHAR PRIMARY KEY, value VARCHAR);
 CREATE TABLE leagueHistory (team INTEGER, eventCode VARCHAR, match INTEGER, rp INTEGER, tbp INTEGER, score INTEGER, PRIMARY KEY(team, eventCode, match));
@@ -40,4 +42,4 @@ CREATE TABLE leagueInfo (code VARCHAR PRIMARY KEY, name VARCHAR, country VARCHAR
 CREATE TABLE leagueConfig (league VARCHAR, key VARCHAR, value VARCHAR, PRIMARY KEY (league, key));
 CREATE TABLE divisions (id INTEGER PRIMARY KEY, name VARCHAR, abbrev VARCHAR);
 
-INSERT INTO config VALUES('db.version', '2019_4');
+INSERT INTO config VALUES('db.version', '2019_7');
