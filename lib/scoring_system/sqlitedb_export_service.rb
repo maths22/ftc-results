@@ -32,31 +32,42 @@ module ScoringSystem
                              (code, name, type, status, finals, divisions, start, end)
                              VALUES (:code, :name, :type, :status, :finals, :divisions, :start, :end)"
       events.each do |event|
-        type = ScoringSystem::TYPE_OTHER
+        type = ScoringSystem::TYPE_CHAMPIONSHIP
         type = ScoringSystem::TYPE_LEAGUE_MEET if event.league_meet?
         type = ScoringSystem::TYPE_LEAGUE_TOURNAMENT if event.league_championship?
-        create_event_stmt.execute code: event.slug,
+        create_event_stmt.execute code: event.slug + (event.divisions? ? '_0' : ''),
                                   name: event.name,
                                   type: type,
                                   status: 1, # setup status
-                                  finals: event.has_finals ? 1 : 0,
-                                  divisions: 0, # multi-division events not supported currently
+                                  finals: event.divisions? ? 1 : 0,
+                                  divisions: 0,
                                   start: event.start_date.to_time.to_i.to_s + '000',
                                   end: event.end_date.to_time.to_i.to_s + '000'
+
+        event.event_divisions.each do |div|
+          create_event_stmt.execute code: event.slug + '_' + div.number.to_s,
+                                    name: div.name,
+                                    type: type,
+                                    status: 1, # setup status
+                                    finals: 0,
+                                    divisions: div.number,
+                                    start: event.start_date.to_time.to_i.to_s + '000',
+                                    end: event.end_date.to_time.to_i.to_s + '000'
+        end
       end
     end
 
     def server_db_for_event(event)
       with_server_db_copy do |f|
         db = SQLite3::Database.new f
-        remove_other_events_stmt = db.prepare 'DELETE FROM events WHERE code <> :code'
-        remove_other_events_stmt.execute code: event.slug
+        remove_other_events_stmt = db.prepare 'DELETE FROM events WHERE code NOT LIKE :code'
+        remove_other_events_stmt.execute code: (event.slug + '%')
         yield f
       end
     end
 
-    def event_db(event)
-      File.join(@work_dir, event.slug + '.db')
+    def event_dbs(event)
+      Dir.glob(File.join(@work_dir, event.slug + '*.db'))
     end
 
     private
@@ -81,7 +92,7 @@ module ScoringSystem
     end
 
     def create_event_db(evt)
-      db_file = File.join(@work_dir, evt.slug + '.db')
+      db_file = File.join(@work_dir, evt.slug + (evt.divisions? ? '_0' : '') + '.db')
       File.delete(db_file) if File.exist?(db_file)
       db = SQLite3::Database.new db_file
       db.execute_batch IO.binread(File.join(__dir__, 'sql/create_event_db.sql'))
@@ -89,6 +100,38 @@ module ScoringSystem
       db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
                  key: 'fieldCount',
                  value: evt.league_championship? ? 2 : 1
+
+
+      add_award_info_stmt = db.prepare('INSERT INTO awardInfo
+                          (id, name, description, teamAward, editable, required, awardOrder)
+                          VALUES (?, ?, ?, ?, ?, ?, ?)')
+
+      awards.each { |a| add_award_info_stmt.execute a }
+
+      evt.event_divisions.each do |div|
+        add_division_stmt = db.prepare('INSERT INTO divisions
+                          (id, name, abbrev)
+                          VALUES (:id, :name, :abbrev)')
+
+        add_division_stmt.execute id: div.number,
+                                  name: div.name,
+                                  abbrev: div.name.downcase[0]
+
+        div_db_file = File.join(@work_dir, evt.slug + '_' + div.number.to_s + '.db')
+        File.delete(div_db_file) if File.exist?(div_db_file)
+        div_db = SQLite3::Database.new div_db_file
+        div_db.execute_batch IO.binread(File.join(__dir__, 'sql/create_event_db.sql'))
+
+        div_db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
+                       key: 'fieldCount',
+                       value: 2
+
+        div_db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
+                       key: 'parent',
+                       value: evt.name
+      end
+
+      return if evt.context.nil?
 
       league = evt.league_championship? ? evt.context : evt.context.league
 
@@ -115,12 +158,6 @@ module ScoringSystem
       add_team_info_stmt = db.prepare('INSERT INTO teamInfo
                            (number, name, school, city, state, country, rookie)
                            VALUES (:number, :name, :school, :city, :state, :country, :rookie)')
-
-      add_award_info_stmt = db.prepare('INSERT INTO awardInfo
-                          (id, name, description, teamAward, editable, required, awardOrder)
-                          VALUES (?, ?, ?, ?, ?, ?, ?)')
-
-      awards.each { |a| add_award_info_stmt.execute a }
 
       league.divisions.each do |div|
         add_league_stmt.execute code: div.slug,

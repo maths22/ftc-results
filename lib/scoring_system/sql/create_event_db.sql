@@ -38,5 +38,6 @@ CREATE TABLE leagueMeets (eventCode VARCHAR PRIMARY KEY, name VARCHAR, start DAT
 CREATE TABLE leagueMembers (code VARCHAR, team INTEGER, PRIMARY KEY(code, team));
 CREATE TABLE leagueInfo (code VARCHAR PRIMARY KEY, name VARCHAR, country VARCHAR, state VARCHAR, city VARCHAR);
 CREATE TABLE leagueConfig (league VARCHAR, key VARCHAR, value VARCHAR, PRIMARY KEY (league, key));
+CREATE TABLE divisions (id INTEGER PRIMARY KEY, name VARCHAR, abbrev VARCHAR);
 
-INSERT INTO config VALUES('db.version', '2019_3');
+INSERT INTO config VALUES('db.version', '2019_4');

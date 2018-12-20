@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_12_205616) do
+ActiveRecord::Schema.define(version: 2018_12_19_234658) do
 
   create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -91,6 +91,15 @@ ActiveRecord::Schema.define(version: 2018_12_12_205616) do
     t.index ["user_id"], name: "index_event_channel_assignments_on_user_id"
   end
 
+  create_table "event_divisions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "event_id"
+    t.integer "number"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_divisions_on_event_id"
+  end
+
   create_table "events", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.date "start_date"
@@ -104,7 +113,6 @@ ActiveRecord::Schema.define(version: 2018_12_12_205616) do
     t.bigint "season_id"
     t.string "context_type"
     t.bigint "context_id"
-    t.boolean "has_finals"
     t.string "aasm_state"
     t.string "slug"
     t.string "address"
@@ -266,4 +274,5 @@ ActiveRecord::Schema.define(version: 2018_12_12_205616) do
 
   add_foreign_key "divisions", "leagues"
   add_foreign_key "event_channel_assignments", "users"
+  add_foreign_key "event_divisions", "events"
 end
