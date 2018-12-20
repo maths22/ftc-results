@@ -10,6 +10,7 @@ class Event < ApplicationRecord
   has_many :rankings, dependent: :destroy
   has_many :matches, dependent: :destroy
   has_many :alliances, dependent: :destroy
+  has_many :event_divisions, dependent: :destroy
   has_one :event_channel_assignment, dependent: :destroy
 
   has_one_attached :import
@@ -40,6 +41,10 @@ class Event < ApplicationRecord
     context.is_a? League
   end
 
+  def divisions?
+    event_divisions.count.positive?
+  end
+
 
   aasm do
     state :not_started, initial: true
@@ -68,5 +73,6 @@ class Event < ApplicationRecord
     rankings.destroy_all
     matches.destroy_all
     alliances.destroy_all
+    event_divisions.destroy_all
   end
 end
