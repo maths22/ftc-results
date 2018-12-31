@@ -90,6 +90,20 @@ module ScoringSystem
         db.execute 'SELECT id, name, description, teamAward, editable, required, awardOrder FROM awardInfo'
       end
     end
+    
+    def form_rows
+      @form_rows ||= ZipService.new.with_globaldb do |db_file|
+        db = SQLite3::Database.new db_file
+        db.execute 'SELECT formID, row, type, columnCount, description, rule, page FROM formRows'
+      end
+    end
+
+    def form_items
+      @form_items ||= ZipService.new.with_globaldb do |db_file|
+        db = SQLite3::Database.new db_file
+        db.execute 'SELECT formID, row, itemIndex, label, type FROM formItems'
+      end
+    end
 
     def create_event_db(evt)
       db_file = File.join(@work_dir, evt.slug + (evt.divisions? ? '_0' : '') + '.db')
@@ -107,6 +121,18 @@ module ScoringSystem
                           VALUES (?, ?, ?, ?, ?, ?, ?)')
 
       awards.each { |a| add_award_info_stmt.execute a }
+      
+      add_form_rows_stmt = db.prepare('INSERT INTO formRows
+                          (formID, row, type, columnCount, description, rule, page)
+                          VALUES (?, ?, ?, ?, ?, ?, ?)')
+
+      form_rows.each { |a| add_form_rows_stmt.execute a }
+      
+      add_form_items_stmt = db.prepare('INSERT INTO formItems
+                          (formID, row, itemIndex, label, type)
+                          VALUES (?, ?, ?, ?, ?)')
+
+      form_items.each { |a| add_form_items_stmt.execute a }
 
       evt.event_divisions.each do |div|
         add_division_stmt = db.prepare('INSERT INTO divisions
