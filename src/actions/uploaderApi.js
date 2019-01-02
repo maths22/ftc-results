@@ -24,9 +24,9 @@ export const POST_TWITCH_SUCCESS = 'POST_TWITCH_SUCCESS';
 export const POST_TWITCH_FAILURE = 'POST_TWITCH_FAILURE';
 
 
-export const postRankings = (event, rankings) => ({
+export const postRankings = (event, division, rankings) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/rankings/${event}`,
+    endpoint: `${API_BASE}/events/rankings/${event}?division=${division}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({rankings}),
@@ -38,9 +38,9 @@ export const postRankings = (event, rankings) => ({
   }
 });
 
-export const postTeams = (event, teams) => ({
+export const postTeams = (event, division, teams) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/teams/${event}`,
+    endpoint: `${API_BASE}/events/teams/${event}?division=${division}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({teams}),
@@ -52,9 +52,9 @@ export const postTeams = (event, teams) => ({
   }
 });
 
-export const postAlliances = (event, alliances) => ({
+export const postAlliances = (event, division, alliances) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/alliances/${event}`,
+    endpoint: `${API_BASE}/events/alliances/${event}?division=${division}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({alliances}),
@@ -66,9 +66,9 @@ export const postAlliances = (event, alliances) => ({
   }
 });
 
-export const postMatches = (event, matches) => ({
+export const postMatches = (event, division, matches) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/matches/${event}`,
+    endpoint: `${API_BASE}/events/matches/${event}?division=${division}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({matches}),
@@ -80,9 +80,9 @@ export const postMatches = (event, matches) => ({
   }
 });
 
-export const postMatch = (event, id, match) => ({
+export const postMatch = (event, division, id, match) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/matches/${event}/${id}`,
+    endpoint: `${API_BASE}/events/matches/${event}/${id}?division=${division}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify(match),

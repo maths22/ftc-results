@@ -89,7 +89,7 @@ class Uploader extends Component {
   };
 
   resetEvent = () => {
-    if(window.confirm(`Are you sure you want to reset ${this.props.event.name}?`)) {
+    if(window.confirm(`Are you sure you want to reset ${this.props.event.name}?\n(THIS WILL CLEAR ALL DATA FOR ALL DIVISIONS)`)) {
       const wasRunning = this.props.localServer.uploadRunning;
       if(wasRunning) {
         this.props.setRunning(false);

@@ -2,16 +2,23 @@ import React, {Component} from 'react';
 import {withStyles} from '@material-ui/core';
 import connect from 'react-redux/es/connect/connect';
 import {
-  getLocalEvents, getLocalRankings, getLocalTeamList,
-  getLocalMatches, getLocalElimMatches, getLocalAlliances,
+  getLocalAlliances,
+  getLocalElimMatches,
+  getLocalEvents,
+  getLocalEvent,
+  getLocalMatchDetails,
+  getLocalMatches,
+  getLocalNextDisplay,
+  getLocalRankings,
+  getLocalTeamList,
   getLocalVersion,
   localReset,
   setEvent,
   setRunning,
-  setServer, getLocalMatchDetails
+  setServer
 } from '../../actions/localScoringApi';
 import {setTitle} from '../../actions/ui';
-import {postRankings, postTeams, postMatches, postAlliances, postMatch} from '../../actions/uploaderApi';
+import {postAlliances, postMatch, postMatches, postRankings, postTeams} from '../../actions/uploaderApi';
 import objectHash from 'object-hash';
 
 
@@ -33,8 +40,15 @@ const styles = theme => ({
   }
 });
 
-class Uploader extends Component {
 
+const MINUTES_IN_MILIS = 60000;
+const DISPLAY_DELAY = 10 * MINUTES_IN_MILIS;
+
+class Uploader extends Component {
+  displayedMatches = {};
+  displayedInitialized = false;
+
+  targetDivision = 0;
   hashes = {};
   state = {};
 
@@ -61,9 +75,45 @@ class Uploader extends Component {
     clearInterval(this.syncInterval);
   };
 
-  startUpload = () => {
+  startUpload = async () => {
+    const eventInfo = await this.props.getLocalEvent(this.props.localServer.event);
+    this.targetDivision = eventInfo.payload.division;
     this.syncData();
     this.syncInterval = setInterval(this.syncData, 30000);
+    this.startDisplayLoop();
+  };
+
+  startDisplayLoop = async () => {
+    let firstrun = true;
+    while(this.props.localServer.uploadRunning) {
+      const nextDisp = await this.props.getLocalNextDisplay(this.props.localServer.event);
+      if(firstrun && nextDisp.error) {
+        break;
+      }
+      firstrun = false;
+      if(nextDisp.payload.type === 'SHOW_RESULTS') {
+        const matchParts = nextDisp.payload.params[1].split(' ');
+        let phase = '';
+        if(matchParts[0] === 'Qualification') {
+          phase = 'qual';
+        }
+        if(matchParts[0] === 'Semifinal') {
+          phase = 'semi';
+        }
+        if(matchParts[0] === 'Finals') {
+          phase = 'final';
+        }
+        let series = null;
+        if(matchParts.length === 3) {
+          series = parseInt(matchParts[1]);
+        }
+        const matchNum = matchParts.length === 3 ? parseInt(matchParts[2]) : parseInt(matchParts[1]);
+        const mid = phase + '-' + (series ? (series + '-') : '') + matchNum;
+        const dispMatch = this.displayedMatches[mid] || {};
+        dispMatch.displayAt = new Date();
+        this.displayedMatches[mid] = dispMatch;
+      }
+    }
   };
 
   syncData = () => {
@@ -87,7 +137,7 @@ class Uploader extends Component {
     const teams = teamsResult.payload.teamNumbers;
     const newHash = objectHash(teams);
     if(this.hashes['teamList'] !== newHash) {
-      const postResult = await this.props.postTeams(this.props.event, teams);
+      const postResult = await this.props.postTeams(this.props.event, this.targetDivision, teams);
       if (postResult.error) throw postResult.payload;
     }
     this.hashes['teamList'] = newHash;
@@ -108,7 +158,7 @@ class Uploader extends Component {
 
     const newHash = objectHash(uploadAlliances);
     if(this.hashes['alliances'] !== newHash) {
-      const postResult = await this.props.postAlliances(this.props.event, uploadAlliances);
+      const postResult = await this.props.postAlliances(this.props.event, this.targetDivision, uploadAlliances);
       if(postResult.error) throw postResult.payload;
     }
     this.hashes['alliances'] = newHash;
@@ -126,7 +176,7 @@ class Uploader extends Component {
     }));
     const newHash = objectHash(uploadRankings);
     if(this.hashes['rankings'] !== newHash) {
-      const postResult = await this.props.postRankings(this.props.event, uploadRankings);
+      const postResult = await this.props.postRankings(this.props.event, this.targetDivision, uploadRankings);
       if(postResult.error) throw postResult.payload;
     }
     this.hashes['rankings'] = newHash;
@@ -161,6 +211,7 @@ class Uploader extends Component {
     return matches.map((m) => ({
       phase: phase,
       series: series,
+      //TODO check this pls (is this really right for semis)
       number: m.match.split('-')[1],
       red_alliance: m.red.seed,
       blue_alliance: m.blue.seed,
@@ -182,26 +233,44 @@ class Uploader extends Component {
 
     const newHash = objectHash(uploadMatches);
     if(this.hashes['matchList'] !== newHash) {
-      const postResult = await this.props.postMatches(this.props.event, uploadMatches);
+      const postResult = await this.props.postMatches(this.props.event, this.targetDivision, uploadMatches);
       if(postResult.error) throw postResult.payload;
     }
     this.hashes['matchList'] = newHash;
 
-    // TODO return only "finished" matches
     return uploadMatches.filter((m) => m.finished);
   };
 
 
   syncMatchResults = async (matches) => {
+
+    // Calculate which results should be posted
+    matches.forEach((m) => {
+      const mid = m.phase + '-' + (m.series ? (m.series + '-') : '') + m.number;
+      const dispMatch = this.displayedMatches[mid] || {};
+      const now = new Date();
+      if(dispMatch.displayAt) {
+        if(dispMatch.displayAt <= new Date()) {
+          m.postResults = true;
+        }
+      } else {
+        dispMatch.displayAt = new Date(now.getTime() + (this.displayedInitialized ? DISPLAY_DELAY : 0));
+        if(!this.displayedInitialized) m.postResults = true;
+      }
+      this.displayedMatches[mid] = dispMatch;
+    });
+    this.displayedInitialized = true;
+    console.log(this.displayedMatches);
+
     //TODO generalize seasons
-    const matchResults = await Promise.all(matches.map(async (m) => {
+    const matchResults = await Promise.all(matches.filter((m) => m.postResults).map(async (m) => {
       let prefix;
       if(m.phase !== 'qual') {
         prefix = 'elim/' + (m.phase === 'final' ? 'finals' : ('sf/' + m.series));
       } else {
         prefix = 'matches';
       }
-      const details = await this.props.getLocalMatchDetails(this.props.localServer.event, '2019', prefix, m.number)
+      const details = await this.props.getLocalMatchDetails(this.props.localServer.event, '2019', prefix, m.number);
       return [[m.phase, m.series, m.number].filter((m) => m).join('-'), details.payload];
     }));
     await Promise.all(matchResults.map(async (val) => {
@@ -229,7 +298,7 @@ class Uploader extends Component {
 
       const newHash = objectHash(uploadScore);
       if(this.hashes['match-' + mid] !== newHash) {
-        const postResult = await this.props.postMatch(this.props.event, mid, uploadScore);
+        const postResult = await this.props.postMatch(this.props.event, this.targetDivision, mid, uploadScore);
         if(postResult.error) throw postResult.payload;
       }
       this.hashes['match-' + mid] = newHash;
@@ -257,6 +326,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = {
   getLocalEvents,
+  getLocalEvent,
   getLocalVersion,
   getLocalRankings,
   getLocalTeamList,
@@ -264,6 +334,7 @@ const mapDispatchToProps = {
   getLocalElimMatches,
   getLocalAlliances,
   getLocalMatchDetails,
+  getLocalNextDisplay,
   postRankings,
   postTeams,
   postMatches,

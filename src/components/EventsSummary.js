@@ -119,7 +119,9 @@ class EventsSummary extends Component {
                 <TableRow key={e.id} style={rowStyle}>
                   <TableCell className={classes.tableCell}><TextLink to={`/events/summary/${e.id}`}>{e.name}</TextLink></TableCell>
                   <TableCell className={classes.tableCell}>{e.context_type === 'Division' ? 'Meet' : 'Championship'}</TableCell>
-                  <TableCell className={classes.tableCell}><TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink></TableCell>
+                  { e.league ?
+                      <TableCell className={classes.tableCell}><TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink></TableCell>
+                      : <TableCell className={classes.tableCell}/> }
                   { e.division ?
                       <TableCell className={classes.tableCell}><TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink></TableCell>
                       : <TableCell className={classes.tableCell}/> }
@@ -161,7 +163,7 @@ const mapStateToProps = (state) => {
             if (evt.context_type === 'Division') {
               extra.division = state.divisions[evt.context_id];
               extra.league = state.leagues[extra.division.league_id];
-            } else {
+            } else if (evt.context_type === 'League') {
               extra.league = state.leagues[evt.context_id];
 
             }
