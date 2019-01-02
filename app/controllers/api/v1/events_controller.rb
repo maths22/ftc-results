@@ -124,6 +124,7 @@ module Api
       def post_rankings
         begin
           raise 'Event already finalized' if @event.finalized?
+          return if params[:rankings].length.zero?
 
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
@@ -151,7 +152,6 @@ module Api
           raise 'Event already finalized' if @event.finalized?
 
           ActiveRecord::Base.transaction do
-            @event.start! if @event.not_started?
             new_team_nums = params[:teams] - @event.teams.pluck(:number)
             teams = new_team_nums.map { |t| Team.find_or_create_by(number: t) }
 
@@ -175,6 +175,7 @@ module Api
       def post_alliances
         begin
           raise 'Event already finalized' if @event.finalized?
+          return if params[:alliances].length.zero?
 
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
@@ -230,6 +231,7 @@ module Api
       def post_matches
         begin
           raise 'Event already finalized' if @event.finalized?
+          return if params[:matches].length.zero?
 
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
