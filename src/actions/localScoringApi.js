@@ -14,6 +14,7 @@ export const LOCAL_GENERAL_SUCCESS = 'LOCAL_GENERAL_SUCCESS';
 export const LOCAL_GENERAL_FAILURE = 'LOCAL_GENERAL_FAILURE';
 
 const apiBase = (path) => (store) => `http://${store.localScoring.server.hostname}:${store.localScoring.server.port}/apiv1${path}/`;
+const ilApiBase = (path) => (store) => `http://${store.localScoring.server.hostname}:${store.localScoring.server.port}/_il_api${path}/`;
 
 export const getLocalEvents = () => ({
   [RSAA]: {
@@ -39,6 +40,18 @@ export const getLocalVersion = () => ({
   }
 });
 
+
+export const getLocalEvent = (event) => ({
+  [RSAA]: {
+    endpoint: apiBase(`/events/${event}`),
+    method: 'GET',
+    types: [
+      LOCAL_GENERAL_REQUEST,
+      LOCAL_GENERAL_SUCCESS,
+      LOCAL_GENERAL_FAILURE
+    ]
+  }
+});
 
 export const getLocalTeamList = (event) => ({
   [RSAA]: {
@@ -104,6 +117,18 @@ export const getLocalElimMatches = (event, prefix) => ({
 export const getLocalMatchDetails = (event, season, prefix, matchNo) => ({
   [RSAA]: {
     endpoint: apiBase(`/${season}/events/${event}/${prefix}/${matchNo}`),
+    method: 'GET',
+    types: [
+      LOCAL_GENERAL_REQUEST,
+      LOCAL_GENERAL_SUCCESS,
+      LOCAL_GENERAL_FAILURE
+    ]
+  }
+});
+
+export const getLocalNextDisplay = (event) => ({
+  [RSAA]: {
+    endpoint: ilApiBase(`/${event}/next_disp_cmd`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,

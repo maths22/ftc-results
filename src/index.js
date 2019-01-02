@@ -16,6 +16,7 @@ import * as Sentry from '@sentry/browser';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import orange from '@material-ui/core/colors/orange';
 import {TOKEN_UPDATE_RAW, LOCAL_STORAGE_KEY} from './reducers/tokenReducer';
+import {verifyToken} from './actions/api';
 
 const theme = createMuiTheme({
   palette: {
@@ -40,6 +41,10 @@ const onStorageUpdate = (e) => {
     });
   }
 };
+
+if(store.getState()['token']['x-uid']) {
+  store.dispatch(verifyToken());
+}
 
 window.addEventListener('storage', onStorageUpdate, false);
 

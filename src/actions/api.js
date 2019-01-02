@@ -4,6 +4,9 @@ import formurlencoded from 'form-urlencoded';
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
+export const VERIFY_TOKEN_REQUEST = 'VERIFY_TOKEN_REQUEST';
+export const VERIFY_TOKEN_SUCCESS = 'VERIFY_TOKEN_SUCCESS';
+export const VERIFY_TOKEN_FAILURE = 'VERIFY_TOKEN_FAILURE';
 export const SET_PASSWORD_REQUEST = 'SET_PASSWORD_REQUEST';
 export const SET_PASSWORD_SUCCESS = 'SET_PASSWORD_SUCCESS';
 export const SET_PASSWORD_FAILURE = 'SET_PASSWORD_FAILURE';
@@ -38,6 +41,9 @@ export const GET_TEAM_DETAILS_FAILURE = 'GET_TEAM_DETAILS_FAILURE';
 export const GET_EVENT_MATCHES_REQUEST = 'GET_EVENT_MATCHES_REQUEST';
 export const GET_EVENT_MATCHES_SUCCESS = 'GET_EVENT_MATCHES_SUCCESS';
 export const GET_EVENT_MATCHES_FAILURE = 'GET_EVENT_MATCHES_FAILURE';
+export const GET_EVENT_TEAMS_REQUEST = 'GET_EVENT_TEAMS_REQUEST';
+export const GET_EVENT_TEAMS_SUCCESS = 'GET_EVENT_TEAMS_SUCCESS';
+export const GET_EVENT_TEAMS_FAILURE = 'GET_EVENT_TEAMS_FAILURE';
 export const GET_EVENT_RANKINGS_REQUEST = 'GET_EVENT_RANKINGS_REQUEST';
 export const GET_EVENT_RANKINGS_SUCCESS = 'GET_EVENT_RANKINGS_SUCCESS';
 export const GET_EVENT_RANKINGS_FAILURE = 'GET_EVENT_RANKINGS_FAILURE';
@@ -67,6 +73,18 @@ export const login = ({email, password}) => ({
       LOGIN_REQUEST,
       LOGIN_SUCCESS,
       LOGIN_FAILURE
+    ]
+  }
+});
+
+export const verifyToken = () => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/auth/validate_token`,
+    method: 'GET',
+    types: [
+      VERIFY_TOKEN_REQUEST,
+      VERIFY_TOKEN_SUCCESS,
+      VERIFY_TOKEN_FAILURE
     ]
   }
 });
@@ -221,6 +239,18 @@ export const getEventRankings = (id) => ({
       GET_EVENT_RANKINGS_REQUEST,
       GET_EVENT_RANKINGS_SUCCESS,
       GET_EVENT_RANKINGS_FAILURE
+    ]
+  }
+});
+
+export const getEventTeams = (id) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/teams/${id}`,
+    method: 'GET',
+    types: [
+      GET_EVENT_TEAMS_REQUEST,
+      GET_EVENT_TEAMS_SUCCESS,
+      GET_EVENT_TEAMS_FAILURE
     ]
   }
 });
