@@ -5,7 +5,8 @@ class Event < ApplicationRecord
 
   include AASM
 
-  has_and_belongs_to_many :teams
+  has_many :events_teams, dependent: :destroy
+  has_many :teams, through: :events_teams
   belongs_to :season
   has_many :rankings, dependent: :destroy
   has_many :matches, dependent: :destroy

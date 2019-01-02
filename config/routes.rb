@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       resources :events
       get 'events/matches/:id', to: 'events#view_matches'
       get 'events/rankings/:id', to: 'events#view_rankings'
+      get 'events/teams/:id', to: 'events#view_teams'
       get 'events/download_scoring_system/:id', to: 'events#download_scoring_system'
       resources :leagues
       get 'leagues/details/:slug', to: 'leagues#details'

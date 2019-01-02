@@ -39,6 +39,7 @@ class Ability
       can :details, :all
       can :view_matches, :all
       can :view_rankings, :all
+      can :view_teams, :all
       can :request_access, :all
 
       can %i[

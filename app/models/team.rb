@@ -1,9 +1,10 @@
 class Team < ApplicationRecord
-  has_and_belongs_to_many :events
+  has_many :events_teams, dependent: :destroy
+  has_many :events, through: :events_teams
   has_and_belongs_to_many :divisions
-  has_many :alliance_teams
+  has_many :alliance_teams, dependent: :destroy
   has_many :alliances, through: :alliance_teams
-  has_many :rankings
+  has_many :rankings, dependent: :destroy
 
   def match_alliances_for_season(season)
     alliances.joins(:event)
