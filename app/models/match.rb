@@ -4,6 +4,7 @@ class Match < ApplicationRecord
   belongs_to :blue_alliance, class_name: 'MatchAlliance', autosave: true
   belongs_to :red_score, class_name: 'Score', dependent: :destroy, optional: true
   belongs_to :blue_score, class_name: 'Score', dependent: :destroy, optional: true
+  belongs_to :event_division, optional: true
 
   scope :in_season_meet, ->(season) { where(event: where(season: season, context_type: 'Division')) }
 
@@ -80,10 +81,10 @@ class Match < ApplicationRecord
     blue_alliance.tbp[0] = normal_tbp if blue_alliance.raw_counts_for_ranking? 0
     blue_alliance.tbp[1] = normal_tbp if blue_alliance.raw_counts_for_ranking? 1
 
-    red_alliance.score[0] = red_score unless red_alliance.surrogate[0]
-    red_alliance.score[1] = red_score unless red_alliance.surrogate[1]
-    blue_alliance.score[0] = blue_score unless blue_alliance.surrogate[0]
-    blue_alliance.score[1] = blue_score unless blue_alliance.surrogate[1]
+    red_alliance.score[0] = red_score_total unless red_alliance.surrogate[0]
+    red_alliance.score[1] = red_score_total unless red_alliance.surrogate[1]
+    blue_alliance.score[0] = blue_score_total unless blue_alliance.surrogate[0]
+    blue_alliance.score[1] = blue_score_total unless blue_alliance.surrogate[1]
   end
 
   enum phase: %i[qual semi final]

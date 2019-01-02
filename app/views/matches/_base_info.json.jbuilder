@@ -1,5 +1,6 @@
 json.id match.id
 json.event_id match.event_id
+json.division match.event_division&.number
 json.phase match.phase
 json.series match.series
 json.number match.number

@@ -3,4 +3,5 @@ class Alliance < ApplicationRecord
   has_many :teams, through: :alliance_teams
   has_many :match_alliances, dependent: :destroy
   belongs_to :event
+  belongs_to :event_division, optional: true
 end

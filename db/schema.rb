@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_19_234658) do
+ActiveRecord::Schema.define(version: 2019_01_02_212246) do
 
   create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -58,6 +58,8 @@ ActiveRecord::Schema.define(version: 2018_12_19_234658) do
     t.integer "seed"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "event_division_id"
+    t.index ["event_division_id"], name: "index_alliances_on_event_division_id"
     t.index ["event_id"], name: "index_alliances_on_event_id"
   end
 
@@ -120,9 +122,11 @@ ActiveRecord::Schema.define(version: 2018_12_19_234658) do
     t.index ["season_id"], name: "index_events_on_season_id"
   end
 
-  create_table "events_teams", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "events_teams", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "event_id", null: false
+    t.bigint "event_division_id"
+    t.index ["event_division_id"], name: "index_events_teams_on_event_division_id"
     t.index ["event_id", "team_id"], name: "index_events_teams_on_event_id_and_team_id"
     t.index ["team_id", "event_id"], name: "index_events_teams_on_team_id_and_event_id"
   end
@@ -167,8 +171,10 @@ ActiveRecord::Schema.define(version: 2018_12_19_234658) do
     t.datetime "updated_at", null: false
     t.bigint "event_id"
     t.boolean "played"
+    t.bigint "event_division_id"
     t.index ["blue_alliance_id"], name: "index_matches_on_blue_alliance_id"
     t.index ["blue_score_id"], name: "index_matches_on_blue_score_id"
+    t.index ["event_division_id"], name: "index_matches_on_event_division_id"
     t.index ["event_id"], name: "index_matches_on_event_id"
     t.index ["red_alliance_id"], name: "index_matches_on_red_alliance_id"
     t.index ["red_score_id"], name: "index_matches_on_red_score_id"
@@ -183,6 +189,8 @@ ActiveRecord::Schema.define(version: 2018_12_19_234658) do
     t.integer "matches_played"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "event_division_id"
+    t.index ["event_division_id"], name: "index_rankings_on_event_division_id"
     t.index ["event_id"], name: "index_rankings_on_event_id"
     t.index ["team_id"], name: "index_rankings_on_team_id"
   end

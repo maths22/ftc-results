@@ -49,7 +49,7 @@ class MatchAlliance < ApplicationRecord
     !surrogate[pos] && present[pos] && !red_card[pos]
   end
 
-  def is_degenerate?(pos)
+  def is_degenerate?
     present.zip(red_card).all? { |arr| !arr[0] || arr[1] }
   end
 end

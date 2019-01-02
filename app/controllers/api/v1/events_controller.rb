@@ -18,6 +18,7 @@ module Api
           evt[:can_import] = can? :import_results, e
           evt[:import] = rails_blob_path(e.import, disposition: 'attachment') if e.import.attached?
           evt[:channel] = e.channel_name
+          evt[:divisions] = e.event_divisions
           evt
         end)
       end
@@ -65,6 +66,16 @@ module Api
       def view_rankings
         @matches = Match.includes([:red_score, :blue_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
         @rankings = @event.rankings.includes(:team)
+      end
+
+      def view_teams
+        div_teams = @event.events_teams.map do |et|
+          {
+            division: et.event_division&.number,
+            team: et.team.number
+          }
+        end
+        render json: { id: @event.id, teams: div_teams }
       end
 
       def download_scoring_system
@@ -124,6 +135,7 @@ module Api
                                               :tie_breaker_points,
                                               :matches_played))
               ranking.event = @event
+              ranking.event_division = req_division
               ranking.save!
             end
           end
@@ -140,8 +152,17 @@ module Api
 
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
-            teams = params[:teams].map { |t| Team.find_or_create_by(number: t) }
-            @event.teams = teams
+            new_team_nums = params[:teams] - @event.teams.pluck(:number)
+            teams = new_team_nums.map { |t| Team.find_or_create_by(number: t) }
+
+            @event.teams = @event.teams + teams
+            @event.teams = @event.teams.select { |t| params[:teams].include? t.number } if req_division.nil?
+            unless req_division.nil?
+              @event.events_teams.select { |et| params[:teams].include?(et.team_id) }.each do |et|
+                et.event_division = req_division
+                et.save!
+              end
+            end
             @event.save!
           end
         rescue StandardError => exception
@@ -158,8 +179,9 @@ module Api
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
             params[:alliances].each do |a|
-              alliance = Alliance.find_or_create_by event: @event, is_elims: true, seed: a[:seed]
+              alliance = Alliance.find_or_create_by event: @event, event_division: req_division, is_elims: true, seed: a[:seed]
               alliance.teams = Team.find(a[:teams])
+              alliance.event_division = req_division
               alliance.save!
             end
           end
@@ -172,16 +194,16 @@ module Api
 
       def generate_qual_match(m)
         match = Match.create_with(played: false)
-                     .find_or_create_by(event: @event, phase: 'qual', number: m[:number])
+                     .find_or_create_by(event: @event, event_division: req_division, phase: 'qual', number: m[:number])
         unless match.red_alliance
-          red_alliance = Alliance.new event: @event, is_elims: false, teams: Team.find(m[:red_alliance])
+          red_alliance = Alliance.new event: @event, event_division: req_division, is_elims: false, teams: Team.find(m[:red_alliance])
           red_alliance.save!
           red_match_alliance = MatchAlliance.new alliance: red_alliance
           red_match_alliance.surrogate = m[:red_surrogate]
           match.red_alliance = red_match_alliance
         end
         unless match.blue_alliance
-          blue_alliance = Alliance.new event: @event, is_elims: false, teams: Team.find(m[:blue_alliance])
+          blue_alliance = Alliance.new event: @event, event_division: req_division, is_elims: false, teams: Team.find(m[:blue_alliance])
           blue_alliance.save!
           blue_match_alliance = MatchAlliance.new alliance: blue_alliance
           blue_match_alliance.surrogate = m[:blue_surrogate]
@@ -192,11 +214,11 @@ module Api
 
       def generate_elim_match(m)
         match = Match.create_with(played: false)
-                     .find_or_create_by(event: @event, phase: m[:phase], series: m[:series], number: m[:number])
-        red_alliance = Alliance.find_by(event: @event, is_elims: true, seed: m[:red_alliance])
+                     .find_or_create_by(event: @event, event_division: req_division, phase: m[:phase], series: m[:series], number: m[:number])
+        red_alliance = Alliance.find_by(event: @event, event_division: req_division, is_elims: true, seed: m[:red_alliance])
         red_match_alliance = MatchAlliance.new alliance: red_alliance
         red_match_alliance.present = m[:red_present]
-        blue_alliance = Alliance.find_by(event: @event, is_elims: true, seed: m[:blue_alliance])
+        blue_alliance = Alliance.find_by(event: @event, event_division: req_division,  is_elims: true, seed: m[:blue_alliance])
         blue_match_alliance = MatchAlliance.new alliance: blue_alliance
         blue_match_alliance.present = m[:blue_present]
 
@@ -231,13 +253,13 @@ module Api
           phase = split_id[0]
           series = split_id.length > 2 ? split_id[1] : nil
           number = split_id.length > 2 ? split_id[2] : split_id[1]
-          m = Match.where(event: @event, phase: phase, series: series, number: number).first
+          m = Match.where(event: @event, event_division: req_division, phase: phase, series: series, number: number).first
 
           ActiveRecord::Base.transaction do
             params[:red_score].permit!
             params[:blue_score].permit!
-            m.red_score.destroy! if m.red_score
-            m.blue_score.destroy! if m.blue_score
+            m.red_score&.destroy!
+            m.blue_score&.destroy!
             rr_red_score = RoverRuckusScore.new params[:red_score]
             red_score = Score.new season_score: rr_red_score
             rr_blue_score = RoverRuckusScore.new params[:blue_score]
@@ -294,6 +316,13 @@ module Api
       end
 
       private
+
+      def req_division
+        div = params[:division].to_i
+        return nil if div.zero?
+
+        EventDivision.find_by number: div, event: @event
+      end
 
       # Only allow a trusted parameter "white list" through.
       def event_params
