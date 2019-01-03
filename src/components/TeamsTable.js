@@ -49,7 +49,7 @@ function teamsTable({teams, classes, showDivisionAssignments, divisions, onClick
         return <TableRow key={t.number} style={rowStyle}>
           { showDivisionAssignments && division ? <TableCell className={classes.tableCell}>
             <TextLink onClick={() => onClickDivision(division.number)}>{division.name}</TextLink>
-          </TableCell> : <TableCell className={classes.tableCell}/> }
+          </TableCell> : ( showDivisionAssignments ? <TableCell className={classes.tableCell}/> : null) }
           <TableCell className={classes.tableCell}>
             <TextLink to={`/teams/summary/${t.number}`}>{t.number}</TextLink>
           </TableCell>
