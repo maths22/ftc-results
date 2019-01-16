@@ -232,7 +232,7 @@ module ScoringSystem
     end
 
     def events
-      @events ||= Event.where(season: season)
+      @events ||= Event.where(season: season).where.not(aasm_state: 'finalized')
     end
   end
 end
