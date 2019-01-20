@@ -5,6 +5,7 @@ json.city @team.city
 json.state @team.state
 json.country @team.country
 json.rookie_year @team.rookie_year
+json.consent_missing @team.consent_missing
 
 json.events @team.events.pluck(:id)
 json.division_id @team.divisions.pluck(:id).first
