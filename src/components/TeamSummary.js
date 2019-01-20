@@ -12,6 +12,9 @@ import MatchTable from './MatchTable';
 import TextLink from './TextLink';
 import EventChip from './EventChip';
 
+import WarningIcon from '@material-ui/icons/WarningRounded';
+import Card from '@material-ui/core/Card';
+
 const styles = (theme) => ({
   root: {
     width: '100%',
@@ -96,6 +99,15 @@ class EventsSummary extends Component {
     return <Paper className={this.props.classes.root}>
       <div className={this.props.classes.heading}>
         <Typography variant="h4">Team {team.number} – {team.name}</Typography>
+        { team.consent_missing ? <Card >
+              <div width="100%" style={{background: "red", color: "white"}}><WarningIcon/></div>
+              <p style={{paddingLeft: "1em", paddingRight: "1em"}}>
+                This team has not submitted FIRST Illinois Robotics consent forms and will not be permitted to compete at the
+                league championship unless these forms are submitted.
+                Please contact <TextLink href="mailto:jweiland@firstillinoisrobotics.org">Jonathan Weiland</TextLink> with any questions.
+              </p>
+            </Card>
+            : null}
         <p>
           <b>Organization:</b> {team.organization}<br/>
           <b>Location:</b> {team.city}, {team.state}, {team.country}<br/>

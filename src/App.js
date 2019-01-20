@@ -34,12 +34,12 @@ class App extends Component {
             </ListItem>
           </List>
 
-          <Typography variant="h5" gutterBottom>This week's Events</Typography>
-          <EventCards filter={(e) => {
+
+          <EventCards heading="This week's Events" filter={(e) => {
             return this.stringToDate(e.end_date) >= today && this.stringToDate(e.start_date) < oneWeek;
           }}/>
-          <Typography variant="h5" gutterBottom>Recent Events</Typography>
-          <EventCards filter={(e) => {
+
+          <EventCards heading="Recent Events" filter={(e) => {
             return this.stringToDate(e.end_date) < today;
           }} reverse limit={9}/>
         </div>
