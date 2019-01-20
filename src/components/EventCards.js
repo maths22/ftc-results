@@ -61,7 +61,7 @@ class EventCards extends Component {
     if(!this.props.events) {
       return <LoadingSpinner/>;
     }
-    const { classes, uid, limit } = this.props;
+    const { classes, uid, limit, heading } = this.props;
     let vals = [...this.props.events].sort((a, b) => {
       const diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
@@ -76,38 +76,43 @@ class EventCards extends Component {
     const rowStyle = { height: '2rem' };
     const isLoggedIn = !!uid;
 
+    if(vals.length == 0) return null;
 
-    return <Grid container spacing={24}>
-        {vals.map(e => <Grid item md={4}>
-            <Card className={classes.card}>
-            <CardActionArea onClick={() => this.props.push(`/events/summary/${e.id}`)}>
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="h2">
-                  {e.name} <EventChip event={e}/>
-                </Typography>
-                <Typography variant="subtitle1" component="h3">
-                  { e.league ?
-                      <TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink>
-                      : null }
-                  { e.division ? ' - ' : null}
-                  { e.division ?
-                      <TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink>
-                      : null }
-                  { ' ' }
-                  {e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}
-                </Typography>
-                <Typography gutterBottom variant="subtitle2" component="h3">
+    return <div>
+        <Typography variant="h5" gutterBottom>{heading}</Typography>
+        <Grid container spacing={24}>
+          {vals.map(e => <Grid item md={4}>
+              <Card className={classes.card}>
+              <CardActionArea onClick={() => this.props.push(`/events/summary/${e.id}`)}>
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="h2">
+                    {e.name} <EventChip event={e}/>
+                  </Typography>
+                  <Typography variant="subtitle1" component="h3">
+                    { e.league ?
+                        <TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink>
+                        : null }
+                    { e.division ? ' - ' : null}
+                    { e.division ?
+                        <TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink>
+                        : null }
+                    { ' ' }
+                    {e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}
+                  </Typography>
+                  <Typography gutterBottom variant="subtitle2" component="h3">
 
-                </Typography>
-                <Typography component="p">
-                  {e.location}<br/>{e.city}, {e.state}, {e.country}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>)}
+                  </Typography>
+                  <Typography component="p">
+                    {e.location}<br/>{e.city}, {e.state}, {e.country}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>)}
 
-      </Grid>;
+        </Grid>
+
+      </div>;
   }
 }
 

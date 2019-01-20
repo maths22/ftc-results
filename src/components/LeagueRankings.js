@@ -38,6 +38,16 @@ const styles = (theme) => ({
     '&:last-child': {
       paddingRight: 1 * theme.spacing.unit,
     }
+  },
+  disabledRow: {
+    '& td': {
+      textDecoration: 'line-through',
+      color: 'rgba(0, 0, 0, 0.4)'
+    },
+    '& a': {
+      textDecoration: 'line-through',
+      color: 'rgba(0, 0, 0, 0.4)'
+    }
   }
 });
 
@@ -120,7 +130,7 @@ class DivisionsSummary extends Component {
             <TableBody>
               {this.props.rankings.map((r, idx) => {
                 return (
-                    <TableRow key={r.team.number} style={rowStyle}>
+                    <TableRow key={r.team.number} style={rowStyle} className={r.team.consent_missing ? classes.disabledRow : null}>
                       <TableCell className={classes.tableCell}>{idx + 1}</TableCell>
                       <TableCell className={classes.tableCell}><TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink></TableCell>
                       <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
@@ -139,6 +149,11 @@ class DivisionsSummary extends Component {
               })}
             </TableBody>
           </Table>
+          <p style={{paddingLeft: "1em", paddingRight: "1em"}}>
+            Note: Crossed out teams have not submitted FIRST Illinois Robotics consent forms and will not be permitted
+            to compete at the league championship unless these forms are submitted.
+            Please contact <TextLink href="mailto:jweiland@firstillinoisrobotics.org">Jonathan Weiland</TextLink> with any questions.
+          </p>
         </Paper>;
   }
 }
