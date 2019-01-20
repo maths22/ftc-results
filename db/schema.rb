@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_02_212246) do
+ActiveRecord::Schema.define(version: 2019_01_20_211607) do
 
   create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -240,6 +240,7 @@ ActiveRecord::Schema.define(version: 2019_01_02_212246) do
     t.string "rookie_year"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "consent_missing"
   end
 
   create_table "twitch_channels", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
