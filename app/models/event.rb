@@ -51,7 +51,8 @@ class Event < ApplicationRecord
     state :not_started, initial: true
     state :in_progress,
           # :complete, //TODO support this one
-          :finalized
+          :finalized,
+          :canceled
 
     event :start do
       transitions from: :not_started, to: :in_progress
