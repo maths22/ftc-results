@@ -14,6 +14,11 @@ export default function ({event}) {
     not_started: {
       label: Date.parse(event.start_date) > new Date() ? 'Upcoming' : 'Awaiting results'
     },
+    canceled: {
+      label: 'Canceled',
+      color: 'secondary',
+      variant: 'outlined'
+    },
   };
 
   return <Chip style={{marginLeft: '1em'}} {...stateTag[event.aasm_state]}/>

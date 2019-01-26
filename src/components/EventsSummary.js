@@ -35,6 +35,16 @@ const styles = (theme) => ({
     '&:last-child': {
       paddingRight: 1 * theme.spacing.unit,
     }
+  },
+  canceled: {
+    '& td': {
+      textDecoration: 'line-through',
+      color: 'rgba(0, 0, 0, 0.4)'
+    },
+    '& a': {
+      textDecoration: 'line-through',
+      color: 'rgba(0, 0, 0, 0.4)'
+    }
   }
 });
 
@@ -116,7 +126,7 @@ class EventsSummary extends Component {
         <TableBody>
           {vals.map(e => {
             return (
-                <TableRow key={e.id} style={rowStyle}>
+                <TableRow key={e.id} style={rowStyle} className={e.aasm_state === 'canceled' ? classes.canceled :null}>
                   <TableCell className={classes.tableCell}><TextLink to={`/events/summary/${e.id}`}>{e.name}</TextLink></TableCell>
                   <TableCell className={classes.tableCell}>{e.context_type === 'Division' ? 'Meet' : 'Championship'}</TableCell>
                   { e.league ?
