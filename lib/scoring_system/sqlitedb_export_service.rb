@@ -134,6 +134,24 @@ module ScoringSystem
 
       form_items.each { |a| add_form_items_stmt.execute a }
 
+      add_sponsors_stmt = db.prepare('INSERT INTO sponsors
+                          (id, name, level, logoPath)
+                          VALUES (:id, :name, :level, :logoPath)')
+
+      Sponsor.global.each do |s|
+        add_sponsors_stmt.execute id: s.id,
+                                  name: s.name,
+                                  level: 1,
+                                  logoPath: "#{s.id}#{s.logo.filename.extension_with_delimiter}"
+      end
+
+      evt.sponsors.each do |s|
+        add_sponsors_stmt.execute id: s.id,
+                                  name: s.name,
+                                  level: 0,
+                                  logoPath: "#{s.id}#{s.logo.filename.extension_with_delimiter}"
+      end
+
       evt.event_divisions.each do |div|
         add_division_stmt = db.prepare('INSERT INTO divisions
                           (id, name, abbrev)

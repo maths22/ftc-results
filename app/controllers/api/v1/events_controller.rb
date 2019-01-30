@@ -89,6 +89,8 @@ module Api
           db_service.event_dbs(@event).each do |db|
             zip.add_db(f, File.basename(db, '.db'), db)
           end
+          Sponsor.global.each { |s| zip.add_sponsor_logo(f, s) }
+          @event.sponsors.each { |s| zip.add_sponsor_logo(f, s) }
           zip.add_lib(f, Rails.root.join('vendor', 'scoring', 'FTCLiveExtras.jar'))
           File.open(f, 'r') do |data|
             headers['Content-Length'] = data.size if data.respond_to?(:size)
