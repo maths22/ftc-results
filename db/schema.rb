@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_20_211607) do
+ActiveRecord::Schema.define(version: 2019_01_30_143619) do
 
   create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -122,6 +122,13 @@ ActiveRecord::Schema.define(version: 2019_01_20_211607) do
     t.index ["season_id"], name: "index_events_on_season_id"
   end
 
+  create_table "events_sponsors", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "sponsor_id", null: false
+    t.bigint "event_id", null: false
+    t.index ["event_id", "sponsor_id"], name: "index_events_sponsors_on_event_id_and_sponsor_id"
+    t.index ["sponsor_id", "event_id"], name: "index_events_sponsors_on_sponsor_id_and_event_id"
+  end
+
   create_table "events_teams", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "event_id", null: false
@@ -229,6 +236,13 @@ ActiveRecord::Schema.define(version: 2019_01_20_211607) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "sponsors", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "global"
   end
 
   create_table "teams", primary_key: "number", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
