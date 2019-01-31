@@ -68,6 +68,10 @@ module Api
         @rankings = @event.rankings.includes(:team)
       end
 
+      def view_awards
+        @awards = @event.awards
+      end
+
       def view_teams
         div_teams = @event.events_teams.map do |et|
           {
@@ -126,7 +130,7 @@ module Api
       def post_rankings
         begin
           raise 'Event already finalized' if @event.finalized?
-          return if params[:rankings].length.zero?
+          return if [:rankings].length.zero?
 
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
@@ -140,6 +144,35 @@ module Api
               ranking.event = @event
               ranking.event_division = req_division
               ranking.save!
+            end
+          end
+        rescue StandardError => exception
+          render json: { error: exception.message }, status: :internal_server_error
+          return
+        end
+        render json: { success: true }
+      end
+
+      def post_awards
+        begin
+          raise 'Event already finalized' if @event.finalized?
+          return if params[:awards].length.zero?
+
+          ActiveRecord::Base.transaction do
+            @event.start! if @event.not_started?
+            @event.awards.destroy_all
+            params[:awards].each do |awd|
+              award = Award.new(awd.permit(:name))
+              award.event = @event
+              award.save!
+              awd[:finalists].each do |fin|
+                puts params
+                finalist = AwardFinalist.new(fin.permit(:team_id,
+                                                        :recipient,
+                                                        :place))
+                finalist.award = award
+                finalist.save!
+              end
             end
           end
         rescue StandardError => exception
