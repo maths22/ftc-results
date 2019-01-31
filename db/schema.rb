@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_30_143619) do
+ActiveRecord::Schema.define(version: 2019_01_31_041208) do
 
   create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -61,6 +61,27 @@ ActiveRecord::Schema.define(version: 2019_01_30_143619) do
     t.bigint "event_division_id"
     t.index ["event_division_id"], name: "index_alliances_on_event_division_id"
     t.index ["event_id"], name: "index_alliances_on_event_id"
+  end
+
+  create_table "award_finalists", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "award_id"
+    t.bigint "team_id"
+    t.string "recipient"
+    t.integer "place"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["award_id"], name: "index_award_finalists_on_award_id"
+    t.index ["team_id"], name: "index_award_finalists_on_team_id"
+  end
+
+  create_table "awards", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.bigint "event_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_awards_on_event_id"
   end
 
   create_table "divisions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -295,6 +316,9 @@ ActiveRecord::Schema.define(version: 2019_01_30_143619) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "award_finalists", "awards"
+  add_foreign_key "award_finalists", "teams", primary_key: "number"
+  add_foreign_key "awards", "events"
   add_foreign_key "divisions", "leagues"
   add_foreign_key "event_channel_assignments", "users"
   add_foreign_key "event_divisions", "events"

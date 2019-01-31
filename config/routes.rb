@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       resources :events
       get 'events/matches/:id', to: 'events#view_matches'
       get 'events/rankings/:id', to: 'events#view_rankings'
+      get 'events/awards/:id', to: 'events#view_awards'
       get 'events/teams/:id', to: 'events#view_teams'
       get 'events/download_scoring_system/:id', to: 'events#download_scoring_system'
       resources :leagues
@@ -36,6 +37,7 @@ Rails.application.routes.draw do
       #Upload routes
       post 'events/reset/:id', to: 'events#reset'
       post 'events/rankings/:id', to: 'events#post_rankings'
+      post 'events/awards/:id', to: 'events#post_awards'
       post 'events/teams/:id', to: 'events#post_teams'
       post 'events/alliances/:id', to: 'events#post_alliances'
       post 'events/matches/:id', to: 'events#post_matches'
