@@ -11,6 +11,7 @@ import {
   getLocalNextDisplay,
   getLocalRankings,
   getLocalTeamList,
+  getLocalAwards,
   getLocalVersion,
   localReset,
   setEvent,
@@ -18,7 +19,7 @@ import {
   setServer
 } from '../../actions/localScoringApi';
 import {setTitle} from '../../actions/ui';
-import {postAlliances, postMatch, postMatches, postRankings, postTeams} from '../../actions/uploaderApi';
+import {postAlliances, postMatch, postMatches, postRankings, postAwards, postTeams} from '../../actions/uploaderApi';
 import objectHash from 'object-hash';
 
 
@@ -123,7 +124,7 @@ class Uploader extends Component {
       this.syncElimAlliances()
           .then(this.syncMatchList)
           .then(this.syncMatchResults),
-        //TODO support awards
+      this.syncAwards(),
     ]).then(() => {
       this.setState({success: true, date: new Date()});
     }).catch((e) => {
@@ -180,6 +181,35 @@ class Uploader extends Component {
       if(postResult.error) throw postResult.payload;
     }
     this.hashes['rankings'] = newHash;
+  };
+
+  syncAwards = async () => {
+    const intRegex = /^-?[0-9]+$/;
+    const awardsResult = await this.props.getLocalAwards(this.props.localServer.event);
+    const awards = awardsResult.payload.awards;
+    const uploadAwards = awards.map((a) => ({
+      name: a.awardName,
+      finalists: [
+        {
+          place: 1,
+          [a.firstPlace && a.firstPlace.match(intRegex) ? 'team_id' : 'recipient']: a.firstPlace || '-1'
+        },
+        {
+          place: 2,
+          [a.secondPlace && a.secondPlace.match(intRegex) ? 'team_id' : 'recipient']: a.secondPlace || '-1'
+        },
+        {
+          place: 3,
+          [a.thirdPlace && a.thirdPlace.match(intRegex) ? 'team_id' : 'recipient']: a.thirdPlace || '-1'
+        },
+      ].filter((f) => f.team_id !== '-1' && f.recipient !== '-1')
+    }));
+    const newHash = objectHash(uploadAwards);
+    if(this.hashes['awards'] !== newHash) {
+      const postResult = await this.props.postAwards(this.props.event, uploadAwards);
+      if(postResult.error) throw postResult.payload;
+    }
+    this.hashes['awards'] = newHash;
   };
 
   getQualMatches = async () => {
@@ -335,11 +365,13 @@ const mapDispatchToProps = {
   getLocalAlliances,
   getLocalMatchDetails,
   getLocalNextDisplay,
+  getLocalAwards,
   postRankings,
   postTeams,
   postMatches,
   postMatch,
   postAlliances,
+  postAwards,
   localReset,
   setEvent,
   setServer,

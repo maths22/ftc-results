@@ -16,6 +16,9 @@ export const POST_MATCHES_FAILURE = 'POST_MATCHES_FAILURE';
 export const POST_MATCH_REQUEST = 'POST_MATCH_REQUEST';
 export const POST_MATCH_SUCCESS = 'POST_MATCH_SUCCESS';
 export const POST_MATCH_FAILURE = 'POST_MATCH_FAILURE';
+export const POST_AWARDS_REQUEST = 'POST_AWARDS_REQUEST';
+export const POST_AWARDS_SUCCESS = 'POST_AWARDS_SUCCESS';
+export const POST_AWARDS_FAILURE = 'POST_AWARDS_FAILURE';
 export const POST_RESET_REQUEST = 'POST_RESET_REQUEST';
 export const POST_RESET_SUCCESS = 'POST_RESET_SUCCESS';
 export const POST_RESET_FAILURE = 'POST_RESET_FAILURE';
@@ -90,6 +93,20 @@ export const postMatch = (event, division, id, match) => ({
       POST_MATCH_REQUEST,
       POST_MATCH_SUCCESS,
       POST_MATCH_FAILURE
+    ]
+  }
+});
+
+export const postAwards = (event, awards) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/awards/${event}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({awards}),
+    types: [
+      POST_AWARDS_REQUEST,
+      POST_AWARDS_SUCCESS,
+      POST_AWARDS_FAILURE
     ]
   }
 });
