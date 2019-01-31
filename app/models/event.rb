@@ -79,5 +79,6 @@ class Event < ApplicationRecord
     rankings.destroy_all
     matches.destroy_all
     alliances.destroy_all
+    awards.destroy_all
   end
 end
