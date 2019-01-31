@@ -126,6 +126,19 @@ export const getLocalMatchDetails = (event, season, prefix, matchNo) => ({
   }
 });
 
+
+export const getLocalAwards = (event) => ({
+  [RSAA]: {
+    endpoint: apiBase(`/events/${event}/awards`),
+    method: 'GET',
+    types: [
+      LOCAL_GENERAL_REQUEST,
+      LOCAL_GENERAL_SUCCESS,
+      LOCAL_GENERAL_FAILURE
+    ]
+  }
+});
+
 export const getLocalNextDisplay = (event) => ({
   [RSAA]: {
     endpoint: ilApiBase(`/${event}/next_disp_cmd`),

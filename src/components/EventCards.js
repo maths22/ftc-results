@@ -2,22 +2,11 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import { push } from 'connected-react-router';
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import CheckIcon from '@material-ui/icons/CheckCircle';
 
-import {API_HOST, getDivisions, getEvents, getLeagues, scoring_download_url} from '../actions/api';
-import EventImportDialog from './EventImportDialog';
+import {getDivisions, getEvents, getLeagues} from '../actions/api';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
-import RequestAccessDialog from './RequestAccessDialog';
-import TwitchSetupDialog from './TwitchSetupDialog';
 import EventChip from './EventChip';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -72,11 +61,7 @@ class EventCards extends Component {
     }
     vals = vals.slice(0, limit);
 
-
-    const rowStyle = { height: '2rem' };
-    const isLoggedIn = !!uid;
-
-    if(vals.length == 0) return null;
+    if(vals.length === 0) return null;
 
     return <div>
         <Typography variant="h5" gutterBottom>{heading}</Typography>

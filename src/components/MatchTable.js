@@ -54,7 +54,7 @@ class MatchTable extends React.Component {
 
   showDetails = (id) => {
     this.setState({selectedMatch: id});
-  }
+  };
 
   render() {
     const {matches, team, classes} = this.props;

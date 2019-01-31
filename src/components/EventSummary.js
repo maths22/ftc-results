@@ -8,7 +8,7 @@ import Paper from '@material-ui/core/Paper';
 
 import {
   getDivisions,
-  getEventMatches, getEventRankings, getEventTeams,
+  getEventMatches, getEventRankings, getEventTeams, getEventAwards,
   getEvents,
   getLeagues, getTeams,
 } from '../actions/api';
@@ -18,6 +18,7 @@ import {withStyles} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
+import AwardsTable from './AwardsTable';
 import RankingsTable from './RankingsTable';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -111,6 +112,7 @@ class EventSummary extends Component {
     this.props.getEventTeams(this.props.id);
     this.props.getEventMatches(this.props.id);
     this.props.getEventRankings(this.props.id);
+    this.props.getEventAwards(this.props.id);
   };
 
   setTitle() {
@@ -189,13 +191,21 @@ class EventSummary extends Component {
     if(this.hasDivisions() && this.state.selectedDivision === 0) {
       return {
         'teams': 1,
-        'matches': 2
+        'matches': 2,
+        'awards': 3
+      };
+    } else if(this.hasDivisions() || (this.props.event && this.props.event.context_type === 'Division')) {
+      return {
+        'teams': 1,
+        'rankings': 2,
+        'matches': 3,
       };
     }
     return {
       'teams': 1,
       'rankings': 2,
-      'matches': 3
+      'matches': 3,
+      'awards': 4
     };
   }
 
@@ -209,10 +219,11 @@ class EventSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const { classes, event, league, division, matches, rankings, teams } = this.props;
+    const { classes, event, league, division, matches, rankings, awards, teams } = this.props;
     const { selectedDivision, selectedTab } = this.state;
 
     const showRankings = !this.hasDivisions() || selectedDivision !== 0;
+    const showAwards = !(this.hasDivisions() && event.context_type !== 'Division') || selectedDivision === 0;
     const showDivisionAssignments = this.hasDivisions() && selectedDivision === 0;
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
@@ -236,7 +247,12 @@ class EventSummary extends Component {
         <MatchTable
             matches={matches && matches.filter(m => selectedDivision === 0 ? !m.division : selectedDivision === m.division)}
         />
-      </div>
+      </div>,
+      showAwards ? <div className={classes.tabPanel}>
+        <AwardsTable
+            awards={awards}
+            onRefresh={this.refresh}/>
+      </div>: null
     ].filter(e => e);
 
     return <Paper className={classes.root}>
@@ -267,6 +283,7 @@ class EventSummary extends Component {
           <Tab label="Teams" style={{marginLeft: 'auto'}}/>
           { showRankings ? <Tab label="Rankings" /> : null }
           <Tab label="Matches" />
+          { showAwards ? <Tab label="Awards" /> : null }
           {event.aasm_state === 'in_progress' ?
               <IconButton onClick={this.refresh} style={{marginLeft: 'auto', width: '48px'}}><RefreshIcon/></IconButton>
               : <Wrapper style={{marginLeft: 'auto', width: '48px'}}/> }
@@ -300,6 +317,13 @@ const mapStateToProps = (state, props) => {
           return ar - br;
         })
         .map((r) => Object.assign({}, r, {team: state.teams[r.team_id]}));
+    ret.awards = Object.values(state.awards).filter((m) => m.event_id === id)
+        .sort((a, b) => {
+          return b.id - a.id;
+        })
+        .map((a) => Object.assign({}, a, {
+          finalists: a.finalists.map((f) => Object.assign({}, f, {team: state.teams[f.team_id]}))
+        }));
     if(ret.event && ret.event.teams) {
       ret.teams = ret.event.teams.map((td) => ({team: state.teams[td.team], division: td.division}));
     }
@@ -319,6 +343,7 @@ const mapDispatchToProps = {
   getEventMatches,
   getEventRankings,
   getEventTeams,
+  getEventAwards,
   getLeagues,
   getTeams,
   setTitle,
