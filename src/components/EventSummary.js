@@ -223,7 +223,7 @@ class EventSummary extends Component {
     const { selectedDivision, selectedTab } = this.state;
 
     const showRankings = !this.hasDivisions() || selectedDivision !== 0;
-    const showAwards = (!this.hasDivisions() && event.context_type !== 'Division') || selectedDivision === 0;
+    const showAwards = (!this.hasDivisions() && event.context_type !== 'Division') || (this.hasDivisions() && selectedDivision === 0);
     const showDivisionAssignments = this.hasDivisions() && selectedDivision === 0;
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
