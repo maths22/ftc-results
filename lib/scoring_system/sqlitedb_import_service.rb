@@ -15,6 +15,7 @@ module ScoringSystem
           import_quals(event)
           import_elims(event)
           import_league_results(event)
+          import_awards(event)
           generate_rankings(event) unless event.context_type == 'Division'
           create_rankings(event)
 
@@ -87,7 +88,7 @@ module ScoringSystem
       alliances = @db.execute 'SELECT rank, team1, team2, team3 FROM alliances'
       alliance_map = {}
       alliances.each do |a|
-        teams = Team.find_by number: [a['team1'], a['team2'], a['team3']]
+        teams = Team.where number: [a['team1'], a['team2'], a['team3']]
         alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams
         alliance.save!
         alliance_map[alliance.seed] = alliance
@@ -98,12 +99,13 @@ module ScoringSystem
         red_match_alliance = MatchAlliance.new alliance: alliance_map[e['red']]
         blue_match_alliance = MatchAlliance.new alliance: alliance_map[e['blue']]
         match = Match.new event: event, red_alliance: red_match_alliance, blue_alliance: blue_match_alliance
+        puts elim_match_map
         match.update(elim_match_map[e['match']])
         match.save!
       end
-      quals_scores = @db.execute 'SELECT match, alliance, card, dq, noshow1, noshow2, noshow3, major, minor FROM elimsScores'
-      quals_scores.each do |s|
-        match = ss_match_to_results_match(event, 'elim', elim_match_map[s['match']])
+      elims_score = @db.execute 'SELECT match, alliance, card, dq, noshow1, noshow2, noshow3, major, minor FROM elimsScores'
+      elims_score.each do |s|
+        match = ss_match_to_results_match(event, 'elim', s['match'])
         match_alliance = s['alliance'] == 0 ? match.red_alliance : match.blue_alliance
         match_alliance.red_card.fill(true) if s['card'] >= 2
         match_alliance.yellow_card.fill(true) if s['card'] >= 1
@@ -115,6 +117,7 @@ module ScoringSystem
         score = Score.new season_score: rr_score
         match.red_score = score if s['alliance'] == 0
         match.blue_score = score if s['alliance'] == 1
+        match.played = true
         match.save!
       end
 
@@ -126,6 +129,7 @@ module ScoringSystem
 
       season_results.each do |r|
         match = ss_match_to_results_match(event, phase, r['match'])
+        puts match
         score = r['alliance'].zero? ? match.red_score : match.blue_score
         rr_score = score.season_score
         rr_score.robots_landed = (r['landed1']) + (r['landed2'])
@@ -150,16 +154,17 @@ module ScoringSystem
         seriespos = {}
         seriespos.default = 0
         elims.each do |e|
-          if e.red == 1 && e.blue == 4
-            map[e.match] = { phase: 'semi', series: 1, number: seriespos[:sf1] += 1 }
+          if e['red'] == 1 && e['blue'] == 4
+            map[e['match']] = { phase: 'semi', series: 1, number: seriespos[:sf1] += 1 }
             next
           end
-          if e.red == 2 && e.blue == 3
-            map[e.match] = { phase: 'semi', series: 2, number: seriespos[:sf2] += 1 }
+          if e['red'] == 2 && e['blue'] == 3
+            map[e['match']] = { phase: 'semi', series: 2, number: seriespos[:sf2] += 1 }
             next
           end
-          map[e.match] = { phase: 'final', number: seriespos[:final] += 1 }
+          map[e['match']] = { phase: 'final', number: seriespos[:final] += 1 }
         end
+        map
       end
     end
 
@@ -212,6 +217,51 @@ module ScoringSystem
                            tie_breaker_points: tr.tbp,
                            matches_played: tr.matches_played
         rank.save!
+      end
+    end
+
+    def import_awards(event)
+      # TODO consider awardOrder
+      awards_given = @db.execute 'SELECT id, winnerName, winnerTeam, winnerDescription, secondName, secondTeam, thirdName, thirdTeam FROM awardAssignment'
+      awards_given.each do |ag|
+        a = award_definitions[ag['id']]
+        award = Award.new name: a['name'],
+                          description: a['description'],
+                          event: event
+        award.save!
+        suffix = a['teamAward'].zero? ? 'Name' : 'Team'
+        recipient = a['teamAward'].zero? ? :recipient : :team_id
+        if ag["winner#{suffix}"] && ag["winner#{suffix}"] != -1
+          AwardFinalist.new(
+            recipient => ag["winner#{suffix}"],
+            :place => 1,
+            :description => ag['winnerDescription'],
+            :award => award
+          ).save!
+        end
+        if ag["second#{suffix}"] && ag["second#{suffix}"] != -1
+          AwardFinalist.new(
+            recipient => ag["second#{suffix}"],
+            :place => 2,
+            :award => award
+          ).save!
+        end
+        if ag["third#{suffix}"] && ag["third#{suffix}"] != -1
+          AwardFinalist.new(
+            recipient => ag["third#{suffix}"],
+            :place => 3,
+            :award => award
+          ).save!
+        end
+      end
+    end
+
+    def award_definitions
+      @award_definitions ||= begin
+        awards = @db.execute 'SELECT id, name, description, awardOrder, teamAward FROM awardInfo'
+        awards.map do |a|
+          [a['id'], a]
+        end.to_h
       end
     end
   end
