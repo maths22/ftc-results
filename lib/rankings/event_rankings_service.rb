@@ -46,8 +46,11 @@ module Rankings
                           .joins(alliance: :event)
                           .includes(alliance: { alliance_teams: { team: :divisions } } )
                           .where(alliance: { events: { context: @evt.context.divisions } })
+      league_rankings = lrs.compute
       evt_rankings.transform_values! do |lst|
-        lst << lrs[lst[0].team]
+        lst << league_rankings[lst[0].team.number] if league_rankings.key? lst[0].team.number
+        lst[0].matches_played += league_rankings[lst[0].team.number].matches_played if league_rankings.key? lst[0].team.number
+        lst
       end
     end
 
