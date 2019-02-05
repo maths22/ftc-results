@@ -40,6 +40,7 @@ class Ability
       can :view_matches, :all
       can :view_rankings, :all
       can :view_teams, :all
+      can :view_awards, :all
       can :request_access, :all
 
       can %i[
@@ -50,6 +51,7 @@ class Ability
         post_alliances
         post_matches
         post_match
+        post_awards
         twitch
         remove_twitch
       ], Event do |evt|
