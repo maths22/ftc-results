@@ -105,10 +105,10 @@ class Uploader extends Component {
           phase = 'final';
         }
         let series = null;
-        if(matchParts.length === 3) {
+        if(matchParts.length === 4) {
           series = parseInt(matchParts[1]);
         }
-        const matchNum = matchParts.length === 3 ? parseInt(matchParts[2]) : parseInt(matchParts[1]);
+        const matchNum = matchParts.length === 4 ? parseInt(matchParts[3]) : parseInt(matchParts[1]);
         const mid = phase + '-' + (series ? (series + '-') : '') + matchNum;
         const dispMatch = this.displayedMatches[mid] || {};
         dispMatch.displayAt = new Date();
@@ -235,6 +235,7 @@ class Uploader extends Component {
     const prefix = phase === 'final' ? 'finals' : ('sf/' + series);
     const matchesResult = await this.props.getLocalElimMatches(this.props.localServer.event, prefix);
     if(matchesResult.error && (
+        matchesResult.payload.name === 'InternalError' ||
         matchesResult.payload.response.errorCode === 'NOT_READY' ||
         matchesResult.payload.response.errorCode === 'NO_SUCH_EVENT') // This error code makes no sense for the situation in which it appears
     ) {
@@ -278,7 +279,6 @@ class Uploader extends Component {
 
 
   syncMatchResults = async (matches) => {
-
     // Calculate which results should be posted
     matches.forEach((m) => {
       const mid = m.phase + '-' + (m.series ? (m.series + '-') : '') + m.number;
@@ -295,7 +295,6 @@ class Uploader extends Component {
       this.displayedMatches[mid] = dispMatch;
     });
     this.displayedInitialized = true;
-    console.log(this.displayedMatches);
 
     //TODO generalize seasons
     const matchResults = await Promise.all(matches.filter((m) => m.postResults).map(async (m) => {
