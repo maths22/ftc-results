@@ -25,6 +25,14 @@ class Match < ApplicationRecord
     end
   end
 
+  def record_for_team(team)
+    team = team.number unless team.is_a? Integer
+    return red_rp if red_alliance.alliance.team_ids.include? team
+    return blue_rp if blue_alliance.alliance.team_ids.include? team
+
+    raise "Team #{team} not found for match"
+  end
+
   %i[red blue].each do |color|
     other_color = color == :red ? :blue : :red
 
