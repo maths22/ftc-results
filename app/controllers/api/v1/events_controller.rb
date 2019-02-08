@@ -135,12 +135,25 @@ module Api
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
             @event.rankings.destroy_all
-            params[:rankings].each do |rk|
-              ranking = Ranking.new(rk.permit(:team_id,
-                                              :ranking,
-                                              :ranking_points,
-                                              :tie_breaker_points,
-                                              :matches_played))
+            team_rankings = params[:rankings].map do |rk|
+              Rankings::TeamRanking.new.tap do |nr|
+                nr.team = Team.find(rk['team_id'])
+                nr.rp = rk['ranking_points']
+                nr.tbp = rk['tie_breaker_points']
+                nr.matches_played = rk['matches_played']
+                nr.high_score = 0
+                nr.ranking_breaker = rk['ranking']
+              end
+            end
+            if @event.context_type == 'League'
+              Rankings::LeagueRankingsService.new.merge_with_event_rankings(@event, team_rankings)
+            end
+            team_rankings.sort.reverse.each_with_index do |rk, idx|
+              ranking = Ranking.new(team: rk.team,
+                                    ranking: idx + 1,
+                                    ranking_points: rk.rp,
+                                    tie_breaker_points: rk.tbp,
+                                    matches_played: rk.matches_played)
               ranking.event = @event
               ranking.event_division = req_division
               ranking.save!
@@ -148,6 +161,7 @@ module Api
           end
         rescue StandardError => exception
           render json: { error: exception.message }, status: :internal_server_error
+          logger.error ([exception.message]+exception.backtrace).join($INPUT_RECORD_SEPARATOR)
           return
         end
         render json: { success: true }
