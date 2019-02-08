@@ -7,6 +7,30 @@ module Rankings
       initial_rankings.merge(active_rankings)
     end
 
+    def merge_with_event_rankings(evt, evt_rankings)
+      self.alliances = MatchAlliance
+                       .joins(alliance: :event)
+                       .includes(alliance: { alliance_teams: { team: :divisions } })
+                       .where(alliance: { events: { context: evt.context.divisions } })
+      league_rankings = compute
+      evt_rankings.map! do |rk|
+        lst = [rk]
+        lst << league_rankings[rk.team.number] if league_rankings.key? rk.team.number
+        lst[0].matches_played += league_rankings[rk.team.number].matches_played if league_rankings.key? rk.team.number
+        lst
+      end
+      evt_rankings.map! do |lst|
+        ranking = TeamRanking.new
+        ranking.team = lst[0].team
+        ranking.division = lst[0].division
+        ranking.rp = lst.map(&:rp).reduce(0, :+)
+        ranking.tbp = lst.map(&:tbp).reduce(0, :+)
+        ranking.high_score = lst.map(&:high_score).max
+        ranking.matches_played = lst[0].matches_played
+        ranking
+      end
+    end
+
     def initial_rankings
       Division.includes(teams: :divisions).all.map(&:teams).flatten.map do |team|
         ranking = TeamRanking.new
@@ -63,7 +87,7 @@ module Rankings
       @alliances ||= MatchAlliance
                      .joins(alliance: :event)
                      .includes(alliance: { alliance_teams: { team: :divisions } } )
-                     .where(alliance: { events: { season: ::CurrentScope.season_or_default } })
+                     .where(alliance: { events: { season: ::CurrentScope.season_or_default, context_type: 'Division' } })
     end
   end
 end
