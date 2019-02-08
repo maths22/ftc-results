@@ -186,6 +186,11 @@ class Uploader extends Component {
   syncAwards = async () => {
     const intRegex = /^-?[0-9]+$/;
     const awardsResult = await this.props.getLocalAwards(this.props.localServer.event);
+    if(awardsResult.error && awardsResult.payload.response.errorCode === 'NOT_READY') {
+      return;
+    } else if(awardsResult.error) {
+      throw awardsResult.payload;
+    }
     const awards = awardsResult.payload.awards;
     const uploadAwards = awards.map((a) => ({
       name: a.awardName,
