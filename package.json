@@ -27,6 +27,7 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.1",
+    "react-scroll-loop": "maths22/react-scroll-loop",
     "react-swipeable-views": "^0.13.0",
     "redux": "^4.0.1",
     "redux-api-middleware": "^3.0.1",

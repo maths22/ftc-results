@@ -5281,6 +5281,11 @@ load-json-file@^2.0.0:
     pify "^2.0.0"
     strip-bom "^3.0.0"
 
+load-styles@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/load-styles/-/load-styles-2.0.0.tgz#a0901c8f80ef0c869454eb580b4efc2f0be48471"
+  integrity sha1-oJAcj4DvDIaUVOtYC078LwvkhHE=
+
 loader-fs-cache@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/loader-fs-cache/-/loader-fs-cache-1.0.1.tgz#56e0bf08bd9708b26a765b68509840c8dec9fdbc"
@@ -7264,6 +7269,12 @@ react-scripts@2.1.1:
     workbox-webpack-plugin "3.6.3"
   optionalDependencies:
     fsevents "1.2.4"
+
+react-scroll-loop@maths22/react-scroll-loop:
+  version "0.0.11"
+  resolved "https://codeload.github.com/maths22/react-scroll-loop/tar.gz/99fab95564b94838af5a737e3bef8d2f6dd14e63"
+  dependencies:
+    load-styles "^2.0.0"
 
 react-swipeable-views-core@^0.13.0:
   version "0.13.0"

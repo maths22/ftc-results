@@ -7,6 +7,7 @@ import React from 'react';
 import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
 import Typography from '@material-ui/core/Typography';
+import ScrollingBody from './ScrollingBody';
 
 const styles = (theme) => ({
   table: {
@@ -19,15 +20,47 @@ const styles = (theme) => ({
     '&:last-child': {
       paddingRight: 1 * theme.spacing.unit,
     }
+  },
+  rotatingTableCell: {
+    // paddingLeft: 1 * theme.spacing.unit,
+    // paddingRight: 1 * theme.spacing.unit,
+    display: 'inline-block',
+    textAlign: 'center',
+    // '&:last-child': {
+    //   paddingRight: 1 * theme.spacing.unit,
+    // }
   }
 });
 
-function rankingsTable({rankings, classes, showRecord}) {
+function rankingsTable ({rankings, classes, showRecord, pitDisplay}) {
   if(!rankings || rankings.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>Rankings are not currently available</Typography>;
   }
 
   const rowStyle = { height: '2rem' };
+
+  if(pitDisplay) {
+    return [
+    <div className={'tableHeadDiv'}>
+      <span className={classes.rotatingTableCell} style={{width: '20%'}}>Rank</span>
+      <span className={classes.rotatingTableCell} style={{width: '20%'}}>Team #</span>
+      <span className={classes.rotatingTableCell} style={{width: '20%'}}>RP</span>
+      <span className={classes.rotatingTableCell} style={{width: '20%'}}>TBP</span>
+      <span className={classes.rotatingTableCell} style={{width: '20%'}}>Matches</span>
+    </div>,
+    <ScrollingBody key={2}>
+      {rankings.map((r) => {
+          return <div className={'tableRowDiv'} key={r.id} style={Object.assign({},{width: '100%', rowStyle})}>
+            <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.ranking < 0 ? 'NP' : r.ranking}</span>
+            <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.team.number}</span>
+            <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.ranking < 0 ? '-' : r.ranking_points}</span>
+            <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.ranking < 0 ? '-' : r.tie_breaker_points}</span>
+            <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.ranking < 0 ? '-' : r.matches_played}</span>
+          </div>
+        })}
+      <div className={'tableRowDiv'} />
+    </ScrollingBody>];
+  }
 
 
   return <Table className={classes.table}>
