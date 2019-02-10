@@ -216,7 +216,7 @@ class EventRankings extends Component {
                 onRefresh={this.refresh}/>
           </Grid>
 
-          <Grid item xs={6} style={{height: '100%'}}>
+          <Grid item xs={6} style={{height: '100%', overflowY: 'hidden'}}>
             <MatchTable
                 matches={matches && matches.filter(m => selectedDivision === 0 ? !m.division : selectedDivision === m.division)}
                 pitDisplay
