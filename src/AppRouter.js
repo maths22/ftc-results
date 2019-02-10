@@ -1,5 +1,5 @@
 import {ConnectedRouter} from 'connected-react-router';
-import {Switch} from 'react-router';
+import {Route, Switch} from 'react-router';
 import React, {Component} from 'react';
 import App from './App';
 import DivisionsSummary from './components/DivisionsSummary';
@@ -14,6 +14,7 @@ import EventSummary from './components/EventSummary';
 import asyncComponent from './components/asyncComponent';
 import UpdateAccount from './components/users/UpdateAccount';
 import ConfirmAccount from './components/users/ConfirmAccount';
+import EventRankings from './components/display/EventRankings';
 
 const AsyncUploader = asyncComponent(() => import('./components/localScoring/Uploader'));
 
@@ -32,6 +33,7 @@ class AppRouter extends Component {
           <DefaultLayout exact path="/leagues/rankings/:id" component={({match}) => <LeagueRankings type="league" id={match.params.id}/>}/>
           <DefaultLayout exact path="/divisions/rankings/:id" component={({match}) => <LeagueRankings type="division" id={match.params.id}/>}/>
           <DefaultLayout exact path="/teams/summary/:id" component={({match}) => <TeamSummary id={match.params.id}/>}/>
+          <Route exact path="/display/rankings/:id" component={({match}) => <EventRankings id={match.params.id}/>}/>
           <DefaultLayout exact path="/account" component={UpdateAccount}/>
           <DefaultLayout exact path="/account/confirm" component={ConfirmAccount}/>
           <DefaultLayout component={() => (<div>404 – Page Not Found</div>)} />
