@@ -45,8 +45,8 @@ module ScoringSystem
       quals = @db.execute 'SELECT match, red1, red2, blue1, blue2, red1s, red2s, blue1s, blue2s FROM quals'
 
       quals.each do |q|
-        red_alliance = Alliance.new event: event, is_elims: false, teams: Team.find([q['red1'], q['red2']])
-        blue_alliance = Alliance.new event: event, is_elims: false, teams: Team.find([q['blue1'], q['blue2']])
+        red_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['red1']), Team.find(q['red2'])]
+        blue_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['blue1']), Team.find(q['blue2'])]
         red_alliance.save!
         blue_alliance.save!
         red_match_alliance = MatchAlliance.new alliance: red_alliance
@@ -88,7 +88,8 @@ module ScoringSystem
       alliances = @db.execute 'SELECT rank, team1, team2, team3 FROM alliances'
       alliance_map = {}
       alliances.each do |a|
-        teams = Team.find([a['team1'], a['team2'], a['team3']])
+        teams = [Team.find(a['team1']), Team.find(a['team2'])]
+        teams.append(a['team3']) if a['team3'].positive?
         alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams
         alliance.save!
         alliance_map[alliance.seed] = alliance
