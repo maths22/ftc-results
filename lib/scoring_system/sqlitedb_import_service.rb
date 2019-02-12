@@ -89,7 +89,7 @@ module ScoringSystem
       alliance_map = {}
       alliances.each do |a|
         teams = [Team.find(a['team1']), Team.find(a['team2'])]
-        teams.append(a['team3']) if a['team3'].positive?
+        teams.append(Team.find(a['team3'])) if a['team3'].positive?
         alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams
         alliance.save!
         alliance_map[alliance.seed] = alliance
