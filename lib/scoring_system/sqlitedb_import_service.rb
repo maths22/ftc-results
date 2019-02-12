@@ -88,7 +88,7 @@ module ScoringSystem
       alliances = @db.execute 'SELECT rank, team1, team2, team3 FROM alliances'
       alliance_map = {}
       alliances.each do |a|
-        teams = Team.where number: [a['team1'], a['team2'], a['team3']]
+        teams = Team.find([a['team1'], a['team2'], a['team3']])
         alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams
         alliance.save!
         alliance_map[alliance.seed] = alliance
