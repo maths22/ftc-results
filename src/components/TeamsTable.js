@@ -43,7 +43,7 @@ function teamsTable({teams, classes, showDivisionAssignments, divisions, onClick
       </TableRow>
     </TableHead>
     <TableBody>
-      {teams.map((td) => {
+      {teams.sort((a, b) => a.number - b.number).map((td) => {
         const t = td.team;
         const division = divisions.find((d) => d.number === td.division);
         return <TableRow key={t.number} style={rowStyle}>
