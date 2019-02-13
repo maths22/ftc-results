@@ -134,7 +134,7 @@ module Api
 
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
-            @event.rankings.destroy_all
+            @event.rankings.where(event_division: req_division).destroy_all
             team_rankings = params[:rankings].map do |rk|
               Rankings::TeamRanking.new.tap do |nr|
                 nr.team = Team.find(rk['team_id'])
