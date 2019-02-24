@@ -16,10 +16,10 @@ module ScoringSystem
           import_elims(event, evt_division)
           import_league_results(event)
           import_awards(event)
-          generate_rankings(event) unless event.context_type == 'Division'
+          generate_rankings(event, evt_division) unless event.context_type == 'Division'
           create_rankings(event, evt_division)
 
-          event.finalize!
+          event.finalize! unless event.finalized?
           event.save!
         end
       end
@@ -72,7 +72,7 @@ module ScoringSystem
 
       quals_scores = @db.execute 'SELECT match, alliance, card1, card2, dq1, dq2, noshow1, noshow2, major, minor FROM qualsScores'
       quals_scores.each do |s|
-        match = ss_match_to_results_match(event, 'qual', s['match'])
+        match = ss_match_to_results_match(event, 'qual', s['match'], evt_division)
         match_alliance = s['alliance'].zero? ? match.red_alliance : match.blue_alliance
         match_alliance.red_card[0] = true if s['card1'] >= 2
         match_alliance.red_card[1] = true if s['card2'] >= 2
@@ -90,7 +90,7 @@ module ScoringSystem
         match.save!
       end
 
-      import_match_scores(event: event, phase: 'qual', table: 'qualsGameSpecific')
+      import_match_scores(event: event, evt_division: evt_division, phase: 'qual', table: 'qualsGameSpecific')
     end
 
     def import_elims(event, evt_division)
@@ -116,7 +116,7 @@ module ScoringSystem
       end
       elims_score = @db.execute 'SELECT match, alliance, card, dq, noshow1, noshow2, noshow3, major, minor FROM elimsScores'
       elims_score.each do |s|
-        match = ss_match_to_results_match(event, 'elim', s['match'])
+        match = ss_match_to_results_match(event, 'elim', s['match'], evt_division)
         match_alliance = s['alliance'] == 0 ? match.red_alliance : match.blue_alliance
         match_alliance.red_card.fill(true) if s['card'] >= 2
         match_alliance.yellow_card.fill(true) if s['card'] >= 1
@@ -132,15 +132,14 @@ module ScoringSystem
         match.save!
       end
 
-      import_match_scores(event: event, phase: 'elim', table: 'elimsGameSpecific')
+      import_match_scores(event: event, evt_division: evt_division, phase: 'elim', table: 'elimsGameSpecific')
     end
 
-    def import_match_scores(event:, phase:, table:)
+    def import_match_scores(event:, phase:, table:, evt_division:)
       season_results = @db.execute 'SELECT match, alliance, landed1, landed2, claimed1, claimed2, autoParking1, autoParking2, sampleFieldState, depot, gold, silver, latched1, latched2, endParked1, endParked2 FROM ' + table
 
       season_results.each do |r|
-        match = ss_match_to_results_match(event, phase, r['match'])
-        puts match
+        match = ss_match_to_results_match(event, phase, r['match'], evt_division)
         score = r['alliance'].zero? ? match.red_score : match.blue_score
         rr_score = score.season_score
         rr_score.robots_landed = (r['landed1']) + (r['landed2'])
@@ -179,11 +178,11 @@ module ScoringSystem
       end
     end
 
-    def ss_match_to_results_match(event, phase, number)
+    def ss_match_to_results_match(event, phase, number, evt_division)
       if phase == 'qual'
         Match.where(event: event, phase: phase, number: number).first
       else
-        Match.where(elim_match_map[number].merge(event: event)).first
+        Match.where(elim_match_map[number].merge(event: event, event_division: evt_division)).first
       end
     end
 
@@ -204,7 +203,7 @@ module ScoringSystem
 
       results.each do |r|
         team = Team.find r['team']
-        match = ss_match_to_results_match(event, 'qual', r['match'])
+        match = ss_match_to_results_match(event, 'qual', r['match'], nil)
         match.set_rp_for_team(team, r['rp'])
         match.set_tbp_for_team(team, r['tbp'])
         match.set_score_for_team(team, r['score'])
@@ -212,8 +211,9 @@ module ScoringSystem
       end
     end
 
-    def generate_rankings(event)
-      event.matches.each do |m|
+    def generate_rankings(event, evt_division)
+      event.matches.where(event_division: evt_division).each do |m|
+        puts m.event_division&.number.to_s + ' ' + m.phase + ' ' + m.series.to_s + ' ' + m.number.to_s
         m.update_ranking_data
         m.save!
       end
