@@ -95,5 +95,5 @@ class Match < ApplicationRecord
     blue_alliance.score[1] = blue_score_total unless blue_alliance.surrogate[1]
   end
 
-  enum phase: %i[qual semi final]
+  enum phase: %i[qual semi final interfinal]
 end
