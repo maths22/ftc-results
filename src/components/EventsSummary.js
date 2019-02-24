@@ -156,7 +156,7 @@ class EventsSummary extends Component {
                   <TableCell className={classes.tableCell}>{e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
                   <TableCell className={classes.tableCell}>{e.aasm_state === 'finalized' && !divFinalsLeft ? <CheckIcon/> :
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
-                  {e.aasm_state === 'finalized'
+                  {e.aasm_state === 'finalized' || divFinalsLeft
                       ? this.renderDbs(e)
                       : <TableCell className={classes.tableCell}><TextLink href={scoring_download_url(e.id)}>Scoring System</TextLink></TableCell> }
                   {isLoggedIn ? <TableCell className={classes.tableCell}>

@@ -151,7 +151,7 @@ class EventSummary extends Component {
   renderDivisionPicker = () => {
     const { event } = this.props;
     if(!this.hasDivisions()) return null;
-    console.log(this.state.selectedDivision);
+
     return <div>
         <Select value={this.state.selectedDivision} onChange={(evt) => this.selectDivision(evt.target.value)} classes={{root: this.props.classes.h5}}>
           <MenuItem value={0}>Finals Division</MenuItem>
