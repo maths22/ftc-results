@@ -180,7 +180,7 @@ module ScoringSystem
 
     def ss_match_to_results_match(event, phase, number, evt_division)
       if phase == 'qual'
-        Match.where(event: event, phase: phase, number: number).first
+        Match.where(event: event, phase: phase, number: number, event_division: evt_division).first
       else
         Match.where(elim_match_map[number].merge(event: event, event_division: evt_division)).first
       end
@@ -220,7 +220,9 @@ module ScoringSystem
     end
 
     def create_rankings(event, evt_division)
-        Rankings::EventRankingsService.new(event).compute.values.sort.reverse.map.with_index do |tr, idx|
+      Rankings::EventRankingsService.new(event).compute.values.select do |tr|
+        evt_division.nil? || evt_division.team_numbers.include?(tr.team.number)
+      end.sort.reverse.map.with_index do |tr, idx|
         rank = Ranking.new team: tr.team,
                            event: event,
                            event_division: evt_division,
