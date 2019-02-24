@@ -3,21 +3,21 @@ module ScoringSystem
     include ActiveStorage::Downloading
     attr_accessor :blob
 
-    def import_to_event(event)
-      self.blob = event.import
+    def import_to_event(event, evt_division = nil)
+      self.blob = evt_division.nil? ? event.import : evt_division.import
 
       download_blob_to_tempfile do |file|
         @db = SQLite3::Database.new file.path
         @db.results_as_hash = true
         ActiveRecord::Base.transaction do
           verify_event(event)
-          import_teams(event)
-          import_quals(event)
-          import_elims(event)
+          import_teams(event, evt_division)
+          import_quals(event, evt_division)
+          import_elims(event, evt_division)
           import_league_results(event)
           import_awards(event)
           generate_rankings(event) unless event.context_type == 'Division'
-          create_rankings(event)
+          create_rankings(event, evt_division)
 
           event.finalize!
           event.save!
@@ -31,22 +31,31 @@ module ScoringSystem
 
     def verify_event(event)
       team = @db.execute "SELECT value FROM config WHERE key LIKE 'code'"
-      raise "DB is for '#{team[0]['value']}', expected DB for '#{event.slug}'" unless team[0]['value'] == event.slug
+      raise "DB is for '#{team[0]['value']}', expected DB for '#{event.slug}'" unless team[0]['value'].start_with? event.slug
     end
 
-    def import_teams(event)
-      teams = @db.execute 'SELECT number FROM teams'
-      teams = Team.find(teams.map { |t| t['number'] })
-      event.teams = teams
+    def import_teams(event, evt_division)
+      team_list = @db.execute('SELECT number FROM teams').map { |t| t['number'] }
+      new_team_nums = team_list - event.teams.pluck(:number)
+      teams = new_team_nums.map { |t| Team.find_or_create_by(number: t) }
+
+      event.teams = event.teams + teams
+      event.teams = event.teams.select { |t| team_list.include? t.number } if evt_division.nil?
+      unless evt_division.nil?
+        event.events_teams.select { |et| team_list.include?(et.team_id) }.each do |et|
+          et.event_division = evt_division
+          et.save!
+        end
+      end
       event.save!
     end
 
-    def import_quals(event)
+    def import_quals(event, evt_division)
       quals = @db.execute 'SELECT match, red1, red2, blue1, blue2, red1s, red2s, blue1s, blue2s FROM quals'
 
       quals.each do |q|
-        red_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['red1']), Team.find(q['red2'])]
-        blue_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['blue1']), Team.find(q['blue2'])]
+        red_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['red1']), Team.find(q['red2'])], event_division: evt_division
+        blue_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['blue1']), Team.find(q['blue2'])], event_division: evt_division
         red_alliance.save!
         blue_alliance.save!
         red_match_alliance = MatchAlliance.new alliance: red_alliance
@@ -55,7 +64,7 @@ module ScoringSystem
         red_match_alliance.surrogate[1] = true if q['red2S'].positive?
         blue_match_alliance.surrogate[0] = true if q['blue1S'].positive?
         blue_match_alliance.surrogate[1] = true if q['blue2S'].positive?
-        match = Match.new event: event, phase: 'qual', number: q['match'], red_alliance: red_match_alliance, blue_alliance: blue_match_alliance
+        match = Match.new event: event, phase: 'qual', number: q['match'], red_alliance: red_match_alliance, blue_alliance: blue_match_alliance, event_division: evt_division
         match.red_score = Score.new
         match.blue_score = Score.new
         match.save!
@@ -84,13 +93,15 @@ module ScoringSystem
       import_match_scores(event: event, phase: 'qual', table: 'qualsGameSpecific')
     end
 
-    def import_elims(event)
+    def import_elims(event, evt_division)
       alliances = @db.execute 'SELECT rank, team1, team2, team3 FROM alliances'
       alliance_map = {}
       alliances.each do |a|
+        next unless a['team1'].positive?
+
         teams = [Team.find(a['team1']), Team.find(a['team2'])]
         teams.append(Team.find(a['team3'])) if a['team3'].positive?
-        alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams
+        alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams, event_division: evt_division
         alliance.save!
         alliance_map[alliance.seed] = alliance
       end
@@ -99,8 +110,7 @@ module ScoringSystem
       elims.each do |e|
         red_match_alliance = MatchAlliance.new alliance: alliance_map[e['red']]
         blue_match_alliance = MatchAlliance.new alliance: alliance_map[e['blue']]
-        match = Match.new event: event, red_alliance: red_match_alliance, blue_alliance: blue_match_alliance
-        puts elim_match_map
+        match = Match.new event: event, red_alliance: red_match_alliance, blue_alliance: blue_match_alliance, event_division: evt_division
         match.update(elim_match_map[e['match']])
         match.save!
       end
@@ -209,10 +219,11 @@ module ScoringSystem
       end
     end
 
-    def create_rankings(event)
+    def create_rankings(event, evt_division)
         Rankings::EventRankingsService.new(event).compute.values.sort.reverse.map.with_index do |tr, idx|
         rank = Ranking.new team: tr.team,
                            event: event,
+                           event_division: evt_division,
                            ranking: idx + 1,
                            ranking_points: tr.rp,
                            tie_breaker_points: tr.tbp,

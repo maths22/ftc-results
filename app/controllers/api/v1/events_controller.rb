@@ -104,11 +104,19 @@ module Api
       end
 
       def import_results
-        @event.import.attach(params[:import])
+        if req_division.nil?
+          @event.import.attach(params[:import])
+        else
+          req_division.import.attach(params[:import])
+        end
         begin
           ActiveRecord::Base.transaction do
-            @event.reset!
-            ::ScoringSystem::SqlitedbImportService.new.import_to_event @event
+            if req_division.nil?
+              @event.reset!
+              ::ScoringSystem::SqlitedbImportService.new.import_to_event @event
+            else
+              ::ScoringSystem::SqlitedbImportService.new.import_to_event @event, req_division
+            end
           end
         rescue StandardError => exception
           render json: { error: exception.message }, status: :internal_server_error
@@ -229,6 +237,8 @@ module Api
           ActiveRecord::Base.transaction do
             @event.start! if @event.not_started?
             params[:alliances].each do |a|
+              next unless a[:teams][0].positive?
+
               alliance = Alliance.find_or_create_by event: @event, event_division: req_division, is_elims: true, seed: a[:seed]
               alliance.teams = Team.find(a[:teams])
               alliance.event_division = req_division
