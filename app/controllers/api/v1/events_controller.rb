@@ -18,7 +18,11 @@ module Api
           evt[:can_import] = can? :import_results, e
           evt[:import] = rails_blob_path(e.import, disposition: 'attachment') if e.import.attached?
           evt[:channel] = e.channel_name
-          evt[:divisions] = e.event_divisions
+          evt[:divisions] = e.event_divisions.map do |d|
+            d.attributes.tap do |attr|
+              attr[:import] = rails_blob_path(d.import, disposition: 'attachment') if d.import.attached?
+            end
+          end
           evt
         end)
       end
