@@ -294,9 +294,9 @@ export const getLeagueRankings = () => ({
   }
 });
 
-export const importEventResults = (id, signedId) => ({
+export const importEventResults = (id, signedId, division) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/import_results/${id}`,
+    endpoint: `${API_BASE}/events/import_results/${id}?division=${division}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({import: signedId}),

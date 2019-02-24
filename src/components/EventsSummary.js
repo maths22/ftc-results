@@ -88,6 +88,22 @@ class EventsSummary extends Component {
     this.setState({streamEvent: id});
   };
 
+  renderDbs(e) {
+    const links = [];
+    if(e.import) {
+      links.push(<TextLink href={API_HOST + e.import} ref={0}>{e.divisions.length > 0 ? 'Finals' : ''} Database</TextLink>);
+    }
+    if(e.divisions) {
+      e.divisions.forEach((d) => {
+        if(!d.import) return;
+        links.push(<div><TextLink href={API_HOST + d.import} ref={d.id}>{d.name} Database</TextLink></div>)
+      });
+    }
+    return <TableCell className={this.props.classes.tableCell}>
+      {links}
+    </TableCell>;
+  }
+
   render () {
     if(!this.props.events) {
       return <LoadingSpinner/>;
@@ -125,6 +141,7 @@ class EventsSummary extends Component {
         </TableHead>
         <TableBody>
           {vals.map(e => {
+            const divFinalsLeft = e.divisions.some((d) => !d.import);
             return (
                 <TableRow key={e.id} style={rowStyle} className={e.aasm_state === 'canceled' ? classes.canceled :null}>
                   <TableCell className={classes.tableCell}><TextLink to={`/events/summary/${e.id}`}>{e.name}</TextLink></TableCell>
@@ -137,10 +154,10 @@ class EventsSummary extends Component {
                       : <TableCell className={classes.tableCell}/> }
                   <TableCell className={classes.tableCell}>{e.location}<br/>{e.city}, {e.state}, {e.country}</TableCell>
                   <TableCell className={classes.tableCell}>{e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
-                  <TableCell className={classes.tableCell}>{e.aasm_state === 'finalized' ? <CheckIcon/> :
+                  <TableCell className={classes.tableCell}>{e.aasm_state === 'finalized' && !divFinalsLeft ? <CheckIcon/> :
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
                   {e.aasm_state === 'finalized'
-                      ? (e.import ? <TableCell className={classes.tableCell}><TextLink href={API_HOST + e.import}>Database</TextLink></TableCell> : <TableCell/>)
+                      ? this.renderDbs(e)
                       : <TableCell className={classes.tableCell}><TextLink href={scoring_download_url(e.id)}>Scoring System</TextLink></TableCell> }
                   {isLoggedIn ? <TableCell className={classes.tableCell}>
                     {e.can_import && e.aasm_state !== 'finalized' ? <TextLink to={`/events/uploader/${e.id}`}>Live Upload</TextLink> : null}

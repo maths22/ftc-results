@@ -14,13 +14,15 @@ import activeStorageUpload from '../actions/upload';
 import Grid from '@material-ui/core/Grid/Grid';
 import {invalidateRankings} from '../actions/util';
 import CircularProgress from '@material-ui/core/es/CircularProgress/CircularProgress';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 class DivisionsSummary extends Component {
 
   constructor(props) {
     super(props);
     this.fileInput = React.createRef();
-    this.state = {error: null, inProgress: false};
+    this.state = {error: null, inProgress: false, selectedDivision: 0};
   }
 
   import = async () => {
@@ -28,7 +30,7 @@ class DivisionsSummary extends Component {
     this.setState({inProgress: true});
     try {
       const blob = await this.props.activeStorageUpload(this.fileInput.current.files[0]);
-      const results = await this.props.importEventResults(this.props.event.id, blob['signed_id']);
+      const results = await this.props.importEventResults(this.props.event.id, blob['signed_id'], this.state.selectedDivision);
       if(results.error) {
         this.setState({error: results.payload.response.error});
       } else {
@@ -42,16 +44,23 @@ class DivisionsSummary extends Component {
     this.setState({inProgress: false});
   };
 
+  hasDivisions = () => {
+    const { event } = this.props;
+    if(!event) return false;
+    return !(!event.divisions || event.divisions.length === 0);
+  };
+
 
   render () {
     if(this.props.event == null) return null;
     const {error} = this.state;
+    const {event} = this.props;
     return <Dialog
-        open={this.props.event !== null}
+        open={event !== null}
         onClose={this.props.onClose}
         aria-labelledby="form-dialog-title"
     >
-      <DialogTitle id="form-dialog-title">Import Results for {this.props.event.name}</DialogTitle>
+      <DialogTitle id="form-dialog-title">Import Results for {event.name}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Upload the event DB here
@@ -77,6 +86,14 @@ class DivisionsSummary extends Component {
           { this.fileInput.current && this.fileInput.current.files.length > 0 ? this.fileInput.current.files[0].name : 'No file chosen'}
           </Typography>
         </Button>
+
+        {this.hasDivisions() ?
+        <Select value={this.state.selectedDivision} onChange={(evt) => this.setState({selectedDivision: evt.target.value})}>
+          <MenuItem value={0}>Finals Division</MenuItem>
+          {event.divisions.map((d) => {
+            return <MenuItem value={d.number}>{d.name} Division</MenuItem>;
+          })}
+        </Select> : null}
 
       </DialogContent>
       <DialogActions>
