@@ -81,7 +81,7 @@ class MatchTable extends React.Component {
 
     const rowStyle = {height: '2rem'};
 
-    const prefixes = {'qual': 'Q-', 'semi': 'SF-', 'final': 'F-'};
+    const prefixes = {'qual': 'Q-', 'semi': 'SF-', 'final': 'F-', 'interfinal': 'IF-'};
 
     const groupedMatches = mapValues(groupBy(sortBy(matches, ['phase', 'series', 'number']), 'phase'), (matches) => {
       return matches.map((m) => {
@@ -192,6 +192,10 @@ class MatchTable extends React.Component {
         </TableRow>
       </TableHead>
       <TableBody>
+        {groupedMatches['interfinal'] ? <TableRow style={rowStyle}>
+          <TableCell className={classes.tableCell} colSpan={15}>Inter-division Finals</TableCell>
+        </TableRow> : null}
+        {groupedMatches['interfinal'] ? groupedMatches['interfinal'] : null}
         {groupedMatches['final'] ? <TableRow style={rowStyle}>
           <TableCell className={classes.tableCell} colSpan={15}>Finals</TableCell>
         </TableRow> : null}
