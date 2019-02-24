@@ -123,6 +123,7 @@ module Api
             end
           end
         rescue StandardError => exception
+          puts exception.backtrace
           render json: { error: exception.message }, status: :internal_server_error
           return
         end

@@ -160,10 +160,17 @@ module ScoringSystem
     def elim_match_map
       @elim_match_map ||= begin
         elims = @db.execute 'SELECT match, red, blue FROM elims'
+
+        is_finals = @db.execute("SELECT value FROM config WHERE key LIKE 'finals'")[0]['value'] == 'true'
+
         map = {}
         seriespos = {}
         seriespos.default = 0
         elims.each do |e|
+          if is_finals
+            map[e['match']] = { phase: 'interfinal', number: seriespos[:interfinal] += 1 }
+            next
+          end
           if e['red'] == 1 && e['blue'] == 4
             map[e['match']] = { phase: 'semi', series: 1, number: seriespos[:sf1] += 1 }
             next
