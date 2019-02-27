@@ -10,6 +10,8 @@ module Api
 
       # GET /events
       def index
+        expires_in(3.minutes, public: true)
+
         authorize!(:index, Event)
         @events = Event.with_attached_import.with_channel
 
@@ -60,19 +62,27 @@ module Api
 
       # GET /events/1
       def show
+        expires_in(3.minutes, public: true)
+
         render json: @event
       end
 
       def view_matches
+        expires_in(30.seconds, public: true)
+
         @matches = Match.includes([:red_score, :blue_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
       end
 
       def view_rankings
+        expires_in(30.seconds, public: true)
+
         @matches = Match.includes([:red_score, :blue_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
         @rankings = @event.rankings.includes(:team)
       end
 
       def view_awards
+        expires_in(30.seconds, public: true)
+
         @awards = @event.awards
       end
 

@@ -119,6 +119,8 @@ GEM
       tilt
     i18n (1.1.1)
       concurrent-ruby (~> 1.0)
+    instrumental_agent (2.1.0)
+      metrician
     jbuilder (2.8.0)
       activesupport (>= 4.2.0)
       multi_json (>= 1.2)
@@ -161,6 +163,7 @@ GEM
     materialize-sass (1.0.0)
       autoprefixer-rails (>= 6.0.3)
     method_source (0.9.1)
+    metrician (0.1.0)
     mimemagic (0.3.2)
     mini_magick (4.9.2)
     mini_mime (1.0.1)
@@ -314,6 +317,7 @@ DEPENDENCIES
   byebug
   cancancan (~> 2.0)
   devise_token_auth
+  instrumental_agent
   jbuilder (~> 2.5)
   letter_opener
   listen (>= 3.0.5, < 3.2)
@@ -345,4 +349,4 @@ RUBY VERSION
    ruby 2.5.1p57
 
 BUNDLED WITH
-   1.16.2
+   1.16.6
