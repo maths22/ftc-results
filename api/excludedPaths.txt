@@ -1,0 +1,4 @@
+/users
+/admin
+/api
+/rails/active_storage

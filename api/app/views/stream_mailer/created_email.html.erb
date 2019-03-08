@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+</head>
+<body>
+<h1>Your stream is assigned for <%= @eca.event.name %></h1>
+
+<p>
+<%= @eca.event.name %> will be streamed on the <a target="_blank" href="https://twitch.tv/<%= @eca.twitch_channel.name %>"><%= @eca.twitch_channel.name %></a>
+  Twitch channel.
+</p>
+
+<p>
+You will be emailed a stream key on <%= @eca.start_date %>, which will be valid until <%= @eca.end_date %>.
+You can use this key in OBS, or any other streaming software of your choosing.
+</p>
+</body>

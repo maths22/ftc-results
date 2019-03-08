@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+</head>
+<body>
+<h1><%= @request.user.email %> would like to administer <%= @request.event.name %></h1>
+<p>
+  User message:
+  <blockquote  style="white-space:pre;">
+  <%= h(@request.message) %>
+  </blockquote>
+</p>
+<p>
+  <a target="_blank" href="<%= api_v1_approve_access_url(token: @request.access_token) %>">Approve!</a>
+</p>
+</body>

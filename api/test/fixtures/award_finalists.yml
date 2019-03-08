@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  award: one
+  team: one
+  recipient: MyString
+  place: 1
+  description: MyText
+
+two:
+  award: two
+  team: two
+  recipient: MyString
+  place: 1
+  description: MyText

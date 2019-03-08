@@ -1,0 +1,31 @@
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# TODO consider removing this omission
+Style/Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'db/migrate/*'
+
+Metrics/BlockLength:
+  Max: 20
+  Exclude:
+    - 'db/migrate/*'
+
+Metrics/AbcSize:
+  Exclude:
+    - 'db/migrate/*'
+
+Rails:
+  Enabled: true
+
+AllCops:
+  Exclude:
+    - 'db/schema.rb'
+  DisplayCopNames: true
