@@ -1,0 +1,7 @@
+<%= @request.user.email %> would like to administer <%= @request.event.name %>
+
+User message:
+
+<%= @request.message %>
+
+<%= api_v1_approve_access_url(token: @request.access_token) %>

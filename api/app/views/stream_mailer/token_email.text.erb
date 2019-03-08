@@ -1,0 +1,9 @@
+Your stream is ready for <%= @eca.event.name %>
+
+<%= @eca.event.name %> will be streamed on the <%= @eca.twitch_channel.name %> ( https://twitch.tv/<%= @eca.twitch_channel.name %> )
+Twitch channel.
+
+The stream key for this event is <%= @stream_key %>
+You can use this key in OBS, or any other streaming software of your choosing.
+This key is valid from <%= @eca.start_date %> to <%= @eca.end_date %>.
+

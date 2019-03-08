@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FTC Results</title>
+  <%= csrf_meta_tags %>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <%= stylesheet_link_tag    'application', media: 'all' %>
+  <%#= javascript_include_tag 'application' %>
+</head>
+
+<body>
+<div class="container">
+  <% flash.each do |key, value| %>
+    <div class="card">
+      <div class="card-content alert alert-<%= key %>">
+        <i class="material-icons small">warning</i>
+        <span><%= value %></span>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card-panel z-depth-4">
+    <%= yield %>
+  </div>
+</div>
+</body>
+</html>
