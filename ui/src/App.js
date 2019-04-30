@@ -6,6 +6,11 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import {Link} from 'react-router-dom';
 import EventCards from './components/EventCards';
+import SeasonSelector from './components/SeasonSelector';
+import * as queryString from 'query-string';
+import {connect} from 'react-redux';
+import {withStyles} from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
 class App extends Component {
 
@@ -22,17 +27,24 @@ class App extends Component {
     oneWeek.setDate(oneWeek.getDate() + 7);
     const twoWeeksOld = new Date(today);
     twoWeeksOld.setDate(twoWeeksOld.getDate() - 14);
+    console.log(this.props.season)
     return (
         <div>
-          <Typography variant="h5">FTC League Rankings</Typography>
-          <List component="nav">
-            <ListItem  component={Link} to="/teams/rankings" button>
-              <ListItemText primary="All Team Rankings" />
-            </ListItem>
-            <ListItem  component={Link} to="/divisions/summary" button>
-              <ListItemText primary="Rankings By Division" />
-            </ListItem>
-          </List>
+          <SeasonSelector/>
+
+          {this.props.season && this.props.season.offseason ? null :
+            <div style={{padding: '1em 0'}}>
+              <Typography variant={'h5'}>League results</Typography>
+              <List component="nav">
+                <ListItem  component={Link} to={`/teams/rankings?${queryString.stringify({season: this.props.selectedSeason})}`} button>
+                  <ListItemText primary="All Team Rankings" />
+                </ListItem>
+                <ListItem  component={Link} to={`/divisions/summary?${queryString.stringify({season: this.props.selectedSeason})}`} button>
+                  <ListItemText primary="Rankings By Division" />
+                </ListItem>
+              </List>
+            </div>
+          }
 
 
           <EventCards heading="This week's Events" filter={(e) => {
@@ -41,10 +53,28 @@ class App extends Component {
 
           <EventCards heading="Recent Events" filter={(e) => {
             return this.stringToDate(e.end_date) < today;
-          }} reverse limit={9}/>
+          }} reverse limit={9} showNone />
+
+          { this.props.season && this.props.season.offseason ? <EventCards heading="Upcoming Events" filter={(e) => {
+            return this.stringToDate(e.start_date) > oneWeek;
+          }} limit={9} /> : null}
+
+          <div style={{padding: '1em 0'}}>
+            <Button variant="contained" to={`/events/all?${queryString.stringify({season: this.props.selectedSeason})}`} component={Link}>
+              See All Events
+            </Button>
+          </div>
         </div>
     );
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    selectedSeason: state.ui.season,
+    season: state.seasons ? state.seasons.find((s) => s.year === (state.ui.season || state.ui.defaultSeason)) : null
+  };
+};
+
+
+export default connect(mapStateToProps)(App);

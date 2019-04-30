@@ -21,6 +21,7 @@ import {
 import {setTitle} from '../../actions/ui';
 import {postAlliances, postMatch, postMatches, postRankings, postAwards, postTeams} from '../../actions/uploaderApi';
 import objectHash from 'object-hash';
+import {fromPairs} from 'lodash';
 
 
 const styles = theme => ({
@@ -44,6 +45,18 @@ const styles = theme => ({
 
 const MINUTES_IN_MILIS = 60000;
 const DISPLAY_DELAY = 10 * MINUTES_IN_MILIS;
+
+const inCraterLookups = fromPairs([0, 1, 2, 3].map((inCrater) => {
+  return [0, 1, 2, 3].filter((cInCrater) => (inCrater + cInCrater) <= 3).map((cInCrater) => {
+    return [cInCrater * 25 + inCrater * 15, [inCrater, cInCrater]];
+  });
+}).flat());
+
+const latchLookups = fromPairs([0, 1, 2, 3].map((latched) => {
+  return [0, 1].filter((anyLatched) => (latched + anyLatched) <= 3).map((anyLatched) => {
+    return [latched * 50 + anyLatched * 75, [latched, anyLatched]];
+  });
+}).flat());
 
 class Uploader extends Component {
   displayedMatches = {};
@@ -81,9 +94,10 @@ class Uploader extends Component {
     this.targetDivision = eventInfo.payload.division;
     this.syncData();
     this.syncInterval = setInterval(this.syncData, 30000);
-    this.startDisplayLoop();
+    // this.startDisplayLoop();
   };
 
+  //TODO update this to use the websocket method
   startDisplayLoop = async () => {
     let firstrun = true;
     while(this.props.localServer.uploadRunning) {
@@ -154,7 +168,7 @@ class Uploader extends Component {
     const alliances = alliancesResult.payload.alliances;
     const uploadAlliances = alliances.map((a) => ({
       seed: a.seed,
-      teams: [a.captain, a.pick1, a.pick2].filter((t) => t !== -1)
+      teams: [a.captain, a.pick1, a.pick2, a.pick3].filter((t) => t && t !== -1)
     }));
 
     const newHash = objectHash(uploadAlliances);
@@ -223,10 +237,10 @@ class Uploader extends Component {
     return matches.map((m) => ({
       phase: 'qual',
       number: m.matchNumber,
-      red_alliance: [m.red.team1, m.red.team2],
-      blue_alliance: [m.blue.team1, m.blue.team2],
-      red_surrogate: [m.red.isTeam1Surrogate, m.red.isTeam2Surrogate],
-      blue_surrogate: [m.blue.isTeam1Surrogate, m.blue.isTeam2Surrogate],
+      red_alliance: [m.red.team1, m.red.team2, m.red.team3].filter(Boolean),
+      blue_alliance: [m.blue.team1, m.blue.team2, m.blue.team3].filter(Boolean),
+      red_surrogate: [m.red.isTeam1Surrogate, m.red.isTeam2Surrogate, m.red.isTeam3Surrogate].filter(Boolean),
+      blue_surrogate: [m.blue.isTeam1Surrogate, m.blue.isTeam2Surrogate, m.blue.isTeam3Surrogate].filter(Boolean),
       finished: m.finished
     }));
   };
@@ -304,24 +318,26 @@ class Uploader extends Component {
       } else {
         prefix = 'matches';
       }
-      const details = await this.props.getLocalMatchDetails(this.props.localServer.event, '2019', prefix, m.number);
+      const details = await this.props.getLocalMatchDetails(this.props.localServer.event, '2019cri', prefix, m.number);
       return [[m.phase, m.series, m.number].filter((m) => m).join('-'), details.payload];
     }));
     await Promise.all(matchResults.map(async (val) => {
       const [mid, mr] = val;
-      const inCrater = {0: 0, 15: 1, 25: 0, 40: 1, 30: 2, 50: 0};
-      const completelyInCrater = {0: 0, 15: 0, 25: 1, 40: 1, 30: 0, 50: 2};
       const mapScoreToUploadScore = (s) => ({
         robots_landed: s.landed / 30,
-        depots_claimed: s.claimedDepot / 15,
+        depots_claimed:  Math.floor(s.claimedDepot / 15),
         robots_parked_auto: s.autoParking / 10,
         fields_sampled: s.mineralSample / 25,
         depot_minerals: s.depotMinerals / 2,
+        depot_platinum_minerals: s.depotPlatinumMinerals / 5,
         gold_cargo: s.landerGold / 5,
         silver_cargo: s.landerSilver / 5,
-        latched_robots: s.latchedLander / 50,
-        robots_in_crater: inCrater[s.endParking],
-        robots_completely_in_crater: completelyInCrater[s.endParking],
+        any_cargo: s.landerAny / 10,
+        platinum_cargo: s.landerPlatinum / 20,
+        latched_robots: latchLookups[s.latchedLander][0],
+        any_latched_robots: latchLookups[s.latchedLander][1],
+        robots_in_crater: inCraterLookups[s.endParking][0],
+        robots_completely_in_crater: inCraterLookups[s.endParking][1],
         minor_penalties: s.minorPenalties,
         major_penalties: s.majorPenalties,
       });

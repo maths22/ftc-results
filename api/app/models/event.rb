@@ -1,6 +1,4 @@
 class Event < ApplicationRecord
-  default_scope { where season: CurrentScope.season_or_default }
-
   scope :with_channel, -> { includes(event_channel_assignment: :twitch_channel)}
 
   include AASM

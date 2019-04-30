@@ -1,62 +1,10 @@
-import classNames from 'classnames';
-import TableRow from '@material-ui/core/TableRow/TableRow';
-import TableCell from '@material-ui/core/TableCell/TableCell';
-import Table from '@material-ui/core/Table/Table';
-import TableBody from '@material-ui/core/TableBody/TableBody';
-import React from 'react';
-import {withStyles} from '@material-ui/core';
+import ScoreTable from './ScoreTable';
 
-const styles = (theme) => ({
-  table: {
-    minWidth: '20em',
-  },
-  tableCell: {
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
-    textAlign: 'center',
-    '&:last-child': {
-      paddingRight: theme.spacing.unit,
-    }
-  },
-  tableRow: {
-    height: '2rem'
-  },
-  keyTableRow: {
-  },
-  redCell: {
-    background: '#fee',
-    width: '25%',
-  },
-  blueCell: {
-    background: '#eef',
-    width: '25%',
-  },
-  redKeyCell: {
-    background: '#fdd',
-    fontWeight: 'bold',
-  },
-  blueKeyCell: {
-    background: '#ddf',
-    fontWeight: 'bold',
-  },
-  keyCell: {
-    background: '#f0f0f0',
-    fontWeight: 'bold',
-  },
-  allianceCell: {
-    fontWeight: 'bold',
-  },
-  surrogateCell: {
-    opacity: '0.6'
-  }
-});
-
-function matchTable({classes, match}) {
-
+export default ScoreTable((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
 
-  const scores = [
+  return [
     {
       desc: 'Robots Landed',
       red: red_det.robots_landed,
@@ -64,10 +12,15 @@ function matchTable({classes, match}) {
       value: 30
     },
     {
-      desc: 'Depots Claimed',
+      desc: 'Depots Claimed\nBonus for claiming all',
       red: red_det.depots_claimed,
       blue: blue_det.depots_claimed,
-      value: 15
+      value: 15,
+      bonus: {
+        value: 10,
+        redAccomplished: red_det.depots_claimed === 3,
+        blueAccomplished: blue_det.depots_claimed === 3,
+      }
     },
     {
       desc: 'Mineral Fields Sampled',
@@ -94,6 +47,12 @@ function matchTable({classes, match}) {
       value: 2
     },
     {
+      desc: 'Platinum in Depot',
+      red: red_det.depot_platinum_minerals,
+      blue: blue_det.depot_platinum_minerals,
+      value: 5
+    },
+    {
       desc: 'Gold in Gold Cargo Hold',
       red: red_det.gold_cargo,
       blue: blue_det.gold_cargo,
@@ -106,6 +65,18 @@ function matchTable({classes, match}) {
       value: 5
     },
     {
+      desc: 'Cargo in "Any" Cargo Hold',
+      red: red_det.any_cargo,
+      blue: blue_det.any_cargo,
+      value: 10
+    },
+    {
+      desc: 'Platinum in All Cargo Holds',
+      red: red_det.platinum_cargo,
+      blue: blue_det.platinum_cargo,
+      value: 20
+    },
+    {
       desc: 'Teleop Total',
       red: match.red_score.teleop,
       blue: match.blue_score.teleop,
@@ -116,6 +87,12 @@ function matchTable({classes, match}) {
       red: red_det.latched_robots,
       blue: blue_det.latched_robots,
       value: 50
+    },
+    {
+      desc: 'Robots Latched ("Any" Lander)',
+      red: red_det.any_latched_robots,
+      blue: blue_det.any_latched_robots,
+      value: 75
     },
     {
       desc: 'Parked Robots (in Crater)',
@@ -155,27 +132,5 @@ function matchTable({classes, match}) {
       blue: match.blue_score_total,
       key: true
     }
-  ];
-  scores.forEach((val) => {
-    if(val.value) {
-      val.red_pts = val.red * val.value;
-      val.blue_pts = val.blue * val.value;
-    }
-  });
-
-  return <Table className={classes.table}>
-    <TableBody>
-      {scores.map((sc) => (<TableRow className={classNames(classes.tableRow, {[classes.keyTableRow]: sc.key})}>
-        <TableCell className={classNames(classes.tableCell, classes.redCell, {[classes.redKeyCell]: sc.key})}>
-          {sc.red} {sc.red_pts ? `(+${sc.red_pts}${sc.penalty ? ' to blue' : ''})` : ''}
-        </TableCell>
-        <TableCell className={classNames(classes.tableCell, {[classes.keyCell]: sc.key})}>{sc.desc}</TableCell>
-        <TableCell className={classNames(classes.tableCell, classes.blueCell, {[classes.blueKeyCell]: sc.key})}>
-          {sc.blue} {sc.blue_pts ? `(+${sc.blue_pts}${sc.penalty ? ' to red' : ''})` : ''}
-        </TableCell>
-      </TableRow>))}
-    </TableBody>
-  </Table>;
-}
-
-export default withStyles(styles)(matchTable);
+  ]
+});

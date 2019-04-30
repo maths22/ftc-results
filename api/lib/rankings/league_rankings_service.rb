@@ -3,6 +3,10 @@ module Rankings
     attr_writer :alliances
     TOP_TO_TAKE = 10
 
+    def initialize(season)
+      @season = season
+    end
+
     def compute
       initial_rankings.merge(active_rankings)
     end
@@ -32,17 +36,19 @@ module Rankings
     end
 
     def initial_rankings
-      Division.includes(teams: :divisions).all.map(&:teams).flatten.map do |team|
-        ranking = TeamRanking.new
-        ranking.team = team
-        ranking.rp = 0
-        ranking.tbp = 0
-        ranking.high_score = 0
-        ranking.matches_played = 0
-        # TODO: make sure this scopes the season right
-        ranking.division = team.divisions.first
-        [team.number, ranking]
-      end.to_h
+      divisions = Division.joins(:league).where(leagues: {season: @season}).includes(teams: :divisions)
+      divisions.all.map do |div|
+        div.teams.map do |team|
+          ranking = TeamRanking.new
+          ranking.team = team
+          ranking.rp = 0
+          ranking.tbp = 0
+          ranking.high_score = 0
+          ranking.matches_played = 0
+          ranking.division = div
+          [team.number, ranking]
+        end
+      end.flatten(1).to_h
     end
 
     def active_rankings
@@ -87,7 +93,7 @@ module Rankings
       @alliances ||= MatchAlliance
                      .joins(alliance: :event)
                      .includes(alliance: { alliance_teams: { team: :divisions } } )
-                     .where(alliance: { events: { season: ::CurrentScope.season_or_default, context_type: 'Division' } })
+                     .where(alliance: { events: { season: @season, context_type: 'Division' } })
     end
   end
 end

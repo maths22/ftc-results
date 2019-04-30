@@ -13,20 +13,7 @@ module Api
         expires_in(3.minutes, public: true) unless user_signed_in?
 
         authorize!(:index, Event)
-        @events = Event.with_attached_import.with_channel
-
-        render json: (@events.map do |e|
-          evt = e.attributes
-          evt[:can_import] = can? :import_results, e
-          evt[:import] = rails_blob_path(e.import, disposition: 'attachment') if e.import.attached?
-          evt[:channel] = e.channel_name
-          evt[:divisions] = e.event_divisions.map do |d|
-            d.attributes.tap do |attr|
-              attr[:import] = rails_blob_path(d.import, disposition: 'attachment') if d.import.attached?
-            end
-          end
-          evt
-        end)
+        @events = Event.where(season: request_season).includes(:event_divisions, :owners).with_attached_import.with_channel
       end
 
       def request_access
@@ -63,31 +50,29 @@ module Api
       # GET /events/1
       def show
         expires_in(3.minutes, public: true) unless user_signed_in?
-
-        render json: @event
       end
 
       def view_matches
         expires_in(30.seconds, public: true) unless user_signed_in?
 
-        @matches = Match.includes([:red_score, :blue_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
+        @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
       end
 
       def view_rankings
         expires_in(30.seconds, public: true) unless user_signed_in?
 
-        @matches = Match.includes([:red_score, :blue_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
+        @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
         @rankings = @event.rankings.includes(:team)
       end
 
       def view_awards
         expires_in(30.seconds, public: true) unless user_signed_in?
 
-        @awards = @event.awards
+        @awards = @event.awards.includes(:award_finalists)
       end
 
       def view_teams
-        div_teams = @event.events_teams.map do |et|
+        div_teams = @event.events_teams.includes(:team).map do |et|
           {
             division: et.event_division&.number,
             team: et.team.number
@@ -336,10 +321,10 @@ module Api
             params[:blue_score].permit!
             m.red_score&.destroy!
             m.blue_score&.destroy!
-            rr_red_score = RoverRuckusScore.new params[:red_score]
-            red_score = Score.new season_score: rr_red_score
-            rr_blue_score = RoverRuckusScore.new params[:blue_score]
-            blue_score = Score.new season_score: rr_blue_score
+            season_red_score = @event.season.score_model.new params[:red_score]
+            red_score = Score.new season_score: season_red_score
+            season_blue_score = @event.season.score_model.new params[:blue_score]
+            blue_score = Score.new season_score: season_blue_score
             m.red_score = red_score
             m.blue_score = blue_score
             m.played = true

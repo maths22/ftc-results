@@ -22,16 +22,11 @@ class ApiController < ApplicationController
   skip_before_action :verify_authenticity_token
   check_authorization
 
-  before_action :set_season
-
-  def set_season
-    season_id = request.headers['X-Ftc-Season']
-    return if season_id.nil?
-
-    CurrentScope.season = Season.find_by year: season_id
-    if CurrentScope.season.nil?
-      render json: { error: "Invalid season #{season_id}" },
-             status: :not_found
+  def request_season
+    if params[:season]
+      Season.find_by(year: params[:season])
+    else
+      Season.active.first
     end
   end
 

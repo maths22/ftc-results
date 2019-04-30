@@ -7,13 +7,13 @@ module Api
       # GET /teams
       def index
         render json: @leagues,
-               only: %w[id name slug]
+               only: %w[id name slug season_id]
       end
 
       # GET /teams/1
       def show
         render json: @league,
-               only: %w[id name slug]
+               only: %w[id name slug season_id]
       end
 
       def details

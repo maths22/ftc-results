@@ -8,6 +8,7 @@ import leaguesReducer from './leaguesReducer';
 import leagueRankingsReducer from './leagueRankingsReducer';
 import teamsReducer from './teamsReducer';
 import eventsReducer from './eventsReducer';
+import seasonsReducer from './seasonsReducer';
 import promisesReducer from './promisesReducer';
 import { reducer as formReducer } from 'redux-form';
 import uiReducer from './uiReducer';
@@ -30,6 +31,7 @@ export default (history) => combineReducers({
   promises: promisesReducer,
   rankings: rankingsReducer,
   router: connectRouter(history),
+  seasons: seasonsReducer,
   teamDetails: teamDetailsReducer,
   teams: teamsReducer,
   token: tokenReducer,

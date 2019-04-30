@@ -8,11 +8,12 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-import {getDivisions, getLeagues} from '../actions/api';
+import {getDivisions, getLeagues, getSeasons} from '../actions/api';
 import {Link} from 'react-router-dom';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
+import SeasonSelector from './SeasonSelector';
 
 const styles = (theme) => ({
   root: {
@@ -29,6 +30,7 @@ class DivisionsSummary extends Component {
 
   componentDidMount() {
     if(!this.props.divisions) {
+      this.props.getSeasons();
       this.props.getDivisions();
       this.props.getLeagues();
     }
@@ -52,28 +54,31 @@ class DivisionsSummary extends Component {
 
     const rowStyle = { height: '2rem' };
 
-    return <Paper className={this.props.classes.root}>
-      <Table className={this.props.classes.table}>
-        <TableHead>
-          <TableRow style={rowStyle}>
-            <TableCell>League</TableCell>
-            <TableCell>Division</TableCell>
-            <TableCell>Number of Teams</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {vals.map(val => {
-            return (
-                <TableRow key={val.id} style={rowStyle}>
-                  <TableCell component={Link} to={`/leagues/rankings/${val.league.id}`}>{val.league.name}</TableCell>
-                  <TableCell component={Link} to={`/divisions/rankings/${val.id}`}>{val.name}</TableCell>
-                  <TableCell>{val.team_count}</TableCell>
-                </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </Paper>;
+    return <>
+      <SeasonSelector/>
+      <Paper className={this.props.classes.root}>
+        <Table className={this.props.classes.table}>
+          <TableHead>
+            <TableRow style={rowStyle}>
+              <TableCell>League</TableCell>
+              <TableCell>Division</TableCell>
+              <TableCell>Number of Teams</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {vals.map(val => {
+              return (
+                  <TableRow key={val.id} style={rowStyle}>
+                    <TableCell component={Link} to={`/leagues/rankings/${val.league.id}`}>{val.league.name}</TableCell>
+                    <TableCell component={Link} to={`/divisions/rankings/${val.id}`}>{val.name}</TableCell>
+                    <TableCell>{val.team_count}</TableCell>
+                  </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </Paper>
+    </>;
   }
 }
 
@@ -81,9 +86,10 @@ class DivisionsSummary extends Component {
 
 
 const mapStateToProps = (state) => {
-  if (state.divisions && state.leagues) {
+  if (state.divisions && state.leagues && state.seasons) {
     return {
-      divisions: Object.values(state.divisions).map((div) => Object.assign({}, div, { league: state.leagues[div.league_id] }))
+      divisions: Object.values(state.divisions).filter((div) => state.leagues && state.leagues[div.league_id].season_id === state.seasons.find((s) => s.year == (state.ui.season || state.ui.defaultSeason)).id)
+        .map((div) => Object.assign({}, div, { league: state.leagues[div.league_id] }))
     };
   }
   return {
@@ -94,6 +100,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = {
   getDivisions,
   getLeagues,
+  getSeasons,
   setTitle,
 };
 

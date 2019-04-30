@@ -9,10 +9,10 @@ import Paper from '@material-ui/core/Paper';
 import {
   getDivisions,
   getEventMatches, getEventRankings, getEventTeams, getEventAwards,
-  getEvents,
+  getEvent,
   getLeagues, getTeams,
 } from '../actions/api';
-import {setTitle} from '../actions/ui';
+import {setSeason, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
@@ -74,16 +74,9 @@ class EventSummary extends Component {
 
   componentDidMount() {
     this.updateTabs();
-    if(!this.props.event || !this.props.matches) {
-      this.props.getEvents();
-      //TODO only load these if relevant
-      this.props.getLeagues();
-      this.props.getDivisions();
-    }
     if(!this.teams) {
       this.props.getTeams();
     }
-
     this.refresh();
     this.enablePersistentRefresh();
     this.setTitle();
@@ -109,6 +102,12 @@ class EventSummary extends Component {
   }
 
   refresh = () => {
+    if(!this.props.event) {
+      this.props.getEvent(parseInt(this.props.id));
+      //TODO only load these if relevant
+      this.props.getLeagues();
+      this.props.getDivisions();
+    }
     this.props.getEventTeams(this.props.id);
     this.props.getEventMatches(this.props.id);
     this.props.getEventRankings(this.props.id);
@@ -255,10 +254,13 @@ class EventSummary extends Component {
       </div>: null
     ].filter(e => e);
 
+    const season = (this.props.seasons || []).find((s) => s.id === this.props.event.season_id);
+
     return <Paper className={classes.root}>
       <div className={classes.heading}>
         <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
         {this.renderDivisionPicker()}
+        {season ? <><b>Season:</b> <span>{season.name} ({season.year})</span><br/></> : null}
         <b>Date:</b> {event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
         <b>Location:</b> <TextLink href={maps_url} target="_blank">{event.location}{event.location && ', '}
         {event.city}{event.city && ', '}
@@ -303,10 +305,11 @@ class EventSummary extends Component {
 
 const mapStateToProps = (state, props) => {
   const ret = {};
+  ret.seasons = state.seasons;
   const id = parseInt(props.id);
   if (state.events) {
     ret.event = state.events[id];
-    if(!ret.event.id) ret.event = null;
+    if(!ret.event || !ret.event.id) ret.event = null;
   }
   ret.matches = Object.values(state.matches).filter((m) => m.event_id === id);
   if(state.teams) {
@@ -339,7 +342,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = {
   getDivisions,
-  getEvents,
+  getEvent,
   getEventMatches,
   getEventRankings,
   getEventTeams,
@@ -347,6 +350,7 @@ const mapDispatchToProps = {
   getLeagues,
   getTeams,
   setTitle,
+  setSeason,
   push,
 };
 

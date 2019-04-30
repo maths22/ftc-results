@@ -1,5 +1,6 @@
 import {getJSON, isRSAA, RSAA} from 'redux-api-middleware';
 import {API_BASE, logout, TOKEN_UPDATE} from '../actions/api';
+import queryString from 'query-string';
 
 export default store => next => action => {
   if (!isRSAA(action)) {
@@ -27,7 +28,9 @@ export default store => next => action => {
 
   const finalAction = Object.assign({}, action, {
     [RSAA]: Object.assign({}, action[RSAA], {
-      headers: Object.assign({}, store.getState().token, action[RSAA].headers),
+      headers: Object.assign({},
+        store.getState().token,
+        action[RSAA].headers),
       types: [action[RSAA].types[0],
         {
           type: action[RSAA].types[1],

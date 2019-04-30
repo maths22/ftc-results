@@ -10,7 +10,7 @@ export default function (
   switch (action.type) {
     case GET_TEAM_DETAILS_SUCCESS:
       return Object.assign({}, state, {
-        [action.payload.number]: omit(action.payload, ['matches'])
+        [action.payload.team.number]: action.payload.team
       });
     default:
       return state;
