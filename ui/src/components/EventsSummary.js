@@ -18,6 +18,7 @@ import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
 import RequestAccessDialog from './RequestAccessDialog';
 import TwitchSetupDialog from './TwitchSetupDialog';
+import SeasonSelector from './SeasonSelector';
 
 const styles = (theme) => ({
   root: {
@@ -57,7 +58,7 @@ class EventsSummary extends Component {
 
   componentDidMount() {
     if(!this.props.events) {
-      this.props.getEvents();
+      this.props.getEvents(this.props.selectedSeason);
       this.props.getDivisions();
       this.props.getLeagues();
     }
@@ -68,9 +69,9 @@ class EventsSummary extends Component {
     this.props.setTitle(null);
   }
 
-  componentDidUpdate() {
-    if(!this.props.events) {
-      this.props.getEvents();
+  componentDidUpdate(prevProps) {
+    if(!this.props.events || this.props.selectedSeason !== prevProps.selectedSeason) {
+      this.props.getEvents(this.props.selectedSeason);
       this.props.getDivisions();
       this.props.getLeagues();
     }
@@ -118,12 +119,9 @@ class EventsSummary extends Component {
     const { classes, uid } = this.props;
     const isLoggedIn = !!uid;
 
-    return <Paper className={classes.root}>
-      {/* TODO Make this unnecessary */}
-      <div style={{padding: '1em'}}>
-        {'Event hosts: Please remember after your event to submit event results here: '}
-      <TextLink href="https://goo.gl/forms/iJU3Z0EghiYVp8UF3">Upload Results Form</TextLink>
-      </div>
+    return  <>
+      <SeasonSelector/>
+      <Paper className={classes.root}>
       <Table className={this.props.classes.table}>
         <TableHead>
           <TableRow style={rowStyle}>
@@ -175,7 +173,8 @@ class EventsSummary extends Component {
       <EventImportDialog id={this.state.importEvent} onClose={() => this.setState({importEvent: null})}/>
       <RequestAccessDialog id={this.state.accessEvent} onClose={() => this.setState({accessEvent: null})}/>
       <TwitchSetupDialog id={this.state.streamEvent} onClose={() => this.setState({streamEvent: null})}/>
-    </Paper>;
+    </Paper>
+    </>;
   }
 }
 
@@ -183,9 +182,13 @@ class EventsSummary extends Component {
 
 
 const mapStateToProps = (state) => {
+  const ret = {
+    selectedSeason: state.ui.season
+  };
   if (state.events && state.divisions && state.leagues) {
-    return {
-      events: Object.values(state.events).map((evt) => {
+    ret.events = Object.values(state.events)
+        .filter((e) => e.season === (state.ui.season || state.ui.defaultSeason))
+        .map((evt) => {
             const extra = {};
             if (evt.context_type === 'Division') {
               extra.division = state.divisions[evt.context_id];
@@ -196,13 +199,10 @@ const mapStateToProps = (state) => {
             }
             return Object.assign({}, evt, extra);
           }
-      ),
-      uid: state.token['x-uid']
-    };
+      );
+    ret.uid = state.token['x-uid'];
   }
-  return {
-    events: null
-  };
+  return ret;
 };
 
 const mapDispatchToProps = {

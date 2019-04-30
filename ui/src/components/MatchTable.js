@@ -86,7 +86,7 @@ class MatchTable extends React.Component {
     const groupedMatches = mapValues(groupBy(sortBy(matches, ['phase', 'series', 'number']), 'phase'), (matches) => {
       return matches.map((m) => {
         const matchDisp = prefixes[m.phase] + (m.series ? (m.series + '-') : '') + m.number;
-        const teamSpan = m.blue_alliance.length === 3 ? 2 : 3;
+        const teamSpan = m.blue_alliance.length === 4 ? 3 : (m.blue_alliance.length === 3 ? 4 : 6);
 
         let isRedTeam, isSurrogate = false, idx = -1, result;
         if (team) {
@@ -186,26 +186,26 @@ class MatchTable extends React.Component {
           <Hidden xsDown>
             {team ? <TableCell className={classes.tableCell}>Result</TableCell> : null}
           </Hidden>
-          <TableCell className={classes.tableCell} colSpan={6}>Red Alliance</TableCell>
-          <TableCell className={classes.tableCell} colSpan={6}>Blue Alliance</TableCell>
+          <TableCell className={classes.tableCell} colSpan={12}>Red Alliance</TableCell>
+          <TableCell className={classes.tableCell} colSpan={12}>Blue Alliance</TableCell>
           <TableCell className={classes.tableCell} colSpan={2}>Scores</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
         {groupedMatches['interfinal'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={15}>Inter-division Finals</TableCell>
+          <TableCell className={classes.tableCell} colSpan={27}>Inter-division Finals</TableCell>
         </TableRow> : null}
         {groupedMatches['interfinal'] ? groupedMatches['interfinal'] : null}
         {groupedMatches['final'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={15}>Finals</TableCell>
+          <TableCell className={classes.tableCell} colSpan={27}>Finals</TableCell>
         </TableRow> : null}
         {groupedMatches['final'] ? groupedMatches['final'] : null}
         {groupedMatches['semi'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={15}>Semi-Finals</TableCell>
+          <TableCell className={classes.tableCell} colSpan={27}>Semi-Finals</TableCell>
         </TableRow> : null}
         {groupedMatches['semi'] ? groupedMatches['semi'] : null}
         {groupedMatches['qual'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={15}>Qualifications</TableCell>
+          <TableCell className={classes.tableCell} colSpan={27}>Qualifications</TableCell>
         </TableRow> : null}
         {groupedMatches['qual'] ? groupedMatches['qual'] : null}
       </TableBody>

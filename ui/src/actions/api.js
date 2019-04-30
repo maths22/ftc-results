@@ -1,5 +1,6 @@
 import { RSAA } from 'redux-api-middleware';
 import formurlencoded from 'form-urlencoded';
+import * as queryString from 'query-string';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -23,12 +24,24 @@ export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
 export const TOKEN_UPDATE = 'TOKEN_UPDATE';
+export const GET_SEASONS_REQUEST = 'GET_SEASONS_REQUEST';
+export const GET_SEASONS_SUCCESS = 'GET_SEASONS_SUCCESS';
+export const GET_SEASONS_FAILURE = 'GET_SEASONS_FAILURE';
 export const GET_DIVISIONS_REQUEST = 'GET_DIVISIONS_REQUEST';
 export const GET_DIVISIONS_SUCCESS = 'GET_DIVISIONS_SUCCESS';
 export const GET_DIVISIONS_FAILURE = 'GET_DIVISIONS_FAILURE';
+export const GET_LEAGUE_DATA_REQUEST = 'GET_LEAGUE_DATA_REQUEST';
+export const GET_LEAGUE_DATA_SUCCESS = 'GET_LEAGUE_DATA_SUCCESS';
+export const GET_LEAGUE_DATA_FAILURE = 'GET_LEAGUE_DATA_FAILURE';
+export const GET_DIVISION_DATA_REQUEST = 'GET_DIVISION_DATA_REQUEST';
+export const GET_DIVISION_DATA_SUCCESS = 'GET_DIVISION_DATA_SUCCESS';
+export const GET_DIVISION_DATA_FAILURE = 'GET_DIVISION_DATA_FAILURE';
 export const GET_EVENTS_REQUEST = 'GET_EVENTS_REQUEST';
 export const GET_EVENTS_SUCCESS = 'GET_EVENTS_SUCCESS';
 export const GET_EVENTS_FAILURE = 'GET_EVENTS_FAILURE';
+export const GET_EVENT_REQUEST = 'GET_EVENT_REQUEST';
+export const GET_EVENT_SUCCESS = 'GET_EVENT_SUCCESS';
+export const GET_EVENT_FAILURE = 'GET_EVENT_FAILURE';
 export const GET_LEAGUES_REQUEST = 'GET_LEAGUES_REQUEST';
 export const GET_LEAGUES_SUCCESS = 'GET_LEAGUES_SUCCESS';
 export const GET_LEAGUES_FAILURE = 'GET_LEAGUES_FAILURE';
@@ -160,11 +173,21 @@ export const logout = () => ({
   }
 });
 
-
-//TODO generalize season
-export const getDivisions = () => ({
+export const getSeasons = () => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/divisions`,
+    endpoint: `${API_BASE}/seasons`,
+    method: 'GET',
+    types: [
+      GET_SEASONS_REQUEST,
+      GET_SEASONS_SUCCESS,
+      GET_SEASONS_FAILURE
+    ]
+  }
+});
+
+export const getDivisions = (season) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/divisions?${queryString.stringify({season})}`,
     method: 'GET',
     types: [
       GET_DIVISIONS_REQUEST,
@@ -174,9 +197,9 @@ export const getDivisions = () => ({
   }
 });
 
-export const getEvents = () => ({
+export const getEvents = (season) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events`,
+    endpoint: `${API_BASE}/events?${queryString.stringify({season})}`,
     method: 'GET',
     types: [
       GET_EVENTS_REQUEST,
@@ -186,9 +209,21 @@ export const getEvents = () => ({
   }
 });
 
-export const getLeagues = () => ({
+export const getEvent = (id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/leagues`,
+    endpoint: `${API_BASE}/events/${id}`,
+    method: 'GET',
+    types: [
+      GET_EVENT_REQUEST,
+      GET_EVENT_SUCCESS,
+      GET_EVENT_FAILURE
+    ]
+  }
+});
+
+export const getLeagues = (season) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/leagues?${queryString.stringify({season})}`,
     method: 'GET',
     types: [
       GET_LEAGUES_REQUEST,
@@ -282,14 +317,38 @@ export const getMatchDetails = (id) => ({
   }
 });
 
-export const getLeagueRankings = () => ({
+export const getLeagueRankings = (season) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/rankings/league`,
+    endpoint: `${API_BASE}/rankings/league?${queryString.stringify({season})}`,
     method: 'GET',
     types: [
       GET_LEAGUE_RANKINGS_REQUEST,
       GET_LEAGUE_RANKINGS_SUCCESS,
       GET_LEAGUE_RANKINGS_FAILURE
+    ]
+  }
+});
+
+export const getLeagueData = (id) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/rankings/league/${id}`,
+    method: 'GET',
+    types: [
+      GET_LEAGUE_DATA_REQUEST,
+      GET_LEAGUE_DATA_SUCCESS,
+      GET_LEAGUE_DATA_FAILURE
+    ]
+  }
+});
+
+export const getDivisionData = (id) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/rankings/division/${id}`,
+    method: 'GET',
+    types: [
+      GET_DIVISION_DATA_REQUEST,
+      GET_DIVISION_DATA_SUCCESS,
+      GET_DIVISION_DATA_FAILURE
     ]
   }
 });

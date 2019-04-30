@@ -6,14 +6,17 @@ class Team < ApplicationRecord
   has_many :alliances, through: :alliance_teams
   has_many :rankings, dependent: :destroy
 
-  def match_alliances_for_season(season)
+  def match_alliances
     alliances.joins(:event)
              .includes(:match_alliances)
-             .where(events: { season: season }).flat_map(&:match_alliances)
+             .flat_map(&:match_alliances)
   end
 
   def record(matches)
-    results = matches.find_all { |m| m.match_for_team?(self) && !m.surrogate_for_team(self) && m.played }.group_by { |m| m.record_for_team self }.map{|k,v| [k,v.size]}.to_h
+    results = matches
+                  .select { |m| m.match_for_team?(self) && !m.surrogate_for_team(self) && m.played }
+                  .group_by { |m| m.record_for_team self }
+                  .map{|k,v| [k,v.size]}.to_h
     {
       win: results[2] || 0,
       loss: results[0] || 0,

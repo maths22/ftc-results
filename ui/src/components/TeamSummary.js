@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 
 import Paper from '@material-ui/core/Paper';
 
-import {getDivisions, getEvents, getLeagues, getTeamDetails} from '../actions/api';
+import {getTeamDetails} from '../actions/api';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
@@ -39,11 +39,6 @@ class EventsSummary extends Component {
   componentDidMount() {
     if(!this.props.team || !this.props.matches) {
       this.props.getTeamDetails(this.props.id);
-    }
-    if(!this.props.events) {
-      this.props.getEvents();
-      this.props.getDivisions();
-      this.props.getLeagues();
     }
     this.props.setTitle('Team ' + this.props.id);
   }
@@ -111,7 +106,7 @@ class EventsSummary extends Component {
         <p>
           <b>Organization:</b> {team.organization}<br/>
           <b>Location:</b> {team.city}, {team.state}, {team.country}<br/>
-          {division ?
+          {division && league ?
               <span><b>League:</b> <TextLink to={`/leagues/rankings/${league.id}`}>{league.name}</TextLink>
                 {' – '}<TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }
         </p>
@@ -147,9 +142,6 @@ const mapStateToProps = (state, props) => {
 };
 
 const mapDispatchToProps = {
-  getDivisions,
-  getEvents,
-  getLeagues,
   getTeamDetails,
   setTitle,
 };

@@ -27,22 +27,20 @@ class EventCards extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {importEvent: null, accessEvent: null, streamEvent: null};
+    this.state = {isLoading: false};
   }
 
   componentDidMount() {
-    if(!this.props.events) {
-      this.props.getEvents();
-      this.props.getDivisions();
-      this.props.getLeagues();
-    }
+    this.props.getEvents(this.props.selectedSeason);
+    this.props.getDivisions(this.props.selectedSeason);
+    this.props.getLeagues(this.props.selectedSeason);
   }
 
-  componentDidUpdate() {
-    if(!this.props.events) {
-      this.props.getEvents();
-      this.props.getDivisions();
-      this.props.getLeagues();
+  componentDidUpdate(prevProps) {
+    if(!this.props.events || (this.props.selectedSeason !== prevProps.selectedSeason)) {
+      this.props.getEvents(this.props.selectedSeason);
+      this.props.getDivisions(this.props.selectedSeason);
+      this.props.getLeagues(this.props.selectedSeason);
     }
   }
 
@@ -50,7 +48,7 @@ class EventCards extends Component {
     if(!this.props.events) {
       return <LoadingSpinner/>;
     }
-    const { classes, uid, limit, heading } = this.props;
+    const { classes, uid, limit, heading, showNone } = this.props;
     let vals = [...this.props.events].sort((a, b) => {
       const diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
@@ -61,12 +59,20 @@ class EventCards extends Component {
     }
     vals = vals.slice(0, limit);
 
-    if(vals.length === 0) return null;
+    if(vals.length === 0) {
+      if(showNone) {
+        return <div style={{padding: '1em 0'}}>
+          <Typography variant="h5" gutterBottom>No {heading}</Typography>
+        </div>
+      } else {
+        return null;
+      }
+    }
 
     return <div>
         <Typography variant="h5" gutterBottom>{heading}</Typography>
         <Grid container spacing={24}>
-          {vals.map(e => <Grid item md={4}>
+          {vals.map(e => <Grid item md={4} key={e.id}>
               <Card className={classes.card}>
               <CardActionArea onClick={() => this.props.push(`/events/summary/${e.id}`)}>
                 <CardContent>
@@ -105,28 +111,27 @@ class EventCards extends Component {
 
 
 const mapStateToProps = (state, props) => {
-  if (state.events && state.divisions && state.leagues) {
-    return {
-      events: Object.values(state.events)
-          .filter(props.filter || (() => true))
-          .map((evt) => {
-            const extra = {};
-            if (evt.context_type === 'Division') {
-              extra.division = state.divisions[evt.context_id];
-              extra.league = state.leagues[extra.division.league_id];
-            } else if (evt.context_type === 'League') {
-              extra.league = state.leagues[evt.context_id];
-
-            }
-            return Object.assign({}, evt, extra);
-          }
-      ),
-      uid: state.token['x-uid']
-    };
-  }
-  return {
-    events: null
+  const ret = {
+    selectedSeason: state.ui.season
   };
+  if (state.events && state.divisions && state.leagues) {
+    ret.events = Object.values(state.events)
+        .filter((e) => e.season === (state.ui.season || state.ui.defaultSeason))
+        .filter(props.filter || (() => true))
+        .map((evt) => {
+          const extra = {};
+          if (evt.context_type === 'Division') {
+            extra.division = state.divisions[evt.context_id];
+            extra.league = state.leagues[extra.division.league_id];
+          } else if (evt.context_type === 'League') {
+            extra.league = state.leagues[evt.context_id];
+
+          }
+          return Object.assign({}, evt, extra);
+        }
+      );
+  }
+  return ret;
 };
 
 const mapDispatchToProps = {

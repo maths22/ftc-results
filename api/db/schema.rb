@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_31_041208) do
+ActiveRecord::Schema.define(version: 2019_04_30_214234) do
 
   create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -223,6 +223,27 @@ ActiveRecord::Schema.define(version: 2019_01_31_041208) do
     t.index ["team_id"], name: "index_rankings_on_team_id"
   end
 
+  create_table "rover_ruckus_cri_scores", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.integer "robots_landed", default: 0
+    t.integer "depots_claimed", default: 0
+    t.integer "robots_parked_auto", default: 0
+    t.integer "fields_sampled", default: 0
+    t.integer "depot_minerals", default: 0
+    t.integer "depot_platinum_minerals", default: 0
+    t.integer "gold_cargo", default: 0
+    t.integer "silver_cargo", default: 0
+    t.integer "any_cargo", default: 0
+    t.integer "platinum_cargo", default: 0
+    t.integer "latched_robots", default: 0
+    t.integer "any_latched_robots", default: 0
+    t.integer "robots_in_crater", default: 0
+    t.integer "robots_completely_in_crater", default: 0
+    t.integer "minor_penalties", default: 0
+    t.integer "major_penalties", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "rover_ruckus_scores", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "robots_landed", default: 0
     t.integer "depots_claimed", default: 0
@@ -257,6 +278,9 @@ ActiveRecord::Schema.define(version: 2019_01_31_041208) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "active"
+    t.boolean "offseason"
+    t.string "score_model_name"
   end
 
   create_table "sponsors", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|

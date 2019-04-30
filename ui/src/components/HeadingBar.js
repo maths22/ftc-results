@@ -22,6 +22,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
 import RegisterForm from './users/RegisterForm';
+import * as queryString from 'query-string';
 
 const styles = {
   root: {
@@ -89,15 +90,13 @@ class HeadingBar extends Component {
         <AppBar position="static">
           <Toolbar>
             <IconButton className={this.props.classes.menuButton} color="inherit" aria-label="Home"
-                        to="/"
+                        to={`/?${queryString.stringify({season: this.props.selectedSeason})}`}
                         component={props => <Link {...props}/>}>
               <HomeIcon />
             </IconButton>
             <Typography variant="h6" color="inherit" className={this.props.classes.grow}>
               {this.props.title || 'FTC Results'}
             </Typography>
-            <Button color="inherit" to="/events/all"
-                    component={props => <Link {...props}/>}>Events</Button>
             <Button color="inherit" onClick={this.openUserMenu}>{ isLoggedIn ? `Welcome ${uid}` : 'Login'}</Button>
           </Toolbar>
         </AppBar>
@@ -150,9 +149,12 @@ class HeadingBar extends Component {
 
 const mapStateToProps = (state) => {
 
-  const ret = {uid: null, title: state.ui.title};
+  const ret = {
+    uid: null, title: state.ui.title,
+    selectedSeason: state.ui.season
+  };
   if (state.token) {
-    return Object.assign(ret, {
+    Object.assign(ret, {
       uid: state.token['x-uid']
     });
   }

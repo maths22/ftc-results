@@ -10,9 +10,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CloseIcon from '@material-ui/icons/Close';
 
 import {getMatchDetails} from '../actions/api';
-import RoverRuckusScoreTable from './RoverRuckusScoreTable';
+import RoverRuckusScoreTable from './scoreTables/RoverRuckusScoreTable';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import IconButton from '@material-ui/core/IconButton';
+import RoverRuckusCriScoreTable from './scoreTables/RoverRuckusCriScoreTable';
 
 class MatchDetailsDialog extends Component {
 
@@ -34,7 +35,8 @@ class MatchDetailsDialog extends Component {
     const {event, match, fullScreen} = this.props;
 
     const tableForSeason = {
-      'RoverRuckusScore': RoverRuckusScoreTable
+      'RoverRuckusScore': RoverRuckusScoreTable,
+      'RoverRuckusCriScore': RoverRuckusCriScoreTable
     };
     const ScoreTable = tableForSeason[match.season_score_type];
 

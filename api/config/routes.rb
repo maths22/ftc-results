@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :seasons
       resources :teams
       get 'teams/details/:id', to: 'teams#details'
       resources :events
@@ -26,6 +27,8 @@ Rails.application.routes.draw do
       resources :divisions
       post 'events/import_results/:id', to: 'events#import_results'
       get 'rankings/league', to: 'league_rankings#index'
+      get 'rankings/league/:id', to: 'league_rankings#league_data'
+      get 'rankings/division/:id', to: 'league_rankings#division_data'
 
       get 'matches/details/:id', to: 'matches#details'
 
