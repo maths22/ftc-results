@@ -1,15 +1,21 @@
 Rails.application.routes.draw do
-  # TODO: a better root!
+  # api
+  # service
+  # rails/active_storage
+  # assets
   root 'application#index'
 
   get 'oauth/admin', to: 'oauth#admin_token' if Rails.env.development?
-  devise_for :users
-  mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
 
-  # mount Logster::Web => "/logs", constraints: Constraints::CanCan.new(:manage, :logs)
-  #
-  get 'twitch/authorize', to: 'twitch_oauth#authorize'
-  get 'twitch/callback', to: 'twitch_oauth#callback', as: 'twitch_oauth_callback'
+  scope '/rails' do
+    devise_for :users
+    mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
+
+    # mount Logster::Web => "/logs", constraints: Constraints::CanCan.new(:manage, :logs)
+    #
+    get 'twitch/authorize', to: 'twitch_oauth#authorize'
+    get 'twitch/callback', to: 'twitch_oauth#callback', as: 'twitch_oauth_callback'
+  end
 
   namespace :api do
     namespace :v1 do
