@@ -5,6 +5,8 @@ module Api
 
       # GET /teams
       def index
+        expires_in(15.minutes, public: true) unless user_signed_in?
+
         render json: @divisions,
                only: %w[id name league_id],
                methods: :team_count

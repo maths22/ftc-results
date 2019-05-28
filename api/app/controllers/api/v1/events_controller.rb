@@ -72,6 +72,8 @@ module Api
       end
 
       def view_teams
+        expires_in(3.minutes, public: true) unless user_signed_in?
+
         div_teams = @event.events_teams.includes(:team).map do |et|
           {
             division: et.event_division&.number,
