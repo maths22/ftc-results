@@ -16,12 +16,14 @@ import {
   localReset,
   setEvent,
   setRunning,
-  setServer
+  setServer, websocketPath
 } from '../../actions/localScoringApi';
 import {setTitle} from '../../actions/ui';
 import {postAlliances, postMatch, postMatches, postRankings, postAwards, postTeams} from '../../actions/uploaderApi';
 import objectHash from 'object-hash';
 import {fromPairs} from 'lodash';
+
+import {PersistentWebsocket} from 'persistent-websocket'
 
 
 const styles = theme => ({
@@ -87,6 +89,9 @@ class Uploader extends Component {
   stopUpload = () => {
     this.hashes = {};
     clearInterval(this.syncInterval);
+    if(this.pws) {
+      this.pws.close();
+    }
   };
 
   startUpload = async () => {
@@ -94,7 +99,36 @@ class Uploader extends Component {
     this.targetDivision = eventInfo.payload.division;
     this.syncData();
     this.syncInterval = setInterval(this.syncData, 30000);
-    // this.startDisplayLoop();
+    this.pws = new PersistentWebsocket(`ws://${this.props.localServer.hostname}:${this.props.localServer.port}${websocketPath}`);
+    this.pws.onmessage = (e) => {
+      const obj = JSON.parse(e.data);
+      const msg = Object.values(obj)[0];
+      if(msg.event === this.props.localServer.event) {
+        if(msg.type === 'SHOW_RESULTS') {
+          const matchParts = msg.params.matchName.split(' ');
+          let phase = '';
+          let matchNum = '';
+          let series = null;
+          if(matchParts[0] === 'Qualification') {
+            phase = 'qual';
+            matchNum = parseInt(matchParts[1]);
+          }
+          if(matchParts[0] === 'Semifinal') {
+            phase = 'semi';
+            series = parseInt(matchParts[1]);
+            matchNum = parseInt(matchParts[3]);
+          }
+          if(matchParts[0] === 'Finals') {
+            phase = 'final';
+            matchNum = parseInt(matchParts[2]);
+          }
+          const mid = phase + '-' + (series ? (series + '-') : '') + matchNum;
+          const dispMatch = this.displayedMatches[mid] || {};
+          dispMatch.displayAt = new Date();
+          this.displayedMatches[mid] = dispMatch;
+        }
+      }
+    }
   };
 
   //TODO update this to use the websocket method

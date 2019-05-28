@@ -6271,6 +6271,11 @@ performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
 
+persistent-websocket@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/persistent-websocket/-/persistent-websocket-1.0.2.tgz#822f66f607b8fe82f23e63a7c1a409ad0f005415"
+  integrity sha1-gi9m9ge4/oLyPmOnwaQJrQ8AVBU=
+
 pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
