@@ -3,7 +3,7 @@ module Twitch
     def find_or_create_assignment(evt, user = nil)
       return evt.event_channel_assignment unless evt.event_channel_assignment.nil?
 
-      chan = TwitchChannel.where.not(
+      chan = TwitchChannel.managed.where.not(
         event_channel_assignments:
             EventChannelAssignment.where('start_date <= ? AND end_date >= ?', evt.end_date, evt.start_date - 1.day)
       ).first

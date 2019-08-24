@@ -11,3 +11,10 @@ export const setSeason = (season) => ({
   type: SET_SEASON,
   season
 });
+
+export const HIDE_VIDEO = 'HIDE_VIDEO';
+
+export const hideVideo = (hidden) => ({
+  type: HIDE_VIDEO,
+  hidden
+});

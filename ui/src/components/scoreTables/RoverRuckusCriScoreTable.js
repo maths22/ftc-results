@@ -18,8 +18,8 @@ export default ScoreTable((match) => {
       value: 15,
       bonus: {
         value: 10,
-        redAccomplished: red_det.depots_claimed === 3,
-        blueAccomplished: blue_det.depots_claimed === 3,
+        redAccomplished: red_det.depots_claimed >= 2,
+        blueAccomplished: blue_det.depots_claimed >= 2,
       }
     },
     {

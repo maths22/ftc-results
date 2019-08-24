@@ -10,9 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_30_214234) do
+ActiveRecord::Schema.define(version: 2019_07_16_130116) do
 
-  create_table "access_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "access_requests", force: :cascade do |t|
     t.bigint "user_id"
     t.bigint "event_id"
     t.string "message"
@@ -23,7 +26,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["user_id"], name: "index_access_requests_on_user_id"
   end
 
-  create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
@@ -33,7 +36,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "active_storage_blobs", force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
@@ -44,7 +47,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "alliance_teams", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "alliance_teams", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "alliance_id", null: false
     t.integer "position"
@@ -52,7 +55,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["team_id", "alliance_id"], name: "index_alliance_teams_on_team_id_and_alliance_id"
   end
 
-  create_table "alliances", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "alliances", force: :cascade do |t|
     t.bigint "event_id"
     t.boolean "is_elims"
     t.integer "seed"
@@ -63,7 +66,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["event_id"], name: "index_alliances_on_event_id"
   end
 
-  create_table "award_finalists", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "award_finalists", force: :cascade do |t|
     t.bigint "award_id"
     t.bigint "team_id"
     t.string "recipient"
@@ -75,7 +78,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["team_id"], name: "index_award_finalists_on_team_id"
   end
 
-  create_table "awards", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "awards", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.bigint "event_id"
@@ -84,7 +87,33 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["event_id"], name: "index_awards_on_event_id"
   end
 
-  create_table "divisions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "delayed_jobs", id: :serial, force: :cascade do |t|
+    t.integer "priority", default: 0
+    t.integer "attempts", default: 0
+    t.text "handler"
+    t.text "last_error"
+    t.string "queue", limit: 255
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string "locked_by", limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string "tag", limit: 255
+    t.integer "max_attempts"
+    t.string "strand", limit: 255
+    t.boolean "next_in_strand", default: true, null: false
+    t.string "source", limit: 255
+    t.integer "max_concurrent", default: 1, null: false
+    t.datetime "expires_at"
+    t.index ["locked_by"], name: "index_delayed_jobs_on_locked_by", where: "(locked_by IS NOT NULL)"
+    t.index ["priority", "run_at", "queue"], name: "get_delayed_jobs_index", where: "((locked_at IS NULL) AND (next_in_strand = true))"
+    t.index ["run_at", "tag"], name: "index_delayed_jobs_on_run_at_and_tag"
+    t.index ["strand", "id"], name: "index_delayed_jobs_on_strand"
+    t.index ["tag"], name: "index_delayed_jobs_on_tag"
+  end
+
+  create_table "divisions", force: :cascade do |t|
     t.string "name"
     t.bigint "league_id"
     t.datetime "created_at", null: false
@@ -93,14 +122,14 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["league_id"], name: "index_divisions_on_league_id"
   end
 
-  create_table "divisions_teams", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "divisions_teams", id: false, force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "division_id", null: false
     t.index ["division_id", "team_id"], name: "index_divisions_teams_on_division_id_and_team_id"
     t.index ["team_id", "division_id"], name: "index_divisions_teams_on_team_id_and_division_id"
   end
 
-  create_table "event_channel_assignments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "event_channel_assignments", force: :cascade do |t|
     t.bigint "event_id"
     t.bigint "twitch_channel_id"
     t.date "start_date"
@@ -110,11 +139,11 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.string "aasm_state"
     t.bigint "user_id"
     t.index ["event_id"], name: "index_event_channel_assignments_on_event_id"
-    t.index ["twitch_channel_id"], name: "index_event_channel_assignments_on_channel_id"
+    t.index ["twitch_channel_id"], name: "index_event_channel_assignments_on_twitch_channel_id"
     t.index ["user_id"], name: "index_event_channel_assignments_on_user_id"
   end
 
-  create_table "event_divisions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "event_divisions", force: :cascade do |t|
     t.bigint "event_id"
     t.integer "number"
     t.string "name"
@@ -123,7 +152,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["event_id"], name: "index_event_divisions_on_event_id"
   end
 
-  create_table "events", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "events", force: :cascade do |t|
     t.string "name"
     t.date "start_date"
     t.date "end_date"
@@ -143,14 +172,14 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["season_id"], name: "index_events_on_season_id"
   end
 
-  create_table "events_sponsors", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "events_sponsors", force: :cascade do |t|
     t.bigint "sponsor_id", null: false
     t.bigint "event_id", null: false
     t.index ["event_id", "sponsor_id"], name: "index_events_sponsors_on_event_id_and_sponsor_id"
     t.index ["sponsor_id", "event_id"], name: "index_events_sponsors_on_sponsor_id_and_event_id"
   end
 
-  create_table "events_teams", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "events_teams", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "event_id", null: false
     t.bigint "event_division_id"
@@ -159,12 +188,34 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["team_id", "event_id"], name: "index_events_teams_on_team_id_and_event_id"
   end
 
-  create_table "events_users", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "events_users", id: false, force: :cascade do |t|
     t.bigint "event_id", null: false
     t.bigint "user_id", null: false
+    t.index ["event_id", "user_id"], name: "index_events_users_on_event_id_and_user_id"
+    t.index ["user_id", "event_id"], name: "index_events_users_on_user_id_and_event_id"
   end
 
-  create_table "leagues", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "failed_jobs", id: :serial, force: :cascade do |t|
+    t.integer "priority", default: 0
+    t.integer "attempts", default: 0
+    t.string "handler", limit: 512000
+    t.text "last_error"
+    t.string "queue", limit: 255
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string "locked_by", limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string "tag", limit: 255
+    t.integer "max_attempts"
+    t.string "strand", limit: 255
+    t.bigint "original_job_id"
+    t.string "source", limit: 255
+    t.datetime "expires_at"
+  end
+
+  create_table "leagues", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -173,7 +224,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["season_id"], name: "index_leagues_on_season_id"
   end
 
-  create_table "match_alliances", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "match_alliances", force: :cascade do |t|
     t.bigint "alliance_id"
     t.json "surrogate"
     t.json "present"
@@ -187,7 +238,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["alliance_id"], name: "index_match_alliances_on_alliance_id"
   end
 
-  create_table "matches", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "matches", force: :cascade do |t|
     t.integer "phase"
     t.integer "series"
     t.integer "number"
@@ -208,7 +259,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["red_score_id"], name: "index_matches_on_red_score_id"
   end
 
-  create_table "rankings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "rankings", force: :cascade do |t|
     t.bigint "team_id"
     t.bigint "event_id"
     t.integer "ranking"
@@ -223,7 +274,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["team_id"], name: "index_rankings_on_team_id"
   end
 
-  create_table "rover_ruckus_cri_scores", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "rover_ruckus_cri_scores", force: :cascade do |t|
     t.integer "robots_landed", default: 0
     t.integer "depots_claimed", default: 0
     t.integer "robots_parked_auto", default: 0
@@ -244,7 +295,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "rover_ruckus_scores", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "rover_ruckus_scores", force: :cascade do |t|
     t.integer "robots_landed", default: 0
     t.integer "depots_claimed", default: 0
     t.integer "robots_parked_auto", default: 0
@@ -261,7 +312,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "scores", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "scores", force: :cascade do |t|
     t.string "season_score_type"
     t.bigint "season_score_id"
     t.integer "auto"
@@ -273,7 +324,7 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.index ["season_score_type", "season_score_id"], name: "index_scores_on_season_score_type_and_season_score_id"
   end
 
-  create_table "seasons", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "seasons", force: :cascade do |t|
     t.string "year"
     t.string "name"
     t.datetime "created_at", null: false
@@ -283,14 +334,14 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.string "score_model_name"
   end
 
-  create_table "sponsors", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "sponsors", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "global"
   end
 
-  create_table "teams", primary_key: "number", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "teams", primary_key: "number", force: :cascade do |t|
     t.string "name"
     t.string "organization"
     t.string "city"
@@ -302,14 +353,17 @@ ActiveRecord::Schema.define(version: 2019_04_30_214234) do
     t.boolean "consent_missing"
   end
 
-  create_table "twitch_channels", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "twitch_channels", force: :cascade do |t|
     t.string "name"
     t.string "access_token"
     t.string "refresh_token"
-    t.timestamp "expires_at"
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "unmanaged", default: false, null: false
   end
 
-  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
     t.string "encrypted_password", default: "", null: false

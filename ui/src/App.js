@@ -56,7 +56,7 @@ class App extends Component {
           }} reverse limit={9} showNone />
 
           { this.props.season && this.props.season.offseason ? <EventCards heading="Upcoming Events" filter={(e) => {
-            return this.stringToDate(e.start_date) > oneWeek;
+            return this.stringToDate(e.start_date) >=  oneWeek;
           }} limit={9} /> : null}
 
           <div style={{padding: '1em 0'}}>

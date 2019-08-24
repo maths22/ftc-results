@@ -1,3 +1,5 @@
+require 'delayed/server'
+
 Rails.application.routes.draw do
   # api
   # service
@@ -10,6 +12,7 @@ Rails.application.routes.draw do
   scope '/rails' do
     devise_for :users
     mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
+    mount Delayed::Server.new => '/jobs'
 
     # mount Logster::Web => "/logs", constraints: Constraints::CanCan.new(:manage, :logs)
     #
@@ -60,4 +63,6 @@ Rails.application.routes.draw do
 
     end
   end
+
+  health_check_routes
 end

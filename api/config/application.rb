@@ -69,6 +69,7 @@ module FtcResults
     config.middleware.use Rack::MethodOverride
     config.middleware.use ActionDispatch::Flash
 
+
     # config.middleware.use ::Profiler
 
     config.log_formatter = Logger::Formatter.new
