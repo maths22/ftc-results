@@ -5,7 +5,7 @@ module Api
 
       # GET /seasons
       def index
-        expires_in(1.hour, public: true) unless user_signed_in?
+        expires_in(1.hour, public: true)
 
         render json: @seasons.order(year: 'desc'),
                only: %w[id name year active offseason]
@@ -13,7 +13,7 @@ module Api
 
       # GET /seasons/1
       def show
-        expires_in(1.hour, public: true) unless user_signed_in?
+        expires_in(1.hour, public: true)
 
         render json: @season,
                only: %w[id name year active offseason]
