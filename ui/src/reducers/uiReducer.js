@@ -1,10 +1,11 @@
-import {SET_TITLE, SET_SEASON} from '../actions/ui';
+import {SET_TITLE, SET_SEASON, HIDE_VIDEO} from '../actions/ui';
 import {GET_SEASONS_SUCCESS} from '../actions/api';
 import queryString from 'query-string';
 
-
+export const LOCAL_STORAGE_VIDEO_KEY = 'hide_video';
+const hideVideo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_VIDEO_KEY)) || false;
 const values = queryString.parse(window.location.search);
-const initialState = {season: values['season']};
+const initialState = {season: values['season'], hideVideo};
 
 export default function (
     state = initialState,
@@ -21,6 +22,9 @@ export default function (
         return Object.assign({}, state, {defaultSeason: action.payload.find((s) => s.active).year});
       }
       return state;
+    case HIDE_VIDEO:
+      localStorage.setItem(LOCAL_STORAGE_VIDEO_KEY, JSON.stringify(action.hidden));
+      return Object.assign({}, state, {hideVideo: action.hidden});
     default:
       return state;
   }

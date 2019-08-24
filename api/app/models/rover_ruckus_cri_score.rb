@@ -1,12 +1,11 @@
 class RoverRuckusCriScore < ApplicationRecord
 
-  # TODO fix calculation
   def calc_auto
     30 * robots_landed +
       15 * depots_claimed +
       10 * robots_parked_auto +
       25 * fields_sampled +
-      10 * (depots_claimed == 3 ? 1 : 0)
+      10 * (depots_claimed >= 2 ? 1 : 0)
   end
 
   def calc_teleop

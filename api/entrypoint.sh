@@ -1,4 +1,10 @@
 #!/bin/bash
 
 printenv | grep -v "no_proxy" >> /opt/environment
-cron && bundle exec puma
+
+if [[ "$POOL" = "work" ]]
+then
+  bundle exec inst_jobs run
+else
+  bundle exec puma
+fi

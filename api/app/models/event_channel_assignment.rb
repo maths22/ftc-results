@@ -24,10 +24,12 @@ class EventChannelAssignment < ApplicationRecord
   end
 
   def reset_token
+    return if twitch_channel.unmanaged
     Twitch::Api.from_channel(twitch_channel).reset_stream_key(twitch_channel.id)
   end
 
   def send_token
+    return if twitch_channel.unmanaged
     stream_key = Twitch::Api.from_channel(twitch_channel).channel['stream_key']
     StreamMailer.with(assignment: self, stream_key: stream_key).token_email.deliver_now
   end

@@ -1,0 +1,7 @@
+development:
+  workers:
+    - workers: 1
+
+production:
+  workers:
+    - workers: 1

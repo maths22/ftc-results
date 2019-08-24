@@ -12,7 +12,7 @@ import {
   getEvent,
   getLeagues, getTeams,
 } from '../actions/api';
-import {setSeason, setTitle} from '../actions/ui';
+import {hideVideo, setSeason, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
@@ -29,6 +29,8 @@ import EventChip from './EventChip';
 import TeamsTable from './TeamsTable';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 const styles = (theme) => ({
   root: {
@@ -163,7 +165,7 @@ class EventSummary extends Component {
   };
 
   renderVideo = () => {
-    const { event } = this.props;
+    const { event, uiHideVideo } = this.props;
     const startDateParts = event.start_date.split('-');
     const endDateParts = event.end_date.split('-');
     const today = new Date();
@@ -172,8 +174,16 @@ class EventSummary extends Component {
         && new Date(endDateParts[0],endDateParts[1]-1,endDateParts[2]) >= today;
     if(!event.channel || !isHappening) return null;
 
-    return  <div style={{maxWidth: '50em', margin: '0 auto'}}>
-        <div style={{position:'relative', paddingTop: '56%'}}>
+    return  [
+      ,
+      <div style={{maxWidth: '50em', margin: '0 auto'}}>
+        <FormControlLabel
+          control={
+            <Switch checked={!uiHideVideo} onChange={() => this.props.hideVideo(!uiHideVideo)} />
+          }
+          label="Show Video"
+        />
+        { uiHideVideo ? null : <div style={{position:'relative', paddingTop: '56%'}}>
           <iframe
               style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
               src={`https://player.twitch.tv/?channel=${event.channel}`}
@@ -181,8 +191,8 @@ class EventSummary extends Component {
               scrolling="no"
               allowFullScreen>
           </iframe>
-        </div>
-      </div>;
+        </div> }
+      </div>];
   };
 
 
@@ -305,6 +315,7 @@ class EventSummary extends Component {
 
 const mapStateToProps = (state, props) => {
   const ret = {};
+  ret.uiHideVideo = state.ui.hideVideo;
   ret.seasons = state.seasons;
   const id = parseInt(props.id);
   if (state.events) {
@@ -351,6 +362,7 @@ const mapDispatchToProps = {
   getTeams,
   setTitle,
   setSeason,
+  hideVideo,
   push,
 };
 
