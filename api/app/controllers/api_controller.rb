@@ -9,12 +9,13 @@ class ApiController < ApplicationController
     @current_user ||= current_logedin_user || User.find(OauthController::ANON_USER_ID)
   end
 
-  def user_signed_in?
-    !!current_logedin_user
-  end
-
   def current_logedin_user
     @current_logedin_user ||= set_user_by_token(:user)
+  end
+
+  def request_has_auth?
+    puts request.headers['HTTP_X_UID']
+    request.headers['HTTP_X_UID'].present?
   end
 
   before_action :authenticate_user!

@@ -10,7 +10,7 @@ module Api
 
       # GET /events
       def index
-        expires_in(3.minutes, public: true) unless user_signed_in?
+        expires_in(3.minutes, public: true) unless request_has_auth?
 
         authorize!(:index, Event)
         @events = Event.where(season: request_season).includes(:event_divisions, :owners).with_attached_import.with_channel
@@ -49,30 +49,30 @@ module Api
 
       # GET /events/1
       def show
-        expires_in(3.minutes, public: true) unless user_signed_in?
+        expires_in(3.minutes, public: true) unless request_has_auth?
       end
 
       def view_matches
-        expires_in(30.seconds, public: true) unless user_signed_in?
+        expires_in(30.seconds, public: true) unless request_has_auth?
 
         @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
       end
 
       def view_rankings
-        expires_in(30.seconds, public: true) unless user_signed_in?
+        expires_in(30.seconds, public: true) unless request_has_auth?
 
         @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
         @rankings = @event.rankings.includes(:team)
       end
 
       def view_awards
-        expires_in(30.seconds, public: true) unless user_signed_in?
+        expires_in(30.seconds, public: true) unless request_has_auth?
 
         @awards = @event.awards.includes(:award_finalists)
       end
 
       def view_teams
-        expires_in(3.minutes, public: true) unless user_signed_in?
+        expires_in(3.minutes, public: true) unless request_has_auth?
 
         div_teams = @event.events_teams.includes(:team).map do |et|
           {

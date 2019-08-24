@@ -6,7 +6,7 @@ module Api
 
       # GET /teams
       def index
-        expires_in(15.minutes, public: true) unless user_signed_in?
+        expires_in(15.minutes, public: true) unless request_has_auth?
 
         render json: @leagues,
                only: %w[id name slug season_id]
