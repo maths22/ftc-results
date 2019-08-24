@@ -1,4 +1,4 @@
-FROM ruby:2.5
+FROM ruby:2.6
 RUN apt-get update && \
   apt-get install -qq -y --no-install-recommends postgresql-client cron && \
   rm -rf /var/lib/apt/lists/*
