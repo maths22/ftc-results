@@ -4,9 +4,7 @@ import mapKeys from 'lodash/mapKeys';
 export const LOCAL_STORAGE_KEY = 'access_token';
 export const TOKEN_UPDATE_RAW = 'TOKEN_UPDATE_RAW';
 
-const initialState = {
-  'x-uid': null,
-};
+const initialState = {};
 
 const storage = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 

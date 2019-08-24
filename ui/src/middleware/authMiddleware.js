@@ -8,7 +8,7 @@ export default store => next => action => {
   }
 
   const rawEndpoint = action[RSAA].endpoint;
-  const endpoint = (typeof rawEndpoint === 'function') ? rawEndpoint(store.getState()) : rawEndpoint;
+  let endpoint = (typeof rawEndpoint === 'function') ? rawEndpoint(store.getState()) : rawEndpoint;
   if(!endpoint.startsWith(API_BASE)) {
     return next(action);
   }
@@ -26,8 +26,16 @@ export default store => next => action => {
     return {headers};
   };
 
+  const uid = store.getState().token['x-uid'];
+  if(uid) {
+    const parsedUrl = queryString.parseUrl(endpoint);
+    parsedUrl.query['uid'] = uid;
+    endpoint = parsedUrl.url + '?' + queryString.stringify(parsedUrl.query);
+  }
+
   const finalAction = Object.assign({}, action, {
     [RSAA]: Object.assign({}, action[RSAA], {
+      endpoint: endpoint,
       headers: Object.assign({},
         store.getState().token,
         action[RSAA].headers),
