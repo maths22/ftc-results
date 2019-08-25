@@ -1,9 +1,5 @@
 module ScoringSystem
   class ZipService
-    include ActiveStorage::Downloading
-
-    attr_reader :blob
-
     def with_globaldb
       ::Zip::File.open(scoring_path) do |zip_file|
         # Handle entries one by one
@@ -21,8 +17,7 @@ module ScoringSystem
     end
 
     def add_sponsor_logo(zip, sponsor)
-      @blob = sponsor.logo
-      download_blob_to_tempfile do |file|
+      sponsor.logo.open do |file|
         ::Zip::File.open(zip) do |zip_file|
           root_path = Pathname.new(zip_file.first.name).each_filename.to_a[0]
 
