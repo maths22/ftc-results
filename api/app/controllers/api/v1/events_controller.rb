@@ -85,14 +85,16 @@ module Api
 
       def download_scoring_system
         zip = ::ScoringSystem::ZipService.new
-        db_service = ::ScoringSystem::SqlitedbExportService
-                     .new(Rails.root.join('data', 'generated_scoring_dbs'))
+        db_service = ::ScoringSystem::SqlitedbExportService.new
         zip.with_copy do |f|
-          db_service.server_db_for_event @event do |sdb|
+          db_service.create_server_db @event do |sdb|
             zip.add_db(f, 'server', sdb)
           end
-          db_service.event_dbs(@event).each do |db|
-            zip.add_db(f, File.basename(db, '.db'), db)
+          db_service.create_event_dbs @event do |edbs|
+            edbs.each do |number, db|
+              filename = @event.slug + (@event.divisions? ? "_#{number}" : '')
+              zip.add_db(f, filename , db)
+            end
           end
           Sponsor.global.each { |s| zip.add_sponsor_logo(f, s) }
           @event.sponsors.each { |s| zip.add_sponsor_logo(f, s) }

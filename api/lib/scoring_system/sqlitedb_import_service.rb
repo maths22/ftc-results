@@ -1,12 +1,9 @@
 module ScoringSystem
   class SqlitedbImportService
-    include ActiveStorage::Downloading
-    attr_accessor :blob
-
     def import_to_event(event, evt_division = nil)
-      self.blob = evt_division.nil? ? event.import : evt_division.import
+      blob = evt_division.nil? ? event.import : evt_division.import
 
-      download_blob_to_tempfile do |file|
+      blob.open do |file|
         @db = SQLite3::Database.new file.path
         @db.results_as_hash = true
         ActiveRecord::Base.transaction do
@@ -23,8 +20,6 @@ module ScoringSystem
           event.save!
         end
       end
-
-      # TODO: compute rankings :sadpanda:
     end
 
     private
