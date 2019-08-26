@@ -36,7 +36,7 @@ module Rankings
     end
 
     def initial_rankings
-      divisions = Division.joins(:league).where(leagues: {season: @season}).includes(teams: :divisions)
+      divisions = Division.joins(:league).where(leagues: { season: @season }).includes(teams: :divisions)
       divisions.all.map do |div|
         div.teams.map do |team|
           ranking = TeamRanking.new
@@ -92,7 +92,7 @@ module Rankings
     def alliances
       @alliances ||= MatchAlliance
                      .joins(alliance: :event)
-                     .includes(alliance: { alliance_teams: { team: :divisions } } )
+                     .includes(alliance: { alliance_teams: { team: :divisions } })
                      .where(alliance: { events: { season: @season, context_type: 'Division' } })
     end
   end

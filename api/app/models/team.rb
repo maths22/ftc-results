@@ -14,9 +14,9 @@ class Team < ApplicationRecord
 
   def record(matches)
     results = matches
-                  .select { |m| m.match_for_team?(self) && !m.surrogate_for_team(self) && m.played }
-                  .group_by { |m| m.record_for_team self }
-                  .map{|k,v| [k,v.size]}.to_h
+              .select { |m| m.match_for_team?(self) && !m.surrogate_for_team(self) && m.played }
+              .group_by { |m| m.record_for_team self }
+              .map { |k, v| [k, v.size] }.to_h
     {
       win: results[2] || 0,
       loss: results[0] || 0,

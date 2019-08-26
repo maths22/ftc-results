@@ -21,8 +21,7 @@ module Api
       def details
         @league = League.includes([{ divisions: %i[teams events] }, :events]).find_by(slug: params[:slug])
         render json: @league,
-               include: [{ divisions: {include: %i[teams events]} }, :events]
-
+               include: [{ divisions: { include: %i[teams events] } }, :events]
       end
     end
   end

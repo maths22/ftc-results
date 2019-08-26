@@ -187,8 +187,7 @@ module ScoringSystem
           add_league_team_stmt.execute code: div.slug, team: team.number
 
           team.match_alliances_for_season(season).each do |ma|
-            next unless ma.counts_for_ranking?(team)
-            next unless ma.match.phase == 'qual'
+            next unless ma.counts_for_ranking?(team) && ma.match.phase == 'qual'
 
             add_league_history_stmt.execute team: team.number,
                                             eventCode: ma.match.event.slug,

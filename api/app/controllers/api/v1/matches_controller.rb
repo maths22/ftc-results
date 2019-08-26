@@ -5,7 +5,7 @@ module Api
 
       def details
         @match = Match.includes([red_score: :season_score, blue_score: :season_score])
-                     .find(params[:id])
+                      .find(params[:id])
       end
     end
   end

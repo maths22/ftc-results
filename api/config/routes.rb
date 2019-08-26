@@ -41,12 +41,11 @@ Rails.application.routes.draw do
 
       get 'matches/details/:id', to: 'matches#details'
 
-
       post 'active_storage/direct_uploads' => 'direct_uploads#create'
 
       mount_devise_token_auth_for 'User', at: 'auth'
 
-      #Upload routes
+      # Upload routes
       post 'events/reset/:id', to: 'events#reset'
       post 'events/rankings/:id', to: 'events#post_rankings'
       post 'events/awards/:id', to: 'events#post_awards'
@@ -60,7 +59,6 @@ Rails.application.routes.draw do
 
       post 'events/requestAccess/:id', to: 'events#request_access'
       get 'events/approveAccess/:token', to: 'events#approve_access', as: 'approve_access'
-
     end
   end
 

@@ -7,7 +7,13 @@ class User < ApplicationRecord
   include DeviseTokenAuth::Concerns::User
 
   # Deprecate special user types-user, admin, anon should be sufficent
-  enum role: %i[user _event_host admin anon _reg_admin]
+  enum role: {
+    user: 0,
+    # event_host: 1,
+    admin: 2,
+    anon: 3
+    # reg_admin: 4
+  }
 
   has_and_belongs_to_many :events
 

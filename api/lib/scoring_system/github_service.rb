@@ -39,7 +39,7 @@ module ScoringSystem
     end
 
     def asset
-      @asset ||= client.releases(SCORING_REPO).sort_by(&:tag_name).last
+      @asset ||= client.releases(SCORING_REPO).max_by(&:tag_name)
                        .assets.find { |a| a.content_type == ZIP_MIME_TYPE }
     end
   end

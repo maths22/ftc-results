@@ -23,20 +23,20 @@ module Api
         rankings = Rankings::LeagueRankingsService.new(season).compute
         ret = rankings.values.sort.reverse.map do |tr|
           {
-              team: tr.team.number,
-              rp: tr.rp,
-              tbp: tr.tbp,
-              high_score: tr.high_score,
-              matches_played: tr.matches_played,
-              division_id: tr.division.id,
-              league_id: tr.division.league_id
+            team: tr.team.number,
+            rp: tr.rp,
+            tbp: tr.tbp,
+            high_score: tr.high_score,
+            matches_played: tr.matches_played,
+            division_id: tr.division.id,
+            league_id: tr.division.league_id
           }
         end
 
         {
-            rankings: ret,
-            divisions: Division.joins(:league).where(leagues: {season: season}).all,
-            leagues: League.where(season: season).all
+          rankings: ret,
+          divisions: Division.joins(:league).where(leagues: { season: season }).all,
+          leagues: League.where(season: season).all
         }
       end
     end

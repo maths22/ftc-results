@@ -64,9 +64,9 @@ class Match < ApplicationRecord
     [red_score.earned, blue_score.earned].min
   end
 
-  def is_degenerate?
-    red_wins? && blue_alliance.is_degenerate? ||
-      blue_wins? && red_alliance.is_degenerate?
+  def degenerate?
+    red_wins? && blue_alliance.degenerate? ||
+      blue_wins? && red_alliance.degenerate?
   end
 
   def tie?
@@ -74,26 +74,54 @@ class Match < ApplicationRecord
   end
 
   def update_ranking_data
+    update_rp
+    update_degenerate_rp
+    update_tbp
+    update_score
+  end
+
+  def update_rp
     red_alliance.rp[0] = red_rp if red_alliance.raw_counts_for_ranking? 0
     red_alliance.rp[1] = red_rp if red_alliance.raw_counts_for_ranking? 1
     blue_alliance.rp[0] = blue_rp if blue_alliance.raw_counts_for_ranking? 0
     blue_alliance.rp[1] = blue_rp if blue_alliance.raw_counts_for_ranking? 1
+  end
 
-    red_alliance.rp[0] = red_score if is_degenerate? && red_wins? && red_alliance.raw_counts_for_ranking?(0)
-    red_alliance.rp[1] = red_score if is_degenerate? && red_wins? && red_alliance.raw_counts_for_ranking?(1)
-    blue_alliance.rp[0] = blue_score if is_degenerate? && blue_wins? && blue_alliance.raw_counts_for_ranking?(0)
-    blue_alliance.rp[1] = blue_score if is_degenerate? && blue_wins? && blue_alliance.raw_counts_for_ranking?(1)
+  def update_degenerate_rp
+    return unless degenerate?
 
+    update_red_degenerate_rp if red_wins?
+    update_blue_degenerate_rp if blue_wins?
+  end
+
+  def update_red_degenerate_rp
+    red_alliance.rp[0] = red_score if red_alliance.raw_counts_for_ranking?(0)
+    red_alliance.rp[1] = red_score if red_alliance.raw_counts_for_ranking?(1)
+  end
+
+  def update_blue_degenerate_rp
+    blue_alliance.rp[0] = blue_score if blue_alliance.raw_counts_for_ranking?(0)
+    blue_alliance.rp[1] = blue_score if blue_alliance.raw_counts_for_ranking?(1)
+  end
+
+  def update_tbp
     red_alliance.tbp[0] = normal_tbp if red_alliance.raw_counts_for_ranking? 0
     red_alliance.tbp[1] = normal_tbp if red_alliance.raw_counts_for_ranking? 1
     blue_alliance.tbp[0] = normal_tbp if blue_alliance.raw_counts_for_ranking? 0
     blue_alliance.tbp[1] = normal_tbp if blue_alliance.raw_counts_for_ranking? 1
+  end
 
+  def update_score
     red_alliance.score[0] = red_score_total unless red_alliance.surrogate[0]
     red_alliance.score[1] = red_score_total unless red_alliance.surrogate[1]
     blue_alliance.score[0] = blue_score_total unless blue_alliance.surrogate[0]
     blue_alliance.score[1] = blue_score_total unless blue_alliance.surrogate[1]
   end
 
-  enum phase: %i[qual semi final interfinal]
+  enum phase: {
+    qual: 0,
+    semi: 1,
+    final: 2,
+    interfinal: 3
+  }
 end

@@ -1,5 +1,4 @@
 class RoverRuckusCriScore < ApplicationRecord
-
   def calc_auto
     30 * robots_landed +
       15 * depots_claimed +
