@@ -68,7 +68,7 @@ class DivisionsSummary extends Component {
     if(!this.props.rankings) {
       this.props.getTeams();
       this.props.getSeasons();
-      this.refresh()
+      this.refresh();
     }
     this.setTitle();
   }
@@ -174,7 +174,7 @@ class DivisionsSummary extends Component {
               })}
             </TableBody>
           </Table>
-          <p style={{paddingLeft: "1em", paddingRight: "1em"}}>
+          <p style={{paddingLeft: '1em', paddingRight: '1em'}}>
             Note: Crossed out teams have not submitted FIRST Illinois Robotics consent forms and will not be permitted
             to compete at the league championship unless these forms are submitted.
             Please contact <TextLink href="mailto:jweiland@firstillinoisrobotics.org">Jonathan Weiland</TextLink> with any questions.
@@ -209,7 +209,7 @@ const mapStateToProps = (state, props) => {
     } else {
       if(state.seasons) {
         filter = (lr) => {
-          return state.leagues[lr.league_id] && state.leagues[lr.league_id].season_id === state.seasons.find((s) => s.year == (state.ui.season || state.ui.defaultSeason)).id;
+          return state.leagues[lr.league_id] && state.leagues[lr.league_id].season_id === state.seasons.find((s) => s.year === (state.ui.season || state.ui.defaultSeason)).id;
         };
       } else {
         filter = () => false;

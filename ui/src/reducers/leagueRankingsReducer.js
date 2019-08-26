@@ -1,6 +1,5 @@
 import {GET_DIVISION_DATA_SUCCESS, GET_LEAGUE_DATA_SUCCESS, GET_LEAGUE_RANKINGS_SUCCESS} from '../actions/api';
 import {INVALIDATE_RANKINGS} from '../actions/util';
-import {SET_SEASON} from '../actions/ui';
 
 const initialState = null;
 

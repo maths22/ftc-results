@@ -9,7 +9,6 @@ import EventCards from './components/EventCards';
 import SeasonSelector from './components/SeasonSelector';
 import * as queryString from 'query-string';
 import {connect} from 'react-redux';
-import {withStyles} from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 
 class App extends Component {
@@ -27,7 +26,7 @@ class App extends Component {
     oneWeek.setDate(oneWeek.getDate() + 7);
     const twoWeeksOld = new Date(today);
     twoWeeksOld.setDate(twoWeeksOld.getDate() - 14);
-    console.log(this.props.season)
+    console.log(this.props.season);
     return (
         <div>
           <SeasonSelector/>

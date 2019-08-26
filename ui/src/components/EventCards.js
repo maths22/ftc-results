@@ -48,7 +48,7 @@ class EventCards extends Component {
     if(!this.props.events) {
       return <LoadingSpinner/>;
     }
-    const { classes, uid, limit, heading, showNone } = this.props;
+    const { classes, limit, heading, showNone } = this.props;
     let vals = [...this.props.events].sort((a, b) => {
       const diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
@@ -63,7 +63,7 @@ class EventCards extends Component {
       if(showNone) {
         return <div style={{padding: '1em 0'}}>
           <Typography variant="h5" gutterBottom>No {heading}</Typography>
-        </div>
+        </div>;
       } else {
         return null;
       }

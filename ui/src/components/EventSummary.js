@@ -174,9 +174,7 @@ class EventSummary extends Component {
         && new Date(endDateParts[0],endDateParts[1]-1,endDateParts[2]) >= today;
     if(!event.channel || !isHappening) return null;
 
-    return  [
-      ,
-      <div style={{maxWidth: '50em', margin: '0 auto'}}>
+    return <div style={{maxWidth: '50em', margin: '0 auto'}}>
         <FormControlLabel
           control={
             <Switch checked={!uiHideVideo} onChange={() => this.props.hideVideo(!uiHideVideo)} />
@@ -185,6 +183,7 @@ class EventSummary extends Component {
         />
         { uiHideVideo ? null : <div style={{position:'relative', paddingTop: '56%'}}>
           <iframe
+              title="Twitch Player"
               style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
               src={`https://player.twitch.tv/?channel=${event.channel}`}
               frameBorder="0"
@@ -192,7 +191,7 @@ class EventSummary extends Component {
               allowFullScreen>
           </iframe>
         </div> }
-      </div>];
+      </div>;
   };
 
 

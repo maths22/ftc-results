@@ -120,8 +120,8 @@ class HeadingBar extends Component {
               {/*<ClickAwayListener onClickAway={this.handleClose}>*/}
                 <MenuList>
                   {/*<MenuItem onClick={this.handleClose}>Profile</MenuItem>*/}
-                  <MenuItem onClick={() => {this.props.push('/account'); this.handleClose()}}>My Account</MenuItem>
-                  <MenuItem onClick={() => {this.logout(); this.handleClose()}}>Logout</MenuItem>
+                  <MenuItem onClick={() => {this.props.push('/account'); this.handleClose();}}>My Account</MenuItem>
+                  <MenuItem onClick={() => {this.logout(); this.handleClose();}}>Logout</MenuItem>
                 </MenuList>
               {/*</ClickAwayListener>*/}
             </Paper>

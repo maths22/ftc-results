@@ -56,7 +56,7 @@ function teamsTable({teams, classes, showDivisionAssignments, divisions, onClick
           <TableCell className={classes.tableCell}>{t.name}</TableCell>
           <TableCell className={classes.tableCell}>{[t.city, t.state, t.country].join(', ')}</TableCell>
           <TableCell className={classes.tableCell}>{t.organization ? uniq(t.organization.split('&').map((s) => s.trim())).join('\n') : null}</TableCell>
-        </TableRow>
+        </TableRow>;
       })}
     </TableBody>
   </Table>;

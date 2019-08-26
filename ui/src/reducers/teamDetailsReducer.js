@@ -1,5 +1,4 @@
 import {GET_TEAM_DETAILS_SUCCESS} from '../actions/api';
-import omit from 'lodash/omit';
 
 const initialState = {};
 

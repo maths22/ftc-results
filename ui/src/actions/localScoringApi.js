@@ -19,7 +19,7 @@ export const websocketPath = '/manage/display/stream/';
 
 export const getLocalEvents = () => ({
   [RSAA]: {
-    endpoint: apiBase(`/events`),
+    endpoint: apiBase('/events'),
     method: 'GET',
     types: [
       LOCAL_GET_EVENTS_REQUEST,
@@ -31,7 +31,7 @@ export const getLocalEvents = () => ({
 
 export const getLocalVersion = () => ({
   [RSAA]: {
-    endpoint: apiBase(`/version`),
+    endpoint: apiBase('/version'),
     method: 'GET',
     types: [
       LOCAL_GET_VERSION_REQUEST,

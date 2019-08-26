@@ -132,5 +132,5 @@ export default ScoreTable((match) => {
       blue: match.blue_score_total,
       key: true
     }
-  ]
+  ];
 });

@@ -15,7 +15,7 @@ export default class ScrollingBody extends Component {
   updateScroll() {
     const elem = this.scrollRef.current;
     const isTooTall = elem.getBoundingClientRect().bottom > elem.parentElement.getBoundingClientRect().bottom;
-    if(this.state.tooTall != isTooTall) {
+    if(this.state.tooTall !== isTooTall) {
       this.setState({tooTall: isTooTall});
     }
 

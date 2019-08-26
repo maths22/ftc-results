@@ -21,6 +21,6 @@ export default function ({event}) {
     },
   };
 
-  return <Chip style={{marginLeft: '1em'}} {...stateTag[event.aasm_state]}/>
+  return <Chip style={{marginLeft: '1em'}} {...stateTag[event.aasm_state]}/>;
 
 }

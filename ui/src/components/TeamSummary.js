@@ -81,7 +81,7 @@ class EventsSummary extends Component {
           </p> : null}
         </div>
         <MatchTable team={this.props.team.number} matches={theMatches}/>
-      </div>});
+      </div>;});
   };
 
   render () {
@@ -95,8 +95,8 @@ class EventsSummary extends Component {
       <div className={this.props.classes.heading}>
         <Typography variant="h4">Team {team.number} – {team.name}</Typography>
         { team.consent_missing ? <Card >
-              <div width="100%" style={{background: "red", color: "white"}}><WarningIcon/></div>
-              <p style={{paddingLeft: "1em", paddingRight: "1em"}}>
+              <div width="100%" style={{background: 'red', color: 'white'}}><WarningIcon/></div>
+              <p style={{paddingLeft: '1em', paddingRight: '1em'}}>
                 This team has not submitted FIRST Illinois Robotics consent forms and will not be permitted to compete at the
                 league championship unless these forms are submitted.
                 Please contact <TextLink href="mailto:jweiland@firstillinoisrobotics.org">Jonathan Weiland</TextLink> with any questions.

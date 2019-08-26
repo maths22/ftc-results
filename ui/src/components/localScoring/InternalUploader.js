@@ -23,7 +23,7 @@ import {postAlliances, postMatch, postMatches, postRankings, postAwards, postTea
 import objectHash from 'object-hash';
 import {fromPairs} from 'lodash';
 
-import {PersistentWebsocket} from 'persistent-websocket'
+import {PersistentWebsocket} from 'persistent-websocket';
 
 
 const styles = theme => ({
@@ -128,7 +128,7 @@ class Uploader extends Component {
           this.displayedMatches[mid] = dispMatch;
         }
       }
-    }
+    };
   };
 
   //TODO update this to use the websocket method

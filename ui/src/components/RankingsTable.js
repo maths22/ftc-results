@@ -56,7 +56,7 @@ function rankingsTable ({rankings, classes, showRecord, pitDisplay}) {
             <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.ranking < 0 ? '-' : r.ranking_points}</span>
             <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.ranking < 0 ? '-' : r.tie_breaker_points}</span>
             <span className={classes.rotatingTableCell} style={{width: '20%'}}>{r.ranking < 0 ? '-' : r.matches_played}</span>
-          </div>
+          </div>;
         })}
       <div className={'tableRowDiv'} />
     </ScrollingBody>];
@@ -91,7 +91,7 @@ function rankingsTable ({rankings, classes, showRecord, pitDisplay}) {
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.tie_breaker_points}</TableCell>
           {showRecord ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : recordLine}</TableCell> : null}
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
-        </TableRow>
+        </TableRow>;
       })}
     </TableBody>
   </Table>;

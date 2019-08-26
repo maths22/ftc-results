@@ -4,7 +4,6 @@ import {
   GET_LEAGUE_RANKINGS_SUCCESS,
   GET_LEAGUES_SUCCESS
 } from '../actions/api';
-import {SET_SEASON} from '../actions/ui';
 
 const initialState = null;
 

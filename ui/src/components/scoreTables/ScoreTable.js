@@ -76,6 +76,6 @@ const ScoreTable = (scoreInterpretation) => withStyles(styles)(({classes, match}
       </TableRow>))}
     </TableBody>
   </Table>;
-})
+});
 
-export default ScoreTable
+export default ScoreTable;
