@@ -128,7 +128,7 @@ class MatchTable extends React.Component {
           return <div key={m.id} className={'tableRowDiv'} style={Object.assign({},{width: '100%', rowStyle})}>
             <span className={classes.rotatingTableCell} style={{width: '50%'}}>{matchDisp}</span>
             <span className={pitClasses} style={{width: '50%'}}>{resultSegments[0]}-{resultSegments[1]} {resultSegments[2]}</span>
-          </div>
+          </div>;
         }
 
         return <TableRow key={m.id} style={rowStyle}>
@@ -176,7 +176,7 @@ class MatchTable extends React.Component {
         {groupedMatches['semi'] ? groupedMatches['semi'] : null}
         {groupedMatches['final'] ? groupedMatches['final'] : null}
         <div className={'tableRowDiv'} />
-      </ScrollingBody>]
+      </ScrollingBody>];
     }
 
     return [<Table key={1} className={classes.table}>

@@ -1,10 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import { push } from 'connected-react-router';
-import queryString from 'query-string';
-import invert from 'lodash/invert';
-
-import Paper from '@material-ui/core/Paper';
 
 import {
   getDivisions,
@@ -17,18 +13,7 @@ import LoadingSpinner from './../LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import MatchTable from '../MatchTable';
-import TextLink from '../TextLink';
-import AwardsTable from '../AwardsTable';
 import RankingsTable from '../RankingsTable';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import SwipeableViews from 'react-swipeable-views';
-import IconButton from '@material-ui/core/IconButton';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import EventChip from '../EventChip';
-import TeamsTable from '../TeamsTable';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Grid from '@material-ui/core/Grid';
 
 import Image from './season-background.png';
@@ -195,8 +180,8 @@ class EventRankings extends Component {
       return <LoadingSpinner/>;
     }
 
-    const { classes, event, league, division, matches, rankings, awards, teams } = this.props;
-    const { selectedDivision, selectedTab } = this.state;
+    const { classes, event, matches, rankings } = this.props;
+    const { selectedDivision } = this.state;
 
     return <div className={classes.root}>
       <div className={classes.heading}>

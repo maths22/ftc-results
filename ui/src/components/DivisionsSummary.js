@@ -88,7 +88,7 @@ class DivisionsSummary extends Component {
 const mapStateToProps = (state) => {
   if (state.divisions && state.leagues && state.seasons) {
     return {
-      divisions: Object.values(state.divisions).filter((div) => state.leagues && state.leagues[div.league_id].season_id === state.seasons.find((s) => s.year == (state.ui.season || state.ui.defaultSeason)).id)
+      divisions: Object.values(state.divisions).filter((div) => state.leagues && state.leagues[div.league_id].season_id === state.seasons.find((s) => s.year === (state.ui.season || state.ui.defaultSeason)).id)
         .map((div) => Object.assign({}, div, { league: state.leagues[div.league_id] }))
     };
   }

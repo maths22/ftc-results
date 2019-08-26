@@ -1,14 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import { withStyles } from '@material-ui/core/styles';
-
 import { getSeasons } from '../actions/api';
 import { setSeason } from '../actions/ui';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
-import {push} from "connected-react-router";
+import {push} from 'connected-react-router';
 import queryString from 'query-string';
 
 
@@ -36,7 +34,7 @@ class SeasonSelector extends Component {
             {(this.props.seasons || []).map((s) => {
                 return <MenuItem value={s.year} key={s.year}>
                     {`${s.name} (${s.year})`}
-                </MenuItem>}
+                </MenuItem>;}
             )}
         </Select></Typography></>;
     }

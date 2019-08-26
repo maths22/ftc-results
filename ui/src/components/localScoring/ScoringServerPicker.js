@@ -95,7 +95,7 @@ class ScoringServerPicker extends Component {
               <Typography color="error">{error.join(', ')}</Typography>
             </Grid>}
             {this.props.localServer.verified === false ? <Grid item xs={12}>
-              <Typography color="error">{`Could not connect to scoring system at ` +
+              <Typography color="error">{'Could not connect to scoring system at ' +
                 `http://${localServer.hostname}:${localServer.port}`}</Typography>
             </Grid> : null}
           </Grid>

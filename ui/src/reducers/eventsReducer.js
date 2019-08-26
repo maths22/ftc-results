@@ -1,6 +1,5 @@
 import {GET_EVENT_SUCCESS, GET_EVENT_TEAMS_SUCCESS, GET_EVENTS_SUCCESS, GET_TEAM_DETAILS_SUCCESS} from '../actions/api';
 import {CLEAR_USER_DEPENDENT_STATE} from '../actions/util';
-import {SET_SEASON} from '../actions/ui';
 
 const initialState = null;
 

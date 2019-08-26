@@ -97,7 +97,7 @@ class EventsSummary extends Component {
     if(e.divisions) {
       e.divisions.forEach((d) => {
         if(!d.import) return;
-        links.push(<div><TextLink href={API_HOST + d.import} ref={d.id}>{d.name} Database</TextLink></div>)
+        links.push(<div><TextLink href={API_HOST + d.import} ref={d.id}>{d.name} Database</TextLink></div>);
       });
     }
     return <TableCell className={this.props.classes.tableCell}>
