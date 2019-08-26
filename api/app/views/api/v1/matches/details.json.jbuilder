@@ -14,5 +14,5 @@ json.red_score_details @match.red_score.season_score,
 json.blue_score_total @match.blue_score_total
 json.blue_score @match.blue_score, partial: 'scores/base_info', as: :score
 json.blue_score_details @match.blue_score.season_score,
-                       partial: "#{@match.blue_score.season_score_type.tableize}/base_info",
-                       as: :score
+                        partial: "#{@match.blue_score.season_score_type.tableize}/base_info",
+                        as: :score

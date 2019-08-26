@@ -1,7 +1,6 @@
 module Twitch
   # noinspection RubyClassVariableUsageInspection
   class Api
-
     class <<self
       def client
         @client ||= OAuth2::Client.new(ENV['TWITCH_ID'], ENV['TWITCH_SECRET'],
@@ -71,8 +70,8 @@ module Twitch
 
     def request(method, path, opts = {})
       @token.send(method, path, opts.merge(headers: headers)).parsed
-    rescue OAuth2::Error => error
-      raise unless error.response.status == 401
+    rescue OAuth2::Error => e
+      raise unless e.response.status == 401
 
       chan = TwitchChannel.find_by(refresh_token: @token.refresh_token)
       @token = @token.refresh

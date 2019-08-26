@@ -26,4 +26,3 @@ class TwitchOauthController < ApplicationController
     @allowed_channels ||= ENV.fetch('TWITCH_ALLOWED_CHANNELS', '').split(',')
   end
 end
-

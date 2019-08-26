@@ -14,7 +14,6 @@ class ApiController < ApplicationController
   end
 
   def request_has_auth?
-    puts request.headers['HTTP_X_UID']
     request.headers['HTTP_X_UID'].present?
   end
 

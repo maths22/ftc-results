@@ -1,3 +1,5 @@
+require: rubocop-rails
+
 Style/FrozenStringLiteralComment:
   Enabled: false
 
@@ -6,26 +8,57 @@ Style/Documentation:
   Enabled: false
 
 Metrics/LineLength:
+  #  TODO reenable
+  Enabled: false
   Max: 120
 
+Metrics/CyclomaticComplexity:
+  #  TODO reenable
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  #  TODO reenable
+  Enabled: false
+
+
+Metrics/ClassLength:
+  #  TODO reenable
+  Enabled: false
+
 Metrics/MethodLength:
+#  TODO reenable
+  Enabled: false
   Max: 20
   Exclude:
     - 'db/migrate/*'
 
 Metrics/BlockLength:
+#  TODO reenable
+  Enabled: false
   Max: 20
   Exclude:
     - 'db/migrate/*'
 
 Metrics/AbcSize:
+  #  TODO reenable
+  Enabled: false
   Exclude:
     - 'db/migrate/*'
 
 Rails:
   Enabled: true
 
+Rails/HasAndBelongsToMany:
+  Enabled: false
+
 AllCops:
   Exclude:
     - 'db/schema.rb'
+#    Exclude 3rd party authored code
+    - 'db/migrate/*.delayed_engine.rb'
+    - 'db/migrate/*.active_storage.rb'
+    - 'bin/*'
   DisplayCopNames: true
+  DisplayStyleGuide: true
+  TargetRailsVersion: 6.0
+  TargetRubyVersion: 2.6

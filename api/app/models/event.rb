@@ -1,5 +1,5 @@
 class Event < ApplicationRecord
-  scope :with_channel, -> { includes(event_channel_assignment: :twitch_channel)}
+  scope :with_channel, -> { includes(event_channel_assignment: :twitch_channel) }
 
   include AASM
 
@@ -47,7 +47,6 @@ class Event < ApplicationRecord
   def divisions?
     event_divisions.count.positive?
   end
-
 
   aasm do
     state :not_started, initial: true

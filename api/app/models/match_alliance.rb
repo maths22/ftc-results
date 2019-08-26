@@ -1,6 +1,6 @@
 class MatchAlliance < ApplicationRecord
   belongs_to :alliance
-  has_one :match, ->(ma) do
+  has_one :match, lambda do |ma|
     unscope(where: :match_alliance_id)
       .where('matches.red_alliance_id = :id OR matches.blue_alliance_id = :id', id: ma.id)
   end
@@ -49,7 +49,7 @@ class MatchAlliance < ApplicationRecord
     !surrogate[pos] && present[pos] && !red_card[pos]
   end
 
-  def is_degenerate?
+  def degenerate?
     present.zip(red_card).all? { |arr| !arr[0] || arr[1] }
   end
 end

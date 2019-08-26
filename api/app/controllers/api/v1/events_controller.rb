@@ -26,8 +26,9 @@ module Api
           )
           request.save!
           AccessMailer.with(request: request).request_email.deliver_now
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -40,8 +41,9 @@ module Api
           request.event.save!
           AccessMailer.with(request: request).approved_email.deliver_now
           request.destroy!
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -85,15 +87,15 @@ module Api
 
       def download_scoring_system
         zip = ::ScoringSystem::ZipService.new
-        db_service = ::ScoringSystem::SqlitedbExportService.new
+        db_service = ::ScoringSystem::SqlitedbExportService.new(@event)
         zip.with_copy do |f|
-          db_service.create_server_db @event do |sdb|
+          db_service.create_server_db do |sdb|
             zip.add_db(f, 'server', sdb)
           end
-          db_service.create_event_dbs @event do |edbs|
+          db_service.create_event_dbs do |edbs|
             edbs.each do |number, db|
               filename = @event.slug + (@event.divisions? ? "_#{number}" : '')
-              zip.add_db(f, filename , db)
+              zip.add_db(f, filename, db)
             end
           end
           Sponsor.global.each { |s| zip.add_sponsor_logo(f, s) }
@@ -116,14 +118,14 @@ module Api
           ActiveRecord::Base.transaction do
             if req_division.nil?
               @event.reset!
-              ::ScoringSystem::SqlitedbImportService.new.import_to_event @event
+              ::ScoringSystem::SqlitedbImportService.new(@event).process
             else
-              ::ScoringSystem::SqlitedbImportService.new.import_to_event @event, req_division
+              ::ScoringSystem::SqlitedbImportService.new(@event, req_division).process
             end
           end
-        rescue StandardError => exception
-          puts exception.backtrace
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -132,8 +134,9 @@ module Api
       def reset
         begin
           @event.reset!
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -157,9 +160,7 @@ module Api
                 nr.ranking_breaker = rk['ranking']
               end
             end
-            if @event.context_type == 'League'
-              Rankings::LeagueRankingsService.new.merge_with_event_rankings(@event, team_rankings)
-            end
+            Rankings::LeagueRankingsService.new.merge_with_event_rankings(@event, team_rankings) if @event.context_type == 'League'
             team_rankings.sort.reverse.each_with_index do |rk, idx|
               ranking = Ranking.new(team: rk.team,
                                     ranking: idx + 1,
@@ -171,9 +172,9 @@ module Api
               ranking.save!
             end
           end
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
-          logger.error ([exception.message]+exception.backtrace).join($INPUT_RECORD_SEPARATOR)
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -192,7 +193,6 @@ module Api
               award.event = @event
               award.save!
               awd[:finalists].each do |fin|
-                puts params
                 finalist = AwardFinalist.new(fin.permit(:team_id,
                                                         :recipient,
                                                         :place))
@@ -201,8 +201,9 @@ module Api
               end
             end
           end
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -226,8 +227,9 @@ module Api
             end
             @event.save!
           end
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -249,42 +251,43 @@ module Api
               alliance.save!
             end
           end
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
       end
 
-      def generate_qual_match(m)
+      def generate_qual_match(match_data)
         match = Match.create_with(played: false)
-                     .find_or_create_by(event: @event, event_division: req_division, phase: 'qual', number: m[:number])
+                     .find_or_create_by(event: @event, event_division: req_division, phase: 'qual', number: match_data[:number])
         unless match.red_alliance
-          red_alliance = Alliance.new event: @event, event_division: req_division, is_elims: false, teams: Team.find(m[:red_alliance])
+          red_alliance = Alliance.new event: @event, event_division: req_division, is_elims: false, teams: Team.find(match_data[:red_alliance])
           red_alliance.save!
           red_match_alliance = MatchAlliance.new alliance: red_alliance
-          red_match_alliance.surrogate = m[:red_surrogate]
+          red_match_alliance.surrogate = match_data[:red_surrogate]
           match.red_alliance = red_match_alliance
         end
         unless match.blue_alliance
-          blue_alliance = Alliance.new event: @event, event_division: req_division, is_elims: false, teams: Team.find(m[:blue_alliance])
+          blue_alliance = Alliance.new event: @event, event_division: req_division, is_elims: false, teams: Team.find(match_data[:blue_alliance])
           blue_alliance.save!
           blue_match_alliance = MatchAlliance.new alliance: blue_alliance
-          blue_match_alliance.surrogate = m[:blue_surrogate]
+          blue_match_alliance.surrogate = match_data[:blue_surrogate]
           match.blue_alliance = blue_match_alliance
         end
         match.save!
       end
 
-      def generate_elim_match(m)
+      def generate_elim_match(match_data)
         match = Match.create_with(played: false)
-                     .find_or_create_by(event: @event, event_division: req_division, phase: m[:phase], series: m[:series], number: m[:number])
-        red_alliance = Alliance.find_by(event: @event, event_division: req_division, is_elims: true, seed: m[:red_alliance])
+                     .find_or_create_by(event: @event, event_division: req_division, phase: match_data[:phase], series: match_data[:series], number: match_data[:number])
+        red_alliance = Alliance.find_by(event: @event, event_division: req_division, is_elims: true, seed: match_data[:red_alliance])
         red_match_alliance = MatchAlliance.new alliance: red_alliance
-        red_match_alliance.present = m[:red_present]
-        blue_alliance = Alliance.find_by(event: @event, event_division: req_division,  is_elims: true, seed: m[:blue_alliance])
+        red_match_alliance.present = match_data[:red_present]
+        blue_alliance = Alliance.find_by(event: @event, event_division: req_division, is_elims: true, seed: match_data[:blue_alliance])
         blue_match_alliance = MatchAlliance.new alliance: blue_alliance
-        blue_match_alliance.present = m[:blue_present]
+        blue_match_alliance.present = match_data[:blue_present]
 
         match.red_alliance = red_match_alliance
         match.blue_alliance = blue_match_alliance
@@ -303,8 +306,9 @@ module Api
               generate_elim_match(m) unless m[:phase] == 'qual'
             end
           end
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -335,8 +339,9 @@ module Api
             m.update_ranking_data
             m.save!
           end
-        rescue StandardError => exception
-          render json: { error: exception.message }, status: :internal_server_error
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -346,15 +351,17 @@ module Api
         assignment = Twitch::AssignmentService.new.find_or_create_assignment(@event, current_user)
         StreamMailer.with(assignment: assignment).created_email.deliver_now
         render json: { channel_name: true }
-      rescue StandardError => exception
-        render json: { error: exception.message }, status: :internal_server_error
+      rescue StandardError => e
+        render json: { error: e.message }, status: :internal_server_error
+        Raven.capture_exception(e)
       end
 
       def remove_twitch
         @event.event_channel_assignment.destroy!
         render json: { channel_name: true }
-      rescue StandardError => exception
-        render json: { error: exception.message }, status: :internal_server_error
+      rescue StandardError => e
+        render json: { error: e.message }, status: :internal_server_error
+        Raven.capture_exception(e)
       end
 
       # POST /events

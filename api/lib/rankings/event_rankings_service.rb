@@ -1,6 +1,5 @@
 module Rankings
   class EventRankingsService
-
     def initialize(evt)
       @evt = evt
     end
@@ -43,9 +42,9 @@ module Rankings
 
       lrs = LeagueRankingsService.new
       lrs.alliances = MatchAlliance
-                          .joins(alliance: :event)
-                          .includes(alliance: { alliance_teams: { team: :divisions } } )
-                          .where(alliance: { events: { context: @evt.context.divisions } })
+                      .joins(alliance: :event)
+                      .includes(alliance: { alliance_teams: { team: :divisions } })
+                      .where(alliance: { events: { context: @evt.context.divisions } })
       league_rankings = lrs.compute
       evt_rankings.transform_values! do |lst|
         lst << league_rankings[lst[0].team.number] if league_rankings.key? lst[0].team.number
@@ -71,9 +70,9 @@ module Rankings
 
     def alliances
       @alliances ||= MatchAlliance
-                         .joins(alliance: :event)
-                         .includes(alliance: { alliance_teams: { team: :divisions } } )
-                         .where(alliances: { event: @evt })
+                     .joins(alliance: :event)
+                     .includes(alliance: { alliance_teams: { team: :divisions } })
+                     .where(alliances: { event: @evt })
     end
   end
 end
