@@ -11,7 +11,6 @@ set :assets_roles, [:Web]
 set :puma_role, :Web
 set :puma_nginx, :Web
 
-
 append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', '.bundle', 'public/system', 'public/uploads'
 
 # Default branch is :master

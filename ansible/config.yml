@@ -1,0 +1,51 @@
+---
+- hosts: tag_Project_Ftc_results
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - rds_instance_facts:
+      db_instance_identifier: "{{ db_instance_id }}"
+      region: "{{ db_instance_region }}"
+    delegate_to: localhost
+    become: no
+    register: database_facts
+  - name: Set DB_HOST
+    lineinfile:
+      path: /etc/environment
+      regexp: '^DB_HOST'
+      line: 'DB_HOST={{ database_facts.instances[0].endpoint.address }}'
+  - name: Set DB_USERNAME
+    lineinfile:
+      path: /etc/environment
+      regexp: '^DB_USERNAME'
+      line: 'DB_USERNAME={{ database_facts.instances[0].master_username }}'
+  # Base64 encode since /etc/environment can't handle # symbol
+  - name: Set DB_PASSWORD
+    lineinfile:
+      path: /etc/environment
+      regexp: '^DB_PASSWORD_BASE64'
+      line: 'DB_PASSWORD_BASE64={{ db_password | b64encode }}'
+  - name: Set env vars
+    lineinfile:
+      path: /etc/environment
+      regexp: '^{{ item|upper }}'
+      line: "{{ item|upper }}='{{ lookup('vars', item) }}'"
+    loop:
+      - db_instance_id
+      - db_instance_region
+      - db_name
+      - secret_key_base
+      - email_from
+      - email_default_url
+      - smtp_user
+      - smtp_address
+      - smtp_port
+      - smtp_pass
+      - twitch_allowed_channels
+      - twitch_id
+      - twitch_secret
+      - github_api_token
+      - sentry_dsn
+      - instrumental_key

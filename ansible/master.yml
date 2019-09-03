@@ -1,0 +1,49 @@
+---
+- hosts: tag_Project_Ftc_results
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Create user for capistrano
+    user:
+      name: deploy
+      comment: Capistrano Deployer
+  - name: Set authorized key to current user key
+    authorized_key:
+      user: deploy
+      state: present
+      key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+  - name: Brightbox ruby availible
+    apt_repository:
+      repo: ppa:brightbox/ruby-ng
+  - name: Latest version of Ruby is installed
+    apt:
+      pkg: ["ruby2.6", "ruby2.6-dev"]
+      state: latest
+  - name: Build dependencies installed
+    apt:
+      pkg: ["build-essential", "postgresql-client", "libpq-dev", "libicu-dev", "libsqlite3-dev"]
+      state: latest
+  - name: Bundler installed
+    gem:
+      name: bundler
+      user_install: no
+      state: latest
+  - name: Create deployment dir
+    file:
+      path: /var/www/ftc_results
+      state: directory
+      owner: deploy
+
+
+- hosts: tag_Project_Ftc_results:tag_Role_Web
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Latest version of nginx is installed
+    apt:
+      pkg: ["nginx"]
+      state: latest
