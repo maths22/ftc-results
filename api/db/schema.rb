@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_24_213029) do
+ActiveRecord::Schema.define(version: 2019_08_26_033914) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -119,6 +119,7 @@ ActiveRecord::Schema.define(version: 2019_08_24_213029) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "slug"
+    t.integer "divisions_teams_count"
     t.index ["league_id"], name: "index_divisions_on_league_id"
   end
 
@@ -227,7 +228,7 @@ ActiveRecord::Schema.define(version: 2019_08_24_213029) do
   create_table "match_alliances", force: :cascade do |t|
     t.bigint "alliance_id"
     t.json "surrogate"
-    t.json "present"
+    t.json "teams_present"
     t.json "red_card"
     t.json "yellow_card"
     t.datetime "created_at", null: false
