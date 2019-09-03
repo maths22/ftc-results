@@ -7,9 +7,7 @@ set :repo_tree, 'api'
 
 set :migration_role, [:Web]
 set :assets_roles, [:Web]
-
-set :puma_role, :Web
-set :puma_nginx, :Web
+set :bundle_bins, fetch(:bundle_bins) << :pumactl
 
 append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', '.bundle', 'public/system', 'public/uploads'
 
@@ -46,3 +44,5 @@ append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bund
 
 # Uncomment the following to require manually verifying the host key before first deploy.
 # set :ssh_options, verify_host_key: :secure
+
+after 'deploy:publishing', 'deploy:restart'

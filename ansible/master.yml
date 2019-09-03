@@ -35,9 +35,13 @@
       path: /var/www/ftc_results
       state: directory
       owner: deploy
+  - name: Grant deploy access
+    template:
+      src: files/etc/sudoers.d/01-deploy
+      dest: /etc/sudoers.d/01-deploy
 
 
-- hosts: tag_Project_Ftc_results:tag_Role_Web
+- hosts: tag_Project_Ftc_results:&tag_Role_Web
   remote_user: ubuntu
   become: yes
   become_method: sudo
@@ -47,3 +51,53 @@
     apt:
       pkg: ["nginx"]
       state: latest
+  - name: copy the nginx config file
+    template:
+      src: files/etc/nginx/sites-available/ftc_results.conf
+      dest: /etc/nginx/sites-available/ftc_results.conf
+    register: update_nginx
+  - name: create symlink
+    file:
+      src: /etc/nginx/sites-available/ftc_results.conf
+      dest: /etc/nginx/sites-enabled/ftc_results.conf
+      state: link
+  - name: restart nginx
+    service:
+      name: nginx
+      state: reloaded
+    when: update_nginx.changed
+  - name: Create puma dir
+    file:
+      path: /etc/puma
+      state: directory
+      owner: deploy
+  - name: Copy the puma files
+    template: src={{item.src}} dest={{item.dest}}
+    with_items:
+      - { src: 'files/etc/puma/ftc_results.rb', dest: '/etc/puma/ftc_results.rb' }
+      - { src: 'files/etc/systemd/system/puma.service', dest: '/etc/systemd/system/puma.service' }
+    register: update_puma
+  - name: restart puma
+    systemd:
+      daemon_reload: true
+      name: puma
+      state: restarted
+    when: update_puma.changed
+
+- hosts: tag_Project_Ftc_results:&tag_Role_Work
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+    - name: Copy the jobs files
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+        - { src: 'files/etc/systemd/system/inst_jobs.service', dest: '/etc/systemd/system/inst_jobs.service' }
+      register: update_jobs
+    - name: restart inst_jobs
+      systemd:
+        daemon_reload: true
+        name: inst_jobs
+        state: restarted
+      when: update_jobs.changed

@@ -1,6 +1,14 @@
+server_name: >
+  ftc-results.firstillinoisrobotics.org
+  api.production.ftc-results.maths22.com
+  ftc-results-dev.maths22.com
+  dvh097f9xu7l9.cloudfront.net
+  d2bx2otrt1agjv.cloudfront.net
+
 db_instance_id: maths22-db
 db_instance_region: us-west-2
 db_name: ftc_results_production
+db_username: ftc_results
 db_password: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   63333339323864363338663938616137363962613538373435343166623431633939623566663532
@@ -25,17 +33,6 @@ secret_key_base: !vault |
 
 email_from: noreply@firstillinoisrobotics.org
 email_default_url: ftc-results.firstillinoisrobotics.org
-
-smtp_user: jburroughs
-smtp_address: mail.firstillinoisrobotics.org
-smtp_port: 465
-smtp_pass: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  61613565326630613937633031666134613239633062633939626163343966666166356136383565
-  3836376462656661303966343962616164346166623664300a623337626665313431303862343539
-  31323934663338613437623433656431373537396663646566306662313465646239633330333831
-  6435306565396361360a306432653066373930303431363637383866306166366638613161343834
-  6362
 
 twitch_allowed_channels: illinois_ftc,illinois_ftc_1,illinois_ftc_2
 twitch_id: !vault |

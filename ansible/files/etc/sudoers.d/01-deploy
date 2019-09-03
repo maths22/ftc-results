@@ -1,0 +1,2 @@
+deploy ALL=NOPASSWD:/usr/sbin/service puma *
+deploy ALL=NOPASSWD:/usr/sbin/service inst_jobs *
