@@ -1,7 +1,8 @@
 class Team < ApplicationRecord
   has_many :events_teams, dependent: :destroy
   has_many :events, through: :events_teams
-  has_and_belongs_to_many :divisions
+  has_many :divisions_teams, dependent: :destroy
+  has_many :divisions, through: :divisions_teams
   has_many :alliance_teams, dependent: :destroy
   has_many :alliances, through: :alliance_teams
   has_many :rankings, dependent: :destroy
