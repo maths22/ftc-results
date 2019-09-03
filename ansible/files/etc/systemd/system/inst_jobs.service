@@ -1,0 +1,21 @@
+[Unit]
+Description=Canvas job processing service
+After=multi-user.target
+
+[Service]
+Type=forking
+User=deploy
+KillMode=none
+SendSIGKILL=no
+LimitNOFILE=8192
+
+EnvironmentFile=-/etc/environment
+
+WorkingDirectory=/var/www/ftc_results/current/
+
+ExecStart=/usr/local/bin/bundle exec inst_jobs start
+ExecStop=/usr/local/bin/bundle exec inst_jobs stop
+
+PIDFile=/var/www/ftc_results/shared/tmp/pids/delayed_jobs_pool.pid
+
+Restart=on-failure

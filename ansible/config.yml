@@ -16,11 +16,6 @@
       path: /etc/environment
       regexp: '^DB_HOST'
       line: 'DB_HOST={{ database_facts.instances[0].endpoint.address }}'
-  - name: Set DB_USERNAME
-    lineinfile:
-      path: /etc/environment
-      regexp: '^DB_USERNAME'
-      line: 'DB_USERNAME={{ database_facts.instances[0].master_username }}'
   # Base64 encode since /etc/environment can't handle # symbol
   - name: Set DB_PASSWORD
     lineinfile:
@@ -31,11 +26,11 @@
     lineinfile:
       path: /etc/environment
       regexp: '^{{ item|upper }}'
-      line: "{{ item|upper }}='{{ lookup('vars', item) }}'"
+      line: "{{ item|upper }}={{ lookup('vars', item) }}"
     loop:
-      - db_instance_id
-      - db_instance_region
+      - rails_env
       - db_name
+      - db_username
       - secret_key_base
       - email_from
       - email_default_url

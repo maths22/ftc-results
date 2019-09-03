@@ -1,0 +1,20 @@
+[Unit]
+Description=Puma HTTP Forking Server
+After=network.target
+
+[Service]
+User=deploy
+
+EnvironmentFile=-/etc/environment
+
+WorkingDirectory=/var/www/ftc_results/current/
+ExecStart=/usr/local/bin/bundle exec puma -C /etc/puma/ftc_results.rb
+ExecStop=/usr/local/bin/bundle exec pumactl -F /etc/puma/ftc_results.rb stop
+ExecReload=/usr/local/bin/bundle exec pumactl -F /etc/puma/ftc_results.rb phased-restart
+
+TimeoutSec=15
+Restart=always
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
