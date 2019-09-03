@@ -80,12 +80,11 @@ module ScoringSystem
         match_alliance.red_card[1] = s['card2'] >= 2
         match_alliance.yellow_card[0] = s['card1'] >= 1
         match_alliance.yellow_card[1] = s['card2'] >= 1
-        match_alliance.present[0] = s['noshow1'].zero?
-        match_alliance.present[1] = s['noshow2'].zero?
+        match_alliance.teams_present[0] = s['noshow1'].zero?
+        match_alliance.teams_present[1] = s['noshow2'].zero?
         match_alliance.save!
-        # TODO: generalize
-        rr_score = RoverRuckusScore.new major_penalties: s['major'], minor_penalties: s['minor']
-        score = Score.new season_score: rr_score
+        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
+        score = Score.new season_score: season_score
         # rubocop:disable Style/NumericPredicate
         match.red_score = score if s['alliance'] == 0
         match.blue_score = score if s['alliance'] == 1
@@ -126,12 +125,12 @@ module ScoringSystem
         # rubocop:enable Style/NumericPredicate
         match_alliance.red_card.fill(s['card'] >= 2)
         match_alliance.yellow_card.fill(s['card'] >= 1)
-        match_alliance.present[0] = s['noshow1'].zero?
-        match_alliance.present[1] = s['noshow2'].zero?
-        match_alliance.present[2] = s['noshow3'].zero?
+        match_alliance.teams_present[0] = s['noshow1'].zero?
+        match_alliance.teams_present[1] = s['noshow2'].zero?
+        match_alliance.teams_present[2] = s['noshow3'].zero?
         match_alliance.save!
-        rr_score = RoverRuckusScore.new major_penalties: s['major'], minor_penalties: s['minor']
-        score = Score.new season_score: rr_score
+        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
+        score = Score.new season_score: season_score
         # rubocop:disable Style/NumericPredicate
         match.red_score = score if s['alliance'] == 0
         match.blue_score = score if s['alliance'] == 1

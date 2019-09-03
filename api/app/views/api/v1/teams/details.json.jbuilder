@@ -17,7 +17,7 @@ json.team do
 end
 
 json.events do
-  json.array! @team.events, partial: 'events/base_info', as: :event
+  json.array! @team.events.sort, partial: 'events/base_info', as: :event
 end
 
 json.matches do

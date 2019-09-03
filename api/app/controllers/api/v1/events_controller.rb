@@ -13,7 +13,7 @@ module Api
         expires_in(3.minutes, public: true) unless request_has_auth?
 
         authorize!(:index, Event)
-        @events = Event.where(season: request_season).includes(:event_divisions, :owners).with_attached_import.with_channel
+        @events = Event.where(season: request_season).includes(:owners, :season, event_divisions: [:import_attachment], event_channel_assignment: [:twitch_channel]).with_attached_import.with_channel
       end
 
       def request_access
@@ -57,14 +57,14 @@ module Api
       def view_matches
         expires_in(30.seconds, public: true) unless request_has_auth?
 
-        @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
+        @matches = Match.includes([:event_division, red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
       end
 
       def view_rankings
         expires_in(30.seconds, public: true) unless request_has_auth?
 
         @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
-        @rankings = @event.rankings.includes(:team)
+        @rankings = @event.rankings.includes(:team, :event_division)
       end
 
       def view_awards
@@ -76,7 +76,7 @@ module Api
       def view_teams
         expires_in(3.minutes, public: true) unless request_has_auth?
 
-        div_teams = @event.events_teams.includes(:team).map do |et|
+        div_teams = @event.events_teams.includes(:team, :event_division).map do |et|
           {
             division: et.event_division&.number,
             team: et.team.number
@@ -284,10 +284,10 @@ module Api
                      .find_or_create_by(event: @event, event_division: req_division, phase: match_data[:phase], series: match_data[:series], number: match_data[:number])
         red_alliance = Alliance.find_by(event: @event, event_division: req_division, is_elims: true, seed: match_data[:red_alliance])
         red_match_alliance = MatchAlliance.new alliance: red_alliance
-        red_match_alliance.present = match_data[:red_present]
+        red_match_alliance.teams_present = match_data[:red_present]
         blue_alliance = Alliance.find_by(event: @event, event_division: req_division, is_elims: true, seed: match_data[:blue_alliance])
         blue_match_alliance = MatchAlliance.new alliance: blue_alliance
-        blue_match_alliance.present = match_data[:blue_present]
+        blue_match_alliance.teams_present = match_data[:blue_present]
 
         match.red_alliance = red_match_alliance
         match.blue_alliance = blue_match_alliance

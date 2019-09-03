@@ -1,9 +1,9 @@
 class MatchAlliance < ApplicationRecord
   belongs_to :alliance
-  has_one :match, lambda do |ma|
+  has_one :match, lambda { |ma|
     unscope(where: :match_alliance_id)
       .where('matches.red_alliance_id = :id OR matches.blue_alliance_id = :id', id: ma.id)
-  end
+  }, inverse_of: false
 
   after_initialize :add_arrays, if: :new_record?
 
@@ -14,7 +14,7 @@ class MatchAlliance < ApplicationRecord
     self.surrogate = Array.new(alliance.teams.size, false)
     self.red_card = Array.new(alliance.teams.size, false)
     self.yellow_card = Array.new(alliance.teams.size, false)
-    self.present = Array.new(alliance.teams.size, true)
+    self.teams_present = Array.new(alliance.teams.size, true)
 
     # Note that these are only used for imported qualification matches
     self.rp = Array.new(alliance.teams.size, 0)
@@ -22,7 +22,7 @@ class MatchAlliance < ApplicationRecord
     self.score = Array.new(alliance.teams.size, 0)
   end
 
-  %i[rp tbp score surrogate red_card yellow_card present].each do |attribute|
+  %i[rp tbp score surrogate red_card yellow_card teams_present].each do |attribute|
     define_method :"#{attribute}_for_team" do |team|
       team = team.number unless team.is_a? Integer
       idx = alliance.team_ids.index(team)
@@ -46,10 +46,10 @@ class MatchAlliance < ApplicationRecord
   end
 
   def raw_counts_for_ranking?(pos)
-    !surrogate[pos] && present[pos] && !red_card[pos]
+    !surrogate[pos] && teams_present[pos] && !red_card[pos]
   end
 
   def degenerate?
-    present.zip(red_card).all? { |arr| !arr[0] || arr[1] }
+    teams_present.zip(red_card).all? { |arr| !arr[0] || arr[1] }
   end
 end
