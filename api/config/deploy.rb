@@ -2,8 +2,17 @@
 lock '~> 3.11.1'
 
 set :application, 'ftc_results'
-set :repo_url, 'https://github.com/maths22/ftc_results.git'
+set :repo_url, 'https://github.com/maths22/ftc-results.git'
 set :repo_tree, 'api'
+
+set :migration_role, [:Web]
+set :assets_roles, [:Web]
+
+set :puma_role, :Web
+set :puma_nginx, :Web
+
+
+append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', '.bundle', 'public/system', 'public/uploads'
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp

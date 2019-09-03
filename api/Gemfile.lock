@@ -137,11 +137,13 @@ GEM
       terminal-table (~> 1.7)
     capistrano-bundler (1.6.0)
       capistrano (~> 3.1)
-    capistrano-passenger (0.2.0)
-      capistrano (~> 3.0)
     capistrano-rails (1.4.0)
       capistrano (~> 3.1)
       capistrano-bundler (~> 1.1)
+    capistrano3-puma (3.1.1)
+      capistrano (~> 3.7)
+      capistrano-bundler
+      puma (~> 3.4)
     charlock_holmes (0.7.6)
     coderay (1.1.2)
     colorize (0.8.1)
@@ -428,8 +430,9 @@ DEPENDENCIES
   cancancan (~> 3.0)
   capistrano (~> 3.11)
   capistrano-aws
-  capistrano-passenger
+  capistrano-bundler
   capistrano-rails
+  capistrano3-puma
   derailed_benchmarks
   devise_token_auth!
   health_check
