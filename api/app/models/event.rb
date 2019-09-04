@@ -1,5 +1,6 @@
 class Event < ApplicationRecord
   scope :with_channel, -> { includes(event_channel_assignment: :twitch_channel) }
+  scope :current_season, -> { where(season: Season.active.first) }
 
   include AASM
 
@@ -66,6 +67,12 @@ class Event < ApplicationRecord
     event :reset do
       transitions to: :not_started
       after :clear_associated_data
+    end
+  end
+
+  rails_admin do
+    list do
+      scopes [:current_season, nil]
     end
   end
 
