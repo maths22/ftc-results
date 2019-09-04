@@ -91,7 +91,7 @@ class HeadingBar extends Component {
           <Toolbar>
             <IconButton className={this.props.classes.menuButton} color="inherit" aria-label="Home"
                         to={`/?${queryString.stringify({season: this.props.selectedSeason})}`}
-                        component={props => <Link {...props}/>}>
+                        component={Link}>
               <HomeIcon />
             </IconButton>
             <Typography variant="h6" color="inherit" className={this.props.classes.grow}>

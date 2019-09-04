@@ -50,7 +50,7 @@ const renderTextField = ({
 
 const styles = theme => ({
   button: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
   },
   input: {
     width: '100%',
@@ -90,7 +90,7 @@ class UpdateAccount extends React.Component {
     const values = queryString.parse(window.location.search);
     return (
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={24} justify="center">
+          <Grid container spacing={3} justify="center">
             <Grid item xs={12}>
               { values.reset_password ? 'Reset Password' : 'Update Account' }
             </Grid>

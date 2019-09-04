@@ -11,12 +11,12 @@ const styles = (theme) => ({
     minWidth: '20em',
   },
   tableCell: {
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
     whiteSpace: 'pre-line',
     textAlign: 'center',
     '&:last-child': {
-      paddingRight: theme.spacing.unit,
+      paddingRight: theme.spacing(1),
     }
   },
   tableRow: {

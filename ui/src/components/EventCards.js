@@ -17,9 +17,9 @@ import Grid from '@material-ui/core/Grid';
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     overflowX: 'auto',
-    padding: theme.spacing.unit * 2
+    padding: theme.spacing(2)
   },
 });
 
@@ -71,7 +71,7 @@ class EventCards extends Component {
 
     return <div>
         <Typography variant="h5" gutterBottom>{heading}</Typography>
-        <Grid container spacing={24}>
+        <Grid container spacing={3}>
           {vals.map(e => <Grid item md={4} key={e.id}>
               <Card className={classes.card}>
               <CardActionArea onClick={() => this.props.push(`/events/summary/${e.id}`)}>

@@ -26,7 +26,6 @@ class App extends Component {
     oneWeek.setDate(oneWeek.getDate() + 7);
     const twoWeeksOld = new Date(today);
     twoWeeksOld.setDate(twoWeeksOld.getDate() - 14);
-    console.log(this.props.season);
     return (
         <div>
           <SeasonSelector/>

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Suspense} from 'react';
 import {connect} from 'react-redux';
 
 import Typography from '@material-ui/core/Typography';
@@ -14,6 +14,28 @@ import RoverRuckusScoreTable from './scoreTables/RoverRuckusScoreTable';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import IconButton from '@material-ui/core/IconButton';
 import RoverRuckusCriScoreTable from './scoreTables/RoverRuckusCriScoreTable';
+
+class MatchDetailsErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>Details could not be loaded for this match</div>;
+    }
+
+    return this.props.children;
+  }
+}
 
 class MatchDetailsDialog extends Component {
 
@@ -34,11 +56,8 @@ class MatchDetailsDialog extends Component {
 
     const {event, match, fullScreen} = this.props;
 
-    const tableForSeason = {
-      'RoverRuckusScore': RoverRuckusScoreTable,
-      'RoverRuckusCriScore': RoverRuckusCriScoreTable
-    };
-    const ScoreTable = tableForSeason[match.season_score_type];
+
+    const ScoreTable = React.lazy(() => import(`./scoreTables/${match.season_score_type}Table`));
 
     const prefixes = {'qual': 'Q-', 'semi': 'SF-', 'final': 'F-'};
     const matchDisplay = prefixes[match.phase] + (match.series ? (match.series + '-') : '') + match.number;
@@ -53,12 +72,17 @@ class MatchDetailsDialog extends Component {
         <IconButton onClick={this.props.onClose}><CloseIcon/></IconButton>
       </DialogTitle>
       <DialogContent>
-        <ScoreTable match={match}/>
-        <DialogContentText>
-          <Typography variant="caption">
-            Note: penalty points are listed for the alliance which incurred the penalty. Points are awarded to the opposing alliance.
-          </Typography>
-        </DialogContentText>
+        <MatchDetailsErrorBoundary>
+          <Suspense fallback={<div>Loading...</div>}>
+            <ScoreTable match={match}/>
+
+            <DialogContentText>
+              <Typography variant="caption">
+                Note: penalty points are listed for the alliance which incurred the penalty. Points are awarded to the opposing alliance.
+              </Typography>
+            </DialogContentText>
+          </Suspense>
+        </MatchDetailsErrorBoundary>
       </DialogContent>
     </Dialog>;
   }

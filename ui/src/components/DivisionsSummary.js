@@ -18,7 +18,7 @@ import SeasonSelector from './SeasonSelector';
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   table: {

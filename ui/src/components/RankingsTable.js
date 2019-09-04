@@ -14,20 +14,20 @@ const styles = (theme) => ({
     minWidth: '20em',
   },
   tableCell: {
-    paddingLeft: 1 * theme.spacing.unit,
-    paddingRight: 1 * theme.spacing.unit,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
     textAlign: 'center',
     '&:last-child': {
-      paddingRight: 1 * theme.spacing.unit,
+      paddingRight: theme.spacing(1),
     }
   },
   rotatingTableCell: {
-    // paddingLeft: 1 * theme.spacing.unit,
-    // paddingRight: 1 * theme.spacing.unit,
+    // paddingLeft: theme.spacing(1),
+    // paddingRight: theme.spacing(1),
     display: 'inline-block',
     textAlign: 'center',
     // '&:last-child': {
-    //   paddingRight: 1 * theme.spacing.unit,
+    //   paddingRight: theme.spacing(1),
     // }
   }
 });

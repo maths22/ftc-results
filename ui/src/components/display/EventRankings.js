@@ -29,22 +29,22 @@ const styles = (theme) => ({
     position: 'fixed',
     top: '0',
     left: '0',
-    width: 'calc(100% - ' + (6 * theme.spacing.unit) + 'px)',
+    width: 'calc(100% - ' + (theme.spacing(6)) + 'px)',
     boxSizing: 'border-box',
     borderColor: '#fdfdfd',
     borderWidth: '0.25em',
     borderStyle: 'solid',
     borderRadius: '1em',
     background: '#444',
-    padding: 2 * theme.spacing.unit,
-    margin: 3 * theme.spacing.unit,
+    padding: theme.spacing(2),
+    margin: theme.spacing(3),
   },
   tables: {
     position: 'fixed',
-    top: 13.5 * theme.spacing.unit,
+    top: theme.spacing(13.5),
     bottom: '0',
     left: '0',
-    width: 'calc(100% - ' + (6 * theme.spacing.unit) + 'px)',
+    width: 'calc(100% - ' + (theme.spacing(6)) + 'px)',
     boxSizing: 'border-box',
 
     borderColor: '#fdfdfd',
@@ -52,10 +52,10 @@ const styles = (theme) => ({
     borderStyle: 'solid',
     borderRadius: '1em',
     background: '#444',
-    padding: 2 * theme.spacing.unit,
-    paddingLeft: 4 * theme.spacing.unit,
-    paddingRight: 4 * theme.spacing.unit,
-    margin: 3 * theme.spacing.unit,
+    padding: theme.spacing(2),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    margin: theme.spacing(3),
     // overflowY: 'hidden',
 
     '& td': {
@@ -192,7 +192,7 @@ class EventRankings extends Component {
       </div>
 
       <div  className={classes.tables}>
-        <Grid container spacing={32} style={{height: 'calc(100% + 16px)'}}>
+        <Grid container spacing={4} style={{height: 'calc(100% + 16px)'}}>
           <Grid item xs={6} style={{height: '100%', overflowY: 'hidden'}}>
             <RankingsTable
                 height
