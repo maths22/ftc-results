@@ -140,10 +140,6 @@ GEM
     capistrano-rails (1.4.0)
       capistrano (~> 3.1)
       capistrano-bundler (~> 1.1)
-    capistrano3-puma (3.1.1)
-      capistrano (~> 3.7)
-      capistrano-bundler
-      puma (~> 3.4)
     charlock_holmes (0.7.6)
     coderay (1.1.2)
     colorize (0.8.1)
@@ -432,7 +428,6 @@ DEPENDENCIES
   capistrano-aws
   capistrano-bundler
   capistrano-rails
-  capistrano3-puma
   derailed_benchmarks
   devise_token_auth!
   health_check
@@ -447,6 +442,7 @@ DEPENDENCIES
   oauth2!
   octokit
   pg
+  pry
   pry-byebug
   puma (~> 3.11)
   rack-cors

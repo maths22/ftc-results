@@ -1,4 +1,4 @@
-import {DirectUpload} from 'activestorage/src';
+import {DirectUpload} from '@rails/activestorage/src';
 import {API_BASE, TOKEN_UPDATE} from './api';
 
 export const UPLOAD_STARTED = 'UPLOAD_STARTED';
