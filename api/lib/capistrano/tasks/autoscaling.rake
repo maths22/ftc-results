@@ -27,6 +27,17 @@ namespace :autoscaling do
         launch_template_id: launch_template.launch_template_id,
         source_version: launch_template.latest_version_number.to_s
       )
+
+      images_to_remove = ec2_client.describe_images(owners: ['self']).images
+                                   .select { |image| image.name.start_with? "ftc-results-#{role.downcase}-#{fetch(:stage)}" }
+                                   .sort_by(&:name)
+                                   .reverse.drop(2)
+
+      images_to_remove.each do |image|
+        snapshots = image.block_device_mappings.reject { |bdm| bdm.ebs.nil? }.map { |bdm| bdm.ebs.snapshot_id }
+        ec2_client.deregister_image(image_id: image.image_id)
+        snapshots.each { |snap| ec2_client.delete_snapshot(snapshot_id: snap) }
+      end
     end
   end
 

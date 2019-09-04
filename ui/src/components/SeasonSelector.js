@@ -26,6 +26,8 @@ class SeasonSelector extends Component {
     }
 
     render () {
+        if(!this.props.seasons) return null;
+
         return <><Typography variant={'h6'}>{'Season: '}
         <Select
             value={this.props.selectedSeason || this.props.defaultSeason}

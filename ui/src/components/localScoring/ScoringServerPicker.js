@@ -39,7 +39,7 @@ const renderTextField = ({
 
 const styles = theme => ({
   button: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
   },
   input: {
     width: '100%',
@@ -75,7 +75,7 @@ class ScoringServerPicker extends Component {
     const {handleSubmit, pristine, submitting, invalid, error, classes, className, localServer, disabled} = this.props;
     return (
         <form onSubmit={handleSubmit} className={className}>
-          <Grid container spacing={24} justify="center">
+          <Grid container spacing={3} justify="center">
             <Grid item xs={4}>
               <Field name="hostname" component={renderTextField} disabled={disabled} label="Hostname" className={classes.input}/>
             </Grid>

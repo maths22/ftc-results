@@ -18,11 +18,11 @@ import Card from '@material-ui/core/Card';
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   heading: {
-    padding: 2 * theme.spacing.unit,
+    padding: theme.spacing(2),
   },
   eventHeader: {
     display: 'flex'
@@ -62,9 +62,10 @@ class EventsSummary extends Component {
     }
 
     return events.sort((a, b) => {
-      const diff = a.season.year.localeCompare(b.season.year);
-      if(diff !== 0) return diff;
-      const diff = a.start_date.localeCompare(b.start_date);
+      let diff;
+      // let diff = a.season.year.localeCompare(b.season.year);
+      // if(diff !== 0) return diff;
+      diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
       return a.name.localeCompare(b.name);
     } ).map((evt) => {

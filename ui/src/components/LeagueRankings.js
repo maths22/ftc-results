@@ -36,18 +36,18 @@ const styles = (theme) => ({
   },
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   table: {
     minWidth: '20em',
   },
   tableCell: {
-    paddingLeft: 1 * theme.spacing.unit,
-    paddingRight: 1 * theme.spacing.unit,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
     textAlign: 'left',
     '&:last-child': {
-      paddingRight: 1 * theme.spacing.unit,
+      paddingRight: theme.spacing(1),
     }
   },
   disabledRow: {

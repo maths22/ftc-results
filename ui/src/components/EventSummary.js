@@ -35,11 +35,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   heading: {
-    padding: 2 * theme.spacing.unit,
+    padding: theme.spacing(2),
   },
   tabPanel: {
     width: '100%',
@@ -237,7 +237,7 @@ class EventSummary extends Component {
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
 
     const tabs = [
-      <div className={classes.tabPanel}>
+      <div className={classes.tabPanel} key="teams">
         <TeamsTable
           teams={teams && teams.filter(t => selectedDivision === 0 ? true : selectedDivision === t.division)}
           showDivisionAssignments={showDivisionAssignments}
@@ -245,18 +245,18 @@ class EventSummary extends Component {
           onClickDivision={this.selectDivision}
         />
       </div>,
-      showRankings ? <div className={classes.tabPanel}>
+      showRankings ? <div className={classes.tabPanel} key="rankings">
         <RankingsTable
             rankings={rankings && rankings.filter(r => selectedDivision === 0 ? !r.division : selectedDivision === r.division)}
             showRecord
             onRefresh={this.refresh}/>
         </div> : null,
-      <div className={classes.tabPanel}>
+      <div className={classes.tabPanel} key="matches">
         <MatchTable
             matches={matches && matches.filter(m => selectedDivision === 0 ? !m.division : selectedDivision === m.division)}
         />
       </div>,
-      showAwards ? <div className={classes.tabPanel}>
+      showAwards ? <div className={classes.tabPanel} key="awards">
         <AwardsTable
             awards={awards}
             onRefresh={this.refresh}/>

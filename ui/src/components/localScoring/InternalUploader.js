@@ -28,16 +28,16 @@ import {PersistentWebsocket} from 'persistent-websocket';
 
 const styles = theme => ({
   button: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
   },
   input: {
     width: '100%',
   },
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     overflowX: 'auto',
-    padding: 2 * theme.spacing.unit
+    padding: theme.spacing(2)
   },
   serverPicker: {
     width: '50em'

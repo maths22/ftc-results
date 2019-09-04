@@ -44,7 +44,7 @@ const renderTextField = ({
 
 const styles = theme => ({
   button: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
   },
   input: {
     width: '100%',
@@ -78,7 +78,7 @@ const LoginForm = props => {
   const { handleSubmit, pristine, submitting, invalid, error, classes } = props;
   return (
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={24} justify="center">
+        <Grid container spacing={3} justify="center">
           <Grid item xs={12}>
             <Field name="email" component={renderTextField} label="Email" className={classes.input} />
           </Grid>
