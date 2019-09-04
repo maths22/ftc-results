@@ -46,3 +46,4 @@ append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bund
 # set :ssh_options, verify_host_key: :secure
 
 after 'deploy:publishing', 'deploy:restart'
+after 'deploy:restart', 'autoscaling:update_amis'

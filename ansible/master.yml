@@ -81,6 +81,7 @@
     systemd:
       daemon_reload: true
       name: puma
+      enabled: yes
       state: restarted
     when: update_puma.changed
 
@@ -99,5 +100,6 @@
       systemd:
         daemon_reload: true
         name: inst_jobs
+        enabled: yes
         state: restarted
       when: update_jobs.changed

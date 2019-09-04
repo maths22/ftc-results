@@ -62,6 +62,8 @@ class EventsSummary extends Component {
     }
 
     return events.sort((a, b) => {
+      const diff = a.season.year.localeCompare(b.season.year);
+      if(diff !== 0) return diff;
       const diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
       return a.name.localeCompare(b.name);
