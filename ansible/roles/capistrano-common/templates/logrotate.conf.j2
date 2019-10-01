@@ -1,0 +1,10 @@
+/var/www/ftc_results/current/log/*.log {
+  su deploy deploy
+  daily
+  missingok
+  rotate 7
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+}

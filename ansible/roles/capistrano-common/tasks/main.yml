@@ -33,3 +33,7 @@
   template:
     src: 01-deploy.j2
     dest: /etc/sudoers.d/01-deploy
+- name: Copy the logrotate files
+  template: src={{item.src}} dest={{item.dest}}
+  with_items:
+    - { src: 'logrotate.conf.j2', dest: '/etc/logrotate.d/ftc_results' }

@@ -2,7 +2,7 @@
 - name: Copy the jobs files
   template: src={{item.src}} dest={{item.dest}}
   with_items:
-    - { src: 'inst_jobs.service.js', dest: '/etc/systemd/system/inst_jobs.service' }
+    - { src: 'inst_jobs.service.j2', dest: '/etc/systemd/system/inst_jobs.service' }
   register: update_jobs
 - name: restart inst_jobs
   systemd:
