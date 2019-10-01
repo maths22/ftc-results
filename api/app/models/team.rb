@@ -7,6 +7,13 @@ class Team < ApplicationRecord
   has_many :alliances, through: :alliance_teams
   has_many :rankings, dependent: :destroy
 
+  def match_alliances_for_season(season)
+    alliances.joins(:event)
+             .includes(:match_alliances)
+             .where(events: { season: season })
+             .flat_map(&:match_alliances)
+  end
+
   def match_alliances
     alliances.joins(:event)
              .includes(:match_alliances)

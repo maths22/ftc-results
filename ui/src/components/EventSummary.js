@@ -75,7 +75,6 @@ class EventSummary extends Component {
   };
 
   componentDidMount() {
-    this.updateTabs();
     if(!this.teams) {
       this.props.getTeams();
     }
@@ -85,8 +84,8 @@ class EventSummary extends Component {
   }
 
   componentDidUpdate(oldProps) {
-    this.updateTabs();
     if (!this.props.event && !oldProps.event) return;
+    this.updateTabs();
     if((!!this.props.event === !oldProps.event) || (oldProps.event.id !== this.props.event.id)) {
       this.setTitle();
 
@@ -109,6 +108,8 @@ class EventSummary extends Component {
       //TODO only load these if relevant
       this.props.getLeagues();
       this.props.getDivisions();
+    } else {
+      this.updateTabs();
     }
     this.props.getEventTeams(this.props.id);
     this.props.getEventMatches(this.props.id);
@@ -196,30 +197,25 @@ class EventSummary extends Component {
 
 
   tabNameToId() {
-    if(this.hasDivisions() && this.state.selectedDivision === 0) {
-      return {
-        'teams': 1,
-        'matches': 2,
-        'awards': 3
-      };
-    } else if(this.hasDivisions() || (this.props.event && this.props.event.context_type === 'Division')) {
-      return {
-        'teams': 1,
-        'rankings': 2,
-        'matches': 3,
-      };
-    }
-    return {
-      'teams': 1,
-      'rankings': 2,
-      'matches': 3,
-      'awards': 4
-    };
+    return ['teams', this.showRankings() ? 'rankings' : null, 'matches', this.showAwards() ? 'awards' : null]
+      .filter((t) => t)
+      .reduce(function(obj, cur, i) {
+        obj[cur] = i + 1;
+        return obj;
+      }, {});
   }
 
 
   tabIdToName() {
     return invert(this.tabNameToId());
+  }
+
+  showRankings() {
+    return !this.hasDivisions() || this.state.selectedDivision !== 0;
+  }
+
+  showAwards() {
+    return (!this.hasDivisions() && this.props.event.context_type !== 'Division') || (this.hasDivisions() && this.state.selectedDivision === 0);
   }
 
   render () {
@@ -230,8 +226,7 @@ class EventSummary extends Component {
     const { classes, event, league, division, matches, rankings, awards, teams } = this.props;
     const { selectedDivision, selectedTab } = this.state;
 
-    const showRankings = !this.hasDivisions() || selectedDivision !== 0;
-    const showAwards = (!this.hasDivisions() && event.context_type !== 'Division') || (this.hasDivisions() && selectedDivision === 0);
+
     const showDivisionAssignments = this.hasDivisions() && selectedDivision === 0;
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
@@ -245,7 +240,7 @@ class EventSummary extends Component {
           onClickDivision={this.selectDivision}
         />
       </div>,
-      showRankings ? <div className={classes.tabPanel} key="rankings">
+      this.showRankings() ? <div className={classes.tabPanel} key="rankings">
         <RankingsTable
             rankings={rankings && rankings.filter(r => selectedDivision === 0 ? !r.division : selectedDivision === r.division)}
             showRecord
@@ -256,7 +251,7 @@ class EventSummary extends Component {
             matches={matches && matches.filter(m => selectedDivision === 0 ? !m.division : selectedDivision === m.division)}
         />
       </div>,
-      showAwards ? <div className={classes.tabPanel} key="awards">
+      this.showAwards() ? <div className={classes.tabPanel} key="awards">
         <AwardsTable
             awards={awards}
             onRefresh={this.refresh}/>
@@ -292,9 +287,9 @@ class EventSummary extends Component {
         >
           <Wrapper style={{width: '48px'}}/>
           <Tab label="Teams" style={{marginLeft: 'auto'}}/>
-          { showRankings ? <Tab label="Rankings" /> : null }
+          { this.showRankings() ? <Tab label="Rankings" /> : null }
           <Tab label="Matches" />
-          { showAwards ? <Tab label="Awards" /> : null }
+          { this.showAwards() ? <Tab label="Awards" /> : null }
           {event.aasm_state === 'in_progress' ?
               <IconButton onClick={this.refresh} style={{marginLeft: 'auto', width: '48px'}}><RefreshIcon/></IconButton>
               : <Wrapper style={{marginLeft: 'auto', width: '48px'}}/> }

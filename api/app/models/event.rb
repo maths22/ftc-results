@@ -70,9 +70,17 @@ class Event < ApplicationRecord
     end
   end
 
+  def aasm_state_enum
+    aasm.states
+  end
+
   rails_admin do
     list do
       scopes [:current_season, nil]
+    end
+
+    import do
+      mapping_key %i[season_id slug]
     end
   end
 

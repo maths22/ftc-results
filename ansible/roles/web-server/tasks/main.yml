@@ -1,0 +1,70 @@
+---
+- name: Latest version of nginx, certbot are installed
+  apt:
+    pkg: ["nginx", "certbot"]
+    state: latest
+- name: Create certbot dir
+  file:
+    path: /var/www/letsencrypt
+    state: directory
+- name: copy the nginx config file
+  template:
+    src: ftc_results.conf.j2
+    dest: /etc/nginx/sites-available/ftc_results.conf
+  register: update_nginx
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/ftc_results.conf
+    dest: /etc/nginx/sites-enabled/ftc_results.conf
+    state: link
+- name: restart nginx
+  service:
+    name: nginx
+    state: reloaded
+  when: update_nginx.changed
+- name: Create puma dir
+  file:
+    path: /etc/puma
+    state: directory
+    owner: deploy
+- name: Copy the puma files
+  template: src={{item.src}} dest={{item.dest}}
+  with_items:
+    - { src: 'ftc_results.rb.j2', dest: '/etc/puma/ftc_results.rb' }
+    - { src: 'puma.service.j2', dest: '/etc/systemd/system/puma.service' }
+  register: update_puma
+- name: restart puma
+  systemd:
+    daemon_reload: true
+    name: puma
+    enabled: yes
+    state: restarted
+  when: update_puma.changed
+- name: Create letsencrypt certificate
+  shell: certbot certonly -n --webroot -w /var/www/letsencrypt -m {{ letsencrypt_email }} --agree-tos -d {{ https_server_name }}
+  args:
+    creates: /etc/letsencrypt/live/{{ https_server_name }}
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
+  args:
+    creates: /etc/nginx/dhparams.pem
+- name: copy the nginx https config file
+  template:
+    src: ftc_results_https.conf.j2
+    dest: /etc/nginx/sites-available/ftc_results_https.conf
+  register: update_nginx_https
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/ftc_results_https.conf
+    dest: /etc/nginx/sites-enabled/ftc_results_https.conf
+    state: link
+- name: restart nginx
+  service:
+    name: nginx
+    state: reloaded
+  when: update_nginx_https.changed
+- name: Add letsencrypt cronjob for cert renewal
+  cron:
+    name: letsencrypt_renewal
+    special_time: weekly
+    job: certbot --renew certonly -n --webroot -w /var/www/letsencrypt -m {{ letsencrypt_email }} --agree-tos -d {{ https_server_name }} && service nginx reload

@@ -28,7 +28,9 @@ Sentry.init({
  dsn: process.env.REACT_APP_SENTRY_DSN
 });
 
-ReactGA.initialize(process.env.REACT_APP_GA_KEY);
+if(process.env.REACT_APP_GA_KEY) {
+  ReactGA.initialize(process.env.REACT_APP_GA_KEY);
+}
 
 const history = createBrowserHistory();
 const store = configureStore(history);

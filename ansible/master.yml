@@ -3,103 +3,30 @@
   remote_user: ubuntu
   become: yes
   become_method: sudo
-
-  tasks:
-  - name: Create user for capistrano
-    user:
-      name: deploy
-      comment: Capistrano Deployer
-  - name: Set authorized key to current user key
-    authorized_key:
-      user: deploy
-      state: present
-      key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
-  - name: Brightbox ruby availible
-    apt_repository:
-      repo: ppa:brightbox/ruby-ng
-  - name: Latest version of Ruby is installed
-    apt:
-      pkg: ["ruby2.6", "ruby2.6-dev"]
-      state: latest
-  - name: Build dependencies installed
-    apt:
-      pkg: ["build-essential", "postgresql-client", "libpq-dev", "libicu-dev", "libsqlite3-dev"]
-      state: latest
-  - name: Bundler installed
-    gem:
-      name: bundler
-      user_install: no
-      state: latest
-  - name: Create deployment dir
-    file:
-      path: /var/www/ftc_results
-      state: directory
-      owner: deploy
-  - name: Grant deploy access
-    template:
-      src: files/etc/sudoers.d/01-deploy
-      dest: /etc/sudoers.d/01-deploy
-
+  roles:
+    - role: capistrano-common
+      tags:
+        - common
+        - capistrano
+    - role: config-common
+      tags:
+        - common
+        - config
 
 - hosts: tag_Project_Ftc_results:&tag_Role_Web
   remote_user: ubuntu
   become: yes
   become_method: sudo
-
-  tasks:
-  - name: Latest version of nginx is installed
-    apt:
-      pkg: ["nginx"]
-      state: latest
-  - name: copy the nginx config file
-    template:
-      src: files/etc/nginx/sites-available/ftc_results.conf
-      dest: /etc/nginx/sites-available/ftc_results.conf
-    register: update_nginx
-  - name: create symlink
-    file:
-      src: /etc/nginx/sites-available/ftc_results.conf
-      dest: /etc/nginx/sites-enabled/ftc_results.conf
-      state: link
-  - name: restart nginx
-    service:
-      name: nginx
-      state: reloaded
-    when: update_nginx.changed
-  - name: Create puma dir
-    file:
-      path: /etc/puma
-      state: directory
-      owner: deploy
-  - name: Copy the puma files
-    template: src={{item.src}} dest={{item.dest}}
-    with_items:
-      - { src: 'files/etc/puma/ftc_results.rb', dest: '/etc/puma/ftc_results.rb' }
-      - { src: 'files/etc/systemd/system/puma.service', dest: '/etc/systemd/system/puma.service' }
-    register: update_puma
-  - name: restart puma
-    systemd:
-      daemon_reload: true
-      name: puma
-      enabled: yes
-      state: restarted
-    when: update_puma.changed
+  roles:
+    - role: web-server
+      tags:
+      - web
 
 - hosts: tag_Project_Ftc_results:&tag_Role_Work
   remote_user: ubuntu
   become: yes
   become_method: sudo
-
-  tasks:
-    - name: Copy the jobs files
-      template: src={{item.src}} dest={{item.dest}}
-      with_items:
-        - { src: 'files/etc/systemd/system/inst_jobs.service', dest: '/etc/systemd/system/inst_jobs.service' }
-      register: update_jobs
-    - name: restart inst_jobs
-      systemd:
-        daemon_reload: true
-        name: inst_jobs
-        enabled: yes
-        state: restarted
-      when: update_jobs.changed
+  roles:
+    - role: work-server
+      tags:
+        - work

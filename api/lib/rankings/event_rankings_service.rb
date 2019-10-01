@@ -38,6 +38,7 @@ module Rankings
       evt_rankings = raw_team_rankings.transform_values! do |lst|
         lst.each { |it| it.matches_played = lst.size }
       end
+      # League championships need their rankings combined with the league ones
       return evt_rankings unless @evt.context_type == 'League'
 
       lrs = LeagueRankingsService.new

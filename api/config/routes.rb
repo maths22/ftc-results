@@ -47,6 +47,7 @@ Rails.application.routes.draw do
 
       # Upload routes
       post 'events/reset/:id', to: 'events#reset'
+      post 'events/state/:id', to: 'events#post_state'
       post 'events/rankings/:id', to: 'events#post_rankings'
       post 'events/awards/:id', to: 'events#post_awards'
       post 'events/teams/:id', to: 'events#post_teams'

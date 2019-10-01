@@ -4,12 +4,18 @@ module ScoringSystem
     ZIP_MIME_TYPE = 'application/x-zip-compressed'.freeze
     BINARY_MIME_TYPE = 'application/octet-stream'.freeze
 
+    attr_reader :season
+
+    def initialize(season)
+      @season = season
+    end
+
     def latest_zip
       begin
         download_file unless File.file?(path)
       rescue StandardError
-        File.delete(path) if File.zero?(path)
-        logger.error $ERROR_INFO
+        File.delete(latest_file) if File.zero?(latest_file)
+        Rails.logger.error $ERROR_INFO
         return latest_file
       end
       path
@@ -39,8 +45,12 @@ module ScoringSystem
     end
 
     def asset
-      @asset ||= client.releases(SCORING_REPO).max_by(&:tag_name)
-                       .assets.find { |a| a.content_type == ZIP_MIME_TYPE }
+      @asset ||= begin
+        requirement = Gem::Requirement.create(season.scoring_version_constraint)
+        client.releases(SCORING_REPO).filter { |entry| requirement.satisfied_by?(Gem::Version.new(entry.tag_name.sub('v', ''))) }
+              .max_by(&:tag_name)
+              .assets.find { |a| a.content_type == ZIP_MIME_TYPE }
+      end
     end
   end
 end

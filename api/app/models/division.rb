@@ -14,5 +14,9 @@ class Division < ApplicationRecord
     list do
       scopes [:current_season, nil]
     end
+
+    import do
+      mapping_key %i[league_id slug]
+    end
   end
 end

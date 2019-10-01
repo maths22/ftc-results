@@ -13,8 +13,8 @@ class ApiController < ApplicationController
     @current_logedin_user ||= set_user_by_token(:user)
   end
 
-  def request_has_auth?
-    request.headers['HTTP_X_UID'].present?
+  def request_cacheable?
+    Rails.env.production? && request.headers['HTTP_X_UID'].present?
   end
 
   before_action :authenticate_user!

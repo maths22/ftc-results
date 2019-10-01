@@ -13,15 +13,15 @@ import Popover from '@material-ui/core/Popover';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import { logout } from '../actions/api';
+import { logout } from '../../actions/api';
 import {Link} from 'react-router-dom';
-import LoginForm from './users/LoginForm';
-import {clearUserDependentState} from '../actions/util';
+import LoginForm from '../users/LoginForm';
+import {clearUserDependentState} from '../../actions/util';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
-import RegisterForm from './users/RegisterForm';
+import RegisterForm from '../users/RegisterForm';
 import * as queryString from 'query-string';
 
 const styles = {
