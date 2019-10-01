@@ -38,6 +38,7 @@ gem 'devise_token_auth', git: 'https://github.com/lynndylanhurley/devise_token_a
 # gem 'omniauth-github'
 # gem 'omniauth-facebook'
 # gem 'omniauth-google-oauth2'
+gem 'activerecord-import'
 gem 'aws-sdk-s3', require: false
 gem 'health_check'
 gem 'rails_admin', '~> 2.0'
