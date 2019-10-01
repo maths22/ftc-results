@@ -29,7 +29,7 @@ namespace :teams do
   end
 
   def get_first_data(teams)
-    url = 'http://es02.firstinspires.org/teams_v1/_search?'
+    url = 'https://es02.firstinspires.org/teams_v1/_search?'
     search_args = {
       team_type: 'FTC',
       profile_year: '2018',
