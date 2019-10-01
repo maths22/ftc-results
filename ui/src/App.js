@@ -48,13 +48,13 @@ class App extends Component {
             return this.stringToDate(e.end_date) >= today && this.stringToDate(e.start_date) < oneWeek;
           }}/>
 
-          <EventCards heading="Recent Events" filter={(e) => {
-            return this.stringToDate(e.end_date) < today;
-          }} reverse limit={9} showNone />
-
           { this.props.season && this.props.season.offseason ? <EventCards heading="Upcoming Events" filter={(e) => {
             return this.stringToDate(e.start_date) >=  oneWeek;
           }} limit={9} /> : null}
+
+          <EventCards heading="Recent Events" filter={(e) => {
+            return this.stringToDate(e.end_date) < today;
+          }} reverse limit={9} showNone />
 
           <div style={{padding: '1em 0'}}>
             <Button variant="contained" to={`/events/all?${queryString.stringify({season: this.props.selectedSeason})}`} component={Link}>

@@ -150,8 +150,8 @@ class EventsSummary extends Component {
                   { e.division ?
                       <TableCell className={classes.tableCell}><TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink></TableCell>
                       : <TableCell className={classes.tableCell}/> }
-                  <TableCell className={classes.tableCell}>{e.location}<br/>{e.city}, {e.state}, {e.country}</TableCell>
-                  <TableCell className={classes.tableCell}>{e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
+                  <TableCell className={classes.tableCell}>{e.location && e.location.trim() !== '-' ? <>{e.location}<br/>{e.city}, {e.state}, {e.country}</> : 'TBA' }</TableCell>
+                  <TableCell className={classes.tableCell}>{new Date(e.start_date).getUTCFullYear() === 9999 ? 'TBA' : e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}</TableCell>
                   <TableCell className={classes.tableCell}>{e.aasm_state === 'finalized' && !divFinalsLeft ? <CheckIcon/> :
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
                   {e.aasm_state === 'finalized' || divFinalsLeft

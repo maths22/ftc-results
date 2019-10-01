@@ -7,6 +7,13 @@ class Team < ApplicationRecord
   has_many :alliances, through: :alliance_teams
   has_many :rankings, dependent: :destroy
 
+  def assign_to_division(division)
+    ActiveRecord::Base.transaction do
+      divisions_teams.joins(division: :league).where(division: Division.where(leagues: { season: division.league.season })).destroy_all
+      divisions_teams.create!(division: division)
+    end
+  end
+
   def match_alliances_for_season(season)
     alliances.joins(:event)
              .includes(:match_alliances)

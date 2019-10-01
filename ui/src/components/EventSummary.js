@@ -265,11 +265,16 @@ class EventSummary extends Component {
         <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
         {this.renderDivisionPicker()}
         {season ? <><b>Season:</b> <span>{season.name} ({season.year})</span><br/></> : null}
-        <b>Date:</b> {event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
-        <b>Location:</b> <TextLink href={maps_url} target="_blank">{event.location}{event.location && ', '}
+        <b>Date:</b> {new Date(event.start_date).getUTCFullYear() === 9999 ? 'TBA' : event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
+        <b>Location:</b>
+        {event.location && event.location.trim() !== '-' ? <>
+          <TextLink href={maps_url} target="_blank"> {event.location}{event.location && ', '}
         {event.city}{event.city && ', '}
         {event.state}{event.state && ', '}
-        {event.country}</TextLink><br/>{league ?
+        {event.country}</TextLink>
+        </> : ' TBA' }
+        <br/>
+        {league ?
           <span><b>League:</b> <TextLink to={`/leagues/rankings/${league.id}`}>{league.name}</TextLink></span> : null }<br/>
         {division ?
           <span><b>Division:</b> <TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }<br/>
