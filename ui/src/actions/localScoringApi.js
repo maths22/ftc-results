@@ -13,13 +13,13 @@ export const LOCAL_GENERAL_REQUEST = 'LOCAL_GENERAL_REQUEST';
 export const LOCAL_GENERAL_SUCCESS = 'LOCAL_GENERAL_SUCCESS';
 export const LOCAL_GENERAL_FAILURE = 'LOCAL_GENERAL_FAILURE';
 
-const apiBase = (path) => (store) => `http://${store.localScoring.server.hostname}:${store.localScoring.server.port}/apiv1${path}/`;
+const apiBase = (path) => (store) => `http://${store.localScoring.server.hostname}:${store.localScoring.server.port}/api${path}/`;
 const ilApiBase = (path) => (store) => `http://${store.localScoring.server.hostname}:${store.localScoring.server.port}/_il_api${path}/`;
-export const websocketPath = '/manage/display/stream/';
+export const websocketPath = '/apiv2/stream/';
 
 export const getLocalEvents = () => ({
   [RSAA]: {
-    endpoint: apiBase('/events'),
+    endpoint: apiBase('/v1/events'),
     method: 'GET',
     types: [
       LOCAL_GET_EVENTS_REQUEST,
@@ -31,7 +31,7 @@ export const getLocalEvents = () => ({
 
 export const getLocalVersion = () => ({
   [RSAA]: {
-    endpoint: apiBase('/version'),
+    endpoint: apiBase('/v1/version'),
     method: 'GET',
     types: [
       LOCAL_GET_VERSION_REQUEST,
@@ -44,7 +44,7 @@ export const getLocalVersion = () => ({
 
 export const getLocalEvent = (event) => ({
   [RSAA]: {
-    endpoint: apiBase(`/events/${event}`),
+    endpoint: apiBase(`/v1/events/${event}`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,
@@ -56,7 +56,7 @@ export const getLocalEvent = (event) => ({
 
 export const getLocalTeamList = (event) => ({
   [RSAA]: {
-    endpoint: apiBase(`/events/${event}/teams`),
+    endpoint: apiBase(`/v1/events/${event}/teams`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,
@@ -68,7 +68,7 @@ export const getLocalTeamList = (event) => ({
 
 export const getLocalRankings = (event) => ({
   [RSAA]: {
-    endpoint: apiBase(`/events/${event}/rankings`),
+    endpoint: apiBase(`/v1/events/${event}/rankings`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,
@@ -80,7 +80,7 @@ export const getLocalRankings = (event) => ({
 
 export const getLocalAlliances = (event) => ({
   [RSAA]: {
-    endpoint: apiBase(`/events/${event}/elim/alliances`),
+    endpoint: apiBase(`/v1/events/${event}/elim/alliances`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,
@@ -92,7 +92,7 @@ export const getLocalAlliances = (event) => ({
 
 export const getLocalMatches = (event) => ({
   [RSAA]: {
-    endpoint: apiBase(`/events/${event}/matches`),
+    endpoint: apiBase(`/v1/events/${event}/matches`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,
@@ -104,7 +104,7 @@ export const getLocalMatches = (event) => ({
 
 export const getLocalElimMatches = (event, prefix) => ({
   [RSAA]: {
-    endpoint: apiBase(`/events/${event}/elim/${prefix}`),
+    endpoint: apiBase(`/v1/events/${event}/elim/${prefix}`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,
@@ -117,7 +117,7 @@ export const getLocalElimMatches = (event, prefix) => ({
 
 export const getLocalMatchDetails = (event, season, prefix, matchNo) => ({
   [RSAA]: {
-    endpoint: apiBase(`/${season}/events/${event}/${prefix}/${matchNo}`),
+    endpoint: apiBase(`/${season}/v1/events/${event}/${prefix}/${matchNo}`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,
@@ -130,7 +130,7 @@ export const getLocalMatchDetails = (event, season, prefix, matchNo) => ({
 
 export const getLocalAwards = (event) => ({
   [RSAA]: {
-    endpoint: apiBase(`/events/${event}/awards`),
+    endpoint: apiBase(`/v2/events/${event}/awards`),
     method: 'GET',
     types: [
       LOCAL_GENERAL_REQUEST,

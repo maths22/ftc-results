@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Button from '@material-ui/core/Button';
 import {withStyles} from '@material-ui/core';
-import {getEvents} from '../../actions/api';
+import {getEvent} from '../../actions/api';
 import {resetEvent} from '../../actions/uploaderApi';
 import connect from 'react-redux/es/connect/connect';
 import {
@@ -42,7 +42,7 @@ const styles = theme => ({
 class Uploader extends Component {
   componentDidMount() {
     if(!this.props.event) {
-      this.props.getEvents();
+      this.props.getEvent(parseInt(this.props.id));
     }
     if(this.props.localServer.verified && !this.props.localEvents) {
       this.props.getLocalEvents();
@@ -151,7 +151,7 @@ const mapStateToProps = (state, props) => {
 };
 
 const mapDispatchToProps = {
-  getEvents,
+  getEvent,
   getLocalEvents,
   getLocalVersion,
   localReset,

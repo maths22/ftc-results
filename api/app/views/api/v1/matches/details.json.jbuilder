@@ -4,7 +4,7 @@ json.series @match.series
 json.number @match.number
 json.event_id @match.event_id
 
-json.season_score_type @match.red_score.season_score_type
+json.season_score_type @match.red_score.season_score_type.sub('SeasonScore::', '')
 
 json.red_score_total @match.red_score_total
 json.red_score @match.red_score, partial: 'scores/base_info', as: :score

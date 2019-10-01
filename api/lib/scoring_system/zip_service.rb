@@ -1,5 +1,11 @@
 module ScoringSystem
   class ZipService
+    attr_reader :season
+
+    def initialize(season)
+      @season = season
+    end
+
     def with_globaldb
       ::Zip::File.open(scoring_path) do |zip_file|
         # Handle entries one by one
@@ -69,7 +75,7 @@ module ScoringSystem
     private
 
     def scoring_path
-      @scoring_path ||= GithubService.new.latest_zip
+      @scoring_path ||= GithubService.new(season).latest_zip
     end
   end
 end

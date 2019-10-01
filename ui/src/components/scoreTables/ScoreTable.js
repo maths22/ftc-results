@@ -5,6 +5,7 @@ import Table from '@material-ui/core/Table/Table';
 import TableBody from '@material-ui/core/TableBody/TableBody';
 import React from 'react';
 import {withStyles} from '@material-ui/core';
+import {blue} from '@material-ui/core/colors';
 
 const styles = (theme) => ({
   table: {
@@ -63,17 +64,26 @@ const ScoreTable = (scoreInterpretation) => withStyles(styles)(({classes, match}
 
   return <Table className={classes.table}>
     <TableBody>
-      {scores.map((sc) => (<TableRow className={classNames(classes.tableRow, {[classes.keyTableRow]: sc.key})}>
-        <TableCell className={classNames(classes.tableCell, classes.redCell, {[classes.redKeyCell]: sc.key})}>
-          {sc.red} {sc.red_pts ? `(+${sc.red_pts}${sc.penalty ? ' to blue' : ''})` : ''}
-          {sc.bonus && sc.bonus.redAccomplished ? <><br/>Bonus (+{sc.bonus.value})</> : null}
-        </TableCell>
-        <TableCell className={classNames(classes.tableCell, {[classes.keyCell]: sc.key})}>{sc.desc}</TableCell>
-        <TableCell className={classNames(classes.tableCell, classes.blueCell, {[classes.blueKeyCell]: sc.key})}>
-          {sc.blue} {sc.blue_pts ? `(+${sc.blue_pts}${sc.penalty ? ' to red' : ''})` : ''}
-          {sc.bonus && sc.bonus.blueAccomplished ? <><br/>Bonus (+{sc.bonus.value})</> : null}
-        </TableCell>
-      </TableRow>))}
+      {scores.map((sc) => {
+        const bonusLabel = sc.bonus && `${sc.bonus.label} (+${sc.bonus.value})`;
+        const redPrimary = `${sc.red} ${sc.red_pts ? `(+${sc.red_pts}${sc.penalty ? ' to blue' : ''})` : ''}`;
+
+        const bluePrimary = `${sc.blue} ${sc.blue_pts ? `(+${sc.blue_pts}${sc.penalty ? ' to red' : ''})` : ''}`;
+
+        return <TableRow className={classNames(classes.tableRow, {[classes.keyTableRow]: sc.key})}>
+          <TableCell className={classNames(classes.tableCell, classes.redCell, {[classes.redKeyCell]: sc.key})}>
+            {sc.bonus && sc.bonus.first && sc.bonus.redAccomplished ? <>{bonusLabel}<br/></> : null}
+            {redPrimary}
+            {sc.bonus && !sc.bonus.first && sc.bonus.redAccomplished ? <><br/>{bonusLabel}</> : null }
+          </TableCell>
+          <TableCell className={classNames(classes.tableCell, {[classes.keyCell]: sc.key})}>{sc.desc}</TableCell>
+          <TableCell className={classNames(classes.tableCell, classes.blueCell, {[classes.blueKeyCell]: sc.key})}>
+            {sc.bonus && sc.bonus.first && sc.bonus.blueAccomplished ? <>{bonusLabel}<br/></> : null}
+            {bluePrimary}
+            {sc.bonus && !sc.bonus.first && sc.bonus.blueAccomplished ? <><br/>{bonusLabel}</> : null}
+          </TableCell>
+        </TableRow>
+      })}
     </TableBody>
   </Table>;
 });

@@ -13,7 +13,7 @@ const trackPage = (page) => {
 let currentPage = '';
 
 export default store => next => action => {
-  if (action.type === '@@router/LOCATION_CHANGE') {
+  if (process.env.REACT_APP_GA_KEY && action.type === '@@router/LOCATION_CHANGE') {
     const nextPage = `${action.payload.location.pathname}${action.payload.location.search}`;
 
     if (currentPage !== nextPage) {

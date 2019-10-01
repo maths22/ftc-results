@@ -37,7 +37,7 @@ class Match < ApplicationRecord
     other_color = color == :red ? :blue : :red
 
     define_method :"#{color}_score_total" do
-      send(:"#{color}_score").earned + send(:"#{other_color}_score").penalty
+      [0, send(:"#{color}_score").earned + send(:"#{other_color}_score").penalty].max
     end
 
     define_method :"#{color}_wins?" do

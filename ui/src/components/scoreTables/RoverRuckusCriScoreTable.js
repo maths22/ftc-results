@@ -20,6 +20,7 @@ export default ScoreTable((match) => {
         value: 10,
         redAccomplished: red_det.depots_claimed >= 2,
         blueAccomplished: blue_det.depots_claimed >= 2,
+        label: 'Bonus'
       }
     },
     {

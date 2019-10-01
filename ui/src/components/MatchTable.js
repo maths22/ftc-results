@@ -13,7 +13,6 @@ import TextLink from './TextLink';
 import Typography from '@material-ui/core/Typography/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
 import Hidden from '@material-ui/core/Hidden/Hidden';
-import ScrollingBody from './ScrollingBody';
 
 const styles = (theme) => ({
   table: {
@@ -27,15 +26,6 @@ const styles = (theme) => ({
       paddingRight: theme.spacing(1),
     }
   },
-  rotatingTableCell: {
-    // paddingLeft: theme.spacing(1),
-    // paddingRight: theme.spacing(1),
-    display: 'inline-block',
-    textAlign: 'center',
-    // '&:last-child': {
-    //   paddingRight: theme.spacing(1),
-    // }
-  },
   redCell: {
     background: '#fee',
   },
@@ -47,12 +37,6 @@ const styles = (theme) => ({
   },
   blueWinningCell: {
     background: '#ddf',
-  },
-  redDisplayCell: {
-    background: '#f44 !important'
-  },
-  blueDisplayCell: {
-    background: '#4Af !important'
   },
   allianceCell: {
     fontWeight: 'bold',
@@ -73,7 +57,7 @@ class MatchTable extends React.Component {
   };
 
   render() {
-    const {matches, team, classes, pitDisplay} = this.props;
+    const {matches, team, classes} = this.props;
     const {selectedMatch} = this.state;
     if (matches.length === 0) {
       return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
@@ -113,24 +97,6 @@ class MatchTable extends React.Component {
           [classes.surrogateCell]: isSurrogate,
         });
 
-        if(pitDisplay) {
-          if(!m.played) return null;
-          const resultSegments = [m.red_score, m.blue_score, 'T'];
-          let pitClasses = classes.rotatingTableCell;
-          if(m.red_score > m.blue_score) {
-            resultSegments[2] = 'R';
-            pitClasses = classNames(classes.rotatingTableCell, classes.redDisplayCell);
-          }
-          if(m.red_score < m.blue_score) {
-            resultSegments[2] = 'B';
-            pitClasses = classNames(classes.rotatingTableCell, classes.blueDisplayCell);
-          }
-          return <div key={m.id} className={'tableRowDiv'} style={Object.assign({},{width: '100%', rowStyle})}>
-            <span className={classes.rotatingTableCell} style={{width: '50%'}}>{matchDisp}</span>
-            <span className={pitClasses} style={{width: '50%'}}>{resultSegments[0]}-{resultSegments[1]} {resultSegments[2]}</span>
-          </div>;
-        }
-
         return <TableRow key={m.id} style={rowStyle}>
           <TableCell
               className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>
@@ -165,19 +131,6 @@ class MatchTable extends React.Component {
         </TableRow>;
       });
     });
-
-    if(pitDisplay) {
-      return  [<div className={'tableHeadDiv'} key={1}>
-        <span className={classes.rotatingTableCell} style={{width: '50%'}}>Match</span>
-        <span className={classes.rotatingTableCell} style={{width: '50%'}}>Result</span>
-      </div>,
-      <ScrollingBody key={2}>
-        {groupedMatches['qual'] ? groupedMatches['qual'] : null}
-        {groupedMatches['semi'] ? groupedMatches['semi'] : null}
-        {groupedMatches['final'] ? groupedMatches['final'] : null}
-        <div className={'tableRowDiv'} />
-      </ScrollingBody>];
-    }
 
     return [<Table key={1} className={classes.table}>
       <TableHead>

@@ -1,0 +1,14 @@
+json.auto_skystones score.auto_skystones
+json.auto_delivered score.auto_delivered
+json.auto_placed score.auto_placed
+json.robots_navigated score.robots_navigated
+json.foundation_repositioned score.foundation_repositioned
+json.teleop_placed score.teleop_placed
+json.teleop_delivered score.teleop_delivered
+json.tallest_height score.tallest_height
+json.foundation_moved score.foundation_moved
+json.robots_parked score.robots_parked
+json.capstone_1_level score.capstone_1_level
+json.capstone_2_level score.capstone_2_level
+json.minor_penalties score.minor_penalties
+json.major_penalties score.major_penalties

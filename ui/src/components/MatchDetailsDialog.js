@@ -10,10 +10,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CloseIcon from '@material-ui/icons/Close';
 
 import {getMatchDetails} from '../actions/api';
-import RoverRuckusScoreTable from './scoreTables/RoverRuckusScoreTable';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import IconButton from '@material-ui/core/IconButton';
-import RoverRuckusCriScoreTable from './scoreTables/RoverRuckusCriScoreTable';
 
 class MatchDetailsErrorBoundary extends React.Component {
   constructor(props) {
@@ -57,7 +55,7 @@ class MatchDetailsDialog extends Component {
     const {event, match, fullScreen} = this.props;
 
 
-    const ScoreTable = React.lazy(() => import(`./scoreTables/${match.season_score_type}Table`));
+    const ScoreTable = React.lazy(() => import(/* webpackChunkName: "scoreTable-[request]" */ `./scoreTables/${match.season_score_type}Table`));
 
     const prefixes = {'qual': 'Q-', 'semi': 'SF-', 'final': 'F-'};
     const matchDisplay = prefixes[match.phase] + (match.series ? (match.series + '-') : '') + match.number;

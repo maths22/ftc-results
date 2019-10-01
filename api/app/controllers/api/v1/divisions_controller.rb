@@ -5,7 +5,7 @@ module Api
 
       # GET /teams
       def index
-        expires_in(15.minutes, public: true) unless request_has_auth?
+        expires_in(15.minutes, public: true) if request_cacheable?
 
         render json: @divisions,
                only: %w[id name league_id],

@@ -63,19 +63,19 @@ class AwardsTable extends React.Component {
             <TableCell className={classes.tableCell}>{isNameLink ?
                 <TextLink onClick={() => this.showDetails(a)}>{a.name}</TextLink> : a.name}</TableCell>
             <TableCell className={classes.tableCell}>
+              {first && first.recipient ? first.recipient : null}
               {first && first.team ? <TextLink
                   to={`/teams/summary/${first.team.number}`}>{first.team.number} ({first.team.name})</TextLink> : null}
-              {first && first.recipient ? first.recipient : null}
             </TableCell>
             <TableCell className={classes.tableCell}>
+              {second && second.recipient ? second.recipient : null}
               {second && second.team ? <TextLink
                   to={`/teams/summary/${second.team.number}`}>{second.team.number} ({second.team.name})</TextLink> : null}
-              {second && second.recipient ? second.recipient : null}
             </TableCell>
             <TableCell className={classes.tableCell}>
+              {third && third.recipient ? third.recipient : null}
               {third && third.team ? <TextLink
                   to={`/teams/summary/${third.team.number}`}>{third.team.number} ({third.team.name})</TextLink> : null}
-              {third && third.recipient ? third.recipient : null}
             </TableCell>
           </TableRow>;
         })}

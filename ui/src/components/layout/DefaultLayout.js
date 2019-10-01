@@ -4,7 +4,7 @@ import React from 'react';
 import HeadingBar from './HeadingBar';
 import {withStyles} from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import ErrorBoundary from './ErrorBoundary';
+import ErrorBoundary from '../ErrorBoundary';
 
 
 const styles = theme => ({

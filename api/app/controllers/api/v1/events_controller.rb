@@ -10,7 +10,7 @@ module Api
 
       # GET /events
       def index
-        expires_in(3.minutes, public: true) unless request_has_auth?
+        expires_in(3.minutes, public: true) if request_cacheable?
 
         authorize!(:index, Event)
         @events = Event.where(season: request_season).includes(:owners, :season, event_divisions: [:import_attachment], event_channel_assignment: [:twitch_channel]).with_attached_import.with_channel
@@ -51,30 +51,30 @@ module Api
 
       # GET /events/1
       def show
-        expires_in(3.minutes, public: true) unless request_has_auth?
+        expires_in(3.minutes, public: true) if request_cacheable?
       end
 
       def view_matches
-        expires_in(30.seconds, public: true) unless request_has_auth?
+        expires_in(30.seconds, public: true) if request_cacheable?
 
         @matches = Match.includes([:event_division, red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
       end
 
       def view_rankings
-        expires_in(30.seconds, public: true) unless request_has_auth?
+        expires_in(30.seconds, public: true) if request_cacheable?
 
         @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
         @rankings = @event.rankings.includes(:team, :event_division)
       end
 
       def view_awards
-        expires_in(30.seconds, public: true) unless request_has_auth?
+        expires_in(30.seconds, public: true) if request_cacheable?
 
         @awards = @event.awards.includes(:award_finalists)
       end
 
       def view_teams
-        expires_in(3.minutes, public: true) unless request_has_auth?
+        expires_in(3.minutes, public: true) if request_cacheable?
 
         div_teams = @event.events_teams.includes(:team, :event_division).map do |et|
           {
@@ -86,7 +86,7 @@ module Api
       end
 
       def download_scoring_system
-        zip = ::ScoringSystem::ZipService.new
+        zip = ::ScoringSystem::ZipService.new(@event.season)
         db_service = ::ScoringSystem::SqlitedbExportService.new(@event)
         zip.with_copy do |f|
           db_service.create_server_db do |sdb|
@@ -98,8 +98,9 @@ module Api
               zip.add_db(f, filename, db)
             end
           end
-          Sponsor.global.each { |s| zip.add_sponsor_logo(f, s) }
-          @event.sponsors.each { |s| zip.add_sponsor_logo(f, s) }
+          # Sponsor.global.each { |s| zip.add_sponsor_logo(f, s) }
+          # @event.sponsors.each { |s| zip.add_sponsor_logo(f, s) }
+          # TODO: seasonify
           zip.add_lib(f, Rails.root.join('vendor', 'scoring', 'FTCLiveExtras.jar'))
           File.open(f, 'r') do |data|
             headers['Content-Length'] = data.size if data.respond_to?(:size)
@@ -148,7 +149,6 @@ module Api
           return if [:rankings].length.zero?
 
           ActiveRecord::Base.transaction do
-            @event.start! if @event.not_started?
             @event.rankings.where(event_division: req_division).destroy_all
             team_rankings = params[:rankings].map do |rk|
               Rankings::TeamRanking.new.tap do |nr|
@@ -160,7 +160,6 @@ module Api
                 nr.ranking_breaker = rk['ranking']
               end
             end
-            Rankings::LeagueRankingsService.new.merge_with_event_rankings(@event, team_rankings) if @event.context_type == 'League'
             team_rankings.sort.reverse.each_with_index do |rk, idx|
               ranking = Ranking.new(team: rk.team,
                                     ranking: idx + 1,
@@ -186,7 +185,6 @@ module Api
           return if params[:awards].length.zero?
 
           ActiveRecord::Base.transaction do
-            @event.start! if @event.not_started?
             @event.awards.destroy_all
             params[:awards].each do |awd|
               award = Award.new(awd.permit(:name))
@@ -241,7 +239,6 @@ module Api
           return if params[:alliances].length.zero?
 
           ActiveRecord::Base.transaction do
-            @event.start! if @event.not_started?
             params[:alliances].each do |a|
               next unless a[:teams][0].positive?
 
@@ -250,6 +247,22 @@ module Api
               alliance.event_division = req_division
               alliance.save!
             end
+          end
+        rescue StandardError => e
+          render json: { error: e.message }, status: :internal_server_error
+          Raven.capture_exception(e)
+          return
+        end
+        render json: { success: true }
+      end
+
+      def post_state
+        begin
+          raise 'Event already finalized' if @event.finalized?
+
+          ActiveRecord::Base.transaction do
+            @event.start! if params[:state] == 'started' && !@event.in_progress?
+            @event.reset! if params[:state] == 'not_started' && !@event.not_started? && !@event.divisions?
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
@@ -300,7 +313,6 @@ module Api
           return if params[:matches].length.zero?
 
           ActiveRecord::Base.transaction do
-            @event.start! if @event.not_started?
             params[:matches].each do |m|
               generate_qual_match(m) if m[:phase] == 'qual'
               generate_elim_match(m) unless m[:phase] == 'qual'

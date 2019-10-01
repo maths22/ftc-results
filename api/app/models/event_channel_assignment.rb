@@ -23,6 +23,10 @@ class EventChannelAssignment < ApplicationRecord
     end
   end
 
+  def aasm_state_enum
+    aasm.states
+  end
+
   def reset_token
     return if twitch_channel.unmanaged
 

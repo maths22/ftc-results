@@ -19,7 +19,7 @@ import {
   setServer, websocketPath
 } from '../../actions/localScoringApi';
 import {setTitle} from '../../actions/ui';
-import {postAlliances, postMatch, postMatches, postRankings, postAwards, postTeams} from '../../actions/uploaderApi';
+import {postAlliances, postMatch, postMatches, postRankings, postAwards, postTeams, postState} from '../../actions/uploaderApi';
 import objectHash from 'object-hash';
 import {fromPairs} from 'lodash';
 
@@ -89,7 +89,8 @@ class Uploader extends Component {
   stopUpload = () => {
     this.hashes = {};
     clearInterval(this.syncInterval);
-    if(this.pws) {
+    // OPEN
+    if(this.pws && this.pws.readyState === 1) {
       this.pws.close();
     }
   };
@@ -101,84 +102,65 @@ class Uploader extends Component {
     this.syncInterval = setInterval(this.syncData, 30000);
     this.pws = new PersistentWebsocket(`ws://${this.props.localServer.hostname}:${this.props.localServer.port}${websocketPath}`);
     this.pws.onmessage = (e) => {
-      const obj = JSON.parse(e.data);
-      const msg = Object.values(obj)[0];
-      if(msg.event === this.props.localServer.event) {
-        if(msg.type === 'SHOW_RESULTS') {
-          const matchParts = msg.params.matchName.split(' ');
-          let phase = '';
-          let matchNum = '';
-          let series = null;
-          if(matchParts[0] === 'Qualification') {
-            phase = 'qual';
-            matchNum = parseInt(matchParts[1]);
-          }
-          if(matchParts[0] === 'Semifinal') {
-            phase = 'semi';
-            series = parseInt(matchParts[1]);
-            matchNum = parseInt(matchParts[3]);
-          }
-          if(matchParts[0] === 'Finals') {
-            phase = 'final';
-            matchNum = parseInt(matchParts[2]);
-          }
-          const mid = phase + '-' + (series ? (series + '-') : '') + matchNum;
-          const dispMatch = this.displayedMatches[mid] || {};
-          dispMatch.displayAt = new Date();
-          this.displayedMatches[mid] = dispMatch;
-        }
-      }
-    };
-  };
-
-  //TODO update this to use the websocket method
-  startDisplayLoop = async () => {
-    let firstrun = true;
-    while(this.props.localServer.uploadRunning) {
-      const nextDisp = await this.props.getLocalNextDisplay(this.props.localServer.event);
-      if(firstrun && nextDisp.error) {
-        break;
-      }
-      firstrun = false;
-      if(nextDisp.payload.type === 'SHOW_RESULTS') {
-        const matchParts = nextDisp.payload.params[1].split(' ');
+      const msg = JSON.parse(e.data);
+      if(msg.updateType === 'MATCH_POST') {
+        const shortName = msg.payload.shortName;
         let phase = '';
-        if(matchParts[0] === 'Qualification') {
-          phase = 'qual';
-        }
-        if(matchParts[0] === 'Semifinal') {
-          phase = 'semi';
-        }
-        if(matchParts[0] === 'Finals') {
-          phase = 'final';
-        }
+        let matchNum = '';
         let series = null;
-        if(matchParts.length === 4) {
-          series = parseInt(matchParts[1]);
+        if(shortName[0] === 'Q') {
+          phase = 'qual';
+          matchNum = parseInt(shortName.substr(1));
         }
-        const matchNum = matchParts.length === 4 ? parseInt(matchParts[3]) : parseInt(matchParts[1]);
+        if(shortName.substr(0, 2) === 'SF') {
+          phase = 'semi';
+          series = parseInt(shortName.substr(2, 1));
+          matchNum = parseInt(shortName.substr(4));
+        }
+        if(shortName[0] === 'F') {
+          phase = 'final';
+          matchNum = parseInt(shortName.substr(1));
+        }
+        if(shortName.substr(0, 2) === 'IF') {
+          phase = 'final';
+          matchNum = parseInt(shortName.substr(2));
+        }
         const mid = phase + '-' + (series ? (series + '-') : '') + matchNum;
         const dispMatch = this.displayedMatches[mid] || {};
         dispMatch.displayAt = new Date();
         this.displayedMatches[mid] = dispMatch;
       }
-    }
+    };
   };
 
   syncData = () => {
-    Promise.all([
-      this.syncTeams(),
-      this.syncRankings(),
-      this.syncElimAlliances()
-          .then(this.syncMatchList)
-          .then(this.syncMatchResults),
-      this.syncAwards(),
-    ]).then(() => {
-      this.setState({success: true, date: new Date()});
-    }).catch((e) => {
-      this.setState({success: false, date: new Date()});
-      console.error('Sync failed: ', e);
-    });
+    this.syncState().then(() =>
+      Promise.all([
+        this.syncTeams(),
+        this.syncRankings(),
+        this.syncElimAlliances()
+            .then(this.syncMatchList)
+            .then(this.syncMatchResults),
+        this.syncAwards(),
+      ]).then(() => {
+        this.setState({success: true, date: new Date()});
+      }).catch((e) => {
+        this.setState({success: false, date: new Date()});
+        console.error('Sync failed: ', e);
+      })
+    );
+  };
+
+  syncState = async () => {
+    const eventResult = await this.props.getLocalEvent(this.props.localServer.event);
+    const status = eventResult.payload.status;
+    const state = ['Future', 'Setup'].includes(status) ? 'not_started' : 'started';
+    const newHash = objectHash(state);
+    if(this.hashes['state'] !== newHash) {
+      const postResult = await this.props.postState(this.props.event, state);
+      if (postResult.error) throw postResult.payload;
+    }
+    this.hashes['state'] = newHash;
   };
 
   syncTeams = async () => {
@@ -232,30 +214,15 @@ class Uploader extends Component {
   };
 
   syncAwards = async () => {
-    const intRegex = /^-?[0-9]+$/;
     const awardsResult = await this.props.getLocalAwards(this.props.localServer.event);
-    if(awardsResult.error && awardsResult.payload.response.errorCode === 'NOT_READY') {
-      return;
-    } else if(awardsResult.error) {
-      throw awardsResult.payload;
-    }
     const awards = awardsResult.payload.awards;
     const uploadAwards = awards.map((a) => ({
-      name: a.awardName,
-      finalists: [
-        {
-          place: 1,
-          [a.firstPlace && a.firstPlace.match(intRegex) ? 'team_id' : 'recipient']: a.firstPlace || '-1'
-        },
-        {
-          place: 2,
-          [a.secondPlace && a.secondPlace.match(intRegex) ? 'team_id' : 'recipient']: a.secondPlace || '-1'
-        },
-        {
-          place: 3,
-          [a.thirdPlace && a.thirdPlace.match(intRegex) ? 'team_id' : 'recipient']: a.thirdPlace || '-1'
-        },
-      ].filter((f) => f.team_id !== '-1' && f.recipient !== '-1')
+      name: a.name,
+      finalists: a.winners.map((fin) => ({
+        place: fin.series,
+        recipient: a.isTeamAward ? undefined : `${fin.firstName} ${fin.lastName}`,
+        team_id: fin.team
+      }))
     }));
     const newHash = objectHash(uploadAwards);
     if(this.hashes['awards'] !== newHash) {
@@ -352,26 +319,24 @@ class Uploader extends Component {
       } else {
         prefix = 'matches';
       }
-      const details = await this.props.getLocalMatchDetails(this.props.localServer.event, '2019cri', prefix, m.number);
+      const details = await this.props.getLocalMatchDetails(this.props.localServer.event, '2020', prefix, m.number);
       return [[m.phase, m.series, m.number].filter((m) => m).join('-'), details.payload];
     }));
     await Promise.all(matchResults.map(async (val) => {
       const [mid, mr] = val;
       const mapScoreToUploadScore = (s) => ({
-        robots_landed: s.landed / 30,
-        depots_claimed:  Math.floor(s.claimedDepot / 15),
-        robots_parked_auto: s.autoParking / 10,
-        fields_sampled: s.mineralSample / 25,
-        depot_minerals: s.depotMinerals / 2,
-        depot_platinum_minerals: s.depotPlatinumMinerals / 5,
-        gold_cargo: s.landerGold / 5,
-        silver_cargo: s.landerSilver / 5,
-        any_cargo: s.landerAny / 10,
-        platinum_cargo: s.landerPlatinum / 20,
-        latched_robots: latchLookups[s.latchedLander][0],
-        any_latched_robots: latchLookups[s.latchedLander][1],
-        robots_in_crater: inCraterLookups[s.endParking][0],
-        robots_completely_in_crater: inCraterLookups[s.endParking][1],
+        auto_skystones: s.autoStones.filter((s) => s === 'SKYSTONE').length - s.firstReturnedIsSkystone ? 1 : 0,
+        auto_delivered: s.autoDelivered - s.autoReturned,
+        auto_placed: s.autoPlaced,
+        robots_navigated: (s.robot1.navigated ? 1 : 0) + (s.robot2.navigated ? 1 : 0),
+        foundation_repositioned: s.foundationRepositioned ? 1 : 0,
+        teleop_placed: s.driverControlledPlaced,
+        teleop_delivered: s.driverControlledDelivered - s.driverControlledReturned,
+        tallest_height: s.towerBonusPoints / 2,
+        foundation_moved: s.foundationMoved ? 1 : 0,
+        robots_parked: (s.robot1.parked ? 1 : 0) + (s.robot2.parked ? 1 : 0),
+        capstone_1_level: s.robot1.capstoneLevel,
+        capstone_2_level: s.robot2.capstoneLevel,
         minor_penalties: s.minorPenalties,
         major_penalties: s.majorPenalties,
       });
@@ -424,6 +389,7 @@ const mapDispatchToProps = {
   postTeams,
   postMatches,
   postMatch,
+  postState,
   postAlliances,
   postAwards,
   localReset,

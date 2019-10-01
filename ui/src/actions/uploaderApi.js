@@ -25,6 +25,9 @@ export const POST_RESET_FAILURE = 'POST_RESET_FAILURE';
 export const POST_TWITCH_REQUEST = 'POST_TWITCH_REQUEST';
 export const POST_TWITCH_SUCCESS = 'POST_TWITCH_SUCCESS';
 export const POST_TWITCH_FAILURE = 'POST_TWITCH_FAILURE';
+export const POST_STATE_REQUEST = 'POST_TWITCH_REQUEST';
+export const POST_STATE_SUCCESS = 'POST_TWITCH_SUCCESS';
+export const POST_STATE_FAILURE = 'POST_TWITCH_FAILURE';
 
 
 export const postRankings = (event, division, rankings) => ({
@@ -107,6 +110,20 @@ export const postAwards = (event, awards) => ({
       POST_AWARDS_REQUEST,
       POST_AWARDS_SUCCESS,
       POST_AWARDS_FAILURE
+    ]
+  }
+});
+
+export const postState = (event, state) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/state/${event}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({state}),
+    types: [
+      POST_STATE_REQUEST,
+      POST_STATE_SUCCESS,
+      POST_STATE_FAILURE
     ]
   }
 });
