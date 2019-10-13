@@ -93,7 +93,7 @@ module ScoringSystem
         match.save!
       end
 
-      import_match_scores(phase: 'qual', table: 'qualsGameSpecific')
+      send("import_#{Season.last.score_model_name.tableize}", phase: 'qual', table: 'qualsGameSpecific')
     end
 
     def import_elims
@@ -139,10 +139,10 @@ module ScoringSystem
         match.save!
       end
 
-      import_match_scores(phase: 'elim', table: 'elimsGameSpecific')
+      send("import_#{Season.last.score_model_name.tableize}", phase: 'elim', table: 'elimsGameSpecific')
     end
 
-    def import_match_scores(phase:, table:)
+    def import_rover_ruckus_scores(phase:, table:)
       season_results = @db.execute 'SELECT match, alliance, landed1, landed2, claimed1, claimed2, autoParking1, autoParking2, sampleFieldState, depot, gold, silver, latched1, latched2, endParked1, endParked2 FROM ' + table
 
       season_results.each do |r|
@@ -152,7 +152,7 @@ module ScoringSystem
         rr_score.robots_landed = (r['landed1']) + (r['landed2'])
         rr_score.depots_claimed = (r['claimed1']) + (r['claimed2'])
         rr_score.robots_parked_auto = (r['autoParking1']) + (r['autoParking2'])
-        rr_score.fields_sampled = compute_fields(r['match'], table, r['sampleFieldState'])
+        rr_score.fields_sampled = compute_rover_ruckus_fields(r['match'], table, r['sampleFieldState'])
         rr_score.depot_minerals = r['depot']
         rr_score.gold_cargo = r['gold']
         rr_score.silver_cargo = r['silver']
@@ -160,6 +160,46 @@ module ScoringSystem
         rr_score.robots_in_crater = (r['endParked1'] == 1 ? 1 : 0) + (r['endParked2'] == 1 ? 1 : 0)
         rr_score.robots_completely_in_crater = (r['endParked1'] == 2 ? 1 : 0) + (r['endParked2'] == 2 ? 1 : 0)
         rr_score.save!
+        score.save!
+      end
+    end
+
+    def compute_rover_ruckus_fields(match, table, val)
+      stmt = 'SELECT randomization FROM ' + (table.gsub 'GameSpecific', 'Data') + " WHERE match LIKE '#{match}'"
+      r = @db.execute(stmt)[0]['randomization']
+
+      r = 1 if r <= 0
+
+      sf1 = val & 7
+      sf2 = (val & 56) >> 3
+      map = [3, 5, 6, 6, 5, 3]
+      (sf1 == map[r - 1] ? 1 : 0) + (sf2 == map[r - 1] ? 1 : 0)
+    end
+
+    def import_skystone_scores(phase:, table:)
+      season_results = @db.execute 'SELECT match, alliance, firstReturnedSkystone, secondBrick, autoDelivered, autoReturned, autoPlaced, repositioned, navigated1, navigated2, teleopDelivered, teleopReturned, teleopPlaced, tallestTower, capstone1, capstone2, foundationMoved, parked1, parked2 FROM ' + table
+
+      season_results.each do |r|
+        match = ss_match_to_results_match(phase, r['match'])
+        score = r['alliance'].zero? ? match.red_score : match.blue_score
+
+        auto_stones = r['autoDelivered'].bytes.map { |b| { 1 => :stone, 2 => :skystone }[b] || :none }
+
+        s_score = score.season_score
+        # TODO: fix how we handle reading in that blob
+        s_score.auto_skystones = auto_stones.count { |s| s == :skystone } - r['firstReturnedSkystone'] ? 1 : 0
+        s_score.auto_delivered = r['autoDelivered'] - r['autoReturned'] - auto_stones.count { |s| s == :skystone }
+        s_score.auto_placed = r['autoPlaced']
+        s_score.robots_navigated = (r['navigated1'].positive? ? 1 : 0) + (r['navigated2'].positive? ? 1 : 0)
+        s_score.foundation_repositioned = r['repositioned']
+        s_score.teleop_placed = r['teleopPlaced']
+        s_score.teleop_delivered = r['teleopDelivered'] - r['teleopReturned']
+        s_score.tallest_height = r['tallestTower']
+        s_score.foundation_moved = r['foundationMoved'].positive? ? 1 : 0
+        s_score.robots_parked = (r['parked1'].positive? ? 1 : 0) + (r['parked2'].positive? ? 1 : 0)
+        s_score.capstone_1_level = r['capstone1']
+        s_score.capstone_2_level = r['capstone2']
+        s_score.save!
         score.save!
       end
     end
@@ -200,20 +240,8 @@ module ScoringSystem
       end
     end
 
-    def compute_fields(match, table, val)
-      stmt = 'SELECT randomization FROM ' + (table.gsub 'GameSpecific', 'Data') + " WHERE match LIKE '#{match}'"
-      r = @db.execute(stmt)[0]['randomization']
-
-      r = 1 if r <= 0
-
-      sf1 = val & 7
-      sf2 = (val & 56) >> 3
-      map = [3, 5, 6, 6, 5, 3]
-      (sf1 == map[r - 1] ? 1 : 0) + (sf2 == map[r - 1] ? 1 : 0)
-    end
-
     def import_league_results
-      results = @db.execute "SELECT team, match, rp, tbp, score FROM leagueHistory WHERE eventCode LIKE '#{event.slug}'"
+      results = @db.execute "SELECT team, match, rp, tbp, score, DQ FROM leagueHistory WHERE eventCode LIKE '#{event.slug}'"
 
       results.each do |r|
         team = Team.find r['team']
@@ -221,6 +249,7 @@ module ScoringSystem
         match.set_rp_for_team(team, r['rp'])
         match.set_tbp_for_team(team, r['tbp'])
         match.set_score_for_team(team, r['score'])
+        match.set_red_card_for_team(team, r['DQ'])
         match.save!
       end
     end
@@ -250,49 +279,22 @@ module ScoringSystem
 
     def import_awards
       # TODO: consider awardOrder
-      awards_given = @db.execute 'SELECT id, winnerName, winnerTeam, winnerDescription, secondName, secondTeam, thirdName, thirdTeam FROM awardAssignment'
+      awards_given = @db.execute 'SELECT Award.Description, Award.Script, Team.TeamNumber, AwardAssignment.FirstName, AwardAssignment.LastName, AwardAssignment.Series as Place, AwardAssignment.Comment FROM AwardAssignment
+                        LEFT JOIN Team ON Team.FMSTeamId = AwardAssignment.FMSTeamId
+                        JOIN Award ON Award.FMSAwardId = AwardAssignment.FMSAwardId
+                        AND NOT (TeamNumber IS NULL AND FirstName IS NULL AND LastName IS NULL)'
       awards_given.each do |ag|
-        a = award_definitions[ag['id']]
-        award = Award.new name: a['name'],
-                          description: a['description'],
-                          event: event
-        award.save!
-        suffix = a['teamAward'].zero? ? 'Name' : 'Team'
-        recipient = a['teamAward'].zero? ? :recipient : :team_id
+        award = Award.find_or_create_by(name: a['Description'], event: event) do |new_award|
+          new_award.script = ag['Script']
+        end
 
-        # rubocop:disable Style/Next
-        if ag["winner#{suffix}"] && ag["winner#{suffix}"] != -1
-          AwardFinalist.new(
-            recipient => ag["winner#{suffix}"],
-            :place => 1,
-            :description => ag['winnerDescription'],
-            :award => award
-          ).save!
-        end
-        if ag["second#{suffix}"] && ag["second#{suffix}"] != -1
-          AwardFinalist.new(
-            recipient => ag["second#{suffix}"],
-            :place => 2,
-            :award => award
-          ).save!
-        end
-        if ag["third#{suffix}"] && ag["third#{suffix}"] != -1
-          AwardFinalist.new(
-            recipient => ag["third#{suffix}"],
-            :place => 3,
-            :award => award
-          ).save!
-        end
-        # rubocop:enable Style/Next
-      end
-    end
-
-    def award_definitions
-      @award_definitions ||= begin
-        awards = @db.execute 'SELECT id, name, description, awardOrder, teamAward FROM awardInfo'
-        awards.map do |a|
-          [a['id'], a]
-        end.to_h
+        AwardFinalist.new(
+          team_number: ag['TeamNumber'],
+          recipient: "#{ag['FirstName']} #{ag['LastName']}".strip,
+          place: ag['Place'],
+          description: ag['Comment'],
+          award: award
+        ).save!
       end
     end
   end

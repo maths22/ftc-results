@@ -1,21 +1,21 @@
 import {ConnectedRouter} from 'connected-react-router';
 import {Switch} from 'react-router';
-import React, {Component, Suspense} from 'react';
+import React, {lazy, Component, Suspense} from 'react';
 
 // Global styles
 
 import DefaultLayout from './components/layout/DefaultLayout';
 import LoadingSpinner from './components/LoadingSpinner';
 
-const AsyncUploader = React.lazy(() => import(/* webpackChunkName: "uploader" */ './components/localScoring/Uploader'));
-const AsyncLeagueRankings = React.lazy(() => import(/* webpackChunkName: "leagueRankings" */ './components/LeagueRankings'));
-const AsyncEventsSummary = React.lazy(() => import(/* webpackChunkName: "eventSummary" */ './components/EventsSummary'));
-const AsyncTeamSummary = React.lazy(() => import(/* webpackChunkName: "teamSummary" */ './components/TeamSummary'));
-const AsyncEventSummary = React.lazy(() => import(/* webpackChunkName: "eventSummary" */ './components/EventSummary'));
-const AsyncDivisionsSummary = React.lazy(() => import(/* webpackChunkName: "divisionsSummary" */ './components/DivisionsSummary'));
-const AsyncUpdateAccount = React.lazy(() => import(/* webpackChunkName: "updateAccount" */ './components/users/UpdateAccount'));
-const AsyncConfirmAccount = React.lazy(() => import(/* webpackChunkName: "confirmAccount" */ './components/users/ConfirmAccount'));
-const AsyncHome = React.lazy(() => import(/* webpackChunkName: "home" */ './App'));
+const AsyncUploader = lazy(() => import(/* webpackChunkName: "uploader" */ './components/localScoring/Uploader'));
+const AsyncLeagueRankings = lazy(() => import(/* webpackChunkName: "leagueRankings" */ './components/LeagueRankings'));
+const AsyncEventsSummary = lazy(() => import(/* webpackChunkName: "eventSummary" */ './components/EventsSummary'));
+const AsyncTeamSummary = lazy(() => import(/* webpackChunkName: "teamSummary" */ './components/TeamSummary'));
+const AsyncEventSummary = lazy(() => import(/* webpackChunkName: "eventSummary" */ './components/EventSummary'));
+const AsyncDivisionsSummary = lazy(() => import(/* webpackChunkName: "divisionsSummary" */ './components/DivisionsSummary'));
+const AsyncUpdateAccount = lazy(() => import(/* webpackChunkName: "updateAccount" */ './components/users/UpdateAccount'));
+const AsyncConfirmAccount = lazy(() => import(/* webpackChunkName: "confirmAccount" */ './components/users/ConfirmAccount'));
+const AsyncHome = lazy(() => import(/* webpackChunkName: "home" */ './App'));
 
 class AppRouter extends Component {
 

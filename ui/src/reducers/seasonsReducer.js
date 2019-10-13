@@ -1,4 +1,4 @@
-import {GET_SEASONS_SUCCESS} from '../actions/api';
+import {GET_SEASONS_SUCCESS, GET_TEAM_DETAILS_SUCCESS} from '../actions/api';
 
 const initialState = null;
 

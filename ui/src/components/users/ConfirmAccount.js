@@ -20,7 +20,7 @@ class ConfirmAccount extends React.Component {
   }
 };
 
-const mapStateToProps = (state) => {};
+const mapStateToProps = (state) => ({});
 
 
 const setToken = (values) => {

@@ -44,21 +44,8 @@ const styles = theme => ({
   }
 });
 
-
 const MINUTES_IN_MILIS = 60000;
 const DISPLAY_DELAY = 10 * MINUTES_IN_MILIS;
-
-const inCraterLookups = fromPairs([0, 1, 2, 3].map((inCrater) => {
-  return [0, 1, 2, 3].filter((cInCrater) => (inCrater + cInCrater) <= 3).map((cInCrater) => {
-    return [cInCrater * 25 + inCrater * 15, [inCrater, cInCrater]];
-  });
-}).flat());
-
-const latchLookups = fromPairs([0, 1, 2, 3].map((latched) => {
-  return [0, 1].filter((anyLatched) => (latched + anyLatched) <= 3).map((anyLatched) => {
-    return [latched * 50 + anyLatched * 75, [latched, anyLatched]];
-  });
-}).flat());
 
 class Uploader extends Component {
   displayedMatches = {};
@@ -325,8 +312,9 @@ class Uploader extends Component {
     await Promise.all(matchResults.map(async (val) => {
       const [mid, mr] = val;
       const mapScoreToUploadScore = (s) => ({
-        auto_skystones: s.autoStones.filter((s) => s === 'SKYSTONE').length - s.firstReturnedIsSkystone ? 1 : 0,
-        auto_delivered: s.autoDelivered - s.autoReturned,
+        auto_skystones: s.autoStones.filter((s) => s === 'SKYSTONE').length - (s.firstReturnedIsSkystone ? 1 : 0),
+        // Note we aren't counting skystones in this number
+        auto_delivered: s.autoDelivered - s.autoReturned - s.autoStones.filter((s) => s === 'SKYSTONE').length,
         auto_placed: s.autoPlaced,
         robots_navigated: (s.robot1.navigated ? 1 : 0) + (s.robot2.navigated ? 1 : 0),
         foundation_repositioned: s.foundationRepositioned ? 1 : 0,

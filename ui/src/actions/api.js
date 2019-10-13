@@ -69,6 +69,9 @@ export const GET_MATCH_DETAILS_FAILURE = 'GET_MATCH_DETAILS_FAILURE';
 export const GET_LEAGUE_RANKINGS_REQUEST = 'GET_LEAGUE_RANKINGS_REQUEST';
 export const GET_LEAGUE_RANKINGS_SUCCESS = 'GET_LEAGUE_RANKINGS_SUCCESS';
 export const GET_LEAGUE_RANKINGS_FAILURE = 'GET_LEAGUE_RANKINGS_FAILURE';
+export const SCORING_URL_REQUEST = 'SCORING_URL_REQUEST';
+export const SCORING_URL_SUCCESS = 'SCORING_URL_SUCCESS';
+export const SCORING_URL_FAILURE = 'SCORING_URL_FAILURE';
 export const IMPORT_EVENT_RESULTS_REQUEST = 'IMPORT_EVENT_RESULTS_REQUEST';
 export const IMPORT_EVENT_RESULTS_SUCCESS = 'IMPORT_EVENT_RESULTS_SUCCESS';
 export const IMPORT_EVENT_RESULTS_FAILURE = 'IMPORT_EVENT_RESULTS_FAILURE';
@@ -353,6 +356,18 @@ export const getDivisionData = (id) => ({
   }
 });
 
+export const getScoringDownloadUrl = (id, test)  => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/download_scoring_system_url/${id}?test=${test}`,
+    method: 'GET',
+    types: [
+      SCORING_URL_REQUEST,
+      SCORING_URL_SUCCESS,
+      SCORING_URL_FAILURE
+    ]
+  }
+});
+
 export const importEventResults = (id, signedId, division) => ({
   [RSAA]: {
     endpoint: `${API_BASE}/events/import_results/${id}?division=${division}`,
@@ -381,4 +396,3 @@ export const requestAccess = (id, user, message) => ({
   }
 });
 
-export const scoring_download_url = (event_id) => `${API_BASE}/events/download_scoring_system/${event_id}`;

@@ -51,6 +51,9 @@ Rails:
 Rails/HasAndBelongsToMany:
   Enabled: false
 
+Lint/HandleExceptions:
+  AllowComments: true
+
 AllCops:
   Exclude:
     - 'db/schema.rb'

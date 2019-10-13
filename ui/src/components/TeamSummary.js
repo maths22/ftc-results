@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 
 import Paper from '@material-ui/core/Paper';
 
-import {getTeamDetails} from '../actions/api';
+import {getTeamDetails, getLeagues, getDivisions, getSeasons} from '../actions/api';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
@@ -40,6 +40,15 @@ class EventsSummary extends Component {
     if(!this.props.team || !this.props.matches) {
       this.props.getTeamDetails(this.props.id);
     }
+    if(!this.props.divisions) {
+      this.props.getDivisions();
+    }
+    if(!this.props.leagues) {
+      this.props.getLeagues();
+    }
+    if(!this.props.seasons) {
+      this.props.getSeasons();
+    }
     this.props.setTitle('Team ' + this.props.id);
   }
 
@@ -55,16 +64,16 @@ class EventsSummary extends Component {
     this.props.setTitle(null);
   }
 
-  renderEvents = () => {
+  renderEvents = (season) => {
     const {events, matches, team} = this.props;
     if(!events || !matches) {
       return <LoadingSpinner/>;
     }
 
-    return events.sort((a, b) => {
+    const seasonEvents = events.filter((e) => e.season_id === season.id);
+
+    return seasonEvents.sort((a, b) => {
       let diff;
-      // let diff = a.season.year.localeCompare(b.season.year);
-      // if(diff !== 0) return diff;
       diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
       return a.name.localeCompare(b.name);
@@ -80,7 +89,7 @@ class EventsSummary extends Component {
           {theMatches.filter((m) => m.played).length > 0 ? <p style={{marginBottom: 0, marginTop: 0}}>
             {`Team ${team.number} ${evt.aasm_state === 'in_progress' ? 'is' : 'was'} `}
             <b>Rank {team.rankings[evt.id]}</b>{' with a record of '}
-            <b style={{whiteSpace: 'nowrap'}}>{`${team.records[evt.id].win}-${team.records[evt.id].loss}-${team.records[evt.id].tie}`}</b>
+            <b style={{whiteSpace: 'nowrap'}}>{`${team.event_records[evt.id].win}-${team.event_records[evt.id].loss}-${team.event_records[evt.id].tie}`}</b>
           </p> : null}
         </div>
         <MatchTable team={this.props.team.number} matches={theMatches}/>
@@ -92,7 +101,7 @@ class EventsSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const {team, league, division, matches} = this.props;
+    const {team, divisions, matches, seasons} = this.props;
 
     return <Paper className={this.props.classes.root}>
       <div className={this.props.classes.heading}>
@@ -109,23 +118,28 @@ class EventsSummary extends Component {
         <p>
           <b>Organization:</b> {team.organization}<br/>
           <b>Location:</b> {team.city}, {team.state}, {team.country}<br/>
-          {division && league ?
-              <span><b>League:</b> <TextLink to={`/leagues/rankings/${league.id}`}>{league.name}</TextLink>
-                {' – '}<TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }
         </p>
 
-        {matches.length > 0 ? <p style={{marginBottom: 0}}>
-          <b>Season Record:</b> {`${team.record.win}-${team.record.loss}-${team.record.tie}`}
-        </p> : null}
+        { seasons.map((season) => {
+          return <div key={season.id} style={{paddingBottom: '2em'}}>
+            <Typography variant="h5">{season.name} ({season.year}) Season</Typography>
+
+            {divisions[season.id] ?
+              <><span><b>League:</b> <TextLink to={`/leagues/rankings/${divisions[season.id].league.id}`}>{divisions[season.id].league.name}</TextLink>
+                {' – '}<TextLink to={`/divisions/rankings/${divisions[season.id].division.id}`}>{divisions[season.id].division.name}</TextLink></span><br/></> : null }
+            {team.season_records[season.id] ?
+              <><b>Season Record:</b> {`${team.season_records[season.id].win}-${team.season_records[season.id].loss}-${team.season_records[season.id].tie}`}</> : null }
+
+            {this.renderEvents(season)}
+          </div>;
+        })}
+
       </div>
 
-      {this.renderEvents()}
+
     </Paper>;
   }
 }
-
-
-
 
 const mapStateToProps = (state, props) => {
   const ret = {};
@@ -137,9 +151,26 @@ const mapStateToProps = (state, props) => {
   if(ret.team) {
     ret.matches = Object.values(state.matches).filter((m) => m.red_alliance.includes(id) || m.blue_alliance.includes(id));
   }
-  if(ret.team && ret.team.division_id && state.divisions && state.leagues) {
-    ret.division = state.divisions[ret.team.division_id];
-    ret.league = state.leagues[ret.division.league_id];
+  if(ret.team && ret.team.division_ids && state.divisions && state.leagues) {
+    ret.divisions = Object.fromEntries(ret.team.division_ids.map((div_id) => {
+      const division = state.divisions[div_id];
+      const league = state.leagues[division.league_id];
+      return [league.season_id, {division, league}]
+    }));
+  }
+  if(ret.team && state.seasons) {
+    let allTeamSeasons = Object.keys(ret.team.season_records).map(i => parseInt(i));
+    if(ret.divisions) {
+      allTeamSeasons += Object.keys(ret.divisions);
+    }
+    ret.seasons = Object.values(state.seasons).filter((s) => allTeamSeasons.includes(s.id))
+      .sort((a, b) => {
+        const yearcomp = b.year.localeCompare(a.year);
+        if(yearcomp === 0) {
+          return b.id - a.id;
+        }
+        return yearcomp;
+      });
   }
   return ret;
 };
@@ -147,6 +178,9 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = {
   getTeamDetails,
   setTitle,
+  getLeagues,
+  getDivisions,
+  getSeasons
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventsSummary));

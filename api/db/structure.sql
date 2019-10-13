@@ -787,8 +787,8 @@ CREATE TABLE public.rankings (
     team_id bigint,
     event_id bigint,
     ranking integer,
-    ranking_points integer,
-    tie_breaker_points integer,
+    ranking_points double precision,
+    tie_breaker_points double precision,
     matches_played integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -2133,6 +2133,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190917143833'),
 ('20190917181555'),
 ('20190918002135'),
-('20190918143207');
+('20190918143207'),
+('20191001203014');
 
 

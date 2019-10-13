@@ -8,7 +8,7 @@ class Match < ApplicationRecord
 
   scope :in_season_meet, ->(season) { where(event: where(season: season, context_type: 'Division')) }
 
-  %i[rp tbp score surrogate].each do |attribute|
+  %i[rp tbp score surrogate red_card].each do |attribute|
     define_method :"#{attribute}_for_team" do |team|
       team = team.number unless team.is_a? Integer
       return red_alliance.send("#{attribute}_for_team", team) if red_alliance.alliance.team_ids.include? team

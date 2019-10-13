@@ -22,6 +22,51 @@ class ApiController < ApplicationController
   skip_before_action :verify_authenticity_token
   check_authorization
 
+  # Default JWTs are transient, good for 3 minutes
+  def generate_jwt(subject:, action:, nbf: Time.now.to_i, exp: Time.now.to_i + 3 * 60, **payload)
+    payload = payload.merge(sub: jwt_subject(subject), act: action, nbf: nbf, exp: exp)
+    JWT.encode payload, hmac_secret, 'HS512'
+  end
+
+  def validate_jwt
+    # rubocop:disable Style/GuardClause
+    subject = CanCan::ControllerResource.new(self).send(:resource_instance)
+
+    begin
+      @decoded_token = JWT.decode params[:token], hmac_secret, true, algorithm: 'HS512'
+    rescue JWT::ExpiredSignature
+      render json: { error: 'URL expired', status: 'unauthorized' }, status: :unauthorized
+      return
+    rescue JWT::VerificationError
+      render json: { error: 'Invalid URL (Invalid JWT)', status: 'unauthorized' }, status: :unauthorized
+      return
+    end
+
+    if @decoded_token[0]['sub'] != jwt_subject(subject)
+      render json: { error: "Invalid URL (JWT for #{@decoded_token[0]['sub']}, requested #{jwt_subject(subject)})", status: 'unauthorized' }, status: :unauthorized
+      return
+    end
+
+    unless actions_for_alias(@decoded_token[0]['act']).include? action_name
+      render json: { error: "Invalid URL (JWT for #{@decoded_token[0]['act']}, requested #{action_name})", status: 'unauthorized' }, status: :unauthorized
+      return
+    end
+    # rubocop:enable Style/GuardClause
+  end
+
+  def hmac_secret
+    @hmac_secret ||= ENV.fetch('JWT_SIGNING_KEY', 'garbage')
+  end
+
+  def jwt_subject(resource)
+    primary_key = resource[resource.class.primary_key]
+    "#{resource.class.name}:#{primary_key}"
+  end
+
+  def actions_for_alias(name)
+    Ability.new(nil).send(:expand_actions, [name]).flatten
+  end
+
   def request_season
     if params[:season]
       Season.find_by(year: params[:season])

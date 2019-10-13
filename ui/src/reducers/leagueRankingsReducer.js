@@ -11,7 +11,10 @@ export default function (
     case GET_LEAGUE_RANKINGS_SUCCESS:
     case GET_LEAGUE_DATA_SUCCESS:
     case GET_DIVISION_DATA_SUCCESS:
-      return Object.assign({}, state, action.payload.rankings);
+      return Object.assign({}, state,  action.payload.rankings.reduce(function(map, obj) {
+        map[obj.team + '_' + obj.division_id  ] = obj;
+        return map;
+      }, {}));
     case INVALIDATE_RANKINGS:
       return initialState;
     default:

@@ -80,7 +80,7 @@ module Rankings
 
           ranking = TeamRanking.new
           ranking.team = at.team
-          ranking.division = at.team.divisions.first
+          ranking.division = at.team.divisions.select { |div| div.league.season_id == alliance.alliance.event.season_id }.first
           ranking.rp = alliance.rp[at.position - 1]
           ranking.tbp = alliance.tbp[at.position - 1]
           ranking.high_score = alliance.score[at.position - 1]
@@ -91,8 +91,7 @@ module Rankings
 
     def alliances
       @alliances ||= MatchAlliance
-                     .joins(alliance: :event)
-                     .includes(alliance: { alliance_teams: { team: :divisions } })
+                     .includes(alliance: { alliance_teams: { team: { divisions: :league } }, event: {} })
                      .where(alliance: { events: { season: @season, context_type: 'Division' } })
     end
   end

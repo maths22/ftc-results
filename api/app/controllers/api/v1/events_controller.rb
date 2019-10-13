@@ -3,8 +3,9 @@ module Api
     class EventsController < ::ApiController
       load_and_authorize_resource
       skip_load_resource only: %i[index approve_access]
-      skip_authorize_resource only: %i[approve_access]
-      skip_authorization_check only: %i[approve_access]
+      skip_authorize_resource only: %i[approve_access download_scoring_system]
+      skip_authorization_check only: %i[approve_access download_scoring_system]
+      before_action :validate_jwt, only: %i[download_scoring_system]
 
       # skip_before_action :doorkeeper_authorize!, only: %i[download_scoring_system]
 
@@ -85,16 +86,25 @@ module Api
         render json: { id: @event.id, teams: div_teams }
       end
 
+      def download_scoring_system_url
+        test_db = params[:test] != 'false'
+        authorize!(:read_scoring_secrets, @event) unless test_db
+        token = generate_jwt(subject: @event, action: 'download_scoring_system', test: test_db)
+        render json: { url: api_v1_download_scoring_system_url(@event, token: token) }
+      end
+
       def download_scoring_system
+        test_db = @decoded_token[0]['test']
+
         zip = ::ScoringSystem::ZipService.new(@event.season)
-        db_service = ::ScoringSystem::SqlitedbExportService.new(@event)
+        db_service = ::ScoringSystem::SqlitedbExportService.new(@event, test_db: test_db)
         zip.with_copy do |f|
           db_service.create_server_db do |sdb|
             zip.add_db(f, 'server', sdb)
           end
           db_service.create_event_dbs do |edbs|
             edbs.each do |number, db|
-              filename = @event.slug + (@event.divisions? ? "_#{number}" : '')
+              filename = (test_db ? 'test_' : '') + @event.slug + (@event.divisions? ? "_#{number}" : '')
               zip.add_db(f, filename, db)
             end
           end
@@ -104,7 +114,7 @@ module Api
           zip.add_lib(f, Rails.root.join('vendor', 'scoring', 'FTCLiveExtras.jar'))
           File.open(f, 'r') do |data|
             headers['Content-Length'] = data.size if data.respond_to?(:size)
-            send_data(data.read, filename: "ftc-scoring-il-#{@event.slug}-#{@event.season.year}.zip")
+            send_data(data.read, filename: "#{test_db ? 'TEST_' : ''}ftc-scoring-il-#{@event.slug}-#{@event.season.year}.zip")
           end
         end
       end
@@ -153,8 +163,8 @@ module Api
             team_rankings = params[:rankings].map do |rk|
               Rankings::TeamRanking.new.tap do |nr|
                 nr.team = Team.find(rk['team_id'])
-                nr.rp = rk['ranking_points']
-                nr.tbp = rk['tie_breaker_points']
+                nr.rp = rk['ranking_points'] == '--' ? 0 : rk['ranking_points'].to_f
+                nr.tbp = rk['tie_breaker_points'] == '--' ? 0 : rk['tie_breaker_points'].to_f
                 nr.matches_played = rk['matches_played']
                 nr.high_score = 0
                 nr.ranking_breaker = rk['ranking']
@@ -162,7 +172,7 @@ module Api
             end
             team_rankings.sort.reverse.each_with_index do |rk, idx|
               ranking = Ranking.new(team: rk.team,
-                                    ranking: idx + 1,
+                                    ranking: (idx + 1) * (rk.matches_played.zero? ? -1 : 1),
                                     ranking_points: rk.rp,
                                     tie_breaker_points: rk.tbp,
                                     matches_played: rk.matches_played)

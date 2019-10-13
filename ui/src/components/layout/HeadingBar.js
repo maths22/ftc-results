@@ -50,8 +50,8 @@ class HeadingBar extends Component {
     selectedTab: 'login'
   };
 
-  componentWillUpdate(nextProps) {
-    document.title = nextProps.title || 'FTC Results';
+  componentDidUpdate() {
+    document.title = this.props.title || 'FTC Results';
   }
 
   openUserMenu = event => {

@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/CheckCircle';
 
-import {API_HOST, getDivisions, getEvents, getLeagues, scoring_download_url} from '../actions/api';
+import {API_HOST, getDivisions, getEvents, getLeagues, getScoringDownloadUrl} from '../actions/api';
 import EventImportDialog from './EventImportDialog';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
@@ -89,6 +89,16 @@ class EventsSummary extends Component {
     this.setState({streamEvent: id});
   };
 
+  downloadScoring = async (id, test) => {
+    const result = await this.props.getScoringDownloadUrl(id, test);
+    if(result.error) {
+      window.alert("Download failed");
+      console.log(result);
+      return;
+    }
+    window.location.href = result.payload.url;
+  };
+
   renderDbs(e) {
     const links = [];
     if(e.import) {
@@ -103,6 +113,24 @@ class EventsSummary extends Component {
     return <TableCell className={this.props.classes.tableCell}>
       {links}
     </TableCell>;
+  }
+
+  renderScoringSystems(e) {
+    const {classes, uid} = this.props;
+    const isLoggedIn = !!uid;
+
+    let prodLink = <>Login to download the production scoring system</>;
+    if (isLoggedIn && !e.can_import) {
+      prodLink = <><TextLink onClick={() => this.requestAccess(e.id)}>Request access to the production scoring system</TextLink></>;
+    } else if(isLoggedIn && e.can_import) {
+      prodLink = <><Button variant="contained" size="small" onClick={() => this.downloadScoring(e.id, false)}>Production Scoring System</Button><br/>(Only for event use, not testing)</>;
+    }
+
+
+      return <TableCell className={classes.tableCell}>
+        <div>{ prodLink }</div>
+        <div><><Button variant="contained" size="small" onClick={() => this.downloadScoring(e.id, true)}>Test Scoring System</Button><br/>(Do NOT use for events)</></div>
+      </TableCell>
   }
 
   render () {
@@ -156,7 +184,7 @@ class EventsSummary extends Component {
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
                   {e.aasm_state === 'finalized' || divFinalsLeft
                       ? this.renderDbs(e)
-                      : <TableCell className={classes.tableCell}><TextLink href={scoring_download_url(e.id)}>Scoring System</TextLink></TableCell> }
+                      : this.renderScoringSystems(e) }
                   {isLoggedIn ? <TableCell className={classes.tableCell}>
                     {e.can_import && e.aasm_state !== 'finalized' ? <TextLink to={`/events/uploader/${e.id}`}>Live Upload</TextLink> : null}
                     {!e.can_import && e.aasm_state !== 'finalized' ? <TextLink onClick={() => this.requestAccess(e.id)}>Request Access</TextLink> : null}
@@ -209,6 +237,7 @@ const mapDispatchToProps = {
   getDivisions,
   getEvents,
   getLeagues,
+  getScoringDownloadUrl,
   setTitle,
 };
 

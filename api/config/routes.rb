@@ -30,7 +30,8 @@ Rails.application.routes.draw do
       get 'events/rankings/:id', to: 'events#view_rankings'
       get 'events/awards/:id', to: 'events#view_awards'
       get 'events/teams/:id', to: 'events#view_teams'
-      get 'events/download_scoring_system/:id', to: 'events#download_scoring_system'
+      get 'events/download_scoring_system_url/:id', to: 'events#download_scoring_system_url'
+      get 'events/download_scoring_system/:id', to: 'events#download_scoring_system', as: 'download_scoring_system'
       resources :leagues
       get 'leagues/details/:slug', to: 'leagues#details'
       resources :divisions
@@ -43,7 +44,9 @@ Rails.application.routes.draw do
 
       post 'active_storage/direct_uploads' => 'direct_uploads#create'
 
-      mount_devise_token_auth_for 'User', at: 'auth'
+      mount_devise_token_auth_for 'User', at: 'auth', controllers: {
+        confirmations: 'auth/confirmations'
+      }
 
       # Upload routes
       post 'events/reset/:id', to: 'events#reset'

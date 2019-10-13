@@ -48,7 +48,7 @@ module ScoringSystem
       @asset ||= begin
         requirement = Gem::Requirement.create(season.scoring_version_constraint)
         client.releases(SCORING_REPO).filter { |entry| requirement.satisfied_by?(Gem::Version.new(entry.tag_name.sub('v', ''))) }
-              .max_by(&:tag_name)
+              .max_by { |entry| entry.tag_name.sub('v', '') }
               .assets.find { |a| a.content_type == ZIP_MIME_TYPE }
       end
     end

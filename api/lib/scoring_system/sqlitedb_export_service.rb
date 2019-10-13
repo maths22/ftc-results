@@ -9,9 +9,11 @@ module ScoringSystem
   # rubocop:disable Naming/AccessorMethodName
   class SqlitedbExportService
     attr_reader :event
+    attr_reader :test_db
 
-    def initialize(event)
+    def initialize(event, test_db:)
       @event = event
+      @test_db = test_db
     end
 
     def create_server_db
@@ -51,8 +53,8 @@ module ScoringSystem
                ScoringSystem::TYPE_CHAMPIONSHIP
              end
 
-      create_event_stmt.execute code: event.slug + (event.divisions? ? '_0' : ''),
-                                name: event.name,
+      create_event_stmt.execute code: (test_db ? 'test_' : '') + event.slug + (event.divisions? ? '_0' : ''),
+                                name: (test_db ? 'TEST ' : '') + event.name,
                                 type: type,
                                 status: 1, # setup status
                                 finals: event.divisions? ? 1 : 0,
@@ -61,8 +63,8 @@ module ScoringSystem
                                 end: event.end_date.to_time.to_i.to_s + '000'
 
       event.event_divisions.each do |div|
-        create_event_stmt.execute code: event.slug + '_' + div.number.to_s,
-                                  name: div.name,
+        create_event_stmt.execute code: (test_db ? 'test_' : '') + event.slug + '_' + div.number.to_s,
+                                  name: (test_db ? 'TEST ' : '') + div.name,
                                   type: type,
                                   status: 1, # setup status
                                   finals: 0,
@@ -80,6 +82,7 @@ module ScoringSystem
 
       set_field_count db
       set_uuid db, event_uuid
+      set_apk db unless test_db
 
       copy_from_globaldb(db, 'awardInfo')
 
@@ -119,7 +122,7 @@ module ScoringSystem
       update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country WHERE TeamNumber = :number'
 
       add_league_history_stmt = prepare_insert_statement(db, 'leagueHistory',
-                                                         %w[team eventCode match rp tbp score])
+                                                         %w[team eventCode match rp tbp score DQ])
 
       add_team_info_stmt = prepare_insert_statement(db, 'teamInfo',
                                                     %w[number name school city state country rookie])
@@ -153,7 +156,8 @@ module ScoringSystem
                                             match: ma.match.number,
                                             rp: ma.rp_for_team(team),
                                             tbp: ma.tbp_for_team(team),
-                                            score: ma.score_for_team(team)
+                                            score: ma.score_for_team(team),
+                                            DQ: ma.red_card_for_team(team) ? 1 : 0
           end
 
           next unless event.league_championship? || div == event.context
@@ -220,6 +224,12 @@ module ScoringSystem
       db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
                  key: 'FMSEventId',
                  value: uuid
+    end
+
+    def set_apk(db)
+      db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
+                 key: 'apk',
+                 value: ENV.fetch('AP_UPLOAD_KEY', 'dummy-key')
     end
 
     def add_sponsors(db)
