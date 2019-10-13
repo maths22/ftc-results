@@ -23,11 +23,13 @@
     line: "{{ item|upper }}={{ lookup('vars', item) }}"
   loop:
     - rails_env
+    - ap_upload_key
     - db_name
     - db_username
     - secret_key_base
     - email_from
     - email_default_url
+    - jwt_signing_key
     - smtp_user
     - smtp_address
     - smtp_port

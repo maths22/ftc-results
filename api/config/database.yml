@@ -23,4 +23,4 @@ production:
   host: <%= ENV['DB_HOST'] %>
   database: <%= ENV['DB_NAME'] %>
   username: <%= ENV['DB_USERNAME'] %>
-  password: <%= (ENV['DB_PASSWORD_BASE64'].nil? ? ENV['DB_PASSWORD'] : Base64.decode64(ENV['DB_PASSWORD_BASE64']))  %>
+  password: '<%= (ENV['DB_PASSWORD_BASE64'].nil? ? ENV['DB_PASSWORD'] : Base64.decode64(ENV['DB_PASSWORD_BASE64']))  %>'
