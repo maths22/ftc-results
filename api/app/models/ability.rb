@@ -25,12 +25,16 @@ class Ability
       can :view_awards, :all
       can :request_access, :all
 
+      can :search, User, :all if user.confirmed?
+
       can %i[
         import_results
         live_upload
         twitch
         remove_twitch
         read_scoring_secrets
+        add_owner
+        remove_owner
       ], Event, owners: { id: user.id }
 
     end

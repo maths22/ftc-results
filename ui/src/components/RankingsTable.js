@@ -29,7 +29,7 @@ function rankingsTable ({rankings, classes, showRecord}) {
 
   const rowStyle = { height: '2rem' };
 
-  return <Table className={classes.table}>
+  return <Table className={classes.table} size="small">
     <TableHead>
       <TableRow style={rowStyle}>
         <TableCell className={classes.tableCell}>Rank</TableCell>

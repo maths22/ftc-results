@@ -25,6 +25,11 @@ Rails.application.routes.draw do
       resources :seasons
       resources :teams
       get 'teams/details/:id', to: 'teams#details'
+      resources :users do
+        collection do
+          get 'search'
+        end
+      end
       resources :events
       get 'events/matches/:id', to: 'events#view_matches'
       get 'events/rankings/:id', to: 'events#view_rankings'
@@ -46,7 +51,9 @@ Rails.application.routes.draw do
 
       mount_devise_token_auth_for 'User', at: 'auth', controllers: {
         confirmations: 'auth/confirmations'
-      }
+      }, skip: [:invitations]
+      devise_for :users, path: 'auth', only: [:invitations],
+                         controllers: { invitations: 'auth/invitations' }
 
       # Upload routes
       post 'events/reset/:id', to: 'events#reset'
@@ -60,6 +67,9 @@ Rails.application.routes.draw do
 
       post 'events/twitch/:id', to: 'events#twitch'
       delete 'events/twitch/:id', to: 'events#remove_twitch'
+
+      post 'events/add_owner/:id', to: 'events#add_owner'
+      post 'events/remove_owner/:id', to: 'events#remove_owner'
 
       post 'events/requestAccess/:id', to: 'events#request_access'
       get 'events/approveAccess/:token', to: 'events#approve_access', as: 'approve_access'

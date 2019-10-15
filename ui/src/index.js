@@ -14,6 +14,7 @@ import AppRouter from './AppRouter';
 import * as Sentry from '@sentry/browser';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import orange from '@material-ui/core/colors/orange';
 import {TOKEN_UPDATE_RAW, LOCAL_STORAGE_KEY} from './reducers/tokenReducer';
 import {verifyToken} from './actions/api';
@@ -51,11 +52,13 @@ if(store.getState()['token']['x-uid']) {
 window.addEventListener('storage', onStorageUpdate, false);
 
 ReactDOM.render(
-    <MuiThemeProvider theme={theme}>
-      <Provider store={store}>
-        <AppRouter history={history}/>
-      </Provider>
-    </MuiThemeProvider>,
+    <CssBaseline>
+      <MuiThemeProvider theme={theme}>
+        <Provider store={store}>
+          <AppRouter history={history}/>
+        </Provider>
+      </MuiThemeProvider>
+    </CssBaseline>,
     document.getElementById('root')
 );
 

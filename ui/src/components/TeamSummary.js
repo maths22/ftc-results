@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import Paper from '@material-ui/core/Paper';
-
 import {getTeamDetails, getLeagues, getDivisions, getSeasons} from '../actions/api';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
@@ -18,7 +16,6 @@ import Card from '@material-ui/core/Card';
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   heading: {
@@ -79,7 +76,7 @@ class EventsSummary extends Component {
       return a.name.localeCompare(b.name);
     } ).map((evt) => {
       const theMatches = matches.filter((m) => m.event_id === evt.id);
-      return <div key={evt.id}>
+      return <Card key={evt.id} style={{margin: '1em 0'}}>
         <div className={this.props.classes.heading}>
           <div className={this.props.classes.eventHeader}>
             <Typography variant="h6" gutterBottom><TextLink to={`/events/summary/${evt.id}`}>{evt.name}</TextLink></Typography>
@@ -93,7 +90,7 @@ class EventsSummary extends Component {
           </p> : null}
         </div>
         <MatchTable team={this.props.team.number} matches={theMatches}/>
-      </div>;});
+      </Card>;});
   };
 
   render () {
@@ -101,9 +98,9 @@ class EventsSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const {team, divisions, matches, seasons} = this.props;
+    const {team, divisions, seasons} = this.props;
 
-    return <Paper className={this.props.classes.root}>
+    return <div className={this.props.classes.root}>
       <div className={this.props.classes.heading}>
         <Typography variant="h4">Team {team.number} – {team.name}</Typography>
         { team.consent_missing ? <Card >
@@ -137,7 +134,7 @@ class EventsSummary extends Component {
       </div>
 
 
-    </Paper>;
+    </div>;
   }
 }
 

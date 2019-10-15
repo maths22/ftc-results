@@ -4,8 +4,6 @@ import { push } from 'connected-react-router';
 import queryString from 'query-string';
 import invert from 'lodash/invert';
 
-import Paper from '@material-ui/core/Paper';
-
 import {
   getDivisions,
   getEventMatches, getEventRankings, getEventTeams, getEventAwards,
@@ -35,7 +33,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   heading: {
@@ -260,7 +257,7 @@ class EventSummary extends Component {
 
     const season = (this.props.seasons || []).find((s) => s.id === this.props.event.season_id);
 
-    return <Paper className={classes.root}>
+    return <div className={classes.root}>
       <div className={classes.heading}>
         <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
         {this.renderDivisionPicker()}
@@ -305,7 +302,7 @@ class EventSummary extends Component {
                       onChangeIndex={(tab) => this.selectTab(tab + 1)}>
         {tabs}
       </SwipeableViews>
-    </Paper>;
+    </div>;
   }
 }
 

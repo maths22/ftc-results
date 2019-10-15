@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {Link} from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import Link from '@material-ui/core/Link';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 
 import {
   getDivisionData,
@@ -26,17 +26,17 @@ import TextLink from './TextLink';
 import Typography from '@material-ui/core/Typography';
 import SeasonSelector from './SeasonSelector';
 import * as queryString from 'query-string';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 
 const styles = (theme) => ({
   breadcrumbParent: {
     display: 'flex',
     height: '2em',
     alignItems: 'center',
-    padding: '1em',
+    padding: '1em 1em 1em 0',
   },
   root: {
     width: '100%',
-    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   table: {
@@ -111,19 +111,17 @@ class DivisionsSummary extends Component {
   }
 
   renderBreadcrumbs = () => {
-    return <span className={this.props.classes.breadcrumbParent}>
-      {['league', 'division'].includes(this.props.type) ? [
-          <Link key={1} to={`/teams/rankings?${queryString.stringify({season: this.props.season.year})}`}>Statewide</Link>,
-          <ChevronRight key={2}/>
-      ] : null}
-      {['all'].includes(this.props.type) ? <span>Statewide</span> : null}
-      {['division'].includes(this.props.type) ? [
-          <Link key={1} to={`/leagues/rankings/${this.props.league.id}`}>{this.props.league.name}</Link>,
-          <ChevronRight key={2}/>
-      ] : null}
-      {['league'].includes(this.props.type) ? <span>{this.props.league.name}</span> : null}
-      {['division'].includes(this.props.type) ? <span>{this.props.division.name}</span> : null}
-    </span>;
+    return <Breadcrumbs className={this.props.classes.breadcrumbParent} aria-label="breadcrumb" separator={<ChevronRight/>}>
+      {['league', 'division'].includes(this.props.type) ?
+        <Link component={RouterLink} color="inherit" to={`/teams/rankings?${queryString.stringify({season: this.props.season.year})}`}>Statewide</Link>
+      : null}
+      {['all'].includes(this.props.type) ? <Typography color="textPrimary">Statewide</Typography> : null}
+      {['division'].includes(this.props.type) ?
+        <Link component={RouterLink} color="inherit" to={`/leagues/rankings/${this.props.league.id}`}>{this.props.league.name}</Link>
+      : null}
+      {['league'].includes(this.props.type) ? <Typography color="textPrimary">{this.props.league.name}</Typography> : null}
+      {['division'].includes(this.props.type) ? <Typography color="textPrimary">{this.props.division.name}</Typography> : null}
+    </Breadcrumbs>;
   }
 
   render () {
@@ -136,9 +134,9 @@ class DivisionsSummary extends Component {
 
     return <>
       {this.props.type === 'all' ? <SeasonSelector/> : (this.props.season ? <Typography variant="h6">Season: {this.props.season.name} ({this.props.season.year})</Typography> : '')}
-      <Paper className={classes.root}>
+      <div className={classes.root}>
       {this.renderBreadcrumbs()}
-          <Table className={classes.table}>
+          <Table className={classes.table} size="small">
             <TableHead>
               <TableRow style={rowStyle}>
                 <TableCell className={classes.tableCell}>Rank</TableCell>
@@ -179,7 +177,7 @@ class DivisionsSummary extends Component {
             to compete at the league championship unless these forms are submitted.
             Please contact <TextLink href="mailto:jweiland@firstillinoisrobotics.org">Jonathan Weiland</TextLink> with any questions.
           </p>
-        </Paper>
+        </div>
       </>;
   }
 }

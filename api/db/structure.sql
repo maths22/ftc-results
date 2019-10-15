@@ -1161,7 +1161,15 @@ CREATE TABLE public.users (
     tokens text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    role integer
+    role integer,
+    invitation_token character varying,
+    invitation_created_at timestamp without time zone,
+    invitation_sent_at timestamp without time zone,
+    invitation_accepted_at timestamp without time zone,
+    invitation_limit integer,
+    invited_by_type character varying,
+    invited_by_id bigint,
+    invitations_count integer DEFAULT 0
 );
 
 
@@ -1965,6 +1973,34 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 
 
 --
+-- Name: index_users_on_invitation_token; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_invitation_token ON public.users USING btree (invitation_token);
+
+
+--
+-- Name: index_users_on_invitations_count; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_invitations_count ON public.users USING btree (invitations_count);
+
+
+--
+-- Name: index_users_on_invited_by_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_invited_by_id ON public.users USING btree (invited_by_id);
+
+
+--
+-- Name: index_users_on_invited_by_type_and_invited_by_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_invited_by_type_and_invited_by_id ON public.users USING btree (invited_by_type, invited_by_id);
+
+
+--
 -- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2134,6 +2170,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190917181555'),
 ('20190918002135'),
 ('20190918143207'),
-('20191001203014');
+('20191001203014'),
+('20191013152818');
 
 

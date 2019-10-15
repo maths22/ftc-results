@@ -132,7 +132,7 @@ class MatchTable extends React.Component {
       });
     });
 
-    return [<Table key={1} className={classes.table}>
+    return [<Table key={1} className={classes.table} size="small">
       <TableHead>
         <TableRow style={rowStyle}>
           <TableCell className={classes.tableCell}>Match</TableCell>

@@ -18,6 +18,7 @@ import rankingsReducer from './rankingsReducer';
 import matchDetailsReducer from './matchDetailsReducer';
 
 import localScoringReducer from './localScoring/rootReducer';
+import usersReducer from './usersReducer';
 
 export default (history) => combineReducers({
   awards: awardsReducer,
@@ -36,6 +37,7 @@ export default (history) => combineReducers({
   teams: teamsReducer,
   token: tokenReducer,
   ui: uiReducer,
+  users: usersReducer,
 
   localScoring: localScoringReducer
 });

@@ -22,6 +22,7 @@ json.channel event.channel_name
 json.import rails_blob_path(event.import, disposition: 'attachment') if event.import.attached?
 
 json.can_import can? :import_results, event
+json.owners event.owners.map(&:uid)
 
 json.divisions do
   json.array! event.event_divisions do |division|

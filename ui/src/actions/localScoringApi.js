@@ -15,7 +15,7 @@ export const LOCAL_GENERAL_FAILURE = 'LOCAL_GENERAL_FAILURE';
 
 const apiBase = (path) => (store) => `http://${store.localScoring.server.hostname}:${store.localScoring.server.port}/api${path}/`;
 const ilApiBase = (path) => (store) => `http://${store.localScoring.server.hostname}:${store.localScoring.server.port}/_il_api${path}/`;
-export const websocketPath = '/apiv2/stream/';
+export const websocketPath = '/api/v2/stream/';
 
 export const getLocalEvents = () => ({
   [RSAA]: {

@@ -29,7 +29,7 @@ export default store => next => action => {
   const uid = store.getState().token['x-uid'];
   if(uid) {
     const parsedUrl = queryString.parseUrl(endpoint);
-    parsedUrl.query['uid'] = uid;
+    parsedUrl.query['_uid'] = uid;
     endpoint = parsedUrl.url + '?' + queryString.stringify(parsedUrl.query);
   }
 

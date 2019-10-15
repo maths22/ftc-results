@@ -1,4 +1,4 @@
-import {GET_EVENT_SUCCESS, GET_EVENT_TEAMS_SUCCESS, GET_EVENTS_SUCCESS, GET_TEAM_DETAILS_SUCCESS} from '../actions/api';
+import {GET_EVENT_SUCCESS, GET_EVENT_TEAMS_SUCCESS, GET_EVENTS_SUCCESS, GET_TEAM_DETAILS_SUCCESS, ADD_OWNER_SUCCESS, REMOVE_OWNER_SUCCESS} from '../actions/api';
 import {CLEAR_USER_DEPENDENT_STATE} from '../actions/util';
 
 const initialState = null;
@@ -15,6 +15,8 @@ export default function (
         return map;
       }, {}));
     case GET_EVENT_SUCCESS:
+    case ADD_OWNER_SUCCESS:
+    case REMOVE_OWNER_SUCCESS:
       state = state || {};
       return Object.assign({}, state, {
         [action.payload.id]: Object.assign({}, state[action.payload.id], action.payload)

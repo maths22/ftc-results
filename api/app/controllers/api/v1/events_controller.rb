@@ -55,6 +55,21 @@ module Api
         expires_in(3.minutes, public: true) if request_cacheable?
       end
 
+      def add_owner
+        params.require(:uid)
+        @user = User.find_by(uid: params[:uid])
+        @event.owners << @user
+        @event.owners = @event.owners.uniq
+        @event.save!
+      end
+
+      def remove_owner
+        params.require(:uid)
+        @user = User.find_by(uid: params[:uid])
+        @event.owners.delete(@user)
+        @event.save!
+      end
+
       def view_matches
         expires_in(30.seconds, public: true) if request_cacheable?
 

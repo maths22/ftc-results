@@ -6,7 +6,6 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 
 import {getDivisions, getLeagues, getSeasons} from '../actions/api';
 import {Link} from 'react-router-dom';
@@ -18,7 +17,6 @@ import SeasonSelector from './SeasonSelector';
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing(1),
     overflowX: 'auto',
   },
   table: {
@@ -56,7 +54,7 @@ class DivisionsSummary extends Component {
 
     return <>
       <SeasonSelector/>
-      <Paper className={this.props.classes.root}>
+      <div className={this.props.classes.root}>
         <Table className={this.props.classes.table}>
           <TableHead>
             <TableRow style={rowStyle}>
@@ -77,7 +75,7 @@ class DivisionsSummary extends Component {
             })}
           </TableBody>
         </Table>
-      </Paper>
+      </div>
     </>;
   }
 }

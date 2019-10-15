@@ -32,7 +32,7 @@ function teamsTable({teams, classes, showDivisionAssignments, divisions, onClick
   const rowStyle = { height: '2rem' };
 
 
-  return <Table className={classes.table}>
+  return <Table className={classes.table} size="small">
     <TableHead>
       <TableRow style={rowStyle}>
         { showDivisionAssignments ? <TableCell className={classes.tableCell}>Division</TableCell> : null }

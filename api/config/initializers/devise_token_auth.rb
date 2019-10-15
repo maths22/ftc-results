@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+DeviseTokenAuth.mattr_accessor :default_accept_invitation_url
 DeviseTokenAuth.setup do |config|
   # By default the authorization headers will change after each request. The
   # client is responsible for keeping track of the changing tokens. Change
@@ -47,4 +48,6 @@ DeviseTokenAuth.setup do |config|
   # If, however, you wish to integrate with legacy Devise authentication, you can
   # do so by enabling this flag. NOTE: This feature is highly experimental!
   # config.enable_standard_devise_support = false
+  #
+  config.require_client_password_reset_token = true
 end

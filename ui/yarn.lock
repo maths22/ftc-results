@@ -711,6 +711,19 @@
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
 
+"@dccs/react-autocomplete-mui@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@dccs/react-autocomplete-mui/-/react-autocomplete-mui-0.6.0.tgz#87ec349e0cd1051a8117410fd5eea735d8942387"
+  integrity sha512-rTLW9AlwxWwKkyFLrRbiX10Bf4AzmwGeUrhPMsgQ+dsbCr7PuwnfqpTu9aPFu0hqZX+hVLgmNcTDcKDIwR2cog==
+  dependencies:
+    "@dccs/utils" "^0.2.1"
+    use-debounce "^3.0.1"
+
+"@dccs/utils@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@dccs/utils/-/utils-0.2.1.tgz#0b1a42864e480c26c10a740d4efe9b3ad5b3342e"
+  integrity sha512-CFml2D0UXUYRMgatcrUdG+s8vgyUDXB06mXn4gMQzzR9BcSPaXL++/hqReC8mmlyb3b3x6OaOCHuKelgkNpnFw==
+
 "@emotion/hash@^0.7.1":
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.7.2.tgz#53211e564604beb9befa7a4400ebf8147473eeef"
@@ -2291,10 +2304,10 @@ core-js@^1.0.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-1.2.7.tgz#652294c14651db28fa93bd2d5ff2983a4f08c636"
   integrity sha1-ZSKUwUZR2yj6k70tX/KYOk8IxjY=
 
-core-js@^2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.0.tgz#1e30793e9ee5782b307e37ffa22da0eacddd84d4"
-  integrity sha512-kLRC6ncVpuEW/1kwrOXYX6KQASCVtrh1gQr/UiaVgFlf9WE5Vp+lNe5+h3LuMr5PAucWnnEXwH0nQHRH/gpGtw==
+core-js@^3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.3.1.tgz#636a3dc323c3f9ba618e74c5900366e19f48e959"
+  integrity sha512-1PGI49Lz5qYo3EBz0kymSfJgTvn2G/c03lBTJ7PO0R1liQ7Yd6E570odu5p4CxG/WB0yUwCmAWummo79yOQUcQ==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -5544,6 +5557,11 @@ map-visit@^1.0.0:
   resolved "https://registry.yarnpkg.com/map-visit/-/map-visit-1.0.0.tgz#ecdca8f13144e660f1b5bd41f12f3479d98dfb8f"
   dependencies:
     object-visit "^1.0.0"
+
+material-ui-confirm@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/material-ui-confirm/-/material-ui-confirm-1.0.1.tgz#910213b5f0b05789c2ac04b3f088ecdaae7a738e"
+  integrity sha512-luK6FFOlR6eunBjwqF2YAlLyA9Em9zlFXIX5R+Yd7yYoymdZpirp5/azCNdfYdU3MYHDvjoLkygIR0274U+XWQ==
 
 math-random@^1.0.1:
   version "1.0.1"
@@ -8828,6 +8846,11 @@ url@^0.11.0:
   dependencies:
     punycode "1.3.2"
     querystring "0.2.0"
+
+use-debounce@^3.0.1:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-3.1.0.tgz#05a5c8cd3c2f309699f08961d7c8bbe7f68720bb"
+  integrity sha512-DEf3L/ZKkOSTARk/DHlC6KAAJKwMqpck8Zx06SM2Wr+LfU1TzhO8hZRzB/qbpSQqREYWQes24n1q9doeTMqF4g==
 
 use@^3.1.0:
   version "3.1.1"

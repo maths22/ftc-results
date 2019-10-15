@@ -11,6 +11,9 @@ export const VERIFY_TOKEN_FAILURE = 'VERIFY_TOKEN_FAILURE';
 export const SET_PASSWORD_REQUEST = 'SET_PASSWORD_REQUEST';
 export const SET_PASSWORD_SUCCESS = 'SET_PASSWORD_SUCCESS';
 export const SET_PASSWORD_FAILURE = 'SET_PASSWORD_FAILURE';
+export const ACTIVATE_ACCOUNT_REQUEST = 'ACTIVATE_ACCOUNT_REQUEST';
+export const ACTIVATE_ACCOUNT_SUCCESS = 'ACTIVATE_ACCOUNT_SUCCESS';
+export const ACTIVATE_ACCOUNT_FAILURE = 'ACTIVATE_ACCOUNT_FAILURE';
 export const RESET_PASSWORD_REQUEST = 'RESET_PASSWORD_REQUEST';
 export const RESET_PASSWORD_SUCCESS = 'RESET_PASSWORD_SUCCESS';
 export const RESET_PASSWORD_FAILURE = 'RESET_PASSWORD_FAILURE';
@@ -24,6 +27,12 @@ export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
 export const TOKEN_UPDATE = 'TOKEN_UPDATE';
+export const SEARCH_USERS_REQUEST = 'SEARCH_USERS_REQUEST';
+export const SEARCH_USERS_SUCCESS = 'SEARCH_USERS_SUCCESS';
+export const SEARCH_USERS_FAILURE = 'SEARCH_USERS_FAILURE';
+export const GET_USERS_REQUEST = 'GET_USERS_REQUEST';
+export const GET_USERS_SUCCESS = 'GET_USERS_SUCCESS';
+export const GET_USERS_FAILURE = 'GET_USERS_FAILURE';
 export const GET_SEASONS_REQUEST = 'GET_SEASONS_REQUEST';
 export const GET_SEASONS_SUCCESS = 'GET_SEASONS_SUCCESS';
 export const GET_SEASONS_FAILURE = 'GET_SEASONS_FAILURE';
@@ -78,6 +87,12 @@ export const IMPORT_EVENT_RESULTS_FAILURE = 'IMPORT_EVENT_RESULTS_FAILURE';
 export const REQUEST_ACCESS_REQUEST = 'REQUEST_ACCESS_REQUEST';
 export const REQUEST_ACCESS_SUCCESS = 'REQUEST_ACCESS_SUCCESS';
 export const REQUEST_ACCESS_FAILURE = 'REQUEST_ACCESS_FAILURE';
+export const ADD_OWNER_REQUEST = 'ADD_OWNER_REQUEST';
+export const ADD_OWNER_SUCCESS = 'ADD_OWNER_SUCCESS';
+export const ADD_OWNER_FAILURE = 'ADD_OWNER_FAILURE';
+export const REMOVE_OWNER_REQUEST = 'REMOVE_OWNER_REQUEST';
+export const REMOVE_OWNER_SUCCESS = 'REMOVE_OWNER_SUCCESS';
+export const REMOVE_OWNER_FAILURE = 'REMOVE_OWNER_FAILURE';
 
 export const API_HOST = process.env.REACT_APP_API_HOST || '';
 export const API_BASE = `${API_HOST}/api/v1`;
@@ -122,12 +137,12 @@ export const resetPassword = ({email}, target) => ({
   }
 });
 
-export const setPassword = ({password, password_confirmation, current_password}) => ({
+export const setPassword = ({password, password_confirmation, reset_password_token}) => ({
   [RSAA]: {
     endpoint: `${API_BASE}/auth/password`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formurlencoded({password, password_confirmation, current_password}),
+    body: formurlencoded({password, password_confirmation, reset_password_token}),
     types: [
       SET_PASSWORD_REQUEST,
       SET_PASSWORD_SUCCESS,
@@ -136,12 +151,26 @@ export const setPassword = ({password, password_confirmation, current_password})
   }
 });
 
-export const updateAccount = ({email, password, password_confirmation, current_password}) => ({
+export const activateAccount = ({name, password, password_confirmation, invitation_token}) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/auth/invitation`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formurlencoded({name, password, password_confirmation, invitation_token}),
+    types: [
+      ACTIVATE_ACCOUNT_REQUEST,
+      ACTIVATE_ACCOUNT_SUCCESS,
+      ACTIVATE_ACCOUNT_FAILURE
+    ]
+  }
+});
+
+export const updateAccount = ({name, email, password, password_confirmation, current_password}) => ({
   [RSAA]: {
     endpoint: `${API_BASE}/auth`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formurlencoded({email, password, password_confirmation, current_password}),
+    body: formurlencoded({name, email, password, password_confirmation, current_password}),
     types: [
       UPDATE_ACCOUNT_REQUEST,
       UPDATE_ACCOUNT_SUCCESS,
@@ -150,12 +179,12 @@ export const updateAccount = ({email, password, password_confirmation, current_p
   }
 });
 
-export const createAccount = ({email, password, password_confirmation}, target) => ({
+export const createAccount = ({email, name, password, password_confirmation}, target) => ({
   [RSAA]: {
     endpoint: `${API_BASE}/auth`,
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formurlencoded({email, password, password_confirmation, confirm_success_url: target}),
+    body: formurlencoded({email, name, password, password_confirmation, confirm_success_url: target}),
     types: [
       CREATE_ACCOUNT_REQUEST,
       CREATE_ACCOUNT_SUCCESS,
@@ -172,6 +201,30 @@ export const logout = () => ({
       LOGOUT_REQUEST,
       LOGOUT_SUCCESS,
       LOGOUT_FAILURE
+    ]
+  }
+});
+
+export const getUsers = (uids) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/users?${queryString.stringify({uids})}`,
+    method: 'GET',
+    types: [
+      GET_USERS_REQUEST,
+      GET_USERS_SUCCESS,
+      GET_USERS_FAILURE
+    ]
+  }
+});
+
+export const searchUsers = (query) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/users/search?${queryString.stringify({query})}`,
+    method: 'GET',
+    types: [
+      SEARCH_USERS_REQUEST,
+      SEARCH_USERS_SUCCESS,
+      SEARCH_USERS_FAILURE
     ]
   }
 });
@@ -392,6 +445,34 @@ export const requestAccess = (id, user, message) => ({
       REQUEST_ACCESS_REQUEST,
       REQUEST_ACCESS_SUCCESS,
       REQUEST_ACCESS_FAILURE
+    ]
+  }
+});
+
+export const addOwner = (id, uid) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/add_owner/${id}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({uid}),
+    types: [
+      ADD_OWNER_REQUEST,
+      ADD_OWNER_SUCCESS,
+      ADD_OWNER_FAILURE
+    ]
+  }
+});
+
+export const removeOwner = (id, uid) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/remove_owner/${id}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({uid}),
+    types: [
+      REMOVE_OWNER_REQUEST,
+      REMOVE_OWNER_SUCCESS,
+      REMOVE_OWNER_FAILURE
     ]
   }
 });

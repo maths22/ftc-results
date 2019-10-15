@@ -77,7 +77,7 @@ class HeadingBar extends Component {
 
   render () {
     const { anchorEl } = this.state;
-    const { uid } = this.props;
+    const { uid, user } = this.props;
     const open = Boolean(anchorEl);
 
     let isLoggedIn = false;
@@ -97,7 +97,7 @@ class HeadingBar extends Component {
             <Typography variant="h6" color="inherit" className={this.props.classes.grow}>
               {this.props.title || 'FTC Results'}
             </Typography>
-            <Button color="inherit" onClick={this.openUserMenu}>{ isLoggedIn ? `Welcome ${uid}` : 'Login'}</Button>
+            <Button color="inherit" onClick={this.openUserMenu}>{ isLoggedIn ? `Welcome ${user ? user.name : uid}` : 'Login'}</Button>
           </Toolbar>
         </AppBar>
       </div>
@@ -154,9 +154,10 @@ const mapStateToProps = (state) => {
     selectedSeason: state.ui.season
   };
   if (state.token) {
-    Object.assign(ret, {
-      uid: state.token['x-uid']
-    });
+    ret.uid = state.token['x-uid'];
+    if(state.users) {
+      ret.user = state.users[state.token['x-uid']];
+    }
   }
   return ret;
 };

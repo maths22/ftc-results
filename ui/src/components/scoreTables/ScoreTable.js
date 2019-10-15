@@ -5,7 +5,6 @@ import Table from '@material-ui/core/Table/Table';
 import TableBody from '@material-ui/core/TableBody/TableBody';
 import React from 'react';
 import {withStyles} from '@material-ui/core';
-import {blue} from '@material-ui/core/colors';
 
 const styles = (theme) => ({
   table: {

@@ -12,6 +12,7 @@ const validate = values => {
   const errors = {};
   const requiredFields = [
     'email',
+    'name',
     'password',
     'password_confirmation'
   ];
@@ -75,6 +76,9 @@ const LoginForm = props => {
         <Grid container spacing={3} justify="center">
           <Grid item xs={12}>
             <Field name="email" component={renderTextField} label="Email" className={classes.input} />
+          </Grid>
+          <Grid item xs={12}>
+            <Field name="name" component={renderTextField} label="Name" className={classes.input} />
           </Grid>
           <Grid item xs={12}>
             <Field name="password" component={renderTextField} label="Password" type="password" className={classes.input} />
