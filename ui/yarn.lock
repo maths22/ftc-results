@@ -3732,6 +3732,14 @@ fsevents@1.2.4, fsevents@^1.2.2, fsevents@^1.2.3:
     nan "^2.9.2"
     node-pre-gyp "^0.10.0"
 
+"ftc-scoring-uploader@file:./shared/scoringUploader":
+  version "0.1.0"
+  dependencies:
+    isomorphic-fetch "^2.2.1"
+    isomorphic-ws "^4.0.1"
+    object-hash "^2.0.0"
+    pws "^4.1.2"
+
 function-bind@^1.1.0, function-bind@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
@@ -4713,6 +4721,11 @@ isomorphic-fetch@^2.1.1, isomorphic-fetch@^2.2.1:
   dependencies:
     node-fetch "^1.0.1"
     whatwg-fetch ">=0.10.0"
+
+isomorphic-ws@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
+  integrity sha512-BhBvN2MBpWTaSHdWRb/bwdZJ1WaehQ2L1KngkCkfLUGF0mAWAT1sQUQacEmQ0jXkFw/czDXPNQSL5u2/Krsz1w==
 
 isstream@~0.1.2:
   version "0.1.2"
@@ -6070,6 +6083,11 @@ object-hash@^1.3.1:
   resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-1.3.1.tgz#fde452098a951cb145f039bb7d455449ddc126df"
   integrity sha512-OSuu/pU4ENM9kmREg0BdNrUDIl1heYa4mBZacJc+vVWz4GtAwu7jO8s4AIt2aGRUTqxykpWzI3Oqnsm13tTMDA==
 
+object-hash@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-2.0.0.tgz#7c4cc341eb8b53367312a7c546142f00c9e0ea20"
+  integrity sha512-I7zGBH0rDKwVGeGZpZoFaDhIwvJa3l1CZE+8VchylXbInNiCj7sxxea9P5dTM4ftKR5//nrqxrdeGSTWL2VpBA==
+
 object-keys@^1.0.11, object-keys@^1.0.12:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.0.12.tgz#09c53855377575310cca62f55bb334abff7b3ed2"
@@ -6424,11 +6442,6 @@ pbkdf2@^3.0.3:
 performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
-
-persistent-websocket@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/persistent-websocket/-/persistent-websocket-1.0.2.tgz#822f66f607b8fe82f23e63a7c1a409ad0f005415"
-  integrity sha1-gi9m9ge4/oLyPmOnwaQJrQ8AVBU=
 
 pify@^2.0.0:
   version "2.3.0"
@@ -7187,6 +7200,11 @@ punycode@2.x.x, punycode@^2.1.0:
 punycode@^1.2.4, punycode@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
+
+pws@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/pws/-/pws-4.1.2.tgz#d05cdb16ae701b8a5df52cea00893d17fbc85825"
+  integrity sha512-c0X172p7R/ZvreWQvkv1T7a8adLrbtyD9bA9rGkG/aE5HA6AClnLcTVzvhA1cUb5L0kGrHpsdzzUJECqzTx/bQ==
 
 q@^1.1.2:
   version "1.5.1"

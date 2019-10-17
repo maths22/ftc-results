@@ -421,19 +421,22 @@ export const getScoringDownloadUrl = (id, test)  => ({
   }
 });
 
-export const importEventResults = (id, signedId, division) => ({
-  [RSAA]: {
-    endpoint: `${API_BASE}/events/import_results/${id}?division=${division}`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    body: JSON.stringify({import: signedId}),
-    types: [
-      IMPORT_EVENT_RESULTS_REQUEST,
-      IMPORT_EVENT_RESULTS_SUCCESS,
-      IMPORT_EVENT_RESULTS_FAILURE
-    ]
+export const importEventResults = (id, file, division) => {
+  const formData = new FormData();
+  formData.append("import", file);
+  return {
+    [RSAA]: {
+      endpoint: `${API_BASE}/events/import_results/${id}?division=${division}`,
+      method: 'POST',
+      body: formData,
+      types: [
+        IMPORT_EVENT_RESULTS_REQUEST,
+        IMPORT_EVENT_RESULTS_SUCCESS,
+        IMPORT_EVENT_RESULTS_FAILURE
+      ]
+    }
   }
-});
+};
 
 export const requestAccess = (id, user, message) => ({
   [RSAA]: {

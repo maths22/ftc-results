@@ -11,7 +11,6 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid/Grid';
 import CircularProgress from '@material-ui/core/es/CircularProgress/CircularProgress';
 import {pickBy} from 'lodash';
-import {TextField} from '@material-ui/core';
 import {Autocomplete} from '@dccs/react-autocomplete-mui/lib';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';

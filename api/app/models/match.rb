@@ -26,6 +26,8 @@ class Match < ApplicationRecord
   end
 
   def record_for_team(team)
+    return nil unless played?
+
     team = team.number unless team.is_a? Integer
     return red_rp if red_alliance.alliance.team_ids.include? team
     return blue_rp if blue_alliance.alliance.team_ids.include? team

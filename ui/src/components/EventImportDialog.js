@@ -28,9 +28,9 @@ class DivisionsSummary extends Component {
   import = async () => {
     if(this.fileInput.current.files.length === 0) return;
     this.setState({inProgress: true});
+    const file = this.fileInput.current.files[0];
     try {
-      const blob = await this.props.activeStorageUpload(this.fileInput.current.files[0]);
-      const results = await this.props.importEventResults(this.props.event.id, blob['signed_id'], this.state.selectedDivision);
+      const results = await this.props.importEventResults(this.props.event.id, file, this.state.selectedDivision);
       if(results.error) {
         this.setState({error: results.payload.response.error});
       } else {

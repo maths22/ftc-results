@@ -8,12 +8,14 @@ module ScoringSystem
 
   # rubocop:disable Naming/AccessorMethodName
   class SqlitedbExportService
-    attr_reader :event
-    attr_reader :test_db
+    include Rails.application.routes.url_helpers
+    attr_reader :event, :test_db, :token, :api_base
 
-    def initialize(event, test_db:)
+    def initialize(event, test_db:, token:, api_base:)
       @event = event
       @test_db = test_db
+      @token = token
+      @api_base = api_base
     end
 
     def create_server_db
@@ -41,7 +43,7 @@ module ScoringSystem
       db.execute_batch IO.binread(File.join(__dir__, 'sql', 'create_server_db.sql'))
 
       create_event_stmt = prepare_insert_statement(db, 'events',
-                                                   %w[code name type status finals divisions start end])
+                                                   %w[code name type status finals divisions start end region])
 
       type = if event.league_meet?
                ScoringSystem::TYPE_LEAGUE_MEET
@@ -60,7 +62,8 @@ module ScoringSystem
                                 finals: event.divisions? ? 1 : 0,
                                 divisions: 0,
                                 start: event.start_date.to_time.to_i.to_s + '000',
-                                end: event.end_date.to_time.to_i.to_s + '000'
+                                end: event.end_date.to_time.to_i.to_s + '000',
+                                region: apk.split('-')[0]
 
       event.event_divisions.each do |div|
         create_event_stmt.execute code: (test_db ? 'test_' : '') + event.slug + '_' + div.number.to_s,
@@ -70,7 +73,8 @@ module ScoringSystem
                                   finals: 0,
                                   divisions: div.number,
                                   start: event.start_date.to_time.to_i.to_s + '000',
-                                  end: event.end_date.to_time.to_i.to_s + '000'
+                                  end: event.end_date.to_time.to_i.to_s + '000',
+                                  region: apk.split('-')[0]
       end
     end
 
@@ -83,6 +87,7 @@ module ScoringSystem
       set_field_count db
       set_uuid db, event_uuid
       set_apk db unless test_db
+      set_il_token db unless test_db
 
       copy_from_globaldb(db, 'awardInfo')
 
@@ -122,7 +127,7 @@ module ScoringSystem
       update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country WHERE TeamNumber = :number'
 
       add_league_history_stmt = prepare_insert_statement(db, 'leagueHistory',
-                                                         %w[team eventCode match rp tbp score DQ])
+                                                         %w[team eventCode match rp tbp score DQ matchOutcome])
 
       add_team_info_stmt = prepare_insert_statement(db, 'teamInfo',
                                                     %w[number name school city state country rookie])
@@ -157,7 +162,13 @@ module ScoringSystem
                                             rp: ma.rp_for_team(team),
                                             tbp: ma.tbp_for_team(team),
                                             score: ma.score_for_team(team),
-                                            DQ: ma.red_card_for_team(team) ? 1 : 0
+                                            DQ: ma.red_card_for_team(team) ? 1 : 0,
+                                            matchOutcome: {
+                                              0 => 'LOSS',
+                                              1 => 'TIE',
+                                              2 => 'WIN',
+                                              nil => 'UNKNOWN'
+                                            }[ma.match.record_for_team(team)]
           end
 
           next unless event.league_championship? || div == event.context
@@ -215,21 +226,27 @@ module ScoringSystem
     end
 
     def set_field_count(db)
-      db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
-                 key: 'fieldCount',
-                 value: event.league_championship? ? 2 : 1
+      set_config(db, 'fieldCount', event.league_championship? ? 2 : 1)
     end
 
     def set_uuid(db, uuid)
-      db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
-                 key: 'FMSEventId',
-                 value: uuid
+      set_config(db, 'FMSEventId', uuid)
     end
 
     def set_apk(db)
+      set_config(db, 'apk', apk)
+    end
+
+    def set_il_token(db)
+      set_config(db, '_il_token', token)
+      set_config(db, '_il_api_base', api_base)
+      set_config(db, '_il_event_id', @event.id)
+    end
+
+    def set_config(db, key, value)
       db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
-                 key: 'apk',
-                 value: ENV.fetch('AP_UPLOAD_KEY', 'dummy-key')
+                 key: key,
+                 value: value
     end
 
     def add_sponsors(db)
@@ -275,6 +292,10 @@ module ScoringSystem
                        key: 'parent',
                        value: event.name
       end
+    end
+
+    def apk
+      @apk ||= ENV.fetch('AP_UPLOAD_KEY', 'dummy-key')
     end
   end
   # rubocop:enable Naming/AccessorMethodName

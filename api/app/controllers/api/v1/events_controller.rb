@@ -1,11 +1,24 @@
 module Api
   module V1
     class EventsController < ::ApiController
+      MANAGE_RESULTS_ACTIONS = %i[
+        import_results
+        reset
+        post_state
+        post_rankings
+        post_teams
+        post_alliances
+        post_matches
+        post_match
+        post_awards
+      ].freeze
+
       load_and_authorize_resource
       skip_load_resource only: %i[index approve_access]
-      skip_authorize_resource only: %i[approve_access download_scoring_system]
-      skip_authorization_check only: %i[approve_access download_scoring_system]
+      skip_authorize_resource only: %i[approve_access download_scoring_system] + MANAGE_RESULTS_ACTIONS
+      skip_authorization_check only: %i[approve_access]
       before_action :validate_jwt, only: %i[download_scoring_system]
+      before_action :validate_jwt_or_authorize_resource, only: MANAGE_RESULTS_ACTIONS
 
       # skip_before_action :doorkeeper_authorize!, only: %i[download_scoring_system]
 
@@ -112,7 +125,10 @@ module Api
         test_db = @decoded_token[0]['test']
 
         zip = ::ScoringSystem::ZipService.new(@event.season)
-        db_service = ::ScoringSystem::SqlitedbExportService.new(@event, test_db: test_db)
+        db_service = ::ScoringSystem::SqlitedbExportService.new(@event,
+                                                                test_db: test_db,
+                                                                api_base: "#{root_url}api/v1",
+                                                                token: generate_jwt(subject: @event, action: 'manage_results', exp: (@event.end_date + 5.days).to_time.to_i))
         zip.with_copy do |f|
           db_service.create_server_db do |sdb|
             zip.add_db(f, 'server', sdb)

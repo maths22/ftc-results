@@ -1,16 +1,34 @@
-import {PersistentWebsocket} from 'persistent-websocket';
-import {websocketPath} from '../../actions/localScoringApi';
+import 'regenerator-runtime/runtime';
+import 'isomorphic-fetch';
+import 'core-js/features/object/assign';
+import 'core-js/features/array/includes';
+
+import WebSocket from 'isomorphic-ws';
+import PersistentWebSocket from 'pws';
+import ScoringApi, {websocketPath} from './scoringApi';
+import UploaderApi from './uploaderApi';
 import objectHash from 'object-hash';
-import React from 'react';
+
+const MINUTES_IN_MILIS = 60000;
+const DISPLAY_DELAY = 10 * MINUTES_IN_MILIS;
+
+class UploaderApiError extends Error {
+  constructor(message) {
+    super(JSON.stringify(message, null, 2));
+    this.name = "UploaderApiError";
+  }
+}
 
 export default class Uploader {
-  scorekeeperConfig = {
-    hostname:  '',
-    port: 0,
-    event: ''
-  };
-
-  event = '';
+  constructor(hostname, port, localEvent, hostedEvent, apiBase, uploadCallback, statusCallback) {
+    this.hostname = hostname;
+    this.port = port;
+    this.localEvent = localEvent;
+    this.hostedEvent = hostedEvent;
+    this.scoringApi = new ScoringApi(hostname, port);
+    this.uploaderApi = new UploaderApi(apiBase, uploadCallback);
+    this.statusCallback = statusCallback;
+  }
 
   displayedMatches = {};
   displayedInitialized = false;
@@ -18,6 +36,11 @@ export default class Uploader {
   targetDivision = 0;
   hashes = {};
   state = {};
+
+  setState(newState) {
+    Object.assign(this.state, newState);
+    this.statusCallback(newState);
+  }
 
   stopUpload = () => {
     this.hashes = {};
@@ -29,11 +52,11 @@ export default class Uploader {
   };
 
   startUpload = async () => {
-    const eventInfo = await this.props.getLocalEvent(this.scorekeeperConfig.event);
+    const eventInfo = await this.scoringApi.getEvent(this.localEvent);
     this.targetDivision = eventInfo.payload.division;
     this.syncData();
     this.syncInterval = setInterval(this.syncData, 30000);
-    this.pws = new PersistentWebsocket(`ws://${this.scorekeeperConfig.hostname}:${this.scorekeeperConfig.port}${websocketPath}`);
+    this.pws = new PersistentWebSocket(`ws://${this.hostname}:${this.port}${websocketPath}?code=${this.localEvent}`, WebSocket);
     this.pws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if(msg.updateType === 'MATCH_POST') {
@@ -78,41 +101,41 @@ export default class Uploader {
       ]).then(() => {
         this.setState({success: true, date: new Date()});
       }).catch((e) => {
-        this.setState({success: false, date: new Date()});
+        this.setState({success: false, date: new Date(), error: e});
         console.error('Sync failed: ', e);
       })
     );
   };
 
   syncState = async () => {
-    const eventResult = await this.props.getLocalEvent(this.scorekeeperConfig.event);
+    const eventResult = await this.scoringApi.getEvent(this.localEvent);
     const status = eventResult.payload.status;
     const state = ['Future', 'Setup'].includes(status) ? 'not_started' : 'started';
     const newHash = objectHash(state);
     if(this.hashes['state'] !== newHash) {
-      const postResult = await this.props.postState(this.event, state);
-      if (postResult.error) throw postResult.payload;
+      const postResult = await this.uploaderApi.postState(this.hostedEvent, state);
+      if (postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['state'] = newHash;
   };
 
   syncTeams = async () => {
-    const teamsResult = await this.props.getLocalTeamList(this.scorekeeperConfig.event);
+    const teamsResult = await this.scoringApi.getTeamList(this.localEvent);
     const teams = teamsResult.payload.teamNumbers;
     const newHash = objectHash(teams);
     if(this.hashes['teamList'] !== newHash) {
-      const postResult = await this.props.postTeams(this.event, this.targetDivision, teams);
-      if (postResult.error) throw postResult.payload;
+      const postResult = await this.uploaderApi.postTeams(this.hostedEvent, this.targetDivision, teams);
+      if (postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['teamList'] = newHash;
   };
 
   syncElimAlliances = async () => {
-    const alliancesResult = await this.props.getLocalAlliances(this.scorekeeperConfig.event);
+    const alliancesResult = await this.scoringApi.getAlliances(this.localEvent);
     if(alliancesResult.error && alliancesResult.payload.response.errorCode === 'NOT_READY') {
       return;
     } else if(alliancesResult.error) {
-      throw alliancesResult.payload;
+      throw new UploaderApiError(alliancesResult.payload);
     }
     const alliances = alliancesResult.payload.alliances;
     const uploadAlliances = alliances.map((a) => ({
@@ -122,14 +145,14 @@ export default class Uploader {
 
     const newHash = objectHash(uploadAlliances);
     if(this.hashes['alliances'] !== newHash) {
-      const postResult = await this.props.postAlliances(this.event, this.targetDivision, uploadAlliances);
-      if(postResult.error) throw postResult.payload;
+      const postResult = await this.uploaderApi.postAlliances(this.hostedEvent, this.targetDivision, uploadAlliances);
+      if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['alliances'] = newHash;
   };
 
   syncRankings = async () => {
-    const rankingsResult = await this.props.getLocalRankings(this.scorekeeperConfig.event);
+    const rankingsResult = await this.scoringApi.getRankings(this.localEvent);
     const rankings = rankingsResult.payload.rankingList;
     const uploadRankings = rankings.map((r) => ({
       team_id: r.team,
@@ -140,14 +163,14 @@ export default class Uploader {
     }));
     const newHash = objectHash(uploadRankings);
     if(this.hashes['rankings'] !== newHash) {
-      const postResult = await this.props.postRankings(this.event, this.targetDivision, uploadRankings);
-      if(postResult.error) throw postResult.payload;
+      const postResult = await this.uploaderApi.postRankings(this.hostedEvent, this.targetDivision, uploadRankings);
+      if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['rankings'] = newHash;
   };
 
   syncAwards = async () => {
-    const awardsResult = await this.props.getLocalAwards(this.scorekeeperConfig.event);
+    const awardsResult = await this.scoringApi.getAwards(this.localEvent);
     const awards = awardsResult.payload.awards;
     const uploadAwards = awards.map((a) => ({
       name: a.name,
@@ -159,14 +182,14 @@ export default class Uploader {
     }));
     const newHash = objectHash(uploadAwards);
     if(this.hashes['awards'] !== newHash) {
-      const postResult = await this.props.postAwards(this.event, uploadAwards);
-      if(postResult.error) throw postResult.payload;
+      const postResult = await this.uploaderApi.postAwards(this.hostedEvent, uploadAwards);
+      if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['awards'] = newHash;
   };
 
   getQualMatches = async () => {
-    const matchesResult = await this.props.getLocalMatches(this.scorekeeperConfig.event);
+    const matchesResult = await this.scoringApi.getMatches(this.localEvent);
     const matches = matchesResult.payload.matches;
     return matches.map((m) => ({
       phase: 'qual',
@@ -181,7 +204,7 @@ export default class Uploader {
 
   getElimMatches = async (phase, series) => {
     const prefix = phase === 'final' ? 'finals' : ('sf/' + series);
-    const matchesResult = await this.props.getLocalElimMatches(this.scorekeeperConfig.event, prefix);
+    const matchesResult = await this.scoringApi.getElimMatches(this.localEvent, prefix);
     if(matchesResult.error && (
       matchesResult.payload.name === 'InternalError' ||
       matchesResult.payload.response.errorCode === 'NOT_READY' ||
@@ -189,7 +212,7 @@ export default class Uploader {
     ) {
       return [];
     } else if(matchesResult.error) {
-      throw matchesResult.payload;
+      throw new UploaderApiError(matchesResult.payload);
     }
     const matches = matchesResult.payload.matchList;
     return matches.map((m) => ({
@@ -217,14 +240,13 @@ export default class Uploader {
 
     const newHash = objectHash(uploadMatches);
     if(this.hashes['matchList'] !== newHash) {
-      const postResult = await this.props.postMatches(this.event, this.targetDivision, uploadMatches);
-      if(postResult.error) throw postResult.payload;
+      const postResult = await this.uploaderApi.postMatches(this.hostedEvent, this.targetDivision, uploadMatches);
+      if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['matchList'] = newHash;
 
     return uploadMatches.filter((m) => m.finished);
   };
-
 
   syncMatchResults = async (matches) => {
     // Calculate which results should be posted
@@ -252,7 +274,7 @@ export default class Uploader {
       } else {
         prefix = 'matches';
       }
-      const details = await this.props.getLocalMatchDetails(this.scorekeeperConfig.event, '2020', prefix, m.number);
+      const details = await this.scoringApi.getMatchDetails(this.localEvent, '2020', prefix, m.number);
       return [[m.phase, m.series, m.number].filter((m) => m).join('-'), details.payload];
     }));
     await Promise.all(matchResults.map(async (val) => {
@@ -281,8 +303,8 @@ export default class Uploader {
 
       const newHash = objectHash(uploadScore);
       if(this.hashes['match-' + mid] !== newHash) {
-        const postResult = await this.props.postMatch(this.event, this.targetDivision, mid, uploadScore);
-        if(postResult.error) throw postResult.payload;
+        const postResult = await this.uploaderApi.postMatch(this.hostedEvent, this.targetDivision, mid, uploadScore);
+        if(postResult.error) throw new UploaderApiError(postResult.payload);
       }
       this.hashes['match-' + mid] = newHash;
     }));

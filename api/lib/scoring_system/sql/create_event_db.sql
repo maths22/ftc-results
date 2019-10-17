@@ -35,7 +35,7 @@ CREATE TABLE inspectionScheduleForm(id INTEGER PRIMARY KEY, str VARCHAR);
 CREATE TABLE inspectionScheduleItems(id INTEGER PRIMARY KEY, team INTEGER REFERENCES teams(number), name VARCHAR, stationNumber INTEGER, startTime INTEGER, totalTime INTEGER, month INTEGER, day INTEGER, year INTEGER );
 CREATE TABLE sponsors (id INTEGER PRIMARY KEY, name VARCHAR, level INTEGER, logoPath VARCHAR, orderingCriteria INTEGER);
 CREATE TABLE config (key VARCHAR PRIMARY KEY, value VARCHAR);
-CREATE TABLE leagueHistory (team INTEGER, eventCode VARCHAR, match INTEGER, rp INTEGER, tbp INTEGER, score INTEGER, DQ BOOLEAN, PRIMARY KEY(team, eventCode, match));
+CREATE TABLE leagueHistory (team INTEGER, eventCode VARCHAR, match INTEGER, rp INTEGER, tbp INTEGER, score INTEGER, DQ BOOLEAN, matchOutcome VARCHAR, PRIMARY KEY(team, eventCode, match));
 CREATE TABLE leagueMeets (eventCode VARCHAR PRIMARY KEY, name VARCHAR, start DATETIME, end DATETIME);
 CREATE TABLE leagueMembers (code VARCHAR, team INTEGER, PRIMARY KEY(code, team));
 CREATE TABLE leagueInfo (code VARCHAR PRIMARY KEY, name VARCHAR, country VARCHAR, state VARCHAR, city VARCHAR);
@@ -49,6 +49,6 @@ CREATE TABLE ScheduleDetail (FMSScheduleDetailId BLOB PRIMARY KEY, FMSEventId BL
 CREATE TABLE ScheduleStation (FMSScheduleDetailId BLOB REFERENCES ScheduleDetail(FMSScheduleDetailId) ON DELETE CASCADE, Alliance INTEGER, Station INTEGER, FMSEventId BLOB, FMSTeamId BLOB, IsSurrogate INTEGER, CreatedOn TEXT, CreatedBy TEXT, ModifiedOn TEXT, ModifiedBy TEXT, PRIMARY KEY (FMSSCheduleDetailId, Alliance, Station));
 CREATE TABLE Match ( FMSMatchId BLOB PRIMARY KEY, FMSScheduleDetailId BLOB REFERENCES ScheduleDetail(FMSScheduleDetailId) ON DELETE CASCADE, PlayNumber INTEGER, FieldType INTEGER, InitialPreStartTime TEXT, FinalPreStartTime TEXT, PreStartCount INTEGER, AutoStartTime TEXT, AutoEndTime TEXT, TeleopStartTime TEXT, TeleopEndTime TEXT, RefCommitTime TEXT, ScoreKeeperCommitTime TEXT, PostMatchTime TEXT, CancelMatchTime TEXT, CycleTime TEXT, RedScore INTEGER, BlueScore INTEGER, RedPenalty INTEGER, BluePenalty INTEGER, RedAutoScore INTEGER, BlueAutoScore INTEGER, ScoreDetails BLOB, HeadRefReview INTEGER, VideoUrl TEXT, CreatedOn TEXT, CreatedBy TEXT, ModifiedOn TEXT, ModifiedBy TEXT, FMSEventId BLOB, RowVersion BLOB );
 
-INSERT INTO config VALUES('db.version', '2020_1');
-INSERT INTO config VALUES('db.version.initial', '2020_1');
-INSERT INTO config VALUES('ftclive.version.initial', '1.1.0');
+INSERT INTO config VALUES('db.version', '2020_2');
+INSERT INTO config VALUES('db.version.initial', '2020_2');
+INSERT INTO config VALUES('ftclive.version.initial', '1.1.1');

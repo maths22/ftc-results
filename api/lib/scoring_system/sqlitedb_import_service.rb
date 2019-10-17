@@ -187,8 +187,8 @@ module ScoringSystem
 
         s_score = score.season_score
         # TODO: fix how we handle reading in that blob
-        s_score.auto_skystones = auto_stones.count { |s| s == :skystone } - r['firstReturnedSkystone'] ? 1 : 0
-        s_score.auto_delivered = r['autoDelivered'] - r['autoReturned'] - auto_stones.count { |s| s == :skystone }
+        s_score.auto_skystones = auto_stones.count { |s| s == :skystone } - (r['firstReturnedSkystone'] ? 1 : 0)
+        s_score.auto_delivered = auto_stones.count { |s| s == :stone } - r['autoReturned'] + (r['firstReturnedSkystone'] ? 1 : 0)
         s_score.auto_placed = r['autoPlaced']
         s_score.robots_navigated = (r['navigated1'].positive? ? 1 : 0) + (r['navigated2'].positive? ? 1 : 0)
         s_score.foundation_repositioned = r['repositioned']

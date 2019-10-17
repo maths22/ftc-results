@@ -16,12 +16,13 @@ import * as Sentry from '@sentry/browser';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import orange from '@material-ui/core/colors/orange';
+import blue from '@material-ui/core/colors/orange';
 import {TOKEN_UPDATE_RAW, LOCAL_STORAGE_KEY} from './reducers/tokenReducer';
 import {verifyToken} from './actions/api';
 
 const theme = createMuiTheme({
   palette: {
-    primary: orange,
+    primary: process.env.NODE_ENV !== 'development' ? orange : blue,
   },
 });
 

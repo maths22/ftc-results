@@ -2,15 +2,7 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    alias_action %i[
-      reset
-      post_rankings
-      post_teams
-      post_alliances
-      post_matches
-      post_match
-      post_awards
-    ], to: :live_upload
+    alias_action Api::V1::EventsController::MANAGE_RESULTS_ACTIONS, to: :manage_results
 
     user ||= User.new
     if user.admin?
@@ -28,8 +20,7 @@ class Ability
       can :search, User, :all if user.confirmed?
 
       can %i[
-        import_results
-        live_upload
+        manage_results
         twitch
         remove_twitch
         read_scoring_secrets

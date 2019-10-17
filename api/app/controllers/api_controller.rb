@@ -23,17 +23,20 @@ class ApiController < ApplicationController
   check_authorization
 
   # Default JWTs are transient, good for 3 minutes
-  def generate_jwt(subject:, action:, nbf: Time.now.to_i, exp: Time.now.to_i + 3 * 60, **payload)
+  def generate_jwt(subject:, action:, nbf: Time.now.to_i, exp: (Time.zone.now + 3.minutes).to_i, **payload)
     payload = payload.merge(sub: jwt_subject(subject), act: action, nbf: nbf, exp: exp)
     JWT.encode payload, hmac_secret, 'HS512'
   end
 
   def validate_jwt
     # rubocop:disable Style/GuardClause
+    # Let's keep cancancan happy
+    @_authorized = true
     subject = CanCan::ControllerResource.new(self).send(:resource_instance)
 
+    token = params[:token] || request.headers['Authorization'].sub('Bearer ', '')
     begin
-      @decoded_token = JWT.decode params[:token], hmac_secret, true, algorithm: 'HS512'
+      @decoded_token = JWT.decode token, hmac_secret, true, algorithm: 'HS512'
     rescue JWT::ExpiredSignature
       render json: { error: 'URL expired', status: 'unauthorized' }, status: :unauthorized
       return
@@ -47,11 +50,18 @@ class ApiController < ApplicationController
       return
     end
 
-    unless actions_for_alias(@decoded_token[0]['act']).include? action_name
+    unless actions_for_alias(@decoded_token[0]['act'].to_sym).include? action_name.to_sym
       render json: { error: "Invalid URL (JWT for #{@decoded_token[0]['act']}, requested #{action_name})", status: 'unauthorized' }, status: :unauthorized
       return
     end
     # rubocop:enable Style/GuardClause
+  end
+
+  def validate_jwt_or_authorize_resource
+    return validate_jwt if params[:token] || request.headers['Authorization']
+
+    subject = CanCan::ControllerResource.new(self).send(:resource_instance)
+    authorize!(params[:action].to_sym, subject)
   end
 
   def hmac_secret
