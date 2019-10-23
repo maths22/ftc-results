@@ -38,7 +38,7 @@ function activeStorageUpload(file) {
             arr.forEach(function (line) {
               const parts = line.split(': ');
               const header = parts.shift().toLowerCase();
-              if(header.startsWith('x-')) {
+              if(['x-access-token', 'x-client', 'x-expiry', 'x-uid', 'x-token-type'].includes(header)) {
                 const value = parts.join(': ');
                 headerMap[header] = value;
               }
