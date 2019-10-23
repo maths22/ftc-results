@@ -5,11 +5,12 @@
   delegate_to: localhost
   become: no
   register: database_facts
+  when: db_instance_id is defined
 - name: Set DB_HOST
   lineinfile:
     path: /etc/environment
     regexp: '^DB_HOST'
-    line: 'DB_HOST={{ database_facts.instances[0].endpoint.address }}'
+    line: 'DB_HOST={{ db_host or database_facts.instances[0].endpoint.address }}'
 # Base64 encode since /etc/environment can't handle # symbol
 - name: Set DB_PASSWORD
   lineinfile:
@@ -39,4 +40,6 @@
     - twitch_secret
     - github_api_token
     - sentry_dsn
+    - aws_upload_bucket
+    - aws_upload_region
 #      - instrumental_key

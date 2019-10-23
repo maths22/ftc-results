@@ -11,8 +11,8 @@ amazon:
   service: S3
   access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
   secret_access_key: <%= ENV['AWS_ACCESS_KEY'] %>
-  region: us-west-2
-  bucket: ftc-results-upload
+  region: <%= ENV['AWS_UPLOAD_REGION'] %>
+  bucket: <%= ENV['AWS_UPLOAD_BUCKET'] %>
 
 # Remember not to checkin your GCS keyfile to a repository
 # google:

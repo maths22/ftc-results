@@ -24,11 +24,15 @@
     name: bundler
     user_install: no
     state: latest
-- name: Create deployment dir
+- name: Create deployment dirs
   file:
-    path: /var/www/ftc_results
+    path: "{{ item }}"
     state: directory
     owner: deploy
+  with_items:
+    - /var/www/ftc_results
+    - /var/www/ftc_results/shared
+    - /var/www/ftc_results/shared/log
 - name: Grant deploy access
   template:
     src: 01-deploy.j2

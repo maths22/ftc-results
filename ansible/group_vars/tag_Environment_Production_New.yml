@@ -1,14 +1,15 @@
 server_name: >
   ftc-results.firstillinoisrobotics.org
-  api.production.ftc-results.maths22.com
+  api.production-new.ftc-results.maths22.com
   ftc-results-dev.maths22.com
   dvh097f9xu7l9.cloudfront.net
   d2bx2otrt1agjv.cloudfront.net
+  d10vnerie8x4db.cloudfront.net
 
-https_server_name: api.production.ftc-results.maths22.com
+https_server_name: api.production-new.ftc-results.maths22.com
 letsencrypt_email: maths22@gmail.com
 
-db_instance_id: maths22-db
+db_host: maths22-db.cy2tawzycyye.us-west-2.rds.amazonaws.com
 db_instance_region: us-west-2
 db_name: ftc_results_production
 db_username: ftc_results
@@ -20,7 +21,7 @@ db_password: !vault |
   6266623235656365630a383865653861326433363438366236663239636336653331613630353531
   32656136343165666465653335376361643830393132646430373636346137663930
 
-aws_upload_bucket: ftc-results-upload
+aws_upload_bucket: ftc-results-upload-production-new
 aws_upload_region: us-west-2
 
 jwt_signing_key: !vault |
