@@ -2,7 +2,7 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    alias_action Api::V1::EventsController::MANAGE_RESULTS_ACTIONS, to: :manage_results
+    alias_action(*Api::V1::EventsController::MANAGE_RESULTS_ACTIONS, to: :manage_results)
 
     user ||= User.new
     if user.admin?
