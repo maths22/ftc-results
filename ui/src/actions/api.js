@@ -207,7 +207,7 @@ export const logout = () => ({
 
 export const getUsers = (uids) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/users?${queryString.stringify({uids})}`,
+    endpoint: `${API_BASE}/users?${queryString.stringify({uids}, {arrayFormat: 'bracket'})}`,
     method: 'GET',
     types: [
       GET_USERS_REQUEST,
