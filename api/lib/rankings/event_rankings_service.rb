@@ -41,7 +41,7 @@ module Rankings
       # League championships need their rankings combined with the league ones
       return evt_rankings unless @evt.context_type == 'League'
 
-      lrs = LeagueRankingsService.new
+      lrs = LeagueRankingsService.new(season: event.season)
       lrs.alliances = MatchAlliance
                       .joins(alliance: :event)
                       .includes(alliance: { alliance_teams: { team: :divisions } })

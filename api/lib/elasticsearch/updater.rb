@@ -23,6 +23,7 @@ module Elasticsearch
           team.state = team_data[:team_stateprov]
           team.country = team_data[:team_country]
           team.rookie_year = team_data[:team_rookieyear]
+          team.updated_at = DateTime.now
           Rails.logger.error "Could not save team #{team_id}" unless team.save
         end
       end

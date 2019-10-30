@@ -9,7 +9,7 @@ server_name: >
 https_server_name: api.production-new.ftc-results.maths22.com
 letsencrypt_email: maths22@gmail.com
 
-db_host: maths22-db.cy2tawzycyye.us-west-2.rds.amazonaws.com
+db_instance_id: fir-db-1
 db_instance_region: us-west-2
 db_name: ftc_results_production
 db_username: ftc_results

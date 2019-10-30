@@ -130,6 +130,9 @@ module Api
                                                                 api_base: "#{root_url}api/v1",
                                                                 token: generate_jwt(subject: @event, action: 'manage_results', exp: (@event.end_date + 5.days).to_time.to_i))
         zip.with_copy do |f|
+          db_service.updated_global_db do |gdb|
+            zip.add_db(f, 'global', gdb)
+          end
           db_service.create_server_db do |sdb|
             zip.add_db(f, 'server', sdb)
           end

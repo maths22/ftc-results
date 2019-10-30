@@ -18,6 +18,33 @@ module ScoringSystem
       @api_base = api_base
     end
 
+    def updated_global_db
+      ZipService.new(event.season).with_globaldb do |db_file|
+        db = SQLite3::Database.new db_file
+        update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
+        update_team_info_stmt = db.prepare 'UPDATE teamInfo SET name = :name, school = :school, city = :city, state = :state, country = :country, rookie = :rookie WHERE number = :number'
+        Team.all.each do |team|
+          update_team_stmt.execute number: team.number,
+                                   name: team.name,
+                                   school: team.organization,
+                                   city: team.city,
+                                   state: team.state,
+                                   country: team.country,
+                                   modified_on: team.updated_at.utc.iso8601(3),
+                                   modified_by: 'IL FTC Results'
+
+          update_team_info_stmt.execute number: team.number,
+                                        name: team.name,
+                                        school: team.organization,
+                                        city: team.city,
+                                        state: team.state,
+                                        country: team.country,
+                                        rookie: team.rookie_year
+        end
+        yield db_file
+      end
+    end
+
     def create_server_db
       Tempfile.open 'serverdb' do |f|
         make_server_db(f.path)
@@ -124,13 +151,8 @@ module ScoringSystem
 
       add_teams_stmt = prepare_insert_statement(db, 'teams', %w[number advanced division])
 
-      update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country WHERE TeamNumber = :number'
-
       add_league_history_stmt = prepare_insert_statement(db, 'leagueHistory',
                                                          %w[team eventCode match rp tbp score DQ matchOutcome])
-
-      add_team_info_stmt = prepare_insert_statement(db, 'teamInfo',
-                                                    %w[number name school city state country rookie])
 
       league.divisions.each do |div|
         add_league_stmt.execute code: div.slug,
@@ -147,8 +169,10 @@ module ScoringSystem
                                         end: event.end_date.to_time.to_i.to_s + '000'
         end
 
-        Rails.logger.info div.teams.map(&:number)
-        copy_from_globaldb(db, 'Team', "TeamNumber IN (#{div.teams.map(&:number).join(', ')})")
+        if event.league_championship? || div == event.context
+          copy_from_globaldb(db, 'Team', "TeamNumber IN (#{div.teams.map(&:number).join(', ')})")
+          copy_from_globaldb(db, 'teamInfo', "number IN (#{div.teams.map(&:number).join(', ')})")
+        end
 
         div.teams.each do |team|
           add_league_team_stmt.execute code: div.slug, team: team.number
@@ -176,21 +200,6 @@ module ScoringSystem
           add_teams_stmt.execute number: team.number,
                                  advanced: 0,
                                  division: 0
-
-          add_team_info_stmt.execute number: team.number,
-                                     name: team.name,
-                                     school: team.organization,
-                                     city: team.city,
-                                     state: team.state,
-                                     country: team.country,
-                                     rookie: team.rookie_year
-
-          update_team_stmt.execute number: team.number,
-                                   name: team.name,
-                                   school: team.organization,
-                                   city: team.city,
-                                   state: team.state,
-                                   country: team.country
         end
       end
     end
@@ -209,7 +218,7 @@ module ScoringSystem
       cache_key = "#{table}:#{where_clause}"
       @value_cache ||= {}
       @value_cache[cache_key] ||= begin
-        ZipService.new(event.season).with_globaldb do |db_file|
+        updated_global_db do |db_file|
           global_db = SQLite3::Database.new db_file
           columns = global_db.execute("SELECT name FROM pragma_table_info('#{table}')").map { |row| row[0] }
           rows = global_db.execute "SELECT #{columns.join(', ')} FROM #{table} WHERE #{where_clause}"

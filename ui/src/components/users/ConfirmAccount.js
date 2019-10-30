@@ -1,5 +1,5 @@
 import React from 'react';
-import {TOKEN_UPDATE} from '../../actions/api';
+import {TOKEN_UPDATE, verifyToken} from '../../actions/api';
 import {connect} from 'react-redux';
 import queryString from 'query-string';
 import { push } from 'connected-react-router';
@@ -11,6 +11,7 @@ class ConfirmAccount extends React.Component {
     const values = queryString.parse(window.location.search);
     if(values['token']) {
       this.props.setToken(values);
+      this.props.verifyToken();
       this.props.push('/');
     }
   }
@@ -38,6 +39,7 @@ const setToken = (values) => {
 
 const mapDispatchToProps = {
   setToken,
+  verifyToken,
   push
 };
 

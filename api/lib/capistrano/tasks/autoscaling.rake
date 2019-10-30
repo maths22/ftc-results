@@ -15,7 +15,7 @@ namespace :autoscaling do
 
     amis.each do |role, ami|
       resp = ec2_client.describe_launch_templates(
-        launch_template_names: ["ftc-results-#{role.downcase}-#{fetch(:stage)}"]
+        launch_template_names: ["ftc-results-#{role.downcase}-#{fetch(:stage).to_s.gsub('_', '-')}"]
       )
 
       launch_template = resp.launch_templates[0]

@@ -145,7 +145,7 @@ class UpdateAccount extends React.Component {
             <Grid item xs={12}>
               <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid}
                       className={classes.button}>
-                Change
+                { type === 'activate_account' ? 'Activate' : 'Change' }
               </Button>
               {/*<Button variant="contained" type="button" disabled={pristine || submitting || invalid} onClick={reset} className={classes.button}>*/}
               {/*Clear*/}

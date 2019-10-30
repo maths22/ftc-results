@@ -4,6 +4,7 @@ module ScoringSystem
 
     def initialize(season)
       @season = season
+      Zip.continue_on_exists_proc = true
     end
 
     def with_globaldb
