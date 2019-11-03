@@ -9,12 +9,12 @@ module Api
 
       def league_data
         authorize! :show, :rankings
-        render json: rankings_for_season(League.find(params[:id]).season_id)
+        render json: rankings_for_season(League.find(params[:id]).season)
       end
 
       def division_data
         authorize! :show, :rankings
-        render json: rankings_for_season(Division.find(params[:id]).league.season_id)
+        render json: rankings_for_season(Division.find(params[:id]).league.season)
       end
 
       private
