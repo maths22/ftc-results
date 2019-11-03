@@ -164,7 +164,7 @@ class DivisionsSummary extends Component {
                           <TableCell className={classes.tableCell}><TextLink to={`/divisions/rankings/${r.division.id}`}>{r.division.name}</TextLink></TableCell>
                           : null }
                       <TableCell className={classes.tableCell}>{Number(r.rp).toFixed(2)}</TableCell>
-                      <TableCell className={classes.tableCell}>{Number(r.tbp).toFixed(2)}</TableCell>
+                      <TableCell className={classes.tableCell}>{Number(r.tbp).toFixed(1)}</TableCell>
                       <TableCell className={classes.tableCell}>{r.high_score}</TableCell>
                       <TableCell className={classes.tableCell}>{r.matches_played}</TableCell>
                     </TableRow>

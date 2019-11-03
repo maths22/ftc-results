@@ -53,8 +53,8 @@ function rankingsTable ({rankings, classes, showRecord}) {
             <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
           </TableCell>
           <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.ranking_points}</TableCell>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.tie_breaker_points}</TableCell>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.ranking_points).toFixed(2)}</TableCell>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.tie_breaker_points).toFixed(1)}</TableCell>
           {showRecord ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : recordLine}</TableCell> : null}
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
         </TableRow>;
