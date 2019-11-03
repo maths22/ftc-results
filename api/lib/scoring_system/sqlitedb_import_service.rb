@@ -93,7 +93,7 @@ module ScoringSystem
         match.save!
       end
 
-      send("import_#{Season.last.score_model_name.tableize}", phase: 'qual', table: 'qualsGameSpecific')
+      send("import_#{event.season.score_model_name.tableize}", phase: 'qual', table: 'qualsGameSpecific')
     end
 
     def import_elims
@@ -139,7 +139,7 @@ module ScoringSystem
         match.save!
       end
 
-      send("import_#{Season.last.score_model_name.tableize}", phase: 'elim', table: 'elimsGameSpecific')
+      send("import_#{event.season.score_model_name.tableize}", phase: 'elim', table: 'elimsGameSpecific')
     end
 
     def import_rover_ruckus_scores(phase:, table:)
