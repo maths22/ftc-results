@@ -961,7 +961,8 @@ CREATE TABLE public.seasons (
     active boolean,
     offseason boolean,
     score_model_name character varying,
-    scoring_version_constraint character varying
+    scoring_version_constraint character varying,
+    ranking_algorithm integer
 );
 
 
@@ -2171,6 +2172,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190918002135'),
 ('20190918143207'),
 ('20191001203014'),
-('20191013152818');
+('20191013152818'),
+('20191102181110');
 
 

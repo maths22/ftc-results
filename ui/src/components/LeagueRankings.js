@@ -163,8 +163,8 @@ class DivisionsSummary extends Component {
                       { ['all', 'league'].includes(this.props.type) ?
                           <TableCell className={classes.tableCell}><TextLink to={`/divisions/rankings/${r.division.id}`}>{r.division.name}</TextLink></TableCell>
                           : null }
-                      <TableCell className={classes.tableCell}>{r.rp}</TableCell>
-                      <TableCell className={classes.tableCell}>{r.tbp}</TableCell>
+                      <TableCell className={classes.tableCell}>{Number(r.rp).toFixed(2)}</TableCell>
+                      <TableCell className={classes.tableCell}>{Number(r.tbp).toFixed(2)}</TableCell>
                       <TableCell className={classes.tableCell}>{r.high_score}</TableCell>
                       <TableCell className={classes.tableCell}>{r.matches_played}</TableCell>
                     </TableRow>
@@ -172,7 +172,7 @@ class DivisionsSummary extends Component {
               })}
             </TableBody>
           </Table>
-          <p style={{paddingLeft: '1em', paddingRight: '1em'}}>
+          <p style={{padingLeft: '1em', paddingRight: '1em'}}>
             Note: Crossed out teams have not submitted FIRST Illinois Robotics consent forms and will not be permitted
             to compete at the league championship unless these forms are submitted.
             Please contact <TextLink href="mailto:jweiland@firstillinoisrobotics.org">Jonathan Weiland</TextLink> with any questions.

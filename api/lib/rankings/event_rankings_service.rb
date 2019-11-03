@@ -1,11 +1,8 @@
 module Rankings
-  class EventRankingsService
+  class EventRankingsService < RankingsService
     def initialize(evt)
       @evt = evt
-    end
-
-    def compute
-      initial_rankings.merge(active_rankings)
+      super(evt.season)
     end
 
     def initial_rankings
@@ -20,20 +17,6 @@ module Rankings
       end.to_h
     end
 
-    def active_rankings
-      processed_team_rankings.transform_values! do |lst|
-        ranking = TeamRanking.new
-        ranking.team = lst[0].team
-        ranking.division = lst[0].division
-        ranking.rp = lst.map(&:rp).reduce(0, :+)
-        ranking.tbp = lst.map(&:tbp).reduce(0, :+)
-        ranking.high_score = lst.map(&:high_score).max
-        # Note that teams are only on this list if they played a match
-        ranking.matches_played = lst[0].matches_played
-        ranking
-      end
-    end
-
     def processed_team_rankings
       evt_rankings = raw_team_rankings.transform_values! do |lst|
         lst.each { |it| it.matches_played = lst.size }
@@ -46,10 +29,13 @@ module Rankings
                       .joins(alliance: :event)
                       .includes(alliance: { alliance_teams: { team: :divisions } })
                       .where(alliance: { events: { context: @evt.context.divisions } })
-      league_rankings = lrs.compute
+      league_rankings = lrs.processed_team_rankings
       evt_rankings.transform_values! do |lst|
-        lst << league_rankings[lst[0].team.number] if league_rankings.key? lst[0].team.number
-        lst[0].matches_played += league_rankings[lst[0].team.number].matches_played if league_rankings.key? lst[0].team.number
+        team_num = lst[0].team.number
+        if league_rankings.key? team_num
+          lst += league_rankings[team_num]
+          lst[0].matches_played += league_rankings[team_num][0].matches_played
+        end
         lst
       end
     end

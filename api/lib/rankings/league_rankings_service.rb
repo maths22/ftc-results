@@ -1,15 +1,7 @@
 module Rankings
-  class LeagueRankingsService
+  class LeagueRankingsService < RankingsService
     attr_writer :alliances
     TOP_TO_TAKE = 10
-
-    def initialize(season)
-      @season = season
-    end
-
-    def compute
-      initial_rankings.merge(active_rankings)
-    end
 
     def merge_with_event_rankings(evt, evt_rankings)
       self.alliances = MatchAlliance
@@ -36,7 +28,7 @@ module Rankings
     end
 
     def initial_rankings
-      divisions = Division.joins(:league).where(leagues: { season: @season }).includes(teams: :divisions)
+      divisions = Division.joins(:league).where(leagues: { season: season }).includes(teams: :divisions)
       divisions.all.map do |div|
         div.teams.map do |team|
           ranking = TeamRanking.new
@@ -51,25 +43,10 @@ module Rankings
       end.flatten(1).to_h
     end
 
-    def active_rankings
-      processed_team_rankings.transform_values! do |lst|
-        top_lst = lst.first TOP_TO_TAKE
-        ranking = TeamRanking.new
-        ranking.team = lst[0].team
-        ranking.division = lst[0].division
-        ranking.rp = top_lst.map(&:rp).reduce(0, :+)
-        ranking.tbp = top_lst.map(&:tbp).reduce(0, :+)
-        ranking.high_score = top_lst.map(&:high_score).max
-        # Note that teams are only on this list if they played a match
-        ranking.matches_played = lst[0].matches_played
-        ranking
-      end
-    end
-
     def processed_team_rankings
       raw_team_rankings.transform_values! do |lst|
         lst.each { |it| it.matches_played = lst.size }
-        lst.sort.reverse
+        lst.sort.reverse.first(TOP_TO_TAKE)
       end
     end
 
@@ -92,7 +69,7 @@ module Rankings
     def alliances
       @alliances ||= MatchAlliance
                      .includes(alliance: { alliance_teams: { team: { divisions: :league } }, event: {} })
-                     .where(alliance: { events: { season: @season, context_type: 'Division' } })
+                     .where(alliance: { events: { season: season, context_type: 'Division' } })
     end
   end
 end
