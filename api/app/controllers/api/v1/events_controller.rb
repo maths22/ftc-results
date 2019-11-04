@@ -129,24 +129,21 @@ module Api
                                                                 test_db: test_db,
                                                                 api_base: "#{root_url}api/v1",
                                                                 token: generate_jwt(subject: @event, action: 'manage_results', exp: (@event.end_date + 5.days).to_time.to_i))
-        zip.with_copy do |f|
-          db_service.updated_global_db do |gdb|
-            zip.add_db(f, 'global', gdb)
-          end
-          db_service.create_server_db do |sdb|
-            zip.add_db(f, 'server', sdb)
-          end
-          db_service.create_event_dbs do |edbs|
-            edbs.each do |number, db|
+        zip.with_copy do |file|
+          zip.transaction(file) do |zip_file|
+            zip.add_db(zip_file, 'global', db_service.updated_global_db)
+            zip.add_db(zip_file, 'server', db_service.server_db)
+            db_service.event_dbs.each do |number, db|
               filename = (test_db ? 'test_' : '') + @event.slug + (@event.divisions? ? "_#{number}" : '')
-              zip.add_db(f, filename, db)
+              zip.add_db(zip_file, filename, db)
             end
+            # Sponsor.global.each { |s| zip.add_sponsor_logo(zip_file, s) }
+            # @event.sponsors.each { |s| zip.add_sponsor_logo(zip_file, s) }
+            # TODO: seasonify
+            zip.add_lib(zip_file, Rails.root.join('vendor', 'scoring', 'FTCLiveExtras.jar'))
           end
-          # Sponsor.global.each { |s| zip.add_sponsor_logo(f, s) }
-          # @event.sponsors.each { |s| zip.add_sponsor_logo(f, s) }
-          # TODO: seasonify
-          zip.add_lib(f, Rails.root.join('vendor', 'scoring', 'FTCLiveExtras.jar'))
-          File.open(f, 'r') do |data|
+          db_service.cleanup
+          File.open(file, 'r') do |data|
             headers['Content-Length'] = data.size if data.respond_to?(:size)
             send_data(data.read, filename: "#{test_db ? 'TEST_' : ''}ftc-scoring-il-#{@event.slug}-#{@event.season.year}.zip")
           end

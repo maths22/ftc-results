@@ -18,7 +18,15 @@ module ScoringSystem
       @api_base = api_base
     end
 
+    def cleanup
+      @updated_global_db&.close
+      @server_db&.close
+      @event_dbs&.values&.each(&:close)
+    end
+
     def updated_global_db
+      return @updated_global_db.path if @updated_global_db
+
       ZipService.new(event.season).with_globaldb do |db_file|
         db = SQLite3::Database.new db_file
         update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
@@ -41,26 +49,27 @@ module ScoringSystem
                                         country: team.country,
                                         rookie: team.rookie_year
         end
-        yield db_file
+        @updated_global_db = Tempfile.new('global_db')
+
+        FileUtils.cp(db_file, @updated_global_db)
       end
+      @updated_global_db.path
     end
 
-    def create_server_db
-      Tempfile.open 'serverdb' do |f|
-        make_server_db(f.path)
-        yield f.path
-      end
+    def server_db
+      @server_db ||= Tempfile.new('serverdb').tap { |f| make_server_db(f.path) }
+      @server_db.path
     end
 
-    def create_event_dbs
-      Tempfile.open 'event' do |f|
+    def event_dbs
+      @event_dbs ||= begin
+        f = Tempfile.new('event')
         division_files = event.event_divisions.map { |div| { number: div.number, file: Tempfile.open('event') } }
-        paths = { 0 => f.path }.merge Hash[division_files.map { |div| [div.number, div.file.path] }]
-        make_event_dbs(paths)
-        yield paths
-      ensure
-        division_files.map { |div| div.file.close }
+        files = { 0 => f }.merge Hash[division_files.map { |div| [div.number, div.file] }]
+        make_event_dbs(files.transform_values(&:path))
+        files
       end
+      @event_dbs.transform_values(&:path)
     end
 
     private
@@ -218,12 +227,10 @@ module ScoringSystem
       cache_key = "#{table}:#{where_clause}"
       @value_cache ||= {}
       @value_cache[cache_key] ||= begin
-        updated_global_db do |db_file|
-          global_db = SQLite3::Database.new db_file
-          columns = global_db.execute("SELECT name FROM pragma_table_info('#{table}')").map { |row| row[0] }
-          rows = global_db.execute "SELECT #{columns.join(', ')} FROM #{table} WHERE #{where_clause}"
-          { columns: columns, rows: rows }
-        end
+        global_db = SQLite3::Database.new updated_global_db
+        columns = global_db.execute("SELECT name FROM pragma_table_info('#{table}')").map { |row| row[0] }
+        rows = global_db.execute "SELECT #{columns.join(', ')} FROM #{table} WHERE #{where_clause}"
+        { columns: columns, rows: rows }
       end
 
       columns = @value_cache[cache_key][:columns]
