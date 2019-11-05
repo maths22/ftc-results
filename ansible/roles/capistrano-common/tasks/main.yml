@@ -19,6 +19,12 @@
   apt:
     pkg: ["build-essential", "postgresql-client", "libpq-dev", "libicu-dev", "libsqlite3-dev"]
     state: latest
+- name: Deploy dependencies installed
+  apt:
+    pkg: ["git", "git-lfs"]
+    state: latest
+- name: Git lfs configured
+  shell: git lfs install --system
 - name: Bundler installed
   gem:
     name: bundler

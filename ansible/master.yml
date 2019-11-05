@@ -4,6 +4,7 @@
   become: yes
   become_method: sudo
   roles:
+    - geerlingguy.swap
     - role: capistrano-common
       tags:
         - common
