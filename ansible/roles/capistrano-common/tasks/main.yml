@@ -8,13 +8,6 @@
     user: deploy
     state: present
     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
-- name: Brightbox ruby availible
-  apt_repository:
-    repo: ppa:brightbox/ruby-ng
-- name: Latest version of Ruby is installed
-  apt:
-    pkg: ["ruby2.6", "ruby2.6-dev"]
-    state: latest
 - name: Build dependencies installed
   apt:
     pkg: ["build-essential", "postgresql-client", "libpq-dev", "libicu-dev", "libsqlite3-dev"]
@@ -25,11 +18,6 @@
     state: latest
 - name: Git lfs configured
   shell: git lfs install --system
-- name: Bundler installed
-  gem:
-    name: bundler
-    user_install: no
-    state: latest
 - name: Create deployment dirs
   file:
     path: "{{ item }}"

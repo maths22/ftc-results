@@ -5,6 +5,10 @@
   become_method: sudo
   roles:
     - geerlingguy.swap
+    - role: base-common
+      tags:
+        - common
+        - base
     - role: capistrano-common
       tags:
         - common

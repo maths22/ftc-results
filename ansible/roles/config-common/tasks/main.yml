@@ -10,7 +10,7 @@
   lineinfile:
     path: /etc/environment
     regexp: '^DB_HOST'
-    line: 'DB_HOST={{ db_host or database_facts.instances[0].endpoint.address }}'
+    line: 'DB_HOST={{ database_facts.instances[0].endpoint.address }}'
 # Base64 encode since /etc/environment can't handle # symbol
 - name: Set DB_PASSWORD
   lineinfile:
