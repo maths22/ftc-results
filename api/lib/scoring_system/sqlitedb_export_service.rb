@@ -57,7 +57,7 @@ module ScoringSystem
                                           country: team.country,
                                           rookie: team.rookie_year
           end
-          @updated_global_db = Tempfile.new('global_db')
+          @updated_global_db = File.new(Rails.root.join('data', 'globaldb'))
 
           FileUtils.cp(db_file, @updated_global_db)
         end
