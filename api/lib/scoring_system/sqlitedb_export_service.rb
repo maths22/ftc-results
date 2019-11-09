@@ -58,9 +58,9 @@ module ScoringSystem
                                           rookie: team.rookie_year
           end
 
-          FileUtils.cp(db_file, Rails.root.join('data', 'globaldb'))
+          FileUtils.cp(db_file, Rails.root.join('tmp', 'globaldb'))
         end
-        Rails.root.join('data', 'globaldb')
+        Rails.root.join('tmp', 'globaldb').to_s
       end
     end
 
