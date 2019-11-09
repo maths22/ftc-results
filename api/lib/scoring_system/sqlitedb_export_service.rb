@@ -57,11 +57,10 @@ module ScoringSystem
                                           country: team.country,
                                           rookie: team.rookie_year
           end
-          @updated_global_db = File.new(Rails.root.join('data', 'globaldb'))
 
-          FileUtils.cp(db_file, @updated_global_db)
+          FileUtils.cp(db_file, Rails.root.join('data', 'globaldb'))
         end
-        @updated_global_db.path
+        Rails.root.join('data', 'globaldb')
       end
     end
 
