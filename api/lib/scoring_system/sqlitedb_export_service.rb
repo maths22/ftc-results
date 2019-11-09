@@ -246,12 +246,15 @@ module ScoringSystem
 
       columns = @value_cache[cache_key][:columns]
       pk = @value_cache[cache_key][:pk]
+      db.execute "DELETE FROM #{table}"
       sql = <<~SQL
         INSERT INTO #{table}
         (#{columns.join(', ')})
         VALUES (#{Array.new(columns.length, '?').join(', ')})
-        #{pk.empty? ? '' : "ON CONFLICT(#{pk.join(',')}) DO UPDATE SET #{columns.map { |c| "#{c}=excluded.#{c}" }.join(', ')}"}
       SQL
+      # Once I can get a better version of sqlite do this
+      #{pk.empty? ? '' : "ON CONFLICT(#{pk.join(',')}) DO UPDATE SET #{columns.map { |c| "#{c}=excluded.#{c}" }.join(', ')}"}
+
       add_rows_stmt = db.prepare sql
 
       @value_cache[cache_key][:rows].each { |a| add_rows_stmt.execute a }
