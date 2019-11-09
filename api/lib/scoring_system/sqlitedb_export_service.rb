@@ -6,6 +6,8 @@ module ScoringSystem
   TYPE_CHAMPIONSHIP = 4
   TYPE_OTHER = 5
 
+  DEFAULT_EVENT_DB_URL = 'https://ftcproductionstorage.blob.core.windows.net/public-downloads/season2019/defaultevent.db'.freeze
+
   # rubocop:disable Naming/AccessorMethodName
   class SqlitedbExportService
     include Rails.application.routes.url_helpers
@@ -24,11 +26,19 @@ module ScoringSystem
       @event_dbs&.values&.each(&:close)
     end
 
+    require 'net/http'
+    require 'tempfile'
+    require 'uri'
+
     def updated_global_db
       return @updated_global_db.path if @updated_global_db
 
       ZipService.new(event.season).with_globaldb do |db_file|
         db = SQLite3::Database.new db_file
+
+        with_defaultdb do |defaultdb_file|
+          copy_from_globaldb(db, 'Team', '1=1', defaultdb_file)
+        end
         update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
         update_team_info_stmt = db.prepare 'UPDATE teamInfo SET name = :name, school = :school, city = :city, state = :state, country = :country, rookie = :rookie WHERE number = :number'
         Team.all.each do |team|
@@ -223,20 +233,26 @@ module ScoringSystem
       @league ||= event.league_championship? ? event.context : event.context.league
     end
 
-    def copy_from_globaldb(db, table, where_clause = '1 = 1')
+    def copy_from_globaldb(db, table, where_clause = '1 = 1', globaldb = updated_global_db)
       cache_key = "#{table}:#{where_clause}"
       @value_cache ||= {}
       @value_cache[cache_key] ||= begin
-        global_db = SQLite3::Database.new updated_global_db
+        global_db = SQLite3::Database.new globaldb
         columns = global_db.execute("SELECT name FROM pragma_table_info('#{table}')").map { |row| row[0] }
         rows = global_db.execute "SELECT #{columns.join(', ')} FROM #{table} WHERE #{where_clause}"
-        { columns: columns, rows: rows }
+        pk = global_db.execute("SELECT name FROM pragma_table_info('#{table}') WHERE pk >= 1").map { |row| row[0] }
+        { pk: pk, columns: columns, rows: rows }
       end
 
       columns = @value_cache[cache_key][:columns]
-      add_rows_stmt = db.prepare("INSERT INTO #{table}
-                          (#{columns.join(', ')})
-                          VALUES (#{Array.new(columns.length, '?').join(', ')})")
+      pk = @value_cache[cache_key][:pk]
+      sql = <<~SQL
+        INSERT INTO #{table}
+        (#{columns.join(', ')})
+        VALUES (#{Array.new(columns.length, '?').join(', ')})
+        #{pk.empty? ? '' : "ON CONFLICT(#{pk.join(',')}) DO UPDATE SET #{columns.map { |c| "#{c}=excluded.#{c}" }.join(', ')}"}
+      SQL
+      add_rows_stmt = db.prepare sql
 
       @value_cache[cache_key][:rows].each { |a| add_rows_stmt.execute a }
     end
@@ -307,6 +323,17 @@ module ScoringSystem
         div_db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
                        key: 'parent',
                        value: event.name
+      end
+    end
+
+    def with_defaultdb
+      uri = URI.parse(DEFAULT_EVENT_DB_URL)
+      resp = Net::HTTP.get(uri)
+      Tempfile.create('defaultevent') do |file|
+        file.binmode
+        file.write(resp)
+        file.flush
+        yield file.path
       end
     end
 
