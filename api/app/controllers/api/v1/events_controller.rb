@@ -118,8 +118,7 @@ module Api
         test_db = params[:test] != 'false'
         authorize!(:read_scoring_secrets, @event) unless test_db
         token = generate_jwt(subject: @event, action: 'download_scoring_system', test: test_db)
-        # TODO: revert this once performance is fixed
-        render json: { url: 'https://api.production.ftc-results.maths22.com/' + api_v1_download_scoring_system_path(@event, token: token) }
+        render json: { url: api_v1_download_scoring_system_url(@event, token: token) }
       end
 
       def download_scoring_system

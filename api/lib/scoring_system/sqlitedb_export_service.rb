@@ -21,7 +21,6 @@ module ScoringSystem
     end
 
     def cleanup
-      @updated_global_db&.close
       @server_db&.close
       @event_dbs&.values&.each(&:close)
     end
@@ -31,39 +30,39 @@ module ScoringSystem
     require 'uri'
 
     def updated_global_db
-      return @updated_global_db.path if @updated_global_db
+      Rails.cache.fetch('global_db_path', expires_in: 12.hours) do
+        ZipService.new(event.season).with_globaldb do |db_file|
+          db = SQLite3::Database.new db_file
 
-      ZipService.new(event.season).with_globaldb do |db_file|
-        db = SQLite3::Database.new db_file
+          with_defaultdb do |defaultdb_file|
+            copy_from_globaldb(db, 'Team', '1=1', defaultdb_file)
+          end
+          update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
+          update_team_info_stmt = db.prepare 'UPDATE teamInfo SET name = :name, school = :school, city = :city, state = :state, country = :country, rookie = :rookie WHERE number = :number'
+          Team.all.each do |team|
+            update_team_stmt.execute number: team.number,
+                                     name: team.name,
+                                     school: team.organization,
+                                     city: team.city,
+                                     state: team.state,
+                                     country: team.country,
+                                     modified_on: team.updated_at.utc.iso8601(3),
+                                     modified_by: 'IL FTC Results'
 
-        with_defaultdb do |defaultdb_file|
-          copy_from_globaldb(db, 'Team', '1=1', defaultdb_file)
+            update_team_info_stmt.execute number: team.number,
+                                          name: team.name,
+                                          school: team.organization,
+                                          city: team.city,
+                                          state: team.state,
+                                          country: team.country,
+                                          rookie: team.rookie_year
+          end
+          @updated_global_db = Tempfile.new('global_db')
+
+          FileUtils.cp(db_file, @updated_global_db)
         end
-        update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
-        update_team_info_stmt = db.prepare 'UPDATE teamInfo SET name = :name, school = :school, city = :city, state = :state, country = :country, rookie = :rookie WHERE number = :number'
-        Team.all.each do |team|
-          update_team_stmt.execute number: team.number,
-                                   name: team.name,
-                                   school: team.organization,
-                                   city: team.city,
-                                   state: team.state,
-                                   country: team.country,
-                                   modified_on: team.updated_at.utc.iso8601(3),
-                                   modified_by: 'IL FTC Results'
-
-          update_team_info_stmt.execute number: team.number,
-                                        name: team.name,
-                                        school: team.organization,
-                                        city: team.city,
-                                        state: team.state,
-                                        country: team.country,
-                                        rookie: team.rookie_year
-        end
-        @updated_global_db = Tempfile.new('global_db')
-
-        FileUtils.cp(db_file, @updated_global_db)
+        @updated_global_db.path
       end
-      @updated_global_db.path
     end
 
     def server_db
