@@ -507,8 +507,8 @@ function () {
                   number: m.matchNumber,
                   red_alliance: [m.red.team1, m.red.team2, m.red.team3].filter(Boolean),
                   blue_alliance: [m.blue.team1, m.blue.team2, m.blue.team3].filter(Boolean),
-                  red_surrogate: [m.red.isTeam1Surrogate, m.red.isTeam2Surrogate, m.red.isTeam3Surrogate].filter(Boolean),
-                  blue_surrogate: [m.blue.isTeam1Surrogate, m.blue.isTeam2Surrogate, m.blue.isTeam3Surrogate].filter(Boolean),
+                  red_surrogate: [m.red.isTeam1Surrogate, m.red.isTeam2Surrogate, m.red.isTeam3Surrogate].slice(0, m.red.team3 ? 3 : 2),
+                  blue_surrogate: [m.blue.isTeam1Surrogate, m.blue.isTeam2Surrogate, m.blue.isTeam3Surrogate].slice(0, m.blue.team3 ? 3 : 2),
                   finished: m.finished
                 };
               }));
