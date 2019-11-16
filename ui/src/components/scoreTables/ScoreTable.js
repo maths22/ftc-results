@@ -65,9 +65,9 @@ const ScoreTable = (scoreInterpretation) => withStyles(styles)(({classes, match}
     <TableBody>
       {scores.map((sc) => {
         const bonusLabel = sc.bonus && `${sc.bonus.label} (+${sc.bonus.value})`;
-        const redPrimary = `${sc.red} ${sc.red_pts ? `(+${sc.red_pts}${sc.penalty ? ' to blue' : ''})` : ''}`;
+        const redPrimary = `${sc.red} ${sc.red_pts ? `(+${sc.red_pts}${sc.penalty ? ' from blue' : ''})` : ''}`;
 
-        const bluePrimary = `${sc.blue} ${sc.blue_pts ? `(+${sc.blue_pts}${sc.penalty ? ' to red' : ''})` : ''}`;
+        const bluePrimary = `${sc.blue} ${sc.blue_pts ? `(+${sc.blue_pts}${sc.penalty ? ' from red' : ''})` : ''}`;
 
         return <TableRow className={classNames(classes.tableRow, {[classes.keyTableRow]: sc.key})}>
           <TableCell className={classNames(classes.tableCell, classes.redCell, {[classes.redKeyCell]: sc.key})}>

@@ -85,15 +85,15 @@ export default ScoreTable((match) => {
     },
     {
       desc: 'Minor Penalties',
-      red: red_det.minor_penalties,
-      blue: blue_det.minor_penalties,
+      red: blue_det.minor_penalties,
+      blue: red_det.minor_penalties,
       value: 10,
       penalty: true
     },
     {
       desc: 'Major Penalties',
-      red: red_det.major_penalties,
-      blue: blue_det.major_penalties,
+      red: blue_det.major_penalties,
+      blue: red_det.major_penalties,
       value: 40,
       penalty: true
     },
