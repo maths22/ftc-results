@@ -23,7 +23,7 @@ export const postRequest = (request) => ({
 
 export const resetEvent = (event) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/reset/${event}`,
+    endpoint: `${API_BASE}/events/${event}/reset`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({}),

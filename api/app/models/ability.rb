@@ -14,6 +14,7 @@ class Ability
       can :view_matches, :all
       can :view_rankings, :all
       can :view_teams, :all
+      can :view_alliances, :all
       can :view_awards, :all
       can :request_access, :all
 

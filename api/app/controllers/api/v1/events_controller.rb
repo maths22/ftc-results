@@ -96,6 +96,12 @@ module Api
         @rankings = @event.rankings.includes(:team, :event_division)
       end
 
+      def view_alliances
+        expires_in(30.seconds, public: true) if request_cacheable?
+
+        @alliances = @event.alliances.where(is_elims: true)
+      end
+
       def view_awards
         expires_in(30.seconds, public: true) if request_cacheable?
 
@@ -118,7 +124,7 @@ module Api
         test_db = params[:test] != 'false'
         authorize!(:read_scoring_secrets, @event) unless test_db
         token = generate_jwt(subject: @event, action: 'download_scoring_system', test: test_db)
-        render json: { url: api_v1_download_scoring_system_url(@event, token: token) }
+        render json: { url: download_scoring_system_api_v1_event_url(@event, token: token) }
       end
 
       def download_scoring_system

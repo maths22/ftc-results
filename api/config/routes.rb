@@ -23,31 +23,72 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :seasons
-      resources :teams
+      resources :teams do
+        member do
+          get 'details'
+        end
+      end
       get 'teams/details/:id', to: 'teams#details'
       resources :users do
         collection do
           get 'search'
         end
       end
-      resources :events
+      resources :events do
+        member do
+          # Basic views
+          get 'matches', action: 'view_matches'
+          get 'rankings', action: 'view_rankings'
+          get 'awards', action: 'view_awards'
+          get 'alliances', action: 'view_alliances'
+          get 'teams', action: 'view_teams'
+
+          get 'download_scoring_system_url'
+          get 'download_scoring_system', as: 'download_scoring_system'
+
+          post 'import_results'
+
+          post 'reset'
+          post 'state', action: 'post_state'
+          post 'rankings', action: 'post_rankings'
+          post 'awards', action: 'post_awards'
+          post 'teams', action: 'post_teams'
+          post 'alliances', action: 'post_alliances'
+          post 'matches', action: 'post_matches'
+          post 'matches/:mid', action: 'post_match'
+
+          post 'twitch'
+          delete 'twitch', action: 'remove_twitch'
+
+          post 'add_owner'
+          post 'remove_owner'
+
+          post 'request_access'
+          get 'approve_access/:token', action: 'approve_access', as: 'approve_access'
+        end
+      end
       get 'events/matches/:id', to: 'events#view_matches'
       get 'events/rankings/:id', to: 'events#view_rankings'
       get 'events/awards/:id', to: 'events#view_awards'
       get 'events/teams/:id', to: 'events#view_teams'
       get 'events/download_scoring_system_url/:id', to: 'events#download_scoring_system_url'
-      get 'events/download_scoring_system/:id', to: 'events#download_scoring_system', as: 'download_scoring_system'
-      resources :leagues
-      get 'leagues/details/:slug', to: 'leagues#details'
+      get 'events/download_scoring_system/:id', to: 'events#download_scoring_system'
+
+      resources :leagues do
+        member do
+          get 'details'
+        end
+      end
+      get 'leagues/details/:id', to: 'leagues#details'
       resources :divisions
+
       post 'events/import_results/:id', to: 'events#import_results'
       get 'rankings/league', to: 'league_rankings#index'
       get 'rankings/league/:id', to: 'league_rankings#league_data'
       get 'rankings/division/:id', to: 'league_rankings#division_data'
 
       get 'matches/details/:id', to: 'matches#details'
-
-      post 'active_storage/direct_uploads' => 'direct_uploads#create'
+      get 'matches/:id/details', to: 'matches#details'
 
       mount_devise_token_auth_for 'User', at: 'auth', controllers: {
         confirmations: 'auth/confirmations'
@@ -72,7 +113,7 @@ Rails.application.routes.draw do
       post 'events/remove_owner/:id', to: 'events#remove_owner'
 
       post 'events/requestAccess/:id', to: 'events#request_access'
-      get 'events/approveAccess/:token', to: 'events#approve_access', as: 'approve_access'
+      get 'events/approveAccess/:token', to: 'events#approve_access'
     end
   end
 

@@ -19,8 +19,10 @@ import matchDetailsReducer from './matchDetailsReducer';
 
 import localScoringReducer from './localScoring/rootReducer';
 import usersReducer from './usersReducer';
+import alliancesReducer from './alliancesReducer';
 
 export default (history) => combineReducers({
+  alliances: alliancesReducer,
   awards: awardsReducer,
   divisions: divisionsReducer,
   events: eventsReducer,

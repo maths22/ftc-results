@@ -63,6 +63,9 @@ export const GET_TEAM_DETAILS_FAILURE = 'GET_TEAM_DETAILS_FAILURE';
 export const GET_EVENT_MATCHES_REQUEST = 'GET_EVENT_MATCHES_REQUEST';
 export const GET_EVENT_MATCHES_SUCCESS = 'GET_EVENT_MATCHES_SUCCESS';
 export const GET_EVENT_MATCHES_FAILURE = 'GET_EVENT_MATCHES_FAILURE';
+export const GET_EVENT_ALLIANCES_REQUEST = 'GET_EVENT_ALLIANCES_REQUEST';
+export const GET_EVENT_ALLIANCES_SUCCESS = 'GET_EVENT_ALLIANCES_SUCCESS';
+export const GET_EVENT_ALLIANCES_FAILURE = 'GET_EVENT_ALLIANCES_FAILURE';
 export const GET_EVENT_TEAMS_REQUEST = 'GET_EVENT_TEAMS_REQUEST';
 export const GET_EVENT_TEAMS_SUCCESS = 'GET_EVENT_TEAMS_SUCCESS';
 export const GET_EVENT_TEAMS_FAILURE = 'GET_EVENT_TEAMS_FAILURE';
@@ -303,7 +306,7 @@ export const getTeams = () => ({
 
 export const getTeamDetails = (id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/teams/details/${id}`,
+    endpoint: `${API_BASE}/teams/${id}/details`,
     method: 'GET',
     types: [
       GET_TEAM_DETAILS_REQUEST,
@@ -315,7 +318,7 @@ export const getTeamDetails = (id) => ({
 
 export const getEventMatches = (id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/matches/${id}`,
+    endpoint: `${API_BASE}/events/${id}/matches`,
     method: 'GET',
     types: [
       GET_EVENT_MATCHES_REQUEST,
@@ -327,7 +330,7 @@ export const getEventMatches = (id) => ({
 
 export const getEventRankings = (id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/rankings/${id}`,
+    endpoint: `${API_BASE}/events/${id}/rankings`,
     method: 'GET',
     types: [
       GET_EVENT_RANKINGS_REQUEST,
@@ -339,7 +342,7 @@ export const getEventRankings = (id) => ({
 
 export const getEventAwards = (id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/awards/${id}`,
+    endpoint: `${API_BASE}/events/${id}/awards`,
     method: 'GET',
     types: [
       GET_AWARDS_REQUEST,
@@ -351,7 +354,7 @@ export const getEventAwards = (id) => ({
 
 export const getEventTeams = (id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/teams/${id}`,
+    endpoint: `${API_BASE}/events/${id}/teams`,
     method: 'GET',
     types: [
       GET_EVENT_TEAMS_REQUEST,
@@ -361,9 +364,21 @@ export const getEventTeams = (id) => ({
   }
 });
 
+export const getEventAlliances = (id) => ({
+  [RSAA]: {
+    endpoint: `${API_BASE}/events/${id}/alliances`,
+    method: 'GET',
+    types: [
+      GET_EVENT_ALLIANCES_REQUEST,
+      GET_EVENT_ALLIANCES_SUCCESS,
+      GET_EVENT_ALLIANCES_FAILURE
+    ]
+  }
+});
+
 export const getMatchDetails = (id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/matches/details/${id}`,
+    endpoint: `${API_BASE}/matches/${id}/details`,
     method: 'GET',
     types: [
       GET_MATCH_DETAILS_REQUEST,
@@ -411,7 +426,7 @@ export const getDivisionData = (id) => ({
 
 export const getScoringDownloadUrl = (id, test)  => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/download_scoring_system_url/${id}?test=${test}`,
+    endpoint: `${API_BASE}/events/${id}/download_scoring_system_url?test=${test}`,
     method: 'GET',
     types: [
       SCORING_URL_REQUEST,
@@ -426,7 +441,7 @@ export const importEventResults = (id, file, division) => {
   formData.append("import", file);
   return {
     [RSAA]: {
-      endpoint: `${API_BASE}/events/import_results/${id}?division=${division}`,
+      endpoint: `${API_BASE}/events/${id}/import_results?division=${division}`,
       method: 'POST',
       body: formData,
       types: [
@@ -440,7 +455,7 @@ export const importEventResults = (id, file, division) => {
 
 export const requestAccess = (id, user, message) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/requestAccess/${id}`,
+    endpoint: `${API_BASE}/events/${id}/request_access`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({user, message}),
@@ -454,7 +469,7 @@ export const requestAccess = (id, user, message) => ({
 
 export const addOwner = (id, uid) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/add_owner/${id}`,
+    endpoint: `${API_BASE}/events/${id}/add_owner`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({uid}),
@@ -468,7 +483,7 @@ export const addOwner = (id, uid) => ({
 
 export const removeOwner = (id, uid) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/remove_owner/${id}`,
+    endpoint: `${API_BASE}/events/${id}/remove_owner`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({uid}),
@@ -479,4 +494,3 @@ export const removeOwner = (id, uid) => ({
     ]
   }
 });
-
