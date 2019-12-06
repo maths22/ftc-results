@@ -35,6 +35,9 @@ Rails.application.routes.draw do
         end
       end
       resources :events do
+        collection do
+          get 'approve_access/:token', action: 'approve_access', as: 'approve_access'
+        end
         member do
           # Basic views
           get 'matches', action: 'view_matches'
@@ -64,7 +67,6 @@ Rails.application.routes.draw do
           post 'remove_owner'
 
           post 'request_access'
-          get 'approve_access/:token', action: 'approve_access', as: 'approve_access'
         end
       end
       get 'events/matches/:id', to: 'events#view_matches'
