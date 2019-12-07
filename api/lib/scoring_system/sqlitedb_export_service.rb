@@ -30,7 +30,7 @@ module ScoringSystem
     require 'uri'
 
     def updated_global_db
-      Rails.cache.fetch('global_db_path', expires_in: 12.hours) do
+      Rails.cache.fetch('global_db_path_v2', expires_in: 12.hours) do
         ZipService.new(event.season).with_globaldb do |db_file|
           db = SQLite3::Database.new db_file
 
@@ -38,7 +38,12 @@ module ScoringSystem
             copy_from_globaldb(db, 'Team', '1=1', defaultdb_file)
           end
           update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
+          insert_team_stmt = db.prepare 'INSERT INTO Team (FMSTeamId, FMSSeasonId, TeamId, TeamNumber, TeamNameShort, TeamNameLong, City, StateProv, Country, RookieYear, CreatedOn, CreatedBy, ModifiedOn, ModifiedBy, WasAddedFromUI, CMPPrequalified, DemoTeam)
+                                                      VALUES (:team_id, :season_id, 0, :number, :name, :school, :city, :state, :country, :rookie_year, :created_on, :created_by, :modified_on, :modified_by, 1, 0, 0)'
+
           update_team_info_stmt = db.prepare 'UPDATE teamInfo SET name = :name, school = :school, city = :city, state = :state, country = :country, rookie = :rookie WHERE number = :number'
+          insert_team_info_stmt = db.prepare 'INSERT INTO teamInfo (number, name, school, city, state, country, rookie) VALUES (:number, :name, :school, :city, :state, :country, :rookie)'
+
           Team.all.each do |team|
             update_team_stmt.execute number: team.number,
                                      name: team.name,
@@ -49,7 +54,33 @@ module ScoringSystem
                                      modified_on: team.updated_at.utc.iso8601(3),
                                      modified_by: 'IL FTC Results'
 
+            if db.changes.zero?
+              insert_team_stmt.execute team_id: DataHelper.uuid_to_bytes(SecureRandom.uuid),
+                                       # TODO: don't hardcode skystone
+                                       season_id: DataHelper.uuid_to_bytes('803cdf38-6b9a-6544-b8f6-daf20191133a'),
+                                       number: team.number,
+                                       name: team.name,
+                                       school: team.organization,
+                                       city: team.city,
+                                       state: team.state,
+                                       country: team.country,
+                                       rookie_year: team.rookie_year,
+                                       created_on: team.updated_at.utc.iso8601(3),
+                                       created_by: 'IL FTC Results',
+                                       modified_on: team.updated_at.utc.iso8601(3),
+                                       modified_by: 'IL FTC Results'
+            end
+
             update_team_info_stmt.execute number: team.number,
+                                          name: team.name,
+                                          school: team.organization,
+                                          city: team.city,
+                                          state: team.state,
+                                          country: team.country,
+                                          rookie: team.rookie_year
+            next unless db.changes.zero?
+
+            insert_team_info_stmt.execute number: team.number,
                                           name: team.name,
                                           school: team.organization,
                                           city: team.city,
