@@ -35,7 +35,7 @@ module ScoringSystem
           db = SQLite3::Database.new db_file
 
           with_defaultdb do |defaultdb_file|
-            copy_from_globaldb(db, 'Team', '1=1', defaultdb_file)
+            copy_from_globaldb(db, 'Team', globaldb: defaultdb_file)
           end
           update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
           insert_team_stmt = db.prepare 'INSERT INTO Team (FMSTeamId, FMSSeasonId, TeamId, TeamNumber, TeamNameShort, TeamNameLong, City, StateProv, Country, RookieYear, CreatedOn, CreatedBy, ModifiedOn, ModifiedBy, WasAddedFromUI, CMPPrequalified, DemoTeam)
@@ -218,8 +218,8 @@ module ScoringSystem
         end
 
         if event.league_championship? || div == event.context
-          copy_from_globaldb(db, 'Team', "TeamNumber IN (#{div.teams.map(&:number).join(', ')})", delete: false)
-          copy_from_globaldb(db, 'teamInfo', "number IN (#{div.teams.map(&:number).join(', ')})", delete: false)
+          copy_from_globaldb(db, 'Team', where: "TeamNumber IN (#{div.teams.map(&:number).join(', ')})", delete: false)
+          copy_from_globaldb(db, 'teamInfo', where: "number IN (#{div.teams.map(&:number).join(', ')})", delete: false)
         end
 
         div.teams.each do |team|
@@ -262,13 +262,13 @@ module ScoringSystem
       @league ||= event.league_championship? ? event.context : event.context.league
     end
 
-    def copy_from_globaldb(db, table, where_clause = '1 = 1', globaldb = updated_global_db, delete = true)
-      cache_key = "#{table}:#{where_clause}"
+    def copy_from_globaldb(db, table, where: '1 = 1', globaldb: updated_global_db, delete: true)
+      cache_key = "#{table}:#{where}"
       @value_cache ||= {}
       @value_cache[cache_key] ||= begin
         global_db = SQLite3::Database.new globaldb
         columns = global_db.execute("SELECT name FROM pragma_table_info('#{table}')").map { |row| row[0] }
-        rows = global_db.execute "SELECT #{columns.join(', ')} FROM #{table} WHERE #{where_clause}"
+        rows = global_db.execute "SELECT #{columns.join(', ')} FROM #{table} WHERE #{where}"
         pk = global_db.execute("SELECT name FROM pragma_table_info('#{table}') WHERE pk >= 1").map { |row| row[0] }
         { pk: pk, columns: columns, rows: rows }
       end
