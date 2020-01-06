@@ -37,7 +37,7 @@ module ScoringSystem
     end
 
     def dest
-      @dest ||= Rails.root.join('data', 'scoring-download')
+      @dest ||= Rails.root.join('data/scoring-download')
     end
 
     def client

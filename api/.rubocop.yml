@@ -7,7 +7,7 @@ Style/FrozenStringLiteralComment:
 Style/Documentation:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   #  TODO reenable
   Enabled: false
   Max: 120
@@ -51,7 +51,7 @@ Rails:
 Rails/HasAndBelongsToMany:
   Enabled: false
 
-Lint/HandleExceptions:
+Lint/SuppressedException:
   AllowComments: true
 
 AllCops:

@@ -52,7 +52,7 @@ class ApiController < ApplicationController
 
     unless actions_for_alias(@decoded_token[0]['act'].to_sym).include? action_name.to_sym
       render json: { error: "Invalid URL (JWT for #{@decoded_token[0]['act']}, requested #{action_name})", status: 'unauthorized' }, status: :unauthorized
-      return
+      nil
     end
     # rubocop:enable Style/GuardClause
   end

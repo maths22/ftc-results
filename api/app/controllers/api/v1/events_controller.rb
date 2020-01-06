@@ -146,7 +146,7 @@ module Api
             # Sponsor.global.each { |s| zip.add_sponsor_logo(zip_file, s) }
             # @event.sponsors.each { |s| zip.add_sponsor_logo(zip_file, s) }
             # TODO: seasonify
-            zip.add_lib(zip_file, Rails.root.join('vendor', 'scoring', 'FTCLiveExtras.jar'))
+            zip.add_lib(zip_file, Rails.root.join('vendor/scoring/FTCLiveExtras.jar'))
           end
           db_service.cleanup
           File.open(file, 'r') do |data|
