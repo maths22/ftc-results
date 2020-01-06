@@ -218,8 +218,8 @@ module ScoringSystem
         end
 
         if event.league_championship? || div == event.context
-          copy_from_globaldb(db, 'Team', "TeamNumber IN (#{div.teams.map(&:number).join(', ')})")
-          copy_from_globaldb(db, 'teamInfo', "number IN (#{div.teams.map(&:number).join(', ')})")
+          copy_from_globaldb(db, 'Team', "TeamNumber IN (#{div.teams.map(&:number).join(', ')})", delete: false)
+          copy_from_globaldb(db, 'teamInfo', "number IN (#{div.teams.map(&:number).join(', ')})", delete: false)
         end
 
         div.teams.each do |team|
@@ -262,7 +262,7 @@ module ScoringSystem
       @league ||= event.league_championship? ? event.context : event.context.league
     end
 
-    def copy_from_globaldb(db, table, where_clause = '1 = 1', globaldb = updated_global_db)
+    def copy_from_globaldb(db, table, where_clause = '1 = 1', globaldb = updated_global_db, delete = true)
       cache_key = "#{table}:#{where_clause}"
       @value_cache ||= {}
       @value_cache[cache_key] ||= begin
@@ -275,7 +275,7 @@ module ScoringSystem
 
       columns = @value_cache[cache_key][:columns]
       # pk = @value_cache[cache_key][:pk]
-      db.execute "DELETE FROM #{table}"
+      db.execute "DELETE FROM #{table}" if delete
       sql = <<~SQL
         INSERT INTO #{table}
         (#{columns.join(', ')})
