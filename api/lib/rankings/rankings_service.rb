@@ -43,7 +43,7 @@ module Rankings
     end
 
     def skystone_generate_ranking(lst)
-      matches_played = lst[0].matches_played
+      matches_played = lst.size
       tbp_matches_played = if matches_played > 5
                              matches_played - 2
                            elsif matches_played > 1
