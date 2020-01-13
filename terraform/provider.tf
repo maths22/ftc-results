@@ -14,7 +14,7 @@ provider "archive" {
 
 terraform {
   backend "remote" {
-    hostname = "app.terraform.io"
+    hostname     = "app.terraform.io"
     organization = "maths22"
 
     workspaces {

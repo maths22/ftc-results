@@ -12,7 +12,7 @@ locals {
     production = "api.production.ftc-results.maths22.com"
   }
   vpc = {
-    dev = "vpc-0119b764"
+    dev        = "vpc-0119b764"
     production = "vpc-03babb5c4ce4f8e82"
   }
 }

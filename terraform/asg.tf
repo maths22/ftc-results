@@ -47,27 +47,27 @@ resource "aws_launch_template" "web_config" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups = [data.aws_security_group.dbserver.id, data.aws_security_group.ssh_only.id, data.aws_security_group.http.id]
+    security_groups             = [data.aws_security_group.dbserver.id, data.aws_security_group.ssh_only.id, data.aws_security_group.http.id]
   }
 
   block_device_mappings {
     device_name = "/dev/sda1"
 
     ebs {
-      encrypted = "false"
+      encrypted   = "false"
       volume_size = 12
     }
   }
 }
 
 resource "aws_autoscaling_group" "web_asg" {
-  name            = "ftc-results-web-${local.workspace}"
+  name = "ftc-results-web-${local.workspace}"
   launch_template {
-    name = aws_launch_template.web_config.name
+    name    = aws_launch_template.web_config.name
     version = "$Latest"
   }
-  min_size        = 1
-  max_size        = 1
+  min_size = 1
+  max_size = 1
 
   vpc_zone_identifier = data.aws_subnet_ids.subnets.ids
 
@@ -116,27 +116,27 @@ resource "aws_launch_template" "work_config" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups = [data.aws_security_group.dbserver.id, data.aws_security_group.ssh_only.id]
+    security_groups             = [data.aws_security_group.dbserver.id, data.aws_security_group.ssh_only.id]
   }
 
   block_device_mappings {
     device_name = "/dev/sda1"
 
     ebs {
-      encrypted = "false"
+      encrypted   = "false"
       volume_size = 12
     }
   }
 }
 
 resource "aws_autoscaling_group" "work_asg" {
-  name            = "ftc-results-work-${local.workspace}"
+  name = "ftc-results-work-${local.workspace}"
   launch_template {
-    name = aws_launch_template.work_config.name
+    name    = aws_launch_template.work_config.name
     version = "$Latest"
   }
-  min_size        = 1
-  max_size        = 1
+  min_size = 1
+  max_size = 1
 
   vpc_zone_identifier = data.aws_subnet_ids.subnets.ids
 

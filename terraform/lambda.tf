@@ -1,5 +1,5 @@
 data "archive_file" "lambda_archive" {
-  type = "zip"
+  type        = "zip"
   source_file = "${path.module}/eip_reattacher/handler.rb"
   output_path = "${path.module}/eip_reattacher.zip"
 }
@@ -18,7 +18,7 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
 
 data "aws_iam_policy_document" "lambda_log_policy" {
   statement {
-    actions = ["logs:CreateLogGroup"]
+    actions   = ["logs:CreateLogGroup"]
     resources = ["*"]
   }
 
@@ -33,19 +33,19 @@ data "aws_iam_policy_document" "lambda_log_policy" {
 
 resource "aws_iam_role_policy" "lambda_log_policy" {
   policy = data.aws_iam_policy_document.lambda_log_policy.json
-  role = aws_iam_role.lambda_role.id
+  role   = aws_iam_role.lambda_role.id
 }
 
 data "aws_iam_policy_document" "eip_policy" {
   statement {
-    actions = ["ec2:AssociateAddress"]
+    actions   = ["ec2:AssociateAddress"]
     resources = ["*"]
   }
 }
 
 resource "aws_iam_role_policy" "eip_policy" {
   policy = data.aws_iam_policy_document.eip_policy.json
-  role = aws_iam_role.lambda_role.id
+  role   = aws_iam_role.lambda_role.id
 }
 
 resource "aws_iam_role" "lambda_role" {
@@ -83,7 +83,7 @@ resource "aws_lambda_function" "eip_reattacher" {
   environment {
     variables = {
       eip_allocation_id = aws_eip.api_eip.id
-      asg_name = aws_autoscaling_group.web_asg.name
+      asg_name          = aws_autoscaling_group.web_asg.name
     }
   }
 
@@ -91,11 +91,11 @@ resource "aws_lambda_function" "eip_reattacher" {
 }
 
 resource "aws_cloudwatch_event_rule" "instance_launch" {
-  name        = "ftc-results-eip-reattacher-${local.workspace}"
+  name = "ftc-results-eip-reattacher-${local.workspace}"
 
   event_pattern = jsonencode({
-    detail-type = [ "EC2 Instance Launch Successful" ]
-    source = [ "aws.autoscaling" ]
+    detail-type = ["EC2 Instance Launch Successful"]
+    source      = ["aws.autoscaling"]
   })
 }
 
