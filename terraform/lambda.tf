@@ -5,7 +5,7 @@ data "archive_file" "lambda_archive" {
 }
 
 locals {
-  eip_reattacher_name = "ftc-results-eip-reattacher-${terraform.workspace}"
+  eip_reattacher_name = "ftc-results-eip-reattacher-${local.workspace}"
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch" {
@@ -49,7 +49,7 @@ resource "aws_iam_role_policy" "eip_policy" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "ftc-results-${terraform.workspace}-eip-reattacher-role"
+  name = "ftc-results-${local.workspace}-eip-reattacher-role"
 
   assume_role_policy = <<EOF
 {
@@ -91,7 +91,7 @@ resource "aws_lambda_function" "eip_reattacher" {
 }
 
 resource "aws_cloudwatch_event_rule" "instance_launch" {
-  name        = "ftc-results-eip-reattacher-${terraform.workspace}"
+  name        = "ftc-results-eip-reattacher-${local.workspace}"
 
   event_pattern = jsonencode({
     detail-type = [ "EC2 Instance Launch Successful" ]

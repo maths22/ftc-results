@@ -4,12 +4,12 @@ data "aws_caller_identity" "current" {}
 locals {
   tags = {
     Project     = "Ftc-results"
-    Environment = title(terraform.workspace)
+    Environment = title(local.workspace)
   }
 }
 
 resource "aws_s3_bucket" "asset_bucket" {
-  bucket = "ftc-results-assets-${terraform.workspace}"
+  bucket = "ftc-results-assets-${local.workspace}"
   acl    = "public-read"
 
   website {
@@ -26,12 +26,12 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   default_root_object = "index.html"
 
-  aliases = local.domains[terraform.workspace]
+  aliases = local.domains[local.workspace]
 
   viewer_certificate {
-    acm_certificate_arn            = local.cert_arns[terraform.workspace]
-    ssl_support_method             = local.cert_arns[terraform.workspace] == "" ? null : "sni-only"
-    cloudfront_default_certificate = local.cert_arns[terraform.workspace] == ""
+    acm_certificate_arn            = local.cert_arns[local.workspace]
+    ssl_support_method             = local.cert_arns[local.workspace] == "" ? null : "sni-only"
+    cloudfront_default_certificate = local.cert_arns[local.workspace] == ""
     minimum_protocol_version       = "TLSv1.1_2016"
   }
 
@@ -50,7 +50,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   origin {
     origin_id   = "aws-docker"
-    domain_name = local.api_hosts[terraform.workspace]
+    domain_name = local.api_hosts[local.workspace]
 
     custom_origin_config {
       http_port              = "80"

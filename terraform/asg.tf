@@ -27,15 +27,15 @@ data "aws_security_group" "http" {
 }
 
 data "aws_subnet_ids" "subnets" {
-  vpc_id = local.vpc[terraform.workspace]
+  vpc_id = local.vpc[local.workspace]
 }
 
 resource "aws_launch_template" "web_config" {
   lifecycle {
-    ignore_changes = ["image_id"]
+    ignore_changes = [image_id]
   }
 
-  name          = "ftc-results-web-${terraform.workspace}"
+  name          = "ftc-results-web-${local.workspace}"
   image_id      = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
 
@@ -61,7 +61,7 @@ resource "aws_launch_template" "web_config" {
 }
 
 resource "aws_autoscaling_group" "web_asg" {
-  name            = "ftc-results-web-${terraform.workspace}"
+  name            = "ftc-results-web-${local.workspace}"
   launch_template {
     name = aws_launch_template.web_config.name
     version = "$Latest"
@@ -101,10 +101,10 @@ resource "aws_autoscaling_group" "web_asg" {
 
 resource "aws_launch_template" "work_config" {
   lifecycle {
-    ignore_changes = ["image_id"]
+    ignore_changes = [image_id]
   }
 
-  name          = "ftc-results-work-${terraform.workspace}"
+  name          = "ftc-results-work-${local.workspace}"
   image_id      = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
 
@@ -130,7 +130,7 @@ resource "aws_launch_template" "work_config" {
 }
 
 resource "aws_autoscaling_group" "work_asg" {
-  name            = "ftc-results-work-${terraform.workspace}"
+  name            = "ftc-results-work-${local.workspace}"
   launch_template {
     name = aws_launch_template.work_config.name
     version = "$Latest"

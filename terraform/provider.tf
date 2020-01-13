@@ -13,10 +13,13 @@ provider "archive" {
 }
 
 terraform {
-  backend "s3" {
-    bucket = "maths22-remote-tfstate"
-    region = "us-west-2"
-    key    = "ftc-results.tfstate"
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "maths22"
+
+    workspaces {
+      prefix = "ftc-results-"
+    }
   }
 
   required_version = "~> 0.12.7"

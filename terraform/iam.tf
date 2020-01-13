@@ -44,6 +44,7 @@ data "aws_iam_policy_document" "results_bucket_access" {
       "s3:PutObjectAcl",
       "s3:GetObject",
       "s3:GetObjectAcl",
+      "s3:DeleteObject",
       "s3:ListBucket"
     ]
 
@@ -55,7 +56,7 @@ data "aws_iam_policy_document" "results_bucket_access" {
 }
 
 resource "aws_iam_role" "ec2_instance_role" {
-  name = "ftc-results-${terraform.workspace}-instance-role"
+  name = "ftc-results-${local.workspace}-instance-role"
 
   assume_role_policy = <<EOF
 {
@@ -87,6 +88,6 @@ resource "aws_iam_role_policy" "results_bucket_attach" {
 }
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "ftc-results-${terraform.workspace}-instance-profile"
+  name = "ftc-results-${local.workspace}-instance-profile"
   role = aws_iam_role.ec2_instance_role.name
 }

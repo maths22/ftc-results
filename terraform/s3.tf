@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "upload" {
-  bucket = "ftc-results-upload-${terraform.workspace}"
+  bucket = "ftc-results-upload-${local.workspace}"
   acl    = "private"
 
   cors_rule {
