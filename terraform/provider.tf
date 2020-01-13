@@ -8,20 +8,14 @@ provider "aws" {
   }
 }
 
-provider "archive" {
-  version = "~> 1.3"
+provider "aws" {
+  region  = "us-west-2"
+  version = "~> 2.7"
+
+  alias = "dns"
 }
 
-terraform {
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "maths22"
-
-    workspaces {
-      prefix = "ftc-results-"
-    }
-  }
-
-  required_version = "~> 0.12.7"
+provider "archive" {
+  version = "~> 1.3"
 }
 

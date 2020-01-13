@@ -49,8 +49,8 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 
   origin {
-    origin_id   = "aws-docker"
-    domain_name = local.api_hosts[local.workspace]
+    origin_id   = "api-host"
+    domain_name = aws_route53_record.api.fqdn
 
     custom_origin_config {
       http_port              = "80"
@@ -82,7 +82,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     compress         = true
-    target_origin_id = "aws-docker"
+    target_origin_id = "api-host"
 
     forwarded_values {
       query_string = true
@@ -108,7 +108,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     path_pattern     = "/api/*"
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = "aws-docker"
+    target_origin_id = "api-host"
 
     forwarded_values {
       query_string = true
@@ -138,7 +138,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     path_pattern     = "/rails/*"
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = "aws-docker"
+    target_origin_id = "api-host"
 
     forwarded_values {
       query_string = true
