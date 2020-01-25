@@ -136,8 +136,8 @@ module ScoringSystem
                                 status: 1, # setup status
                                 finals: event.divisions? ? 1 : 0,
                                 divisions: 0,
-                                start: event.start_date.to_time.to_i.to_s + '000',
-                                end: event.end_date.to_time.to_i.to_s + '000',
+                                start: event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000',
+                                end: event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000',
                                 region: apk.split('-')[0]
 
       event.event_divisions.each do |div|
@@ -147,8 +147,8 @@ module ScoringSystem
                                   status: 1, # setup status
                                   finals: 0,
                                   divisions: div.number,
-                                  start: event.start_date.to_time.to_i.to_s + '000',
-                                  end: event.end_date.to_time.to_i.to_s + '000',
+                                  start: event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000',
+                                  end: event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000',
                                   region: apk.split('-')[0]
       end
     end
@@ -213,8 +213,8 @@ module ScoringSystem
 
           add_league_event_stmt.execute eventCode: event.slug,
                                         name: event.name,
-                                        start: event.start_date.to_time.to_i.to_s + '000',
-                                        end: event.end_date.to_time.to_i.to_s + '000'
+                                        start: event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000',
+                                        end: event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000'
         end
 
         if event.league_championship? || div == event.context
