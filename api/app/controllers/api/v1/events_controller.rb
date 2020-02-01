@@ -105,7 +105,7 @@ module Api
       def view_awards
         expires_in(30.seconds, public: true) if request_cacheable?
 
-        @awards = @event.awards.includes(:award_finalists)
+        @awards = @event.awards.includes(:award_finalists).reject { |a| a.award_finalists.empty? }
       end
 
       def view_teams
@@ -234,8 +234,6 @@ module Api
           ActiveRecord::Base.transaction do
             @event.awards.destroy_all
             params[:awards].each do |awd|
-              next if awd[:finalists].empty?
-
               award = Award.new(awd.permit(:name))
               award.event = @event
               award.save!
