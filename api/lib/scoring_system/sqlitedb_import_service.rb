@@ -284,7 +284,7 @@ module ScoringSystem
                         JOIN Award ON Award.FMSAwardId = AwardAssignment.FMSAwardId
                         AND NOT (TeamNumber IS NULL AND FirstName IS NULL AND LastName IS NULL)'
       awards_given.each do |ag|
-        award = Award.find_or_create_by(name: a['Description'], event: event) do |new_award|
+        award = Award.find_or_create_by(name: ag['Description'], event: event) do |new_award|
           new_award.script = ag['Script']
         end
 
