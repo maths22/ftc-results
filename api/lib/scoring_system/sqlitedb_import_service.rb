@@ -289,7 +289,7 @@ module ScoringSystem
         end
 
         AwardFinalist.new(
-          team_number: ag['TeamNumber'],
+          team_id: ag['TeamNumber'],
           recipient: "#{ag['FirstName']} #{ag['LastName']}".strip,
           place: ag['Place'],
           description: ag['Comment'],
