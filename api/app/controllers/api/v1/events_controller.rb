@@ -234,6 +234,8 @@ module Api
           ActiveRecord::Base.transaction do
             @event.awards.destroy_all
             params[:awards].each do |awd|
+              next if awd[:finalists].empty?
+
               award = Award.new(awd.permit(:name))
               award.event = @event
               award.save!
