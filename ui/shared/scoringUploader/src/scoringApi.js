@@ -26,6 +26,10 @@ export default class ScoringApi {
     return this._fetch(this._apiUrl(`/v1/events/${event}/rankings`));
   }
 
+  getCombinedRankings(event) {
+    return this._fetch(this._apiUrl(`/v1/events/${event}/rankings/combined`));
+  }
+
   getAlliances(event) {
     return this._fetch(this._apiUrl(`/v1/events/${event}/elim/alliances`));
   }

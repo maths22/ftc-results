@@ -54,6 +54,11 @@ function () {
       return this._fetch(this._apiUrl("/v1/events/".concat(event, "/rankings")));
     }
   }, {
+    key: "getCombinedRankings",
+    value: function getCombinedRankings(event) {
+      return this._fetch(this._apiUrl("/v1/events/".concat(event, "/rankings/combined")));
+    }
+  }, {
     key: "getAlliances",
     value: function getAlliances(event) {
       return this._fetch(this._apiUrl("/v1/events/".concat(event, "/elim/alliances")));

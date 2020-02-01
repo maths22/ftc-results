@@ -54,6 +54,7 @@ export default class Uploader {
   startUpload = async () => {
     const eventInfo = await this.scoringApi.getEvent(this.localEvent);
     this.targetDivision = eventInfo.payload.division;
+    this.useCombinedRankings = eventInfo.payload.type === 'League Tournament';
     this.syncData();
     this.syncInterval = setInterval(this.syncData, 30000);
     this.pws = new PersistentWebSocket(`ws://${this.hostname}:${this.port}${websocketPath}?code=${this.localEvent}`, WebSocket);
@@ -152,7 +153,9 @@ export default class Uploader {
   };
 
   syncRankings = async () => {
-    const rankingsResult = await this.scoringApi.getRankings(this.localEvent);
+    const rankingsResult = this.useCombinedRankings ?
+      await this.scoringApi.getCombinedRankings(this.localEvent) :
+      await this.scoringApi.getRankings(this.localEvent);
     const rankings = rankingsResult.payload.rankingList;
     const uploadRankings = rankings.map((r) => ({
       team_id: r.team,

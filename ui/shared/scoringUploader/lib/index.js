@@ -133,6 +133,7 @@ function () {
             case 2:
               eventInfo = _context.sent;
               _this2.targetDivision = eventInfo.payload.division;
+              _this2.useCombinedRankings = eventInfo.payload.type === 'League Tournament';
 
               _this2.syncData();
 
@@ -176,7 +177,7 @@ function () {
                 }
               };
 
-            case 8:
+            case 9:
             case "end":
               return _context.stop();
           }
@@ -380,11 +381,28 @@ function () {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
-              _context5.next = 2;
+              if (!_this2.useCombinedRankings) {
+                _context5.next = 6;
+                break;
+              }
+
+              _context5.next = 3;
+              return _this2.scoringApi.getCombinedRankings(_this2.localEvent);
+
+            case 3:
+              _context5.t0 = _context5.sent;
+              _context5.next = 9;
+              break;
+
+            case 6:
+              _context5.next = 8;
               return _this2.scoringApi.getRankings(_this2.localEvent);
 
-            case 2:
-              rankingsResult = _context5.sent;
+            case 8:
+              _context5.t0 = _context5.sent;
+
+            case 9:
+              rankingsResult = _context5.t0;
               rankings = rankingsResult.payload.rankingList;
               uploadRankings = rankings.map(function (r) {
                 return {
@@ -398,27 +416,27 @@ function () {
               newHash = (0, _objectHash.default)(uploadRankings);
 
               if (!(_this2.hashes['rankings'] !== newHash)) {
-                _context5.next = 12;
+                _context5.next = 19;
                 break;
               }
 
-              _context5.next = 9;
+              _context5.next = 16;
               return _this2.uploaderApi.postRankings(_this2.hostedEvent, _this2.targetDivision, uploadRankings);
 
-            case 9:
+            case 16:
               postResult = _context5.sent;
 
               if (!postResult.error) {
-                _context5.next = 12;
+                _context5.next = 19;
                 break;
               }
 
               throw new UploaderApiError(postResult.payload);
 
-            case 12:
+            case 19:
               _this2.hashes['rankings'] = newHash;
 
-            case 13:
+            case 20:
             case "end":
               return _context5.stop();
           }
