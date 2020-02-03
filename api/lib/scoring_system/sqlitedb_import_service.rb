@@ -291,7 +291,7 @@ module ScoringSystem
         AwardFinalist.new(
           team_id: ag['TeamNumber'],
           recipient: "#{ag['FirstName']} #{ag['LastName']}".strip,
-          place: ag['Place'] || 1, # Don't allow things to have a place of 0
+          place: ag['Place'],
           description: ag['Comment'],
           award: award
         ).save!

@@ -46,6 +46,8 @@ class MatchAlliance < ApplicationRecord
   end
 
   def raw_counts_for_ranking?(pos)
+    return false if alliance.is_elims?
+
     !surrogate[pos] && teams_present[pos] && !red_card[pos]
   end
 
