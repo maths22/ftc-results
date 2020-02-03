@@ -19,9 +19,11 @@ class AwardDetailsDialog extends Component {
 
     const {award, match, fullScreen} = this.props;
 
-    const first = award.finalists.find((f) => f.place === 1);
-    const second = award.finalists.find((f) => f.place === 2);
-    const third = award.finalists.find((f) => f.place === 3);
+    const lowestPlace = Math.min(...award.finalists.map((f) => f.place), 1);
+    const finalistCount = award.finalists.length;
+    const first = award.finalists.find((f) => f.place === lowestPlace);
+    const second = award.finalists.find((f) => f.place === (lowestPlace + 1));
+    const third = award.finalists.find((f) => f.place === (lowestPlace + 2));
 
     return <Dialog
         fullScreen={fullScreen}
@@ -39,28 +41,32 @@ class AwardDetailsDialog extends Component {
             {award.description}
           </p> : null }
 
-
-          { first ? <div>
-            <b>First place: {first && first.team ? <TextLink
-                to={`/teams/summary/${first.team.number}`}>{first.team.number} ({first.team.name})</TextLink> : null}
-              {first && first.recipient ? first.recipient : null}</b>
-            { first.description ? <p>
-              Judges' comments: <br/>
-              {first.description}
-            </p> : null }
+          {finalistCount > 3 ? award.finalists.map((f) => <div>
+              <b>{f.team ? <TextLink
+                to={`/teams/summary/${f.team.number}`}>{f.team.number} ({f.team.name})</TextLink> : null}
+                {f && f.recipient ? f.recipient : null}</b></div>) : <>
+            { first ? <div>
+              <b>First place: {first && first.team ? <TextLink
+                  to={`/teams/summary/${first.team.number}`}>{first.team.number} ({first.team.name})</TextLink> : null}
+                {first && first.recipient ? first.recipient : null}</b>
+              { first.description ? <p>
+                Judges' comments: <br/>
+                {first.description}
+              </p> : null }
+            </div> : null }
+            { first && second && !first.description ? <br/> : null}
+            { second ? <div>
+            <b>Second place: {second && second.team ? <TextLink
+                to={`/teams/summary/${second.team.number}`}>{second.team.number} ({second.team.name})</TextLink> : null}
+              {second && second.recipient ? second.recipient : null}</b>
           </div> : null }
-          { first && second && !first.description ? <br/> : null}
-          { second ? <div>
-          <b>Second place: {second && second.team ? <TextLink
-              to={`/teams/summary/${second.team.number}`}>{second.team.number} ({second.team.name})</TextLink> : null}
-            {second && second.recipient ? second.recipient : null}</b>
-        </div> : null }
-          { second && third ? <br/> : null}
-          { third ? <div>
-            <b>Third place: {third && third.team ? <TextLink
-                to={`/teams/summary/${third.team.number}`}>{third.team.number} ({third.team.name})</TextLink> : null}
-              {third && third.recipient ? third.recipient : null}</b>
-          </div> : null }
+            { second && third ? <br/> : null}
+            { third ? <div>
+              <b>Third place: {third && third.team ? <TextLink
+                  to={`/teams/summary/${third.team.number}`}>{third.team.number} ({third.team.name})</TextLink> : null}
+                {third && third.recipient ? third.recipient : null}</b>
+            </div> : null }
+          </> }
 
         </div>
       </DialogContent>

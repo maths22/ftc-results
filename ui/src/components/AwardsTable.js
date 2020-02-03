@@ -55,13 +55,32 @@ class AwardsTable extends React.Component {
       </TableHead>
       <TableBody>
         {awards.map((a) => {
-          const first = a.finalists.find((f) => f.place === 1);
-          const second = a.finalists.find((f) => f.place === 2);
-          const third = a.finalists.find((f) => f.place === 3);
+          const lowestPlace = Math.min(...a.finalists.map((f) => f.place), 1);
+          const finalistCount = a.finalists.length;
+          const first = a.finalists.find((f) => f.place === lowestPlace);
+          const second = a.finalists.find((f) => f.place === (lowestPlace + 1));
+          const third = a.finalists.find((f) => f.place === (lowestPlace + 2));
           const isNameLink = a.description || (first && first.description);
+          const nameCell = <TableCell className={classes.tableCell}>{isNameLink ?
+            <TextLink onClick={() => this.showDetails(a)}>{a.name}</TextLink> : a.name}</TableCell>;
+          if(finalistCount > 3) {
+            return <TableRow key={a.id} style={rowStyle}>
+              {nameCell}
+              <TableCell className={classes.tableCell}>
+                {a.finalists.map((f) => <>
+                  {f && f.recipient ? f.recipient : null}
+                  {f && f.team ? <TextLink
+                    to={`/teams/summary/${f.team.number}`}>{f.team.number} ({f.team.name})</TextLink> : null}
+                    <br/>
+                  </>)}
+              </TableCell>
+              <TableCell className={classes.tableCell}/>
+              <TableCell className={classes.tableCell}/>
+            </TableRow>;
+          }
+
           return <TableRow key={a.id} style={rowStyle}>
-            <TableCell className={classes.tableCell}>{isNameLink ?
-                <TextLink onClick={() => this.showDetails(a)}>{a.name}</TextLink> : a.name}</TableCell>
+            {nameCell}
             <TableCell className={classes.tableCell}>
               {first && first.recipient ? first.recipient : null}
               {first && first.team ? <TextLink
