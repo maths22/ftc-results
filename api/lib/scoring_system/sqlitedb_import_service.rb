@@ -285,13 +285,13 @@ module ScoringSystem
                         AND NOT (TeamNumber IS NULL AND FirstName IS NULL AND LastName IS NULL)'
       awards_given.each do |ag|
         award = Award.find_or_create_by(name: ag['Description'], event: event) do |new_award|
-          new_award.script = ag['Script']
+          new_award.description = ag['Script']
         end
 
         AwardFinalist.new(
           team_id: ag['TeamNumber'],
           recipient: "#{ag['FirstName']} #{ag['LastName']}".strip,
-          place: ag['Place'],
+          place: ag['Place'] || 1, # Don't allow things to have a place of 0
           description: ag['Comment'],
           award: award
         ).save!
