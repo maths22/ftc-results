@@ -1,6 +1,6 @@
 module Rankings
   class TeamRanking
-    attr_accessor :team, :division, :rp, :tbp, :high_score, :matches_played, :ranking_breaker
+    attr_accessor :team, :division, :rp, :tbp, :high_score, :matches_played, :ranking_breaker, :can_drop
 
     include Comparable
     def <=>(other)

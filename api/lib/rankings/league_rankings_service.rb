@@ -3,6 +3,11 @@ module Rankings
     attr_writer :alliances
     TOP_TO_TAKE = 10
 
+    def initialize(season, include_tournament: false)
+      @include_tournament = include_tournament
+      super(season)
+    end
+
     def initial_rankings
       divisions = Division.joins(:league).where(leagues: { season: season }).includes(teams: :divisions)
       divisions.all.map do |div|
@@ -22,7 +27,7 @@ module Rankings
     def processed_team_rankings
       raw_team_rankings.transform_values! do |lst|
         lst.each { |it| it.matches_played = lst.size }
-        lst.sort.reverse.first(TOP_TO_TAKE)
+        lst.select(&:can_drop).sort.reverse.first(TOP_TO_TAKE) + lst.reject(&:can_drop)
       end
     end
 
@@ -37,15 +42,17 @@ module Rankings
           ranking.rp = alliance.rp[at.position - 1]
           ranking.tbp = alliance.tbp[at.position - 1]
           ranking.high_score = alliance.score[at.position - 1]
+          ranking.can_drop = alliance.alliance.event.context_type == 'Division'
           rankings[at.team.number] << ranking
         end
       end
     end
 
     def alliances
+      context_filter = @include_tournament ? %w[League Division] : %w[Division]
       @alliances ||= MatchAlliance
                      .includes(alliance: { alliance_teams: { team: { divisions: :league } }, event: {} })
-                     .where(alliance: { events: { season: season, context_type: 'Division' } })
+                     .where(alliance: { events: { season: season, context_type: context_filter } })
     end
   end
 end

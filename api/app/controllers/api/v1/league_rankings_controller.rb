@@ -20,7 +20,7 @@ module Api
       private
 
       def rankings_for_season(season)
-        rankings = Rankings::LeagueRankingsService.new(season).compute
+        rankings = Rankings::LeagueRankingsService.new(season, include_tournament: true).compute
         ret = rankings.values.sort.reverse.map do |tr|
           {
             team: tr.team.number,
