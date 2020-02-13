@@ -199,7 +199,7 @@ class EventsSummary extends Component {
                   <TableCell className={classes.tableCell}>{new Date(e.start_date).getUTCFullYear() === 9999 ? 'TBA' : e.start_date === e.end_date ? e.start_date : <>{e.start_date}<wbr/>{' - ' + e.end_date}</>}</TableCell>
                   <TableCell className={classes.tableCell}>{e.aasm_state === 'finalized' && !divFinalsLeft ? <CheckIcon/> :
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
-                  {e.aasm_state === 'finalized' || divFinalsLeft
+                  {e.aasm_state === 'finalized'
                       ? this.renderDbs(e)
                       : this.renderScoringSystems(e) }
                   {isLoggedIn ? <TableCell className={classes.tableCell}>

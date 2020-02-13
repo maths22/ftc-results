@@ -104,7 +104,7 @@ module ScoringSystem
       @event_dbs ||= begin
         f = Tempfile.new('event')
         division_files = event.event_divisions.map { |div| { number: div.number, file: Tempfile.open('event') } }
-        files = { 0 => f }.merge Hash[division_files.map { |div| [div.number, div.file] }]
+        files = { 0 => f }.merge Hash[division_files.map { |div| [div[:number], div[:file]] }]
         make_event_dbs(files.transform_values(&:path))
         files
       end
@@ -154,39 +154,41 @@ module ScoringSystem
     end
 
     def make_event_dbs(db_files)
-      db = SQLite3::Database.new db_files[0]
-      event_uuid = SecureRandom.uuid
-      db.results_as_hash = true
-      db.execute_batch IO.binread(File.join(__dir__, 'sql/create_event_db.sql'))
+      db_files.each do |db_file|
+        db = SQLite3::Database.new db_file[1]
+        event_uuid = SecureRandom.uuid
+        db.results_as_hash = true
+        db.execute_batch IO.binread(File.join(__dir__, 'sql/create_event_db.sql'))
 
-      set_field_count db
-      set_uuid db, event_uuid
-      set_apk db unless test_db
-      set_il_token db unless test_db
+        set_field_count db
+        set_uuid db, event_uuid
+        set_apk db unless test_db
+        set_il_token db unless test_db
 
-      copy_from_globaldb(db, 'awardInfo')
+        copy_from_globaldb(db, 'awardInfo')
 
-      # Note only works with new scoring system
-      copy_from_globaldb(db, 'Award')
-      add_award_assignment_stmt = db.prepare 'INSERT INTO AwardAssignment VALUES(:FMSAwardId,:FMSEventId,:Series,NULL,NULL,NULL,0,:CreatedOn,:CreatedBy,NULL,NULL,NULL);'
-      db.execute('SELECT FMSAwardId, DefaultQuantity from Award').map do |award|
-        id = award['FMSAwardId']
-        Range.new(1, award['DefaultQuantity']).each do |series|
-          add_award_assignment_stmt.execute FMSAwardId: id,
-                                            FMSEventId: DataHelper.uuid_to_bytes(event_uuid),
-                                            Series: series,
-                                            CreatedOn: DateTime.now.utc.iso8601(3),
-                                            CreatedBy: 'Event Creator'
+        # Note only works with new scoring system
+        copy_from_globaldb(db, 'Award')
+        add_award_assignment_stmt = db.prepare 'INSERT INTO AwardAssignment VALUES(:FMSAwardId,:FMSEventId,:Series,NULL,NULL,NULL,0,:CreatedOn,:CreatedBy,NULL,NULL,NULL);'
+        db.execute('SELECT FMSAwardId, DefaultQuantity from Award').map do |award|
+          id = award['FMSAwardId']
+          Range.new(1, award['DefaultQuantity']).each do |series|
+            add_award_assignment_stmt.execute FMSAwardId: id,
+                                              FMSEventId: DataHelper.uuid_to_bytes(event_uuid),
+                                              Series: series,
+                                              CreatedOn: DateTime.now.utc.iso8601(3),
+                                              CreatedBy: 'Event Creator'
+          end
         end
+
+        copy_from_globaldb(db, 'formRows')
+
+        copy_from_globaldb(db, 'formItems')
+
+        add_sponsors db
       end
 
-      copy_from_globaldb(db, 'formRows')
-
-      copy_from_globaldb(db, 'formItems')
-
-      add_sponsors db
-
-      create_divisional_dbs db_files
+      setup_divisional_dbs db_files
 
       # For non-league events, don't preload any data
       return if event.context.nil?
@@ -290,7 +292,7 @@ module ScoringSystem
     end
 
     def set_field_count(db)
-      set_config(db, 'fieldCount', event.league_championship? ? 2 : 1)
+      set_config(db, 'fieldCount', event.league_meet? ? 1 : 2)
     end
 
     def set_uuid(db, uuid)
@@ -334,10 +336,9 @@ module ScoringSystem
       end
     end
 
-    def create_divisional_dbs(db_files)
+    def setup_divisional_dbs(db_files)
+      db = SQLite3::Database.new db_files[0]
       event.event_divisions.each do |div|
-        division_uuid = SecureRandom.uuid
-        set_uuid db, division_uuid
         add_division_stmt = prepare_insert_statement(db, 'divisions',
                                                      %w[id name abbrev])
 
@@ -346,15 +347,8 @@ module ScoringSystem
                                   abbrev: div.name.downcase[0]
 
         div_db = SQLite3::Database.new db_files[div.number]
-        div_db.execute_batch IO.binread(File.join(__dir__, 'sql/create_event_db.sql'))
 
-        div_db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
-                       key: 'fieldCount',
-                       value: 2
-
-        div_db.execute 'INSERT INTO config (key, value) VALUES (:key, :value)',
-                       key: 'parent',
-                       value: event.name
+        set_config(div_db, 'parent', event.name)
       end
     end
 
