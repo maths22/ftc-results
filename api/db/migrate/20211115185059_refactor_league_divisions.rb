@@ -11,8 +11,8 @@ class RefactorLeagueDivisions < ActiveRecord::Migration[6.1]
     Division.all.each do |div|
       l = League.create!(slug: div.slug, name: div.name, season: div.league.season, league: div.league)
 
-      DivisionTeams.where(division: div).each do |dt|
-        LeagueTeam.create!(league: l, team: dt.team)
+      DivisionsTeam.where(division: div).each do |dt|
+        LeaguesTeam.create!(league: l, team: dt.team)
       end
     end
   end
