@@ -1,6 +1,6 @@
 class GenericizeRankingsTable < ActiveRecord::Migration[6.1]
   def change
-    add_reference :rankings, :context, polymorphic: true, index: true, null: false
+    add_reference :rankings, :context, polymorphic: true, index: true
     reversible do |dir|
       dir.up do
         execute "UPDATE rankings SET context_type='Event', context_id=event_id"
@@ -9,6 +9,8 @@ class GenericizeRankingsTable < ActiveRecord::Migration[6.1]
         execute "UPDATE rankings SET event_id=context_id WHERE context_type='Event'"
       end
     end
+    change_column :rankings, :context_type, :string, null: false
+    change_column :rankings, :context_id, :string, null: false
     rename_column :rankings,:ranking_points, :sort_order1
     rename_column :rankings,:tie_breaker_points, :sort_order2
     add_column :rankings, :sort_order3, :float
