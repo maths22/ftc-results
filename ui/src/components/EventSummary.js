@@ -5,12 +5,11 @@ import queryString from 'query-string';
 import invert from 'lodash/invert';
 
 import {
-  getDivisions,
   getEventMatches, getEventRankings, getEventTeams, getEventAwards,
   getEvent,
   getLeagues, getTeams, getEventAlliances,
 } from '../actions/api';
-import {hideVideo, setSeason, setTitle} from '../actions/ui';
+import {hideVideo, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
@@ -102,18 +101,17 @@ class EventSummary extends Component {
 
   refresh = () => {
     if(!this.props.event) {
-      this.props.getEvent(parseInt(this.props.id));
+      this.props.getEvent(this.props.selectedSeason, this.props.id);
       //TODO only load these if relevant
-      this.props.getLeagues();
-      this.props.getDivisions();
+      this.props.getLeagues(this.props.selectedSeason);
     } else {
       this.updateTabs();
     }
-    this.props.getEventTeams(this.props.id);
-    this.props.getEventMatches(this.props.id);
-    this.props.getEventRankings(this.props.id);
-    this.props.getEventAwards(this.props.id);
-    this.props.getEventAlliances(this.props.id);
+    this.props.getEventTeams(this.props.selectedSeason, this.props.id);
+    this.props.getEventMatches(this.props.selectedSeason, this.props.id);
+    this.props.getEventRankings(this.props.selectedSeason, this.props.id);
+    this.props.getEventAwards(this.props.selectedSeason, this.props.id);
+    this.props.getEventAlliances(this.props.selectedSeason, this.props.id);
   };
 
   setTitle() {
@@ -219,11 +217,11 @@ class EventSummary extends Component {
   }
 
   showAwards() {
-    return (!this.hasDivisions() && this.props.event.context_type !== 'Division') || (this.hasDivisions() && this.state.selectedDivision === 0);
+    return (!this.hasDivisions() && this.props.event.type !== 'league_meet') || (this.hasDivisions() && this.state.selectedDivision === 0);
   }
 
   showAlliances() {
-    return this.props.event.context_type !== 'Division';
+    return this.props.event.type !== 'league_meet';
   }
 
   render () {
@@ -231,7 +229,7 @@ class EventSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const { classes, event, league, division, matches, rankings, alliances, awards, teams } = this.props;
+    const { classes, event, league, matches, rankings, alliances, awards, teams } = this.props;
     const { selectedDivision, selectedTab } = this.state;
 
 
@@ -251,7 +249,7 @@ class EventSummary extends Component {
       this.showRankings() ? <div className={classes.tabPanel} key="rankings">
         <RankingsTable
             rankings={rankings && rankings.filter(r => selectedDivision === 0 ? !r.division : selectedDivision === r.division)}
-            showRecord
+            showRecord={!this.props.event.remote}
             onRefresh={this.refresh}/>
         </div> : null,
       this.showAlliances() ? <div className={classes.tabPanel} key="alliances">
@@ -260,7 +258,7 @@ class EventSummary extends Component {
           onRefresh={this.refresh}/>
         </div> : null,
       <div className={classes.tabPanel} key="matches">
-        <MatchTable
+        <MatchTable remote={event.remote}
             matches={matches && matches.filter(m => selectedDivision === 0 ? !m.division : selectedDivision === m.division)}
         />
       </div>,
@@ -287,10 +285,10 @@ class EventSummary extends Component {
         {event.country}</TextLink>
         </> : ' TBA' }
         <br/>
+        {league && league.league ?
+          <><span><b>League:</b> <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${league.league.slug}`}>{league.league.name}</TextLink></span><br/></> : null }
         {league ?
-          <span><b>League:</b> <TextLink to={`/leagues/rankings/${league.id}`}>{league.name}</TextLink></span> : null }<br/>
-        {division ?
-          <span><b>Division:</b> <TextLink to={`/divisions/rankings/${division.id}`}>{division.name}</TextLink></span> : null }<br/>
+          <span><b>{league.league ? 'Child ' : null} League:</b> <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${league.slug}`}>{league.name}</TextLink></span> : null }<br/>
 
       </div>
 
@@ -305,7 +303,7 @@ class EventSummary extends Component {
         >
           <Wrapper style={{width: '48px'}}/>
           <Tab label="Teams" style={{marginLeft: 'auto'}}/>
-          { this.showRankings() ? <Tab label="Rankings" /> : null }
+          { this.showRankings() ? <Tab label={this.props.event.type !== 'league_meet' ? 'Rankings' : 'League Rankings'} /> : null }
           { this.showAlliances() ? <Tab label="Alliances" /> : null }
           <Tab label="Matches" />
           { this.showAwards() ? <Tab label="Awards" /> : null }
@@ -330,23 +328,33 @@ const mapStateToProps = (state, props) => {
   const ret = {};
   ret.uiHideVideo = state.ui.hideVideo;
   ret.seasons = state.seasons;
-  const id = parseInt(props.id);
   if (state.events) {
-    ret.event = state.events[id];
+    ret.event = Object.values(state.events).find((e) => e.slug === props.id );
     if(!ret.event || !ret.event.id) ret.event = null;
   }
+  const id = ret.event && ret.event.id;
   ret.matches = Object.values(state.matches).filter((m) => m.event_id === id);
   if(state.teams) {
     if(ret.event && ret.event.teams) {
       ret.teams = ret.event.teams.map((td) => ({team: state.teams[td.team], division: td.division}));
 
-      ret.rankings = Object.values(state.rankings).filter((m) => m.event_id === id)
-        .sort((a, b) => {
-          const ar = a.ranking < 0 ? 1000000 : a.ranking;
-          const br = b.ranking < 0 ? 1000000 : b.ranking;
-          return ar - br;
-        })
-        .map((r) => Object.assign({}, r, {team: state.teams[r.team_id]}));
+      if (ret.event.type === 'league_meet') {
+        ret.rankings = Object.values(state.rankings).filter((m) => m.context_type === 'League' && m.context_id === ret.event.context_id)
+          .sort((a, b) => {
+            const ar = a.ranking < 0 ? 1000000 : a.ranking;
+            const br = b.ranking < 0 ? 1000000 : b.ranking;
+            return ar - br;
+          })
+          .map((r) => Object.assign({}, r, {team: state.teams[r.team]}));
+      } else {
+        ret.rankings = Object.values(state.rankings).filter((m) => m.context_type === 'Event' && m.context_id === id)
+          .sort((a, b) => {
+            const ar = a.ranking < 0 ? 1000000 : a.ranking;
+            const br = b.ranking < 0 ? 1000000 : b.ranking;
+            return ar - br;
+          })
+          .map((r) => Object.assign({}, r, {team: state.teams[r.team]}));
+      }
       ret.awards = Object.values(state.awards).filter((m) => m.event_id === id)
         .sort((a, b) => {
           return b.id - a.id;
@@ -363,17 +371,13 @@ const mapStateToProps = (state, props) => {
         }));
     }
   }
-  if (state.divisions && state.leagues && ret.event && ret.event.context_type === 'Division') {
-    ret.division = state.divisions[ret.event.context_id];
-    ret.league = state.leagues[ret.division.league_id];
-  } else if (state.leagues && ret.event && ret.event.context_type === 'League') {
+  if (state.leagues && ret.event && ret.event.context_type === 'League') {
     ret.league = state.leagues[ret.event.context_id];
   }
   return ret;
 };
 
 const mapDispatchToProps = {
-  getDivisions,
   getEvent,
   getEventMatches,
   getEventRankings,
@@ -383,7 +387,6 @@ const mapDispatchToProps = {
   getLeagues,
   getTeams,
   setTitle,
-  setSeason,
   hideVideo,
   push,
 };

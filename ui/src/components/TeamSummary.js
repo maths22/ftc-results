@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import {getTeamDetails, getLeagues, getDivisions, getSeasons} from '../actions/api';
+import {getTeamDetails, getLeagues, getSeasons} from '../actions/api';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
@@ -36,9 +36,6 @@ class EventsSummary extends Component {
   componentDidMount() {
     if(!this.props.team || !this.props.matches) {
       this.props.getTeamDetails(this.props.id);
-    }
-    if(!this.props.divisions) {
-      this.props.getDivisions();
     }
     if(!this.props.leagues) {
       this.props.getLeagues();
@@ -79,17 +76,17 @@ class EventsSummary extends Component {
       return <Card key={evt.id} style={{margin: '1em 0'}}>
         <div className={this.props.classes.heading}>
           <div className={this.props.classes.eventHeader}>
-            <Typography variant="h6" gutterBottom><TextLink to={`/events/summary/${evt.id}`}>{evt.name}</TextLink></Typography>
+            <Typography variant="h6" gutterBottom><TextLink to={`/${season.year}/events/summary/${evt.slug}`}>{evt.name}</TextLink></Typography>
             <EventChip event={evt}/>
           </div>
 
-          {theMatches.filter((m) => m.played).length > 0 ? <p style={{marginBottom: 0, marginTop: 0}}>
-            {`Team ${team.number} ${evt.aasm_state === 'in_progress' ? 'is' : 'was'} `}
-            <b>Rank {team.rankings[evt.id]}</b>{' with a record of '}
-            <b style={{whiteSpace: 'nowrap'}}>{`${team.event_records[evt.id].win}-${team.event_records[evt.id].loss}-${team.event_records[evt.id].tie}`}</b>
+          {theMatches.filter((m) => m.played).length > 0 && !(evt.remote && evt.type === 'league_meet') ? <p style={{marginBottom: 0, marginTop: 0}}>
+            Team {team.number} {evt.type === 'league_meet' ? null : <>{evt.aasm_state === 'in_progress' ? 'is' : 'was'} <b>Rank {team.rankings[evt.id]}</b></>}
+            {evt.remote ? null : <>{evt.type === 'league_meet' ? ' ' + (evt.aasm_state === 'in_progress' ? 'has' : 'had') + ' a record of ' : ' with a record of '}
+            <b style={{whiteSpace: 'nowrap'}}>{`${team.event_records[evt.id].win}-${team.event_records[evt.id].loss}-${team.event_records[evt.id].tie}`}</b></>}
           </p> : null}
         </div>
-        <MatchTable team={this.props.team.number} matches={theMatches}/>
+        <MatchTable team={this.props.team.number} matches={theMatches} remote={evt.remote} />
       </Card>;});
   };
 
@@ -98,7 +95,7 @@ class EventsSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const {team, divisions, seasons} = this.props;
+    const {team, leagues, seasons} = this.props;
 
     return <div className={this.props.classes.root}>
       <div className={this.props.classes.heading}>
@@ -121,9 +118,9 @@ class EventsSummary extends Component {
           return <div key={season.id} style={{paddingBottom: '2em'}}>
             <Typography variant="h5">{season.name} ({season.year}) Season</Typography>
 
-            {divisions[season.id] ?
-              <><span><b>League:</b> <TextLink to={`/leagues/rankings/${divisions[season.id].league.id}`}>{divisions[season.id].league.name}</TextLink>
-                {' – '}<TextLink to={`/divisions/rankings/${divisions[season.id].division.id}`}>{divisions[season.id].division.name}</TextLink></span><br/></> : null }
+            {leagues[season.id] ?
+              <><span><b>League:</b> {leagues[season.id].league ? <><TextLink to={`/${season.year}/leagues/rankings/${leagues[season.id].league.slug}`}>{leagues[season.id].league.name}</TextLink>{' – '}</> : null }
+                <TextLink to={`/${season.year}/leagues/rankings/${leagues[season.id].slug}`}>{leagues[season.id].name}</TextLink></span><br/></> : null }
             {team.season_records[season.id] ?
               <><b>Season Record:</b> {`${team.season_records[season.id].win}-${team.season_records[season.id].loss}-${team.season_records[season.id].tie}`}</> : null }
 
@@ -146,19 +143,18 @@ const mapStateToProps = (state, props) => {
     ret.events = ret.team.events.map((e) => state.events[e]);
   }
   if(ret.team) {
-    ret.matches = Object.values(state.matches).filter((m) => m.red_alliance.includes(id) || m.blue_alliance.includes(id));
+    ret.matches = Object.values(state.matches).filter((m) => m.team ? m.team.includes(id) : (m.red_alliance.includes(id) || m.blue_alliance.includes(id)));
   }
-  if(ret.team && ret.team.division_ids && state.divisions && state.leagues) {
-    ret.divisions = Object.fromEntries(ret.team.division_ids.map((div_id) => {
-      const division = state.divisions[div_id];
-      const league = state.leagues[division.league_id];
-      return [league.season_id, {division, league}]
+  if(ret.team && ret.team.league_ids && state.leagues) {
+    ret.leagues = Object.fromEntries(ret.team.league_ids.map((id) => {
+      const league = state.leagues[id];
+      return [league.season_id, league];
     }));
   }
   if(ret.team && state.seasons) {
     let allTeamSeasons = Object.keys(ret.team.season_records).map(i => parseInt(i));
-    if(ret.divisions) {
-      allTeamSeasons += Object.keys(ret.divisions);
+    if(ret.leagues) {
+      allTeamSeasons += Object.keys(ret.leagues);
     }
     ret.seasons = Object.values(state.seasons).filter((s) => allTeamSeasons.includes(s.id))
       .sort((a, b) => {
@@ -176,7 +172,6 @@ const mapDispatchToProps = {
   getTeamDetails,
   setTitle,
   getLeagues,
-  getDivisions,
   getSeasons
 };
 

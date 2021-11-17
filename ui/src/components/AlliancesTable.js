@@ -23,11 +23,6 @@ const styles = (theme) => ({
 });
 
 class AlliancesTable extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-
   render() {
     const {alliances, classes} = this.props;
 
@@ -37,7 +32,7 @@ class AlliancesTable extends React.Component {
 
     const rowStyle = {height: '2rem'};
 
-    const colCount = Math.max(alliances.map((a) => a.teams.length));
+    // const colCount = Math.max(alliances.map((a) => a.teams.length));
     return <Table className={classes.table} key={1}>
       <TableHead>
         <TableRow style={rowStyle}>

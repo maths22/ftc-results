@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import { push } from 'connected-react-router';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -7,7 +8,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
-import {getDivisions, getLeagues, getSeasons} from '../actions/api';
+import {getLeagues, getSeasons} from '../actions/api';
 import {Link} from 'react-router-dom';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
@@ -24,15 +25,14 @@ const styles = (theme) => ({
   },
 });
 
-class DivisionsSummary extends Component {
+class LeaguesSummary extends Component {
 
   componentDidMount() {
-    if(!this.props.divisions) {
+    if(!this.props.leagues) {
       this.props.getSeasons();
-      this.props.getDivisions();
-      this.props.getLeagues();
+      this.props.getLeagues(this.props.selectedSeason);
     }
-    this.props.setTitle('Leagues / Divisions');
+    this.props.setTitle('Leagues');
   }
 
   componentWillUnmount() {
@@ -41,10 +41,19 @@ class DivisionsSummary extends Component {
 
 
   render () {
-    if(!this.props.divisions) {
+    if(!this.props.leagues) {
       return <LoadingSpinner/>;
     }
-    const vals = [...this.props.divisions].sort((a, b) => {
+    const vals = [...this.props.leagues].sort((a, b) => {
+      if(!a.league && b.league) {
+        return -1;
+      }
+      if(a.league && !b.league) {
+        return 1;
+      }
+      if(!a.league && !b.league) {
+        return a.name.localeCompare(b.name);
+      }
       const diff = a.league.name.localeCompare(b.league.name);
       if(diff !== 0) return diff;
       return a.name.localeCompare(b.name);
@@ -53,13 +62,13 @@ class DivisionsSummary extends Component {
     const rowStyle = { height: '2rem' };
 
     return <>
-      <SeasonSelector/>
+      <SeasonSelector onChange={v => this.props.push(`/${v}/leagues/summary`)} selectedSeason={this.props.selectedSeason} />
       <div className={this.props.classes.root}>
         <Table className={this.props.classes.table}>
           <TableHead>
             <TableRow style={rowStyle}>
               <TableCell>League</TableCell>
-              <TableCell>Division</TableCell>
+              <TableCell>Child league</TableCell>
               <TableCell>Number of Teams</TableCell>
             </TableRow>
           </TableHead>
@@ -67,8 +76,9 @@ class DivisionsSummary extends Component {
             {vals.map(val => {
               return (
                   <TableRow key={val.id} style={rowStyle}>
-                    <TableCell component={Link} to={`/leagues/rankings/${val.league.id}`}>{val.league.name}</TableCell>
-                    <TableCell component={Link} to={`/divisions/rankings/${val.id}`}>{val.name}</TableCell>
+                    {val.league ? <TableCell component={Link} to={`/${this.props.selectedSeason}/leagues/rankings/${val.league.slug}`}>{val.league.name}</TableCell> : null}
+                    <TableCell component={Link} to={`/${this.props.selectedSeason}/leagues/rankings/${val.slug}`}>{val.name}</TableCell>
+                    {val.league ? null : <TableCell />}
                     <TableCell>{val.team_count}</TableCell>
                   </TableRow>
               );
@@ -83,23 +93,23 @@ class DivisionsSummary extends Component {
 
 
 
-const mapStateToProps = (state) => {
-  if (state.divisions && state.leagues && state.seasons) {
+const mapStateToProps = (state, props) => {
+  if (state.leagues && state.seasons) {
     return {
-      divisions: Object.values(state.divisions).filter((div) => state.leagues && state.leagues[div.league_id].season_id === state.seasons.find((s) => s.year === (state.ui.season || state.ui.defaultSeason)).id)
-        .map((div) => Object.assign({}, div, { league: state.leagues[div.league_id] }))
+      leagues: Object.values(state.leagues).filter((league) => league.season_id === state.seasons.find((s) => s.year === props.selectedSeason).id)
+        .filter((league) => !Object.values(state.leagues).some((l) => l.league_id === league.id))
     };
   }
   return {
-    divisions: null
+    leagues: null
   };
 };
 
 const mapDispatchToProps = {
-  getDivisions,
   getLeagues,
   getSeasons,
   setTitle,
+  push,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DivisionsSummary));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LeaguesSummary));

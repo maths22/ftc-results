@@ -12,7 +12,7 @@ const AsyncLeagueRankings = lazy(() => import(/* webpackChunkName: "leagueRankin
 const AsyncEventsSummary = lazy(() => import(/* webpackChunkName: "eventSummary" */ './components/EventsSummary'));
 const AsyncTeamSummary = lazy(() => import(/* webpackChunkName: "teamSummary" */ './components/TeamSummary'));
 const AsyncEventSummary = lazy(() => import(/* webpackChunkName: "eventSummary" */ './components/EventSummary'));
-const AsyncDivisionsSummary = lazy(() => import(/* webpackChunkName: "divisionsSummary" */ './components/DivisionsSummary'));
+const AsyncLeaguesSummary = lazy(() => import(/* webpackChunkName: "leaguesSummary" */ './components/LeaguesSummary'));
 const AsyncUpdateAccount = lazy(() => import(/* webpackChunkName: "updateAccount" */ './components/users/UpdateAccount'));
 const AsyncConfirmAccount = lazy(() => import(/* webpackChunkName: "confirmAccount" */ './components/users/ConfirmAccount'));
 const AsyncHome = lazy(() => import(/* webpackChunkName: "home" */ './App'));
@@ -24,13 +24,13 @@ class AppRouter extends Component {
       <Suspense fallback={<LoadingSpinner/>}>
         <Switch>
           <DefaultLayout exact path="/" component={AsyncHome} />
-          <DefaultLayout exact path="/divisions/summary" component={AsyncDivisionsSummary} />
-          <DefaultLayout exact path="/events/all" component={AsyncEventsSummary} />
-          <DefaultLayout exact path="/events/summary/:id" component={({match}) => <AsyncEventSummary id={match.params.id}/>} />
-          <DefaultLayout exact path="/events/uploader/:id" component={({match}) => <AsyncUploader id={match.params.id}/>} />
-          <DefaultLayout exact path="/teams/rankings" component={() => <AsyncLeagueRankings type="all"/>}/>
-          <DefaultLayout exact path="/leagues/rankings/:id" component={({match}) => <AsyncLeagueRankings type="league" id={match.params.id}/>}/>
-          <DefaultLayout exact path="/divisions/rankings/:id" component={({match}) => <AsyncLeagueRankings type="division" id={match.params.id}/>}/>
+          <DefaultLayout exact path="/:season" component={({match}) => <AsyncHome selectedSeason={match.params.season} />} />
+          <DefaultLayout exact path="/:season/leagues/summary" component={({match}) => <AsyncLeaguesSummary selectedSeason={match.params.season}/>} />
+          <DefaultLayout exact path="/:season/events/all" component={({match}) => <AsyncEventsSummary selectedSeason={match.params.season} />} />
+          <DefaultLayout exact path="/:season/events/summary/:id" component={({match}) => <AsyncEventSummary id={match.params.id} selectedSeason={match.params.season} />} />
+          <DefaultLayout exact path="/:season/events/uploader/:id" component={({match}) => <AsyncUploader id={match.params.id} selectedSeason={match.params.season}/>} />
+          <DefaultLayout exact path="/:season/teams/rankings" component={({match}) => <AsyncLeagueRankings type="all" selectedSeason={match.params.season}/>}/>
+          <DefaultLayout exact path="/:season/leagues/rankings/:id" component={({match}) => <AsyncLeagueRankings type="league" id={match.params.id} selectedSeason={match.params.season}/>}/>
           <DefaultLayout exact path="/teams/summary/:id" component={({match}) => <AsyncTeamSummary id={match.params.id}/>}/>
           <DefaultLayout exact path="/account" component={AsyncUpdateAccount}/>
           <DefaultLayout exact path="/account/confirm" component={AsyncConfirmAccount}/>

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
+import { push } from 'connected-react-router';
 import Link from '@material-ui/core/Link';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -9,11 +10,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 import {
-  getDivisionData,
-  getDivisions,
   getLeagueData,
   getLeagueRankings,
-  getLeagues,
   getSeasons,
   getTeams
 } from '../actions/api';
@@ -62,7 +60,7 @@ const styles = (theme) => ({
   }
 });
 
-class DivisionsSummary extends Component {
+class LeagueRankings extends Component {
 
   componentDidMount() {
     if(!this.props.rankings) {
@@ -77,7 +75,7 @@ class DivisionsSummary extends Component {
     if(!prevProps.rankings && this.props.rankings) {
       this.setTitle();
     }
-    if(prevProps.type !== this.props.type || prevProps.selectedSeason !== this.props.selectedSeason) {
+    if(prevProps.selectedSeason !== this.props.selectedSeason) {
       this.refresh();
     }
   }
@@ -86,9 +84,7 @@ class DivisionsSummary extends Component {
     if(this.props.type === 'all') {
       this.props.getLeagueRankings(this.props.selectedSeason);
     } else if(this.props.type === 'league') {
-      this.props.getLeagueData(this.props.id);
-    } else if(this.props.type === 'division') {
-      this.props.getDivisionData(this.props.id);
+      this.props.getLeagueData(this.props.selectedSeason, this.props.id);
     }
   }
 
@@ -98,8 +94,6 @@ class DivisionsSummary extends Component {
     } else {
       if(this.props.type === 'league') {
         this.props.setTitle(this.props.league.name + ' League Rankings');
-      } else if(this.props.type === 'division') {
-        this.props.setTitle(this.props.division.name + ' Division Rankings');
       } else {
         this.props.setTitle('Statewide Rankings');
       }
@@ -112,15 +106,14 @@ class DivisionsSummary extends Component {
 
   renderBreadcrumbs = () => {
     return <Breadcrumbs className={this.props.classes.breadcrumbParent} aria-label="breadcrumb" separator={<ChevronRight/>}>
-      {['league', 'division'].includes(this.props.type) ?
-        <Link component={RouterLink} color="inherit" to={`/teams/rankings?${queryString.stringify({season: this.props.season.year})}`}>Statewide</Link>
+      {['league'].includes(this.props.type) ?
+        <Link component={RouterLink} color="inherit" to={`/${this.props.selectedSeason}/teams/rankings`}>Statewide</Link>
       : null}
       {['all'].includes(this.props.type) ? <Typography color="textPrimary">Statewide</Typography> : null}
-      {['division'].includes(this.props.type) ?
-        <Link component={RouterLink} color="inherit" to={`/leagues/rankings/${this.props.league.id}`}>{this.props.league.name}</Link>
+      {['league'].includes(this.props.type) && this.props.league.league ?
+        <Link component={RouterLink} color="inherit" to={`/${this.props.selectedSeason}/leagues/rankings/${this.props.league.league.slug}`}>{this.props.league.league.name}</Link>
       : null}
       {['league'].includes(this.props.type) ? <Typography color="textPrimary">{this.props.league.name}</Typography> : null}
-      {['division'].includes(this.props.type) ? <Typography color="textPrimary">{this.props.division.name}</Typography> : null}
     </Breadcrumbs>;
   }
 
@@ -133,7 +126,7 @@ class DivisionsSummary extends Component {
     const rowStyle = { height: '2rem' };
 
     return <>
-      {this.props.type === 'all' ? <SeasonSelector/> : (this.props.season ? <Typography variant="h6">Season: {this.props.season.name} ({this.props.season.year})</Typography> : '')}
+      {this.props.type === 'all' ? <SeasonSelector onChange={v => this.props.push(`/${v}/teams/rankings`)} selectedSeason={this.props.selectedSeason} /> : (this.props.season ? <Typography variant="h6">Season: {this.props.season.name} ({this.props.season.year})</Typography> : '')}
       <div className={classes.root}>
       {this.renderBreadcrumbs()}
           <Table className={classes.table} size="small">
@@ -143,11 +136,12 @@ class DivisionsSummary extends Component {
                 <TableCell className={classes.tableCell}>Number</TableCell>
                 <TableCell className={classes.tableCell}>Name</TableCell>
                 { ['all'].includes(this.props.type) ? <TableCell className={classes.tableCell}>League</TableCell> : null }
-                { ['all', 'league'].includes(this.props.type) ? <TableCell className={classes.tableCell}>Division</TableCell> : null }
+                { ['all', 'league'].includes(this.props.type) && (!this.props.league || !this.props.league.league) ? <TableCell className={classes.tableCell}>Child League</TableCell> : null }
                 <TableCell className={classes.tableCell}>RP</TableCell>
-                <TableCell className={classes.tableCell}>TBP</TableCell>
-                <TableCell className={classes.tableCell}>High Score</TableCell>
+                <TableCell className={classes.tableCell}>TBP1</TableCell>
+                <TableCell className={classes.tableCell}>TBP2</TableCell>
                 <TableCell className={classes.tableCell}>Matches Played</TableCell>
+                <TableCell className={classes.tableCell}>Matches Counted</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -157,16 +151,18 @@ class DivisionsSummary extends Component {
                       <TableCell className={classes.tableCell}>{idx + 1}</TableCell>
                       <TableCell className={classes.tableCell}><TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink></TableCell>
                       <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
-                      { ['all'].includes(this.props.type) ?
-                          <TableCell className={classes.tableCell}><TextLink to={`/leagues/rankings/${r.league.id}`}>{r.league.name}</TextLink></TableCell>
+                      { ['all'].includes(this.props.type) && r.league.league ?
+                          <TableCell className={classes.tableCell}><TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${r.league.league.slug}`}>{r.league.league.name}</TextLink></TableCell>
                           : null }
-                      { ['all', 'league'].includes(this.props.type) ?
-                          <TableCell className={classes.tableCell}><TextLink to={`/divisions/rankings/${r.division.id}`}>{r.division.name}</TextLink></TableCell>
+                      { ['all', 'league'].includes(this.props.type) && (!this.props.league || !this.props.league.league) ?
+                          <TableCell className={classes.tableCell}>{r.league !== this.props.league ? <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${r.league.slug}`}>{r.league.name}</TextLink> : null}</TableCell>
                           : null }
-                      <TableCell className={classes.tableCell}>{Number(r.rp).toFixed(2)}</TableCell>
-                      <TableCell className={classes.tableCell}>{Number(r.tbp).toFixed(1)}</TableCell>
-                      <TableCell className={classes.tableCell}>{r.high_score}</TableCell>
+                      { ['all'].includes(this.props.type) && !r.league.league ? <TableCell className={classes.tableCell} /> : null }
+                      <TableCell className={classes.tableCell}>{Number(r.sort_order1).toFixed(2)}</TableCell>
+                      <TableCell className={classes.tableCell}>{Number(r.sort_order2).toFixed(2)}</TableCell>
+                      <TableCell className={classes.tableCell}>{Number(r.sort_order3).toFixed(2)}</TableCell>
                       <TableCell className={classes.tableCell}>{r.matches_played}</TableCell>
+                      <TableCell className={classes.tableCell}>{r.matches_counted}</TableCell>
                     </TableRow>
                 );
               })}
@@ -184,54 +180,69 @@ class DivisionsSummary extends Component {
 
 const mapStateToProps = (state, props) => {
   const ret = {};
-  ret.selectedSeason = state.ui.season;
-  if (state.divisions && state.leagues && state.teams && state.leagueRankings) {
+  if (state.seasons && state.leagues && state.teams && state.leagueRankings) {
     let filter;
     if(props.type === 'league') {
-      filter = (lr) => {
-        return lr.league_id.toString() === props.id;
-      };
-      ret['league'] = state.leagues[props.id];
-      if(state.seasons) {
-        ret['season'] = state.seasons.find((s) => s.id === ret['league'].season_id);
+      ret['league'] = Object.values(state.leagues).find(l => l.slug === props.id);
+      if(!ret.league) {
+        return ret;
       }
-    } else if(props.type === 'division') {
       filter = (lr) => {
-        return lr.division_id.toString() === props.id;
+        return lr.context_id === ret['league'].id || state.leagues[lr.context_id].league_id === ret['league'].id;
       };
-      ret['division'] = state.divisions[props.id];
-      ret['league'] = state.leagues[ret['division'].league_id];
       if(state.seasons) {
         ret['season'] = state.seasons.find((s) => s.id === ret['league'].season_id);
       }
     } else {
       if(state.seasons) {
         filter = (lr) => {
-          return state.leagues[lr.league_id] && state.leagues[lr.league_id].season_id === state.seasons.find((s) => s.year === (state.ui.season || state.ui.defaultSeason)).id;
+          return state.leagues[lr.context_id] && state.leagues[lr.context_id].season_id === state.seasons.find((s) => s.year === props.selectedSeason).id;
         };
       } else {
         filter = () => false;
       }
     }
 
-    ret['rankings'] = Object.values(state.leagueRankings).filter(filter).map((lr) => Object.assign({}, lr, {
-        team: state.teams[lr.team],
-        league: state.leagues[lr.league_id],
-        division: state.divisions[lr.division_id]
-      }));
+    ret['rankings'] = Object.values(state.leagueRankings).filter(filter).sort((a, b) => {
+      const sort1 = b.sort_order1 - a.sort_order1;
+      if(sort1 !== 0) {
+        return sort1;
+      }
+      const sort2 = b.sort_order2 - a.sort_order2;
+      if(sort2 !== 0) {
+        return sort2;
+      }
+      const sort3 = b.sort_order3 - a.sort_order3;
+      if(sort3 !== 0) {
+        return sort3;
+      }
+      const sort4 = b.sort_order4 - a.sort_order4;
+      if(sort4 !== 0) {
+        return sort4;
+      }
+      const sort5 = b.sort_order5 - a.sort_order5;
+      if(sort5 !== 0) {
+        return sort5;
+      }
+      return b.sort_order6 - a.sort_order6;
+    }).map((lr) => Object.assign({}, lr, {
+      team: state.teams[lr.team],
+      league: state.leagues[lr.context_id],
+    })).filter((val, idx, self) => {
+      const myRankings = self.filter(lr => lr.team === val.team);
+      return !myRankings.find(lr => lr.league.league === val.league);
+    });
   }
   return ret;
 };
 
 const mapDispatchToProps = {
-  getDivisions,
-  getLeagues,
   getLeagueRankings,
   getLeagueData,
-  getDivisionData,
   getTeams,
   getSeasons,
   setTitle,
+  push,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DivisionsSummary));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LeagueRankings));

@@ -90,7 +90,7 @@ class HeadingBar extends Component {
         <AppBar position="static">
           <Toolbar>
             <IconButton className={this.props.classes.menuButton} color="inherit" aria-label="Home"
-                        to={`/?${queryString.stringify({season: this.props.selectedSeason})}`}
+                        to={this.props.selectedSeason ? `/${this.props.selectedSeason}` : '/'}
                         component={Link}>
               <HomeIcon />
             </IconButton>
@@ -150,8 +150,7 @@ class HeadingBar extends Component {
 const mapStateToProps = (state) => {
 
   const ret = {
-    uid: null, title: state.ui.title,
-    selectedSeason: state.ui.season
+    uid: null, title: state.ui.title
   };
   if (state.token) {
     ret.uid = state.token['x-uid'];

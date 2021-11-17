@@ -2,14 +2,10 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
 import { getSeasons } from '../actions/api';
-import { setSeason } from '../actions/ui';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import {push} from 'connected-react-router';
-import queryString from 'query-string';
-
-
 
 class SeasonSelector extends Component {
     componentDidMount() {
@@ -19,10 +15,7 @@ class SeasonSelector extends Component {
     }
 
     setSeason = (val) => {
-        this.props.setSeason(val);
-        const values = queryString.parse(window.location.search);
-        values['season'] = val;
-        this.props.push({ search: queryString.stringify(values) });
+        this.props.onChange(val);
     }
 
     render () {
@@ -45,7 +38,6 @@ class SeasonSelector extends Component {
 
 const mapStateToProps = (state) => {
     const ret = {
-        selectedSeason: state.ui.season,
         defaultSeason: state.ui.defaultSeason
     };
     if (state.seasons) {
@@ -58,7 +50,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
     getSeasons,
-    setSeason,
     push,
 };
 

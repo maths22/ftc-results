@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 
 import awardsReducer from './awardsReducer';
-import divisionsReducer from './divisionsReducer';
 import tokenReducer from './tokenReducer';
 import leaguesReducer from './leaguesReducer';
 import leagueRankingsReducer from './leagueRankingsReducer';
@@ -24,7 +23,6 @@ import alliancesReducer from './alliancesReducer';
 export default (history) => combineReducers({
   alliances: alliancesReducer,
   awards: awardsReducer,
-  divisions: divisionsReducer,
   events: eventsReducer,
   form: formReducer,
   leagueRankings: leagueRankingsReducer,

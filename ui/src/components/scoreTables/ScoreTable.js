@@ -11,8 +11,7 @@ const styles = (theme) => ({
     minWidth: '20em',
   },
   tableCell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    padding: theme.spacing(0.5),
     whiteSpace: 'pre-line',
     textAlign: 'center',
     '&:last-child': {
@@ -20,7 +19,7 @@ const styles = (theme) => ({
     }
   },
   tableRow: {
-    height: '2rem'
+    height: '1.5rem'
   },
   keyTableRow: {
   },
@@ -63,13 +62,13 @@ const ScoreTable = (scoreInterpretation) => withStyles(styles)(({classes, match}
 
   return <Table className={classes.table}>
     <TableBody>
-      {scores.map((sc) => {
+      {scores.map((sc, i) => {
         const bonusLabel = sc.bonus && `${sc.bonus.label} (+${sc.bonus.value})`;
-        const redPrimary = `${sc.red} ${sc.red_pts ? `(+${sc.red_pts}${sc.penalty ? ' from blue' : ''})` : ''}`;
+        const redPrimary = `${sc.red} ${sc.red_pts ? `(${sc.red_pts > 0 ? '+' : ''}${sc.red_pts}${sc.penalty ? ' from blue' : ''})` : ''}`;
 
-        const bluePrimary = `${sc.blue} ${sc.blue_pts ? `(+${sc.blue_pts}${sc.penalty ? ' from red' : ''})` : ''}`;
+        const bluePrimary = `${sc.blue} ${sc.blue_pts ? `(${sc.blue_pts > 0 ? '+' : ''}${sc.blue_pts}${sc.penalty ? ' from red' : ''})` : ''}`;
 
-        return <TableRow className={classNames(classes.tableRow, {[classes.keyTableRow]: sc.key})}>
+        return <TableRow className={classNames(classes.tableRow, {[classes.keyTableRow]: sc.key})} key={i}>
           <TableCell className={classNames(classes.tableCell, classes.redCell, {[classes.redKeyCell]: sc.key})}>
             {sc.bonus && sc.bonus.first && sc.bonus.redAccomplished ? <>{bonusLabel}<br/></> : null}
             {redPrimary}

@@ -18,20 +18,19 @@ class DefaultLayout extends Component {
   render() {
     const {component: Component, classes, ...rest} = this.props; 
     return (
-        <Route {...rest} render={matchProps => (
-            <ErrorBoundary>
-              <div className={classes.root}>
-                <CssBaseline />
-                <HeadingBar/>
-                <main className={classes.content}>
-                  <div className={classes.appBarSpacer} />
+        <Route {...rest} render={matchProps => (<ErrorBoundary>
+            <div className={classes.root}>
+              <CssBaseline/>
+              <HeadingBar selectedSeason={matchProps.match.params.season}/>
+              <main className={classes.content}>
+                <div className={classes.appBarSpacer}/>
 
-                  <ErrorBoundary>
-                    <Component {...matchProps} />
-                  </ErrorBoundary>
-                </main>
-              </div>
-            </ErrorBoundary>
+                <ErrorBoundary>
+                  <Component {...matchProps} />
+                </ErrorBoundary>
+              </main>
+            </div>
+          </ErrorBoundary>
         )} />
     );
   }

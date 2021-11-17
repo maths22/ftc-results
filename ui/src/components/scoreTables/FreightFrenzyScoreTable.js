@@ -1,38 +1,78 @@
 import ScoreTable from './ScoreTable';
 
+function toTitleCase(str) {
+  return str.replaceAll('_', ' ').replace(
+    /\w\S*/g,
+    function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
+  );
+}
+
+const autoNavigatedPoints = {
+  NONE: 0,
+  IN_STORAGE: 3,
+  COMPLETELY_IN_STORAGE: 6,
+  IN_WAREHOUSE: 5,
+  COMPLETELY_IN_WAREHOUSE: 10
+};
+
+const endParkedPoints = {
+  NONE: 0,
+  IN_WAREHOUSE: 3,
+  COMPLETELY_IN_WAREHOUSE: 6
+};
+
 export default ScoreTable((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
   return [
     {
-      desc: 'Skystones Delivered\n(of first two)',
-      red: red_det.auto_skystones,
-      blue: blue_det.auto_skystones,
-      value: 10
+      desc: 'Carousel Duck Delivered',
+      red: red_det.carousel ? 'Delivered' : '-',
+      blue: blue_det.carousel ? 'Delivered' : '-',
+      red_pts: red_det.carousel ? 10 : 0,
+      blue_pts: blue_det.carousel ? 10 : 0,
     },
     {
-      desc: 'Stones Delivered',
-      red: red_det.auto_delivered,
-      blue: blue_det.auto_delivered,
+      desc: 'Robot 1 Navigated',
+      red: toTitleCase(red_det.auto_navigated1),
+      blue: toTitleCase(blue_det.auto_navigated1),
+      red_pts: autoNavigatedPoints[red_det.auto_navigated1],
+      blue_pts: autoNavigatedPoints[blue_det.auto_navigated1],
+    },
+    {
+      desc: 'Robot 2 Navigated',
+      red: toTitleCase(red_det.auto_navigated2),
+      blue: toTitleCase(blue_det.auto_navigated2),
+      red_pts: autoNavigatedPoints[red_det.auto_navigated2],
+      blue_pts: autoNavigatedPoints[blue_det.auto_navigated2],
+    },
+    {
+      desc: 'Robot 1 Auto Bonus',
+      red: red_det.auto_bonus1 ? toTitleCase(red_det.barcode_element1) : '-',
+      blue: blue_det.auto_bonus1 ? toTitleCase(blue_det.barcode_element1) : '-',
+      red_pts: red_det.auto_bonus1 ? (red_det.barcode_element1 === 'DUCK' ? 10 : 20) : 0,
+      blue_pts: blue_det.auto_bonus1 ? (blue_det.barcode_element1 === 'DUCK' ? 10 : 20) : 0,
+    },
+    {
+      desc: 'Robot 2 Auto Bonus',
+      red: red_det.auto_bonus2 ? toTitleCase(red_det.barcode_element2) : '-',
+      blue: blue_det.auto_bonus2 ? toTitleCase(blue_det.barcode_element2) : '-',
+      red_pts: red_det.auto_bonus2 ? (red_det.barcode_element2 === 'DUCK' ? 10 : 20) : 0,
+      blue_pts: blue_det.auto_bonus2 ? (blue_det.barcode_element2 === 'DUCK' ? 10 : 20) : 0,
+    },
+    {
+      desc: 'Auto Storage Freight',
+      red: red_det.auto_storage_freight,
+      blue: blue_det.auto_storage_freight,
       value: 2
     },
     {
-      desc: 'Foundation Repositioned',
-      red: red_det.foundation_repositioned,
-      blue: blue_det.foundation_repositioned,
-      value: 10
-    },
-    {
-      desc: 'Robots Navigated',
-      red: red_det.robots_navigated,
-      blue: blue_det.robots_navigated,
-      value: 5
-    },
-    {
-      desc: 'Stones Placed',
-      red: red_det.auto_placed,
-      blue: blue_det.auto_placed,
-      value: 4
+      desc: 'Auto Shipping Hub Freight',
+      red: red_det.auto_freight1 + red_det.auto_freight2 + red_det.auto_freight3,
+      blue: blue_det.auto_freight1 + blue_det.auto_freight2 + blue_det.auto_freight3,
+      value: 6
     },
     {
       desc: 'Auto Total',
@@ -41,70 +81,80 @@ export default ScoreTable((match) => {
       key: true
     },
     {
-      desc: 'Stones Delivered',
-      red: red_det.teleop_delivered,
-      blue: blue_det.teleop_delivered,
+      desc: 'Driver-controlled Storage Freight',
+      red: red_det.teleop_storage_freight,
+      blue: blue_det.teleop_storage_freight,
       value: 1
     },
     {
-      desc: 'Stones Placed',
-      red: red_det.teleop_placed,
-      blue: blue_det.teleop_placed,
-      value: 1
-    },
-    {
-      desc: 'Tallest Tower Bonus',
-      red: red_det.tallest_height,
-      blue: blue_det.tallest_height,
+      desc: 'Driver-controlled Shipping Hub Freight Level 1',
+      red: red_det.teleop_freight1,
+      blue: blue_det.teleop_freight1,
       value: 2
     },
     {
-      desc: 'Teleop Total',
+      desc: 'Driver-controlled Shipping Hub Freight Level 2',
+      red: red_det.teleop_freight2,
+      blue: blue_det.teleop_freight2,
+      value: 4
+    },
+    {
+      desc: 'Driver-controlled Shipping Hub Freight Level 3',
+      red: red_det.teleop_freight3,
+      blue: blue_det.teleop_freight3,
+      value: 6
+    },
+    {
+      desc: 'Shared Hub Freight',
+      red: red_det.shared_freight,
+      blue: blue_det.shared_freight,
+      value: 4
+    },
+    {
+      desc: 'Driver-controlled Total',
       red: match.red_score.teleop,
       blue: match.blue_score.teleop,
       key: true
     },
-    // foundation_moved
-    // robots_parked
-    // capstone_1_level
-    // capstone_2_level
     {
-      desc: 'Capstone 1 Placement\nHeight Bonus',
-      red: red_det.capstone_1_level < 0 ? 0 : red_det.capstone_1_level,
-      blue: blue_det.capstone_1_level < 0 ? 0 : blue_det.capstone_1_level,
-      value: 1,
-      bonus: {
-        first: true,
-        label: 'Placed',
-        value: 5,
-        redAccomplished: red_det.capstone_1_level >= 0,
-        blueAccomplished: blue_det.capstone_1_level >= 0,
-      }
+      desc: 'Ducks/Team Shipping Elements Delivered',
+      red: red_det.end_delivered,
+      blue: blue_det.end_delivered,
+      value: 6
     },
     {
-      desc: 'Capstone 2 Placement\nHeight Bonus',
-      red: red_det.capstone_2_level < 0 ? 0 : red_det.capstone_2_level,
-      blue: blue_det.capstone_2_level < 0 ? 0 : blue_det.capstone_2_level,
-      value: 1,
-      bonus: {
-        first: true,
-        label: 'Placed',
-        value: 5,
-        redAccomplished: red_det.capstone_2_level >= 0,
-        blueAccomplished: blue_det.capstone_2_level >= 0,
-      }
+      desc: 'Alliance Shipping Hub Balanced',
+      red: red_det.alliance_balanced ? 'Balanced' : '-',
+      blue: blue_det.alliance_balanced ? 'Balanced' : '-',
+      red_pts: red_det.alliance_balanced ? 10 : 0,
+      blue_pts: blue_det.alliance_balanced ? 10 : 0,
     },
     {
-      desc: 'Foundation Moved Out\nOf Building Site',
-      red: red_det.foundation_moved,
-      blue: blue_det.foundation_moved,
+      desc: 'Shared Shipping Hub Unbalanced',
+      red: red_det.shared_unbalanced ? 'Unbalanced' : '-',
+      blue: blue_det.shared_unbalanced ? 'Unbalanced' : '-',
+      red_pts: red_det.shared_unbalanced ? 20 : 0,
+      blue_pts: blue_det.shared_unbalanced ? 20 : 0,
+    },
+    {
+      desc: 'Robot 1 Parked',
+      red: toTitleCase(red_det.end_parked1),
+      blue: toTitleCase(blue_det.end_parked1),
+      red_pts: endParkedPoints[red_det.end_parked1],
+      blue_pts: endParkedPoints[blue_det.end_parked1],
+    },
+    {
+      desc: 'Robot 2 Parked',
+      red: toTitleCase(red_det.end_parked2),
+      blue: toTitleCase(blue_det.end_parked2),
+      red_pts: endParkedPoints[red_det.end_parked2],
+      blue_pts: endParkedPoints[blue_det.end_parked2],
+    },
+    {
+      desc: 'Team Shipping Elements Capping',
+      red: red_det.capped,
+      blue: blue_det.capped,
       value: 15
-    },
-    {
-      desc: 'Robots Parked',
-      red: red_det.robots_parked,
-      blue: blue_det.robots_parked,
-      value: 5
     },
     {
       desc: 'Endgame Total',
@@ -114,17 +164,15 @@ export default ScoreTable((match) => {
     },
     {
       desc: 'Minor Penalties',
-      red: blue_det.minor_penalties,
-      blue: red_det.minor_penalties,
-      value: 5,
-      penalty: true
+      red: red_det.minor_penalties,
+      blue: blue_det.minor_penalties,
+      value: -10
     },
     {
       desc: 'Major Penalties',
-      red: blue_det.major_penalties,
-      blue: red_det.major_penalties,
-      value: 20,
-      penalty: true
+      red: red_det.major_penalties,
+      blue: blue_det.major_penalties,
+      value: -30
     },
     {
       desc: 'Total Score',

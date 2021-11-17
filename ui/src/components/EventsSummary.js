@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import { push } from 'connected-react-router';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -9,7 +10,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/CheckCircle';
 
-import {API_HOST, getDivisions, getEvents, getLeagues, getScoringDownloadUrl} from '../actions/api';
+import {API_HOST, getEvents, getLeagues, getScoringDownloadUrl} from '../actions/api';
 import EventImportDialog from './EventImportDialog';
 import {setShowOnlyMyEvents, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
@@ -61,8 +62,7 @@ class EventsSummary extends Component {
   componentDidMount() {
     if(!this.props.events) {
       this.props.getEvents(this.props.selectedSeason);
-      this.props.getDivisions();
-      this.props.getLeagues();
+      this.props.getLeagues(this.props.selectedSeason);
     }
     this.props.setTitle('Events');
   }
@@ -74,8 +74,7 @@ class EventsSummary extends Component {
   componentDidUpdate(prevProps) {
     if(!this.props.events || this.props.selectedSeason !== prevProps.selectedSeason) {
       this.props.getEvents(this.props.selectedSeason);
-      this.props.getDivisions();
-      this.props.getLeagues();
+      this.props.getLeagues(this.props.selectedSeason);
     }
   }
 
@@ -121,30 +120,6 @@ class EventsSummary extends Component {
     </TableCell>;
   }
 
-  renderScoringSystems(e) {
-    const {classes, uid} = this.props;
-    const isLoggedIn = !!uid;
-
-    let prodLink = <>Login to download the production scoring system</>;
-    if (isLoggedIn && !e.can_import) {
-      prodLink = <><TextLink onClick={() => this.requestAccess(e.id)}>Request access to the production scoring system</TextLink></>;
-    } else if(isLoggedIn && e.can_import) {
-      prodLink = <>
-        <Button variant="contained" size="small" onClick={() => this.downloadScoring(e.id, false)}>Production Scoring System</Button>
-        (Only for event use, not testing)
-      </>;
-    }
-
-
-      return <TableCell className={classes.tableCell}>
-        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
-          { prodLink }
-          <Button variant="contained" size="small" onClick={() => this.downloadScoring(e.id, true)}>Test Scoring System</Button>
-          (Do NOT use for events)
-        </div>
-      </TableCell>
-  }
-
   render () {
     if(!this.props.events) {
       return <LoadingSpinner/>;
@@ -160,7 +135,7 @@ class EventsSummary extends Component {
     const isLoggedIn = !!uid;
 
     return  <>
-      <SeasonSelector/>
+      <SeasonSelector onChange={(v) => this.props.push(`/${v}/events/all`)} selectedSeason={this.props.selectedSeason} />
       <div className={classes.root}>
       { isLoggedIn ? <FormControlLabel
         style={{padding: '0.5em'}}
@@ -173,7 +148,7 @@ class EventsSummary extends Component {
         <TableHead>
           <TableRow style={rowStyle}>
             <TableCell className={classes.tableCell}>Name</TableCell>
-            <TableCell className={classes.tableCell}>League/Division</TableCell>
+            <TableCell className={classes.tableCell}>League</TableCell>
             <TableCell className={classes.tableCell}>Location</TableCell>
             <TableCell className={classes.tableCell}>Date</TableCell>
             <TableCell className={classes.tableCell}>Imported</TableCell>
@@ -186,13 +161,13 @@ class EventsSummary extends Component {
             const divFinalsLeft = e.divisions.some((d) => !d.import);
             return (
                 <TableRow key={e.id} style={rowStyle} className={e.aasm_state === 'canceled' ? classes.canceled :null}>
-                  <TableCell className={classes.tableCell}><TextLink to={`/events/summary/${e.id}`}>{e.name}</TextLink></TableCell>
+                  <TableCell className={classes.tableCell}><TextLink to={`/${this.props.selectedSeason}/events/summary/${e.slug}`}>{e.name}</TextLink></TableCell>
                   <TableCell className={classes.tableCell}>
-                  { e.league ?
-                      <TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink>
+                  { e.league && e.league.league ?
+                      <><TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${e.league.league.slug}`}>{e.league.league.name}</TextLink><wbr/>{' – '}</>
                       : null }
-                  { e.division ?
-                      <><wbr/>{' – '}<TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink></>
+                  { e.league ?
+                      <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${e.league.slug}`}>{e.league.name}</TextLink>
                       : null }
                   </TableCell>
                   <TableCell className={classes.tableCell}>{e.location && e.location.trim() !== '-' ? <>{e.location}<br/>{e.city}, {e.state}, {e.country}</> : 'TBA' }</TableCell>
@@ -201,11 +176,11 @@ class EventsSummary extends Component {
                       (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
                   {e.aasm_state === 'finalized'
                       ? this.renderDbs(e)
-                      : this.renderScoringSystems(e) }
+                      : null }
                   {isLoggedIn ? <TableCell className={classes.tableCell}>
                     {e.can_import && e.aasm_state !== 'finalized' ? <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.manageOwners(e.id)}>Owners ({e.owners.length})</Button>
-                      <Button component={Link} target="_blank" style={{margin: '0.5em 0'}} variant="contained" size="small" to={`/events/uploader/${e.id}`}>Live Upload</Button>
+                      <Button component={Link} target="_blank" style={{margin: '0.5em 0'}} variant="contained" size="small" to={`/events/uploader/${e.slug}`}>Live Upload</Button>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.setupStream(e.id)}>{e.channel ? 'Configure Stream' : 'Enable Stream'}</Button>
                     </div>: null}
                     {!e.can_import && e.aasm_state !== 'finalized' ? <Button variant="contained" size="small" onClick={() => this.requestAccess(e.id)}>Request Access</Button> : null}
@@ -227,22 +202,17 @@ class EventsSummary extends Component {
 
 
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, props) => {
   const ret = {
-    selectedSeason: state.ui.season,
     uiShowOnlyMyEvents: state.ui.showOnlyMyEvents
   };
-  if (state.events && state.divisions && state.leagues) {
+  if (state.events && state.leagues) {
     ret.events = Object.values(state.events)
-        .filter((e) => e.season === (state.ui.season || state.ui.defaultSeason))
+        .filter((e) => e.season === props.selectedSeason)
         .map((evt) => {
             const extra = {};
-            if (evt.context_type === 'Division') {
-              extra.division = state.divisions[evt.context_id];
-              extra.league = state.leagues[extra.division.league_id];
-            } else if (evt.context_type === 'League') {
+            if (evt.context_type === 'League') {
               extra.league = state.leagues[evt.context_id];
-
             }
             return Object.assign({}, evt, extra);
           }
@@ -253,12 +223,12 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = {
-  getDivisions,
   getEvents,
   getLeagues,
   getScoringDownloadUrl,
   setShowOnlyMyEvents,
   setTitle,
+  push,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventsSummary));

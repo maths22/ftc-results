@@ -36,15 +36,9 @@ export const GET_USERS_FAILURE = 'GET_USERS_FAILURE';
 export const GET_SEASONS_REQUEST = 'GET_SEASONS_REQUEST';
 export const GET_SEASONS_SUCCESS = 'GET_SEASONS_SUCCESS';
 export const GET_SEASONS_FAILURE = 'GET_SEASONS_FAILURE';
-export const GET_DIVISIONS_REQUEST = 'GET_DIVISIONS_REQUEST';
-export const GET_DIVISIONS_SUCCESS = 'GET_DIVISIONS_SUCCESS';
-export const GET_DIVISIONS_FAILURE = 'GET_DIVISIONS_FAILURE';
 export const GET_LEAGUE_DATA_REQUEST = 'GET_LEAGUE_DATA_REQUEST';
 export const GET_LEAGUE_DATA_SUCCESS = 'GET_LEAGUE_DATA_SUCCESS';
 export const GET_LEAGUE_DATA_FAILURE = 'GET_LEAGUE_DATA_FAILURE';
-export const GET_DIVISION_DATA_REQUEST = 'GET_DIVISION_DATA_REQUEST';
-export const GET_DIVISION_DATA_SUCCESS = 'GET_DIVISION_DATA_SUCCESS';
-export const GET_DIVISION_DATA_FAILURE = 'GET_DIVISION_DATA_FAILURE';
 export const GET_EVENTS_REQUEST = 'GET_EVENTS_REQUEST';
 export const GET_EVENTS_SUCCESS = 'GET_EVENTS_SUCCESS';
 export const GET_EVENTS_FAILURE = 'GET_EVENTS_FAILURE';
@@ -244,21 +238,9 @@ export const getSeasons = () => ({
   }
 });
 
-export const getDivisions = (season) => ({
-  [RSAA]: {
-    endpoint: `${API_BASE}/divisions?${queryString.stringify({season})}`,
-    method: 'GET',
-    types: [
-      GET_DIVISIONS_REQUEST,
-      GET_DIVISIONS_SUCCESS,
-      GET_DIVISIONS_FAILURE
-    ]
-  }
-});
-
 export const getEvents = (season) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events?${queryString.stringify({season})}`,
+    endpoint: `${API_BASE}/${season}/events`,
     method: 'GET',
     types: [
       GET_EVENTS_REQUEST,
@@ -268,9 +250,9 @@ export const getEvents = (season) => ({
   }
 });
 
-export const getEvent = (id) => ({
+export const getEvent = (season, id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/${id}`,
+    endpoint: `${API_BASE}/${season}/events/${id}`,
     method: 'GET',
     types: [
       GET_EVENT_REQUEST,
@@ -282,7 +264,7 @@ export const getEvent = (id) => ({
 
 export const getLeagues = (season) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/leagues?${queryString.stringify({season})}`,
+    endpoint: season ? `${API_BASE}/${season}/leagues` : `${API_BASE}/leagues`,
     method: 'GET',
     types: [
       GET_LEAGUES_REQUEST,
@@ -316,9 +298,9 @@ export const getTeamDetails = (id) => ({
   }
 });
 
-export const getEventMatches = (id) => ({
+export const getEventMatches = (season, id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/${id}/matches`,
+    endpoint: `${API_BASE}/${season}/events/${id}/matches`,
     method: 'GET',
     types: [
       GET_EVENT_MATCHES_REQUEST,
@@ -328,9 +310,9 @@ export const getEventMatches = (id) => ({
   }
 });
 
-export const getEventRankings = (id) => ({
+export const getEventRankings = (season, id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/${id}/rankings`,
+    endpoint: `${API_BASE}/${season}/events/${id}/rankings`,
     method: 'GET',
     types: [
       GET_EVENT_RANKINGS_REQUEST,
@@ -340,9 +322,9 @@ export const getEventRankings = (id) => ({
   }
 });
 
-export const getEventAwards = (id) => ({
+export const getEventAwards = (season, id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/${id}/awards`,
+    endpoint: `${API_BASE}/${season}/events/${id}/awards`,
     method: 'GET',
     types: [
       GET_AWARDS_REQUEST,
@@ -352,9 +334,9 @@ export const getEventAwards = (id) => ({
   }
 });
 
-export const getEventTeams = (id) => ({
+export const getEventTeams = (season, id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/${id}/teams`,
+    endpoint: `${API_BASE}/${season}/events/${id}/teams`,
     method: 'GET',
     types: [
       GET_EVENT_TEAMS_REQUEST,
@@ -364,9 +346,9 @@ export const getEventTeams = (id) => ({
   }
 });
 
-export const getEventAlliances = (id) => ({
+export const getEventAlliances = (season, id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/${id}/alliances`,
+    endpoint: `${API_BASE}/${season}/events/${id}/alliances`,
     method: 'GET',
     types: [
       GET_EVENT_ALLIANCES_REQUEST,
@@ -390,7 +372,7 @@ export const getMatchDetails = (id) => ({
 
 export const getLeagueRankings = (season) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/rankings/league?${queryString.stringify({season})}`,
+    endpoint: `${API_BASE}/${season}/rankings/league`,
     method: 'GET',
     types: [
       GET_LEAGUE_RANKINGS_REQUEST,
@@ -400,26 +382,14 @@ export const getLeagueRankings = (season) => ({
   }
 });
 
-export const getLeagueData = (id) => ({
+export const getLeagueData = (season, id) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/rankings/league/${id}`,
+    endpoint: `${API_BASE}/${season}/rankings/league/${id}`,
     method: 'GET',
     types: [
       GET_LEAGUE_DATA_REQUEST,
       GET_LEAGUE_DATA_SUCCESS,
       GET_LEAGUE_DATA_FAILURE
-    ]
-  }
-});
-
-export const getDivisionData = (id) => ({
-  [RSAA]: {
-    endpoint: `${API_BASE}/rankings/division/${id}`,
-    method: 'GET',
-    types: [
-      GET_DIVISION_DATA_REQUEST,
-      GET_DIVISION_DATA_SUCCESS,
-      GET_DIVISION_DATA_FAILURE
     ]
   }
 });

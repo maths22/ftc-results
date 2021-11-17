@@ -5,7 +5,6 @@ import Typography from '@material-ui/core/Typography';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 
 import CloseIcon from '@material-ui/icons/Close';
 
@@ -73,12 +72,6 @@ class MatchDetailsDialog extends Component {
         <MatchDetailsErrorBoundary>
           <Suspense fallback={<div>Loading...</div>}>
             <ScoreTable match={match}/>
-
-            <DialogContentText>
-              <Typography variant="caption">
-                Note: penalty points are listed for the alliance which incurred the penalty. Points are awarded to the opposing alliance.
-              </Typography>
-            </DialogContentText>
           </Suspense>
         </MatchDetailsErrorBoundary>
       </DialogContent>

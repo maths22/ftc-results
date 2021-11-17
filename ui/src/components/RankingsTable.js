@@ -36,7 +36,8 @@ function rankingsTable ({rankings, classes, showRecord}) {
         <TableCell className={classes.tableCell}>Team Number</TableCell>
         <TableCell className={classes.tableCell}>Team Name</TableCell>
         <TableCell className={classes.tableCell}>Ranking Points</TableCell>
-        <TableCell className={classes.tableCell}>Tie Breaker Points</TableCell>
+        <TableCell className={classes.tableCell}>Tie Breaker Points 1</TableCell>
+        <TableCell className={classes.tableCell}>Tie Breaker Points 2</TableCell>
         {showRecord ? <TableCell className={classes.tableCell}>Record (W-L-T)</TableCell> : null}
         <TableCell className={classes.tableCell}>Matches Played</TableCell>
       </TableRow>
@@ -53,8 +54,9 @@ function rankingsTable ({rankings, classes, showRecord}) {
             <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
           </TableCell>
           <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.ranking_points).toFixed(2)}</TableCell>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.tie_breaker_points).toFixed(1)}</TableCell>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order1).toFixed(2)}</TableCell>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order2).toFixed(2)}</TableCell>
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order3).toFixed(3)}</TableCell>
           {showRecord ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : recordLine}</TableCell> : null}
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
         </TableRow>;

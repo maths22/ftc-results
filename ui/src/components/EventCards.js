@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import { push } from 'connected-react-router';
 
 
-import {getDivisions, getEvents, getLeagues} from '../actions/api';
+import {getEvents, getLeagues} from '../actions/api';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
 import TextLink from './TextLink';
@@ -31,15 +31,15 @@ class EventCards extends Component {
   }
 
   componentDidMount() {
-    this.props.getEvents(this.props.selectedSeason);
-    this.props.getDivisions(this.props.selectedSeason);
-    this.props.getLeagues(this.props.selectedSeason);
+    if(this.props.selectedSeason) {
+      this.props.getEvents(this.props.selectedSeason);
+      this.props.getLeagues(this.props.selectedSeason);
+    }
   }
 
   componentDidUpdate(prevProps) {
     if(!this.props.events || (this.props.selectedSeason !== prevProps.selectedSeason)) {
       this.props.getEvents(this.props.selectedSeason);
-      this.props.getDivisions(this.props.selectedSeason);
       this.props.getLeagues(this.props.selectedSeason);
     }
   }
@@ -74,18 +74,18 @@ class EventCards extends Component {
         <Grid container spacing={3}>
           {vals.map(e => <Grid item md={4} key={e.id}>
               <Card className={classes.card}>
-              <CardActionArea onClick={() => this.props.push(`/events/summary/${e.id}`)}>
+              <CardActionArea onClick={() => this.props.push(`/${this.props.selectedSeason}/events/summary/${e.slug}`)}>
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="h2">
                     {e.name} <EventChip event={e}/>
                   </Typography>
                   <Typography variant="subtitle1" component="h3">
-                    { e.league ?
-                        <TextLink to={`/leagues/rankings/${e.league.id}`}>{e.league.name}</TextLink>
+                    { e.league && e.league.league ?
+                        <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${e.league.league.slug}`}>{e.league.league.name}</TextLink>
                         : null }
-                    { e.division ? ' - ' : null}
-                    { e.division ?
-                        <TextLink to={`/divisions/rankings/${e.division.id}`}>{e.division.name}</TextLink>
+                    { e.league && e.league.league ? ' - ' : null}
+                    { e.league ?
+                        <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${e.league.slug}`}>{e.league.name}</TextLink>
                         : null }
                     { ' ' }
                     {e.start_date === e.end_date ? e.start_date : (e.start_date + ' - ' + e.end_date)}
@@ -111,21 +111,15 @@ class EventCards extends Component {
 
 
 const mapStateToProps = (state, props) => {
-  const ret = {
-    selectedSeason: state.ui.season
-  };
-  if (state.events && state.divisions && state.leagues) {
+  const ret = {};
+  if (state.events && state.leagues) {
     ret.events = Object.values(state.events)
-        .filter((e) => e.season === (state.ui.season || state.ui.defaultSeason))
+        .filter((e) => e.season === props.selectedSeason)
         .filter(props.filter || (() => true))
         .map((evt) => {
           const extra = {};
-          if (evt.context_type === 'Division') {
-            extra.division = state.divisions[evt.context_id];
-            extra.league = state.leagues[extra.division.league_id];
-          } else if (evt.context_type === 'League') {
+          if (evt.context_type === 'League') {
             extra.league = state.leagues[evt.context_id];
-
           }
           return Object.assign({}, evt, extra);
         }
@@ -135,7 +129,6 @@ const mapStateToProps = (state, props) => {
 };
 
 const mapDispatchToProps = {
-  getDivisions,
   getEvents,
   getLeagues,
   push

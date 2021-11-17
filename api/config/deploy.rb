@@ -1,5 +1,5 @@
 # config valid for current version and patch releases of Capistrano
-lock '~> 3.11.1'
+lock '~> 3.16.0'
 
 set :application, 'ftc_results'
 set :repo_url, 'https://github.com/maths22/ftc-results.git'
@@ -46,4 +46,4 @@ append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bund
 # set :ssh_options, verify_host_key: :secure
 
 after 'deploy:publishing', 'deploy:restart'
-after 'deploy:restart', 'autoscaling:update_amis'
+#after 'deploy:restart', 'autoscaling:update_amis'

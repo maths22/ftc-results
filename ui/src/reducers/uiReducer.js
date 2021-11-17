@@ -16,9 +16,6 @@ export default function (
   switch (action.type) {
     case SET_TITLE:
       return Object.assign({}, state, {title: action.title});
-    case SET_SEASON:
-
-      return Object.assign({}, state, {season: action.season});
     case GET_SEASONS_SUCCESS:
       if(!state.season) {
         return Object.assign({}, state, {defaultSeason: action.payload.find((s) => s.active).year});

@@ -5,13 +5,6 @@ export const setTitle = (title) => ({
   title
 });
 
-export const SET_SEASON = 'SET_SEASON';
-
-export const setSeason = (season) => ({
-  type: SET_SEASON,
-  season
-});
-
 export const HIDE_VIDEO = 'HIDE_VIDEO';
 
 export const hideVideo = (hidden) => ({

@@ -43,6 +43,16 @@ const styles = (theme) => ({
   },
   surrogateCell: {
     opacity: '0.6'
+  },
+  disabledRow: {
+    '& td': {
+      textDecoration: 'line-through',
+      color: 'rgba(0, 0, 0, 0.4)'
+    },
+    '& a': {
+      textDecoration: 'line-through',
+      color: 'rgba(0, 0, 0, 0.4)'
+    }
   }
 });
 
@@ -57,6 +67,48 @@ class MatchTable extends React.Component {
   };
 
   render() {
+    const {remote} = this.props;
+    return remote ? this.renderRemote() : this.renderTraditional();
+  }
+
+  renderRemote() {
+    const {matches, team, classes} = this.props;
+    const {selectedMatch} = this.state;
+    if (matches.length === 0) {
+      return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
+    }
+
+    const rowStyle = {height: '2rem'};
+
+    return [<Table key={1} className={classes.table} size="small">
+    <TableHead>
+      <TableRow style={rowStyle}>
+        {team ? null : <TableCell className={classes.tableCell}>Team</TableCell> }
+        <TableCell className={classes.tableCell}>Match</TableCell>
+        <TableCell className={classes.tableCell}>Score</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+    {sortBy(matches, ['team', 'number']).map((m) => {
+      return <TableRow key={m.id} style={rowStyle} className={m.no_show ? classes.disabledRow : null}>
+          {team ? null : <TableCell className={classes.tableCell}>
+              <TextLink to={`/teams/summary/${m.team}`}>{m.team}</TextLink>
+            </TableCell>
+          }
+          <TableCell className={classes.tableCell}>
+            {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>#{m.number}</TextLink> : `#${m.number}`}
+          </TableCell>
+          <TableCell className={classes.tableCell}>
+            <span>{!m.played ? 'Awaiting results' : m.score}</span>
+          </TableCell>
+        </TableRow>;
+    })}
+    </TableBody>
+  </Table>, <MatchDetailsDialog key={2} id={selectedMatch} onClose={() => this.setState({selectedMatch: null})}/>];
+
+  }
+
+  renderTraditional() {
     const {matches, team, classes} = this.props;
     const {selectedMatch} = this.state;
     if (matches.length === 0) {
