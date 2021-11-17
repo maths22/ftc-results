@@ -119,7 +119,7 @@ module FtcApi
         event_alliances = Alliance.includes(:teams, :event).where(event: event).to_a
         event_teams = event.teams.to_a
         quals = schedule_api.v20_season_schedule_event_code_get(event.season.first_api_year, event.slug, { tournament_level: 'qual' }).schedule
-        if quals.length.positive? && !event.in_progress?
+        if quals.length.positive? && !event.in_progress? && !event.finalized?
           event.start!
         end
 
