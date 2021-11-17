@@ -6,7 +6,7 @@ class Match < ApplicationRecord
   belongs_to :blue_score, class_name: 'Score', dependent: :destroy, optional: true
   belongs_to :event_division, optional: true
 
-  scope :in_season_meet, ->(season) { where(event: where(season: season, context_type: 'Division')) }
+  scope :in_season_meet, ->(season) { where(event: where(season: season, type: :league_meet)) }
 
   %i[rp tbp score surrogate red_card].each do |attribute|
     define_method :"#{attribute}_for_team" do |team|
@@ -39,7 +39,11 @@ class Match < ApplicationRecord
     other_color = color == :red ? :blue : :red
 
     define_method :"#{color}_score_total" do
-      [0, send(:"#{color}_score").earned + send(:"#{other_color}_score").penalty].max
+      if send("#{color}_score").penalty_direction == :add
+        [0, send(:"#{color}_score").earned + send(:"#{other_color}_score").penalty].max
+      else
+        [0, send(:"#{color}_score").earned - send(:"#{color}_score").penalty].max
+      end
     end
 
     define_method :"#{color}_wins?" do

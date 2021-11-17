@@ -13,8 +13,10 @@ module Api
         post_awards
       ].freeze
 
-      load_and_authorize_resource
-      skip_load_resource only: %i[index approve_access]
+      # TODO scope this to the season
+      before_action :load_event
+      authorize_resource
+      skip_before_action :load_event, only: %i[index approve_access]
       skip_authorize_resource only: %i[approve_access download_scoring_system] + MANAGE_RESULTS_ACTIONS
       skip_authorization_check only: %i[approve_access]
       before_action :validate_jwt, only: %i[download_scoring_system]
@@ -86,14 +88,14 @@ module Api
       def view_matches
         expires_in(30.seconds, public: true) if request_cacheable?
 
-        @matches = Match.includes([:event_division, red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
+        @matches = Match.includes([:event, :event_division, red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
       end
 
       def view_rankings
         expires_in(30.seconds, public: true) if request_cacheable?
 
         @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
-        @rankings = @event.rankings.includes(:team, :event_division)
+        @rankings = @event.league_meet? ? Ranking.includes(:team).where(context: @event.context) : @event.rankings.includes(:team, :event_division)
       end
 
       def view_alliances
@@ -458,6 +460,10 @@ module Api
       # Only allow a trusted parameter "white list" through.
       def event_params
         params.fetch(:event, {})
+      end
+
+      def load_event
+        @event ||= Event.find_by!(slug: params[:id], season: request_season)
       end
     end
   end

@@ -22,7 +22,7 @@ module Rankings
         lst.each { |it| it.matches_played = lst.size }
       end
       # League championships need their rankings combined with the league ones
-      return evt_rankings unless @evt.context_type == 'League'
+      return evt_rankings unless @evt.type == :league_tournament
 
       lrs = LeagueRankingsService.new(season: @evt.season)
       lrs.alliances = MatchAlliance

@@ -7,7 +7,7 @@ class Event < ApplicationRecord
   has_many :events_teams, dependent: :destroy
   has_many :teams, through: :events_teams
   belongs_to :season
-  has_many :rankings, dependent: :destroy
+  has_many :rankings, as: :context, dependent: :destroy
   has_many :matches, dependent: :destroy
   has_many :alliances, dependent: :destroy
   has_many :event_divisions, dependent: :destroy
@@ -23,6 +23,22 @@ class Event < ApplicationRecord
 
   has_and_belongs_to_many :owners, class_name: 'User'
 
+  enum type: {
+    league_meet: 1,
+    qualifier: 2,
+    league_tournament: 3,
+    championship: 4
+  }
+
+  def to_param
+    slug
+  end
+
+  # So that type is a valid column name
+  def self.inheritance_column
+    :does_not_exist
+  end
+
   # TODO: don't use ID
   def before_import_associations(record)
     return unless (ctx_id = record[:context_id]) && (ctx_type = record[:context_type])
@@ -35,14 +51,6 @@ class Event < ApplicationRecord
     return nil if event_channel_assignment.nil?
 
     event_channel_assignment.twitch_channel.name
-  end
-
-  def league_meet?
-    context.is_a? Division
-  end
-
-  def league_championship?
-    context.is_a? League
   end
 
   def divisions?

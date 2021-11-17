@@ -38,21 +38,22 @@ module Rankings
 
           ranking = TeamRanking.new
           ranking.team = at.team
-          ranking.division = at.team.divisions.select { |div| div.league.season_id == alliance.alliance.event.season_id }.first
+          ranking.league = at.team.leagues.select { |league| league.season_id == alliance.alliance.event.season_id }.first
           ranking.rp = alliance.rp[at.position - 1]
           ranking.tbp = alliance.tbp[at.position - 1]
           ranking.high_score = alliance.score[at.position - 1]
-          ranking.can_drop = alliance.alliance.event.context_type == 'Division'
+          # TODO: Add event type
+          ranking.can_drop = alliance.alliance.event.type == :league_meet
           rankings[at.team.number] << ranking
         end
       end
     end
 
     def alliances
-      context_filter = @include_tournament ? %w[League Division] : %w[Division]
+      context_filter = @include_tournament ? [:league_tournament, :league_meet] : [:league_meet]
       @alliances ||= MatchAlliance
-                     .includes(alliance: { alliance_teams: { team: { divisions: :league } }, event: {} })
-                     .where(alliance: { events: { season: season, context_type: context_filter } })
+                     .includes(alliance: { alliance_teams: { team: :leagues }, event: {} })
+                     .where(alliance: { events: { season: season, type: context_filter } })
     end
   end
 end

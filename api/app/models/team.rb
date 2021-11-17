@@ -1,16 +1,16 @@
 class Team < ApplicationRecord
   has_many :events_teams, dependent: :destroy
   has_many :events, through: :events_teams
-  has_many :divisions_teams, dependent: :destroy
-  has_many :divisions, through: :divisions_teams
+  has_many :leagues_teams, dependent: :destroy
+  has_many :leagues, through: :leagues_teams
   has_many :alliance_teams, dependent: :destroy
   has_many :alliances, through: :alliance_teams
   has_many :rankings, dependent: :destroy
 
-  def assign_to_division(division)
+  def assign_to_league(league)
     ActiveRecord::Base.transaction do
-      divisions_teams.joins(division: :league).where(division: Division.where(leagues: { season: division.league.season })).destroy_all
-      divisions_teams.create!(division: division)
+      leagues_teams.where(league: { season: league.season }).destroy_all
+      leagues_teams.create!(league: league)
     end
   end
 

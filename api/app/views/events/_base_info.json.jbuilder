@@ -5,6 +5,8 @@ json.context_id event.context_id
 json.context_type event.context_type
 json.season_id event.season_id
 json.season event.season.year
+json.type event.type
+json.remote event.remote
 
 json.slug event.slug
 json.name event.name

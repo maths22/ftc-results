@@ -16,7 +16,7 @@ module Api
 
       # GET /teams/1
       def details
-        @team = Team.includes(:rankings, :divisions, events: [{ event_divisions: [:import_attachment] }, :import_attachment, :season, { event_channel_assignment: [:twitch_channel] }]).find(params[:id])
+        @team = Team.includes(:rankings, :leagues, events: [{ event_divisions: [:import_attachment] }, :import_attachment, :season, { event_channel_assignment: [:twitch_channel] }]).find(params[:id])
 
         match_ids = @team.match_alliances.map(&:match).compact.map(&:id)
 

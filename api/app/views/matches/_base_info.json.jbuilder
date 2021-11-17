@@ -5,9 +5,15 @@ json.phase match.phase
 json.series match.series
 json.number match.number
 json.played match.played
-json.red_alliance match.red_alliance.alliance.teams.map(&:id)
-json.red_surrogate match.red_alliance.surrogate
-json.blue_alliance match.blue_alliance.alliance.teams.map(&:id)
-json.blue_surrogate match.blue_alliance.surrogate
-json.red_score match.red_score_total if match.played
-json.blue_score match.blue_score_total if match.played
+if match.event.remote
+  json.team match.red_alliance.alliance.teams.map(&:id)
+  json.score match.red_score_total if match.played
+  json.no_show !match.red_alliance.teams_present[0]
+else
+  json.red_alliance match.red_alliance.alliance.teams.map(&:id)
+  json.red_surrogate match.red_alliance.surrogate
+  json.blue_alliance match.blue_alliance.alliance.teams.map(&:id)
+  json.blue_surrogate match.blue_alliance.surrogate
+  json.red_score match.red_score_total if match.played
+  json.blue_score match.blue_score_total if match.played
+end

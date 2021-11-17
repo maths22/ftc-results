@@ -122,7 +122,7 @@ module ScoringSystem
 
       type = if event.league_meet?
                ScoringSystem::TYPE_LEAGUE_MEET
-             elsif event.league_championship?
+             elsif event.league_tournament?
                ScoringSystem::TYPE_LEAGUE_TOURNAMENT
              elsif event.season.offseason?
                ScoringSystem::TYPE_OTHER
@@ -219,7 +219,7 @@ module ScoringSystem
                                         end: event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000'
         end
 
-        if event.league_championship? || div == event.context
+        if event.league_tournament? || div == event.context
           copy_from_globaldb(db, 'Team', where: "TeamNumber IN (#{div.teams.map(&:number).join(', ')})", delete: false)
           copy_from_globaldb(db, 'teamInfo', where: "number IN (#{div.teams.map(&:number).join(', ')})", delete: false)
         end
@@ -245,7 +245,7 @@ module ScoringSystem
                                             }[ma.match.record_for_team(team)]
           end
 
-          next unless event.league_championship? || div == event.context
+          next unless event.league_tournament? || div == event.context
 
           add_teams_stmt.execute number: team.number,
                                  advanced: 0,
@@ -261,7 +261,7 @@ module ScoringSystem
     end
 
     def league
-      @league ||= event.league_championship? ? event.context : event.context.league
+      @league ||= event.league_tournament? ? event.context : event.context.league
     end
 
     def copy_from_globaldb(db, table, where: '1 = 1', globaldb: updated_global_db, delete: true)

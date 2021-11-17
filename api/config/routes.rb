@@ -34,18 +34,35 @@ Rails.application.routes.draw do
           get 'search'
         end
       end
+      scope ':season' do
+        resources :events do
+          member do
+            # Basic views
+            get 'matches', action: 'view_matches'
+            get 'rankings', action: 'view_rankings'
+            get 'awards', action: 'view_awards'
+            get 'alliances', action: 'view_alliances'
+            get 'teams', action: 'view_teams'
+          end
+        end
+
+        resources :leagues do
+          member do
+            get 'details'
+          end
+        end
+
+        get 'rankings/league', to: 'league_rankings#index'
+        get 'rankings/league/:id', to: 'league_rankings#league_data'
+      end
+
+      resources :leagues
+
       resources :events do
         collection do
           get 'approve_access/:token', action: 'approve_access', as: 'approve_access'
         end
         member do
-          # Basic views
-          get 'matches', action: 'view_matches'
-          get 'rankings', action: 'view_rankings'
-          get 'awards', action: 'view_awards'
-          get 'alliances', action: 'view_alliances'
-          get 'teams', action: 'view_teams'
-
           get 'download_scoring_system_url'
           get 'download_scoring_system', as: 'download_scoring_system'
 
@@ -69,27 +86,11 @@ Rails.application.routes.draw do
           post 'request_access'
         end
       end
-      get 'events/matches/:id', to: 'events#view_matches'
-      get 'events/rankings/:id', to: 'events#view_rankings'
-      get 'events/awards/:id', to: 'events#view_awards'
-      get 'events/teams/:id', to: 'events#view_teams'
       get 'events/download_scoring_system_url/:id', to: 'events#download_scoring_system_url'
       get 'events/download_scoring_system/:id', to: 'events#download_scoring_system'
 
-      resources :leagues do
-        member do
-          get 'details'
-        end
-      end
-      get 'leagues/details/:id', to: 'leagues#details'
-      resources :divisions
-
       post 'events/import_results/:id', to: 'events#import_results'
-      get 'rankings/league', to: 'league_rankings#index'
-      get 'rankings/league/:id', to: 'league_rankings#league_data'
-      get 'rankings/division/:id', to: 'league_rankings#division_data'
 
-      get 'matches/details/:id', to: 'matches#details'
       get 'matches/:id/details', to: 'matches#details'
 
       mount_devise_token_auth_for 'User', at: 'auth', controllers: {

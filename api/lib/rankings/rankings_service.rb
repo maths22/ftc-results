@@ -19,7 +19,7 @@ module Rankings
     private
 
     def generate_ranking(list)
-      algorithm = season.ranking_algorithm.to_sym || :traditional
+      algorithm = season.ranking_algorithm&.to_sym || :traditional
       case algorithm
       when :traditional
         traditional_generate_ranking(list)
@@ -33,7 +33,7 @@ module Rankings
     def traditional_generate_ranking(lst)
       ranking = TeamRanking.new
       ranking.team = lst[0].team
-      ranking.division = lst[0].division
+      ranking.league = lst[0].league
       ranking.rp = lst.map(&:rp).reduce(0, :+)
       ranking.tbp = lst.map(&:tbp).reduce(0, :+)
       ranking.high_score = lst.map(&:high_score).max
@@ -54,7 +54,7 @@ module Rankings
 
       ranking = TeamRanking.new
       ranking.team = lst[0].team
-      ranking.division = lst[0].division
+      ranking.league = lst[0].league
       ranking.rp = lst.map(&:rp).reduce(0, :+) / matches_played.to_f
       ranking.tbp = lst.map(&:tbp).sort.reverse[0, tbp_matches_played].reduce(0, :+) / tbp_matches_played.to_f
       ranking.high_score = lst.map(&:high_score).max

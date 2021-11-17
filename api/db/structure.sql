@@ -10,6 +10,40 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: ff_auto_navigated_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.ff_auto_navigated_status AS ENUM (
+    'NONE',
+    'IN_STORAGE',
+    'COMPLETELY_IN_STORAGE',
+    'IN_WAREHOUSE',
+    'COMPLETELY_IN_WAREHOUSE'
+);
+
+
+--
+-- Name: ff_barcode_element; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.ff_barcode_element AS ENUM (
+    'DUCK',
+    'TEAM_SHIPPING_ELEMENT'
+);
+
+
+--
+-- Name: ff_endgame_parked_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.ff_endgame_parked_status AS ENUM (
+    'NONE',
+    'IN_WAREHOUSE',
+    'COMPLETELY_IN_WAREHOUSE'
+);
+
+
+--
 -- Name: delayed_jobs_after_delete_row_tr_fn(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -78,7 +112,7 @@ CREATE FUNCTION public.half_md5_as_bigint(strand character varying) RETURNS bigi
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: access_requests; Type: TABLE; Schema: public; Owner: -
@@ -254,8 +288,8 @@ ALTER SEQUENCE public.alliances_id_seq OWNED BY public.alliances.id;
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -527,7 +561,9 @@ CREATE TABLE public.events (
     context_id bigint,
     aasm_state character varying,
     slug character varying,
-    address character varying
+    address character varying,
+    remote boolean DEFAULT false NOT NULL,
+    type integer
 );
 
 
@@ -668,6 +704,108 @@ ALTER SEQUENCE public.failed_jobs_id_seq OWNED BY public.failed_jobs.id;
 
 
 --
+-- Name: freight_frenzy_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.freight_frenzy_scores (
+    id bigint NOT NULL,
+    barcode_element1 public.ff_barcode_element DEFAULT 'DUCK'::public.ff_barcode_element,
+    barcode_element2 public.ff_barcode_element DEFAULT 'DUCK'::public.ff_barcode_element,
+    carousel boolean DEFAULT false,
+    auto_navigated1 public.ff_auto_navigated_status DEFAULT 'NONE'::public.ff_auto_navigated_status,
+    auto_navigated2 public.ff_auto_navigated_status DEFAULT 'NONE'::public.ff_auto_navigated_status,
+    auto_bonus1 boolean DEFAULT false,
+    auto_bonus2 boolean DEFAULT false,
+    auto_storage_freight integer DEFAULT 0,
+    auto_freight1 integer DEFAULT 0,
+    auto_freight2 integer DEFAULT 0,
+    auto_freight3 integer DEFAULT 0,
+    teleop_storage_freight integer DEFAULT 0,
+    teleop_freight1 integer DEFAULT 0,
+    teleop_freight2 integer DEFAULT 0,
+    teleop_freight3 integer DEFAULT 0,
+    shared_freight integer DEFAULT 0,
+    end_delivered integer DEFAULT 0,
+    alliance_balanced boolean DEFAULT false,
+    shared_unbalanced boolean DEFAULT false,
+    end_parked1 public.ff_endgame_parked_status DEFAULT 'NONE'::public.ff_endgame_parked_status,
+    end_parked2 public.ff_endgame_parked_status DEFAULT 'NONE'::public.ff_endgame_parked_status,
+    capped integer DEFAULT 0,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: freight_frenzy_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.freight_frenzy_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: freight_frenzy_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.freight_frenzy_scores_id_seq OWNED BY public.freight_frenzy_scores.id;
+
+
+--
+-- Name: freight_frenzy_scores_remote; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.freight_frenzy_scores_remote (
+    id bigint NOT NULL,
+    barcode_element public.ff_barcode_element DEFAULT 'DUCK'::public.ff_barcode_element,
+    carousel boolean DEFAULT false,
+    auto_navigated public.ff_auto_navigated_status DEFAULT 'NONE'::public.ff_auto_navigated_status,
+    auto_bonus boolean DEFAULT false,
+    auto_storage_freight integer DEFAULT 0,
+    auto_freight1 integer DEFAULT 0,
+    auto_freight2 integer DEFAULT 0,
+    auto_freight3 integer DEFAULT 0,
+    teleop_storage_freight integer DEFAULT 0,
+    teleop_freight1 integer DEFAULT 0,
+    teleop_freight2 integer DEFAULT 0,
+    teleop_freight3 integer DEFAULT 0,
+    end_delivered integer DEFAULT 0,
+    alliance_balanced boolean DEFAULT false,
+    end_parked public.ff_endgame_parked_status DEFAULT 'NONE'::public.ff_endgame_parked_status,
+    capped integer DEFAULT 0,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: freight_frenzy_scores_remote_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.freight_frenzy_scores_remote_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: freight_frenzy_scores_remote_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.freight_frenzy_scores_remote_id_seq OWNED BY public.freight_frenzy_scores_remote.id;
+
+
+--
 -- Name: leagues; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -677,7 +815,9 @@ CREATE TABLE public.leagues (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     season_id bigint,
-    slug character varying
+    slug character varying,
+    leagues_teams_count integer,
+    league_id bigint
 );
 
 
@@ -698,6 +838,36 @@ CREATE SEQUENCE public.leagues_id_seq
 --
 
 ALTER SEQUENCE public.leagues_id_seq OWNED BY public.leagues.id;
+
+
+--
+-- Name: leagues_teams; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.leagues_teams (
+    team_id bigint NOT NULL,
+    league_id bigint NOT NULL,
+    id bigint NOT NULL
+);
+
+
+--
+-- Name: leagues_teams_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.leagues_teams_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: leagues_teams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.leagues_teams_id_seq OWNED BY public.leagues_teams.id;
 
 
 --
@@ -785,14 +955,23 @@ ALTER SEQUENCE public.matches_id_seq OWNED BY public.matches.id;
 CREATE TABLE public.rankings (
     id bigint NOT NULL,
     team_id bigint,
-    event_id bigint,
     ranking integer,
-    ranking_points double precision,
-    tie_breaker_points double precision,
+    sort_order1 double precision,
+    sort_order2 double precision,
     matches_played integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    event_division_id bigint
+    event_division_id bigint,
+    context_type character varying NOT NULL,
+    context_id bigint NOT NULL,
+    sort_order3 double precision,
+    sort_order4 double precision,
+    sort_order5 double precision,
+    sort_order6 double precision,
+    matches_counted integer,
+    wins integer,
+    losses integer,
+    ties integer
 );
 
 
@@ -1134,6 +1313,57 @@ ALTER SEQUENCE public.twitch_channels_id_seq OWNED BY public.twitch_channels.id;
 
 
 --
+-- Name: ultimate_goal_scores_remote; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ultimate_goal_scores_remote (
+    id bigint NOT NULL,
+    wobble_1_delivered boolean DEFAULT false,
+    wobble_2_delivered boolean DEFAULT false,
+    auto_tower_high integer DEFAULT 0,
+    auto_tower_mid integer DEFAULT 0,
+    auto_tower_low integer DEFAULT 0,
+    auto_power_shot_left boolean DEFAULT false,
+    auto_power_shot_center boolean DEFAULT false,
+    auto_power_shot_right boolean DEFAULT false,
+    navigated boolean DEFAULT false,
+    teleop_tower_high integer DEFAULT 0,
+    teleop_tower_mid integer DEFAULT 0,
+    teleop_tower_low integer DEFAULT 0,
+    teleop_power_shot_left boolean DEFAULT false,
+    teleop_power_shot_center boolean DEFAULT false,
+    teleop_power_shot_right boolean DEFAULT false,
+    wobble_1_rings integer DEFAULT 0,
+    wobble_2_rings integer DEFAULT 0,
+    wobble_1_end integer DEFAULT 0,
+    wobble_2_end integer DEFAULT 0,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ultimate_goal_scores_remote_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ultimate_goal_scores_remote_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ultimate_goal_scores_remote_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ultimate_goal_scores_remote_id_seq OWNED BY public.ultimate_goal_scores_remote.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1306,10 +1536,31 @@ ALTER TABLE ONLY public.failed_jobs ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: freight_frenzy_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.freight_frenzy_scores ALTER COLUMN id SET DEFAULT nextval('public.freight_frenzy_scores_id_seq'::regclass);
+
+
+--
+-- Name: freight_frenzy_scores_remote id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.freight_frenzy_scores_remote ALTER COLUMN id SET DEFAULT nextval('public.freight_frenzy_scores_remote_id_seq'::regclass);
+
+
+--
 -- Name: leagues id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.leagues ALTER COLUMN id SET DEFAULT nextval('public.leagues_id_seq'::regclass);
+
+
+--
+-- Name: leagues_teams id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leagues_teams ALTER COLUMN id SET DEFAULT nextval('public.leagues_teams_id_seq'::regclass);
 
 
 --
@@ -1387,6 +1638,13 @@ ALTER TABLE ONLY public.teams ALTER COLUMN number SET DEFAULT nextval('public.te
 --
 
 ALTER TABLE ONLY public.twitch_channels ALTER COLUMN id SET DEFAULT nextval('public.twitch_channels_id_seq'::regclass);
+
+
+--
+-- Name: ultimate_goal_scores_remote id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ultimate_goal_scores_remote ALTER COLUMN id SET DEFAULT nextval('public.ultimate_goal_scores_remote_id_seq'::regclass);
 
 
 --
@@ -1533,11 +1791,35 @@ ALTER TABLE ONLY public.failed_jobs
 
 
 --
+-- Name: freight_frenzy_scores freight_frenzy_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.freight_frenzy_scores
+    ADD CONSTRAINT freight_frenzy_scores_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: freight_frenzy_scores_remote freight_frenzy_scores_remote_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.freight_frenzy_scores_remote
+    ADD CONSTRAINT freight_frenzy_scores_remote_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: leagues leagues_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.leagues
     ADD CONSTRAINT leagues_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: leagues_teams leagues_teams_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leagues_teams
+    ADD CONSTRAINT leagues_teams_pkey PRIMARY KEY (id);
 
 
 --
@@ -1634,6 +1916,14 @@ ALTER TABLE ONLY public.teams
 
 ALTER TABLE ONLY public.twitch_channels
     ADD CONSTRAINT twitch_channels_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ultimate_goal_scores_remote ultimate_goal_scores_remote_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ultimate_goal_scores_remote
+    ADD CONSTRAINT ultimate_goal_scores_remote_pkey PRIMARY KEY (id);
 
 
 --
@@ -1876,10 +2166,31 @@ CREATE INDEX index_events_users_on_user_id_and_event_id ON public.events_users U
 
 
 --
+-- Name: index_leagues_on_league_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leagues_on_league_id ON public.leagues USING btree (league_id);
+
+
+--
 -- Name: index_leagues_on_season_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_leagues_on_season_id ON public.leagues USING btree (season_id);
+
+
+--
+-- Name: index_leagues_teams_on_league_id_and_team_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leagues_teams_on_league_id_and_team_id ON public.leagues_teams USING btree (league_id, team_id);
+
+
+--
+-- Name: index_leagues_teams_on_team_id_and_league_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leagues_teams_on_team_id_and_league_id ON public.leagues_teams USING btree (team_id, league_id);
 
 
 --
@@ -1932,17 +2243,17 @@ CREATE INDEX index_matches_on_red_score_id ON public.matches USING btree (red_sc
 
 
 --
+-- Name: index_rankings_on_context; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rankings_on_context ON public.rankings USING btree (context_type, context_id);
+
+
+--
 -- Name: index_rankings_on_event_division_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_rankings_on_event_division_id ON public.rankings USING btree (event_division_id);
-
-
---
--- Name: index_rankings_on_event_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_rankings_on_event_id ON public.rankings USING btree (event_id);
 
 
 --
@@ -1953,10 +2264,10 @@ CREATE INDEX index_rankings_on_team_id ON public.rankings USING btree (team_id);
 
 
 --
--- Name: index_scores_on_season_score_type_and_season_score_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_scores_on_season_score; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_scores_on_season_score_type_and_season_score_id ON public.scores USING btree (season_score_type, season_score_id);
+CREATE INDEX index_scores_on_season_score ON public.scores USING btree (season_score_type, season_score_id);
 
 
 --
@@ -2019,14 +2330,14 @@ CREATE UNIQUE INDEX index_users_on_uid_and_provider ON public.users USING btree 
 -- Name: delayed_jobs delayed_jobs_after_delete_row_tr; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delayed_jobs_after_delete_row_tr AFTER DELETE ON public.delayed_jobs FOR EACH ROW WHEN (((old.strand IS NOT NULL) AND (old.next_in_strand = true))) EXECUTE PROCEDURE public.delayed_jobs_after_delete_row_tr_fn();
+CREATE TRIGGER delayed_jobs_after_delete_row_tr AFTER DELETE ON public.delayed_jobs FOR EACH ROW WHEN (((old.strand IS NOT NULL) AND (old.next_in_strand = true))) EXECUTE FUNCTION public.delayed_jobs_after_delete_row_tr_fn();
 
 
 --
 -- Name: delayed_jobs delayed_jobs_before_insert_row_tr; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delayed_jobs_before_insert_row_tr BEFORE INSERT ON public.delayed_jobs FOR EACH ROW WHEN ((new.strand IS NOT NULL)) EXECUTE PROCEDURE public.delayed_jobs_before_insert_row_tr_fn();
+CREATE TRIGGER delayed_jobs_before_insert_row_tr BEFORE INSERT ON public.delayed_jobs FOR EACH ROW WHEN ((new.strand IS NOT NULL)) EXECUTE FUNCTION public.delayed_jobs_before_insert_row_tr_fn();
 
 
 --
@@ -2035,6 +2346,14 @@ CREATE TRIGGER delayed_jobs_before_insert_row_tr BEFORE INSERT ON public.delayed
 
 ALTER TABLE ONLY public.event_channel_assignments
     ADD CONSTRAINT fk_rails_3749bfacb8 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: leagues fk_rails_42dcc2afa4; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leagues
+    ADD CONSTRAINT fk_rails_42dcc2afa4 FOREIGN KEY (league_id) REFERENCES public.leagues(id);
 
 
 --
@@ -2173,6 +2492,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190918143207'),
 ('20191001203014'),
 ('20191013152818'),
-('20191102181110');
+('20191102181110'),
+('20211115185059'),
+('20211115220218'),
+('20211115231644'),
+('20211115235701'),
+('20211116145943'),
+('20211117152028');
 
 

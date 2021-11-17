@@ -9,13 +9,13 @@ json.team do
   json.consent_missing @team.consent_missing
 
   json.events @team.events.pluck(:id)
-  json.division_ids @team.divisions.pluck(:id)
+  json.league_ids @team.leagues.pluck(:id)
 
   json.season_records(@team.events.group_by(&:season_id)
                            .transform_values { |events| events.flat_map { |val| @matches.group_by(&:event_id)[val.id] }.compact }
                            .transform_values { |matches| @team.record(matches) })
   json.event_records @matches.group_by(&:event_id).map { |k, v| [k, @team.record(v)] }.to_h
-  json.rankings @team.rankings.map { |rk| [rk.event_id, rk.ranking] }.to_h
+  json.rankings @team.rankings.map { |rk| [rk.context_id, rk.ranking] }.to_h
 end
 
 json.events do

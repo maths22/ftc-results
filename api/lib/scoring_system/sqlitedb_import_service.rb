@@ -20,7 +20,7 @@ module ScoringSystem
           import_elims
           import_league_results
           import_awards
-          generate_rankings unless event.context_type == 'Division'
+          generate_rankings unless event.context_type == :league_meet
           create_rankings
 
           event.finalize! unless event.finalized?
