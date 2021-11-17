@@ -182,7 +182,7 @@ GEM
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     ffi (1.15.4)
-    ftc_events_client (0.2.0)
+    ftc_events_client (0.2.1)
       json (~> 2.1, >= 2.1.0)
       typhoeus (~> 1.0, >= 1.0.1)
     fugit (1.5.2)
@@ -490,7 +490,7 @@ DEPENDENCIES
   derailed_benchmarks
   devise_invitable
   devise_token_auth (~> 1.1)
-  ftc_events_client (= 0.2.0)
+  ftc_events_client (= 0.2.1)
   health_check
   inst-jobs
   instrumental_agent

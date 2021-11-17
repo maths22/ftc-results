@@ -25,37 +25,6 @@
     </content>
     <orderEntry type="jdk" jdkName="asdf: 2.7.2" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library name="ftc_events_client (v0.1.0) [path][gem]" type="rubylib">
-        <properties>
-          <option name="version" value="4" />
-        </properties>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/lib" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.git" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/docs" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/spec" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.swagger-codegen" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.openapi-generator" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/lib" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.git" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/docs" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/spec" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.swagger-codegen" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.openapi-generator" />
-        </SOURCES>
-        <excluded>
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.git" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/docs" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/spec" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.swagger-codegen" />
-          <root url="file://$MODULE_DIR$/../../ftc-events-client-ruby/.openapi-generator" />
-        </excluded>
-      </library>
-    </orderEntry>
     <orderEntry type="library" scope="PROVIDED" name="aasm (v5.2.0, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="actioncable (v6.1.4.1, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="actionmailbox (v6.1.4.1, asdf: 2.7.2) [gem]" level="application" />
@@ -111,10 +80,11 @@
     <orderEntry type="library" scope="PROVIDED" name="domain_name (v0.5.20190701, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="erubi (v1.10.0, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="et-orbi (v1.2.6, asdf: 2.7.2) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="ethon (v0.12.0, asdf: 2.7.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ethon (v0.15.0, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="execjs (v2.8.1, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday (v0.15.4, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi (v1.15.4, asdf: 2.7.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ftc_events_client (v0.2.0, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="fugit (v1.5.2, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="get_process_mem (v0.2.7, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="globalid (v0.5.2, asdf: 2.7.2) [gem]" level="application" />
