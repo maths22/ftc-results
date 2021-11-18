@@ -84,7 +84,7 @@
     <orderEntry type="library" scope="PROVIDED" name="execjs (v2.8.1, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday (v0.15.4, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi (v1.15.4, asdf: 2.7.2) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="ftc_events_client (v0.2.1, asdf: 2.7.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ftc_events_client (v0.2.2, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="fugit (v1.5.2, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="get_process_mem (v0.2.7, asdf: 2.7.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="globalid (v0.5.2, asdf: 2.7.2) [gem]" level="application" />
