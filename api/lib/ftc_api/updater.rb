@@ -77,6 +77,7 @@ module FtcApi
           next unless full || event.aasm_state != 'finalized'
           event.name = event_data[:name]
           event.location = event_data[:venue]
+          event.address = event_data[:address]
           event.city = event_data[:city]
           event.state = event_data[:stateprov]
           event.country = event_data[:country]
