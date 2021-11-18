@@ -49,23 +49,68 @@ CREATE TYPE public.ff_endgame_parked_status AS ENUM (
 
 CREATE FUNCTION public.delayed_jobs_after_delete_row_tr_fn() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-      DECLARE
-        running_count integer;
-      BEGIN
-        IF OLD.strand IS NOT NULL THEN
-          PERFORM pg_advisory_xact_lock(half_md5_as_bigint(OLD.strand));
-          running_count := (SELECT COUNT(*) FROM delayed_jobs WHERE strand = OLD.strand AND next_in_strand = 't');
-          IF running_count < OLD.max_concurrent THEN
-            UPDATE delayed_jobs SET next_in_strand = 't' WHERE id IN (
-              SELECT id FROM delayed_jobs j2 WHERE next_in_strand = 'f' AND
-              j2.strand = OLD.strand ORDER BY j2.id ASC LIMIT (OLD.max_concurrent - running_count) FOR UPDATE
-            );
-          END IF;
-        END IF;
+    AS $_$
+DECLARE
+  running_count integer;
+  should_lock boolean;
+  should_be_precise boolean;
+  update_query varchar;
+  skip_locked varchar;
+BEGIN
+  IF OLD.strand IS NOT NULL THEN
+    should_lock := true;
+    should_be_precise := OLD.id % (OLD.max_concurrent * 4) = 0;
+
+    IF NOT should_be_precise AND OLD.max_concurrent > 16 THEN
+      running_count := (SELECT COUNT(*) FROM (
+        SELECT 1 as one FROM delayed_jobs WHERE strand = OLD.strand AND next_in_strand = 't' LIMIT OLD.max_concurrent
+      ) subquery_for_count);
+      should_lock := running_count < OLD.max_concurrent;
+    END IF;
+
+    IF should_lock THEN
+      PERFORM pg_advisory_xact_lock(half_md5_as_bigint(OLD.strand));
+    END IF;
+
+    -- note that we don't really care if the row we're deleting has a singleton, or if it even
+    -- matches the row(s) we're going to update. we just need to make sure that whatever
+    -- singleton we grab isn't already running (which is a simple existence check, since
+    -- the unique indexes ensure there is at most one singleton running, and one queued)
+    update_query := 'UPDATE delayed_jobs SET next_in_strand=true WHERE id IN (
+      SELECT id FROM delayed_jobs j2
+        WHERE next_in_strand=false AND
+          j2.strand=$1.strand AND
+          (j2.singleton IS NULL OR NOT EXISTS (SELECT 1 FROM delayed_jobs j3 WHERE j3.singleton=j2.singleton AND j3.id<>j2.id AND (j3.locked_by IS NULL OR j3.locked_by IS NOT NULL)))
+        ORDER BY j2.strand_order_override ASC, j2.id ASC
+        LIMIT ';
+
+    IF should_be_precise THEN
+      running_count := (SELECT COUNT(*) FROM (
+        SELECT 1 FROM delayed_jobs WHERE strand = OLD.strand AND next_in_strand = 't' LIMIT OLD.max_concurrent
+      ) s);
+      IF running_count < OLD.max_concurrent THEN
+        update_query := update_query || '($1.max_concurrent - $2)';
+      ELSE
+        -- we have too many running already; just bail
         RETURN OLD;
-      END;
-      $$;
+      END IF;
+    ELSE
+      update_query := update_query || '1';
+
+      -- n-strands don't require precise ordering; we can make this query more performant
+      IF OLD.max_concurrent > 1 THEN
+        skip_locked := ' SKIP LOCKED';
+      END IF;
+    END IF;
+
+    update_query := update_query || ' FOR UPDATE' || COALESCE(skip_locked, '') || ')';
+    EXECUTE update_query USING OLD, running_count;
+  ELSIF OLD.singleton IS NOT NULL THEN
+    UPDATE delayed_jobs SET next_in_strand = 't' WHERE singleton=OLD.singleton AND next_in_strand=false AND locked_by IS NULL;
+  END IF;
+  RETURN OLD;
+END;
+$_$;
 
 
 --
@@ -75,16 +120,40 @@ CREATE FUNCTION public.delayed_jobs_after_delete_row_tr_fn() RETURNS trigger
 CREATE FUNCTION public.delayed_jobs_before_insert_row_tr_fn() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-      BEGIN
-        IF NEW.strand IS NOT NULL THEN
-          PERFORM pg_advisory_xact_lock(half_md5_as_bigint(NEW.strand));
-          IF (SELECT COUNT(*) FROM delayed_jobs WHERE strand = NEW.strand) >= NEW.max_concurrent THEN
-            NEW.next_in_strand := 'f';
-          END IF;
-        END IF;
-        RETURN NEW;
-      END;
-      $$;
+BEGIN
+  IF NEW.strand IS NOT NULL THEN
+    PERFORM pg_advisory_xact_lock(half_md5_as_bigint(NEW.strand));
+    IF (SELECT COUNT(*) FROM (
+        SELECT 1 FROM delayed_jobs WHERE strand = NEW.strand AND next_in_strand=true LIMIT NEW.max_concurrent
+      ) s) = NEW.max_concurrent THEN
+      NEW.next_in_strand := false;
+    END IF;
+  END IF;
+  IF NEW.singleton IS NOT NULL THEN
+    -- this condition seems silly, but it forces postgres to use the two partial indexes on singleton,
+    -- rather than doing a seq scan
+    PERFORM 1 FROM delayed_jobs WHERE singleton = NEW.singleton AND (locked_by IS NULL OR locked_by IS NOT NULL);
+    IF FOUND THEN
+      NEW.next_in_strand := false;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delayed_jobs_before_unlock_delete_conflicting_singletons_row_fn(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delayed_jobs_before_unlock_delete_conflicting_singletons_row_fn() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  DELETE FROM delayed_jobs WHERE id<>OLD.id AND singleton=OLD.singleton AND locked_by IS NULL;
+  RETURN NEW;
+END;
+$$;
 
 
 --
@@ -371,8 +440,8 @@ CREATE TABLE public.delayed_jobs (
     attempts integer DEFAULT 0,
     handler text,
     last_error text,
-    queue character varying(255),
-    run_at timestamp without time zone,
+    queue character varying(255) NOT NULL,
+    run_at timestamp without time zone NOT NULL,
     locked_at timestamp without time zone,
     failed_at timestamp without time zone,
     locked_by character varying(255),
@@ -384,7 +453,9 @@ CREATE TABLE public.delayed_jobs (
     next_in_strand boolean DEFAULT true NOT NULL,
     source character varying(255),
     max_concurrent integer DEFAULT 1 NOT NULL,
-    expires_at timestamp without time zone
+    expires_at timestamp without time zone,
+    strand_order_override integer DEFAULT 0 NOT NULL,
+    singleton character varying
 );
 
 
@@ -679,7 +750,9 @@ CREATE TABLE public.failed_jobs (
     strand character varying(255),
     original_job_id bigint,
     source character varying(255),
-    expires_at timestamp without time zone
+    expires_at timestamp without time zone,
+    strand_order_override integer DEFAULT 0 NOT NULL,
+    singleton character varying
 );
 
 
@@ -1938,7 +2011,7 @@ ALTER TABLE ONLY public.users
 -- Name: get_delayed_jobs_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX get_delayed_jobs_index ON public.delayed_jobs USING btree (priority, run_at, queue) WHERE ((locked_at IS NULL) AND (next_in_strand = true));
+CREATE INDEX get_delayed_jobs_index ON public.delayed_jobs USING btree (queue, priority, run_at, id) WHERE ((locked_at IS NULL) AND next_in_strand);
 
 
 --
@@ -2037,6 +2110,20 @@ CREATE INDEX index_delayed_jobs_on_locked_by ON public.delayed_jobs USING btree 
 --
 
 CREATE INDEX index_delayed_jobs_on_run_at_and_tag ON public.delayed_jobs USING btree (run_at, tag);
+
+
+--
+-- Name: index_delayed_jobs_on_singleton_not_running; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_delayed_jobs_on_singleton_not_running ON public.delayed_jobs USING btree (singleton) WHERE ((singleton IS NOT NULL) AND (locked_by IS NULL));
+
+
+--
+-- Name: index_delayed_jobs_on_singleton_running; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_delayed_jobs_on_singleton_running ON public.delayed_jobs USING btree (singleton) WHERE ((singleton IS NOT NULL) AND (locked_by IS NOT NULL));
 
 
 --
@@ -2327,17 +2414,38 @@ CREATE UNIQUE INDEX index_users_on_uid_and_provider ON public.users USING btree 
 
 
 --
+-- Name: n_strand_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX n_strand_index ON public.delayed_jobs USING btree (strand, next_in_strand, id) WHERE (strand IS NOT NULL);
+
+
+--
+-- Name: next_in_strand_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX next_in_strand_index ON public.delayed_jobs USING btree (strand, strand_order_override, id) WHERE (strand IS NOT NULL);
+
+
+--
 -- Name: delayed_jobs delayed_jobs_after_delete_row_tr; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delayed_jobs_after_delete_row_tr AFTER DELETE ON public.delayed_jobs FOR EACH ROW WHEN (((old.strand IS NOT NULL) AND (old.next_in_strand = true))) EXECUTE FUNCTION public.delayed_jobs_after_delete_row_tr_fn();
+CREATE TRIGGER delayed_jobs_after_delete_row_tr AFTER DELETE ON public.delayed_jobs FOR EACH ROW WHEN ((((old.strand IS NOT NULL) OR (old.singleton IS NOT NULL)) AND (old.next_in_strand = true))) EXECUTE FUNCTION public.delayed_jobs_after_delete_row_tr_fn();
 
 
 --
 -- Name: delayed_jobs delayed_jobs_before_insert_row_tr; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delayed_jobs_before_insert_row_tr BEFORE INSERT ON public.delayed_jobs FOR EACH ROW WHEN ((new.strand IS NOT NULL)) EXECUTE FUNCTION public.delayed_jobs_before_insert_row_tr_fn();
+CREATE TRIGGER delayed_jobs_before_insert_row_tr BEFORE INSERT ON public.delayed_jobs FOR EACH ROW WHEN (((new.strand IS NOT NULL) OR (new.singleton IS NOT NULL))) EXECUTE FUNCTION public.delayed_jobs_before_insert_row_tr_fn();
+
+
+--
+-- Name: delayed_jobs delayed_jobs_before_unlock_delete_conflicting_singletons_row_tr; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delayed_jobs_before_unlock_delete_conflicting_singletons_row_tr BEFORE UPDATE ON public.delayed_jobs FOR EACH ROW WHEN (((old.singleton IS NOT NULL) AND ((old.singleton)::text = (new.singleton)::text) AND (old.locked_by IS NOT NULL) AND (new.locked_by IS NULL))) EXECUTE FUNCTION public.delayed_jobs_before_unlock_delete_conflicting_singletons_row_fn();
 
 
 --
@@ -2498,6 +2606,17 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211115231644'),
 ('20211115235701'),
 ('20211116145943'),
-('20211117152028');
+('20211117152028'),
+('20211117225911'),
+('20211117225912'),
+('20211117225913'),
+('20211117225914'),
+('20211117225915'),
+('20211117225916'),
+('20211117225917'),
+('20211117225918'),
+('20211117225919'),
+('20211117225920'),
+('20211117225921');
 
 

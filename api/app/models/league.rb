@@ -1,7 +1,7 @@
 class League < ApplicationRecord
   scope :current_season, -> { where(season: Season.active.first) }
 
-  has_many :divisions, dependent: :destroy
+  has_many :leagues, dependent: :destroy
   belongs_to :season
   belongs_to :league, optional: true
   has_many :leagues_teams, dependent: :destroy

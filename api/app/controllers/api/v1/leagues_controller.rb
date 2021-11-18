@@ -23,7 +23,7 @@ module Api
       def details
         @league = League.includes([:teams, :events, { leagues: %i[teams events] }]).find_by(slug: params[:id], season: request_season)
         render json: @league,
-               include: [{ leagues: %i[teams events] }, :teams, :events]
+               include: [:teams, :events, { leagues: { include: %i[teams events] } }]
       end
 
       def load_leagues
