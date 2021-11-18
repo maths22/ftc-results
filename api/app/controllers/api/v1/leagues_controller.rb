@@ -25,7 +25,7 @@ module Api
         render json: @league,
                include: [:teams, :events, { leagues: { include: %i[teams events] } }]
       end
-      events/_base_info.json
+
       def load_leagues
         @leagues ||= params[:season] ? League.where(season: request_season) : League.all
       end
