@@ -141,11 +141,11 @@ module FtcApi
             match.red_alliance ||= MatchAlliance.new alliance: red_alliance
             match.blue_alliance ||= MatchAlliance.new alliance: blue_alliance
             match.red_alliance.surrogate[0] = red1[:surrogate]
-            match.red_alliance.surrogate[1] = red1[:surrogate]
+            match.red_alliance.surrogate[1] = red2[:surrogate]
             match.blue_alliance.surrogate[0] = blue1[:surrogate]
             match.blue_alliance.surrogate[1] = blue2[:surrogate]
             match.red_alliance.teams_present[0] = !red1[:noShow]
-            match.red_alliance.teams_present[1] = !red1[:noShow]
+            match.red_alliance.teams_present[1] = !red2[:noShow]
             match.blue_alliance.teams_present[0] = !blue1[:noShow]
             match.blue_alliance.teams_present[1] = !blue2[:noShow]
             event_alliances << red_alliance if red_alliance.new_record?
