@@ -138,8 +138,10 @@ module FtcApi
               Alliance.new(event: event, is_elims: false, teams: red_teams)
             blue_alliance = event_alliances.detect { |ea| !ea.is_elims && ea.teams == blue_teams } ||
               Alliance.new(event: event, is_elims: false, teams: blue_teams)
-            match.red_alliance ||= MatchAlliance.new alliance: red_alliance
-            match.blue_alliance ||= MatchAlliance.new alliance: blue_alliance
+            match.red_alliance ||= MatchAlliance.new
+            match.red_alliance.alliance = red_alliance
+            match.blue_alliance ||= MatchAlliance.new
+            match.blue_alliance.alliance = blue_alliance
             match.red_alliance.surrogate[0] = red1[:surrogate]
             match.red_alliance.surrogate[1] = red2[:surrogate]
             match.blue_alliance.surrogate[0] = blue1[:surrogate]
