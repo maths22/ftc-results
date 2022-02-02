@@ -463,7 +463,11 @@ module Api
       end
 
       def load_event
-        @event ||= Event.find_by!(slug: params[:id], season: request_season)
+        @event ||= if Integer(params[:id], exception: false)
+                     Event.find(params[:id])
+                   else
+                     Event.find_by!(slug: params[:id], season: request_season)
+                   end
       end
     end
   end
