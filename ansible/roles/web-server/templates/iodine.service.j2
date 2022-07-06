@@ -8,7 +8,7 @@ User=deploy
 EnvironmentFile=-/etc/environment
 
 WorkingDirectory=/var/www/ftc_results/current/
-ExecStart=/usr/local/bin/bundle exec puma -C /etc/puma/ftc_results.rb
+ExecStart=/usr/local/bin/bundle exec iodine -C /etc/puma/ftc_results.rb
 ExecStop=/usr/local/bin/bundle exec pumactl -F /etc/puma/ftc_results.rb stop
 ExecReload=/usr/local/bin/bundle exec pumactl -F /etc/puma/ftc_results.rb phased-restart
 

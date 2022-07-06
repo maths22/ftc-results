@@ -6,5 +6,5 @@ if [[ "$POOL" = "work" ]]
 then
   bundle exec inst_jobs run
 else
-  bundle exec puma
+  bundle exec iodine
 fi
