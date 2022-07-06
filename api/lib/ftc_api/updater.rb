@@ -8,10 +8,10 @@ module FtcApi
     class << self
       def update_teams(season)
         teams = []
-        res = season_data_api.v20_season_teams_get(season.first_api_year, { state: 'IL' })
+        res = season_data_api.v20_season_teams_get(season.first_api_year)
         teams += res.teams
         while res.page_current < res.page_total
-          res = season_data_api.v20_season_teams_get(season.first_api_year, { state: 'IL', page: res.page_current + 1 })
+          res = season_data_api.v20_season_teams_get(season.first_api_year, { page: res.page_current + 1 })
           teams += res.teams
         end
 

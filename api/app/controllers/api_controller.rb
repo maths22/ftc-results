@@ -32,7 +32,7 @@ class ApiController < ApplicationController
     # rubocop:disable Style/GuardClause
     # Let's keep cancancan happy
     @_authorized = true
-    subject = CanCan::ControllerResource.new(self).send(:resource_instance)
+    subject = CanCan::ControllerResource.new(self).send(:resource_instance) || nil
 
     token = params[:token] || request.headers['Authorization'].sub('Bearer ', '')
     begin
@@ -69,6 +69,8 @@ class ApiController < ApplicationController
   end
 
   def jwt_subject(resource)
+    return resource unless resource.is_a?(ActiveRecord::Base)
+
     primary_key = resource[resource.class.primary_key]
     "#{resource.class.name}:#{primary_key}"
   end

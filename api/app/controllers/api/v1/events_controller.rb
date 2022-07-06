@@ -102,6 +102,7 @@ module Api
         expires_in(30.seconds, public: true) if request_cacheable?
 
         @alliances = @event.alliances.where(is_elims: true)
+        @rankings = @event.elims_rankings.includes(:alliance, :event_division)
       end
 
       def view_awards
@@ -126,36 +127,22 @@ module Api
         test_db = params[:test] != 'false'
         authorize!(:read_scoring_secrets, @event) unless test_db
         token = generate_jwt(subject: @event, action: 'download_scoring_system', test: test_db)
-        render json: { url: download_scoring_system_api_v1_event_url(@event, token: token) }
+        render json: { url: download_db_api_v1_event_url(@event.season.year, @event, token: token) }
       end
 
       def download_scoring_system
         test_db = @decoded_token[0]['test']
 
-        zip = ::ScoringSystem::ZipService.new(@event.season)
         db_service = ::ScoringSystem::SqlitedbExportService.new(@event,
                                                                 test_db: test_db,
-                                                                api_base: "#{root_url}api/v1",
+                                                                root_url: root_url,
                                                                 token: generate_jwt(subject: @event, action: 'manage_results', exp: (@event.end_date + 5.days).to_time.to_i))
-        zip.with_copy do |file|
-          zip.transaction(file) do |zip_file|
-            zip.add_db(zip_file, 'global', db_service.updated_global_db)
-            zip.add_db(zip_file, 'server', db_service.server_db)
-            db_service.event_dbs.each do |number, db|
-              filename = (test_db ? 'test_' : '') + @event.slug + (@event.divisions? ? "_#{number}" : '')
-              zip.add_db(zip_file, filename, db)
-            end
-            # Sponsor.global.each { |s| zip.add_sponsor_logo(zip_file, s) }
-            # @event.sponsors.each { |s| zip.add_sponsor_logo(zip_file, s) }
-            # TODO: seasonify
-            zip.add_lib(zip_file, Rails.root.join('vendor/scoring/FTCLiveExtras.jar'))
-          end
-          db_service.cleanup
-          File.open(file, 'r') do |data|
-            headers['Content-Length'] = data.size if data.respond_to?(:size)
-            send_data(data.read, filename: "#{test_db ? 'TEST_' : ''}ftc-scoring-il-#{@event.slug}-#{@event.season.year}.zip")
-          end
+
+        File.open(db_service.event_dbs[0], 'r') do |data|
+          headers['Content-Length'] = data.size if data.respond_to?(:size)
+          send_data(data.read, filename: "#{test_db ? 'TEST-' : ''}#{@event.slug}.db")
         end
+        db_service.cleanup
       end
 
       def import_results

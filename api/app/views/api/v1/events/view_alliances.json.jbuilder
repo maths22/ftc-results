@@ -1,4 +1,4 @@
-json.array! @alliances do |alliance|
+json.alliances @alliances do |alliance|
   json.id alliance.id
   json.event_id alliance.event_id
   json.seed alliance.seed
@@ -9,3 +9,5 @@ json.array! @alliances do |alliance|
 
   json.division alliance.event_division&.number
 end
+
+json.rankings @rankings, partial: 'rankings/base_info', as: :ranking

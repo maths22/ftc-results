@@ -58,7 +58,7 @@ module Rankings
     def alliances
       @alliances ||= MatchAlliance
                      .joins(alliance: :event)
-                     .includes(alliance: { alliance_teams: { team: :divisions } })
+                     .includes(alliance: { alliance_teams: { team: :leagues } })
                      .where(alliances: { event: @evt })
     end
   end

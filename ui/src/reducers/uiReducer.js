@@ -1,4 +1,4 @@
-import {SET_TITLE, SET_SEASON, HIDE_VIDEO, SHOW_ONLY_MY_EVENTS} from '../actions/ui';
+import {SET_TITLE, HIDE_VIDEO, SHOW_ONLY_MY_EVENTS} from '../actions/ui';
 import {GET_SEASONS_SUCCESS} from '../actions/api';
 import queryString from 'query-string';
 

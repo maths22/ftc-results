@@ -14,6 +14,7 @@ import uiReducer from './uiReducer';
 import matchesReducer from './matchesReducer';
 import teamDetailsReducer from './teamDetailsReducer';
 import rankingsReducer from './rankingsReducer';
+import elimsRankingsReducer from './elimsRankingsReducer';
 import matchDetailsReducer from './matchDetailsReducer';
 
 import localScoringReducer from './localScoring/rootReducer';
@@ -31,6 +32,7 @@ export default (history) => combineReducers({
   matches: matchesReducer,
   promises: promisesReducer,
   rankings: rankingsReducer,
+  elimsRankings: elimsRankingsReducer,
   router: connectRouter(history),
   seasons: seasonsReducer,
   teamDetails: teamDetailsReducer,

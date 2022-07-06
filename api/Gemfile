@@ -33,6 +33,8 @@ gem 'random-port'
 gem 'rubyzip', '>= 1.0.0', require: 'zip'
 gem 'sqlite3'
 
+gem 'plezi'
+
 gem 'inst-jobs'
 gem 'sinatra'
 gem 'sinatra-contrib', require: false

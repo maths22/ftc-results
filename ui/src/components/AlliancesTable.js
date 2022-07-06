@@ -32,7 +32,7 @@ class AlliancesTable extends React.Component {
 
     const rowStyle = {height: '2rem'};
 
-    // const colCount = Math.max(alliances.map((a) => a.teams.length));
+    const colCount = Math.max(3, ...alliances.map((a) => a.teams.length));
     return <Table className={classes.table} key={1}>
       <TableHead>
         <TableRow style={rowStyle}>
@@ -40,15 +40,17 @@ class AlliancesTable extends React.Component {
           <TableCell className={classes.tableCell}>Captain</TableCell>
           <TableCell className={classes.tableCell}>First Pick</TableCell>
           <TableCell className={classes.tableCell}>Second Pick</TableCell>
+          {colCount > 3 ? <TableCell className={classes.tableCell}>Backup</TableCell> : null}
         </TableRow>
       </TableHead>
       <TableBody>
         {alliances.map((a) => {
           return <TableRow key={a.id} style={rowStyle}>
             <TableCell className={classes.tableCell}>{a.seed}</TableCell>
-            { a.teams.map((team) => <TableCell className={classes.tableCell}>
+            { a.teams.map((team) => <TableCell className={classes.tableCell} key={team.number}>
               <TextLink to={`/teams/summary/${team.number}`}>{team.number} ({team.name})</TextLink>
             </TableCell> )}
+            {Array(colCount - a.teams.length).fill(1).map((id) => <TableCell key={id} className={classes.tableCell}>&nbsp;</TableCell>)}
           </TableRow>;
         })}
       </TableBody>

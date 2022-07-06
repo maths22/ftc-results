@@ -33,6 +33,17 @@ CREATE TYPE public.ff_barcode_element AS ENUM (
 
 
 --
+-- Name: ff_cri_auto_navigated_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.ff_cri_auto_navigated_status AS ENUM (
+    'NONE',
+    'IN_WAREHOUSE',
+    'COMPLETELY_IN_WAREHOUSE'
+);
+
+
+--
 -- Name: ff_endgame_parked_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -808,6 +819,66 @@ ALTER SEQUENCE public.failed_jobs_id_seq OWNED BY public.failed_jobs.id;
 
 
 --
+-- Name: freight_frenzy_cri_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.freight_frenzy_cri_scores (
+    id bigint NOT NULL,
+    barcode_element1 public.ff_barcode_element DEFAULT 'DUCK'::public.ff_barcode_element,
+    barcode_element2 public.ff_barcode_element DEFAULT 'DUCK'::public.ff_barcode_element,
+    barcode_element3 public.ff_barcode_element DEFAULT 'DUCK'::public.ff_barcode_element,
+    carousel boolean DEFAULT false,
+    auto_navigated1 public.ff_cri_auto_navigated_status DEFAULT 'NONE'::public.ff_cri_auto_navigated_status,
+    auto_navigated2 public.ff_cri_auto_navigated_status DEFAULT 'NONE'::public.ff_cri_auto_navigated_status,
+    auto_navigated3 public.ff_cri_auto_navigated_status DEFAULT 'NONE'::public.ff_cri_auto_navigated_status,
+    auto_bonus1 boolean DEFAULT false,
+    auto_bonus2 boolean DEFAULT false,
+    auto_bonus3 boolean DEFAULT false,
+    auto_freight1 integer DEFAULT 0,
+    auto_freight2 integer DEFAULT 0,
+    auto_freight3 integer DEFAULT 0,
+    auto_coop_freight integer DEFAULT 0,
+    teleop_freight1 integer DEFAULT 0,
+    teleop_freight2 integer DEFAULT 0,
+    teleop_freight3 integer DEFAULT 0,
+    shared_freight integer DEFAULT 0,
+    teleop_coop_freight integer DEFAULT 0,
+    teleop_other_coop_freight integer DEFAULT 0,
+    end_delivered integer DEFAULT 0,
+    alliance_balanced boolean DEFAULT false,
+    shared_unbalanced boolean DEFAULT false,
+    coop_balanced boolean DEFAULT false,
+    end_parked1 public.ff_endgame_parked_status DEFAULT 'NONE'::public.ff_endgame_parked_status,
+    end_parked2 public.ff_endgame_parked_status DEFAULT 'NONE'::public.ff_endgame_parked_status,
+    end_parked3 public.ff_endgame_parked_status DEFAULT 'NONE'::public.ff_endgame_parked_status,
+    capped integer DEFAULT 0,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: freight_frenzy_cri_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.freight_frenzy_cri_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: freight_frenzy_cri_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.freight_frenzy_cri_scores_id_seq OWNED BY public.freight_frenzy_cri_scores.id;
+
+
+--
 -- Name: freight_frenzy_scores; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1075,7 +1146,8 @@ CREATE TABLE public.rankings (
     matches_counted integer,
     wins integer,
     losses integer,
-    ties integer
+    ties integer,
+    alliance_id bigint
 );
 
 
@@ -1647,6 +1719,13 @@ ALTER TABLE ONLY public.failed_jobs ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: freight_frenzy_cri_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.freight_frenzy_cri_scores ALTER COLUMN id SET DEFAULT nextval('public.freight_frenzy_cri_scores_id_seq'::regclass);
+
+
+--
 -- Name: freight_frenzy_scores id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1907,6 +1986,14 @@ ALTER TABLE ONLY public.events_teams
 
 ALTER TABLE ONLY public.failed_jobs
     ADD CONSTRAINT failed_jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: freight_frenzy_cri_scores freight_frenzy_cri_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.freight_frenzy_cri_scores
+    ADD CONSTRAINT freight_frenzy_cri_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -2383,6 +2470,13 @@ CREATE INDEX index_matches_on_red_score_id ON public.matches USING btree (red_sc
 
 
 --
+-- Name: index_rankings_on_alliance_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rankings_on_alliance_id ON public.rankings USING btree (alliance_id);
+
+
+--
 -- Name: index_rankings_on_context; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2680,6 +2774,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211117225920'),
 ('20211117225921'),
 ('20211118170527'),
-('20211118170528');
+('20211118170528'),
+('20220703173404'),
+('20220706125817');
 
 

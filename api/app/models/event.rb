@@ -7,7 +7,8 @@ class Event < ApplicationRecord
   has_many :events_teams, dependent: :destroy
   has_many :teams, through: :events_teams
   belongs_to :season
-  has_many :rankings, as: :context, dependent: :destroy
+  has_many :rankings, -> { where.not(team_id: nil) }, as: :context, dependent: :destroy
+  has_many :elims_rankings, -> { where.not(alliance_id: nil) }, class_name: 'Ranking', as: :context, dependent: :destroy
   has_many :matches, dependent: :destroy
   has_many :alliances, dependent: :destroy
   has_many :event_divisions, dependent: :destroy
@@ -97,6 +98,7 @@ class Event < ApplicationRecord
   def clear_associated_data
     self.teams = []
     rankings.destroy_all
+    elims_rankings.destroy_all
     matches.destroy_all
     alliances.destroy_all
     awards.destroy_all

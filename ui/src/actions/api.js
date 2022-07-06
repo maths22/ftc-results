@@ -274,9 +274,9 @@ export const getLeagues = (season) => ({
   }
 });
 
-export const getTeams = () => ({
+export const getTeams = (ids) => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/teams`,
+    endpoint: `${API_BASE}/teams?ids=${ids.join(',')}`,
     method: 'GET',
     types: [
       GET_TEAMS_REQUEST,
@@ -346,6 +346,13 @@ export const getEventTeams = (season, id) => ({
   }
 });
 
+export const getEventTeamsWithTeams = (season, id) => dispatch => {
+  return dispatch(getEventTeams(season, id))
+    .then((payload) => {
+      return dispatch(getTeams(payload.payload.teams.map((r) => r.team)));
+    });
+};
+
 export const getEventAlliances = (season, id) => ({
   [RSAA]: {
     endpoint: `${API_BASE}/${season}/events/${id}/alliances`,
@@ -382,6 +389,13 @@ export const getLeagueRankings = (season) => ({
   }
 });
 
+export const getLeagueRankingsWithTeams = (season) => dispatch => {
+  return dispatch(getLeagueRankings(season))
+    .then((payload) => {
+      return dispatch(getTeams(payload.payload.rankings.map((r) => r.team)));
+    });
+};
+
 export const getLeagueData = (season, id) => ({
   [RSAA]: {
     endpoint: `${API_BASE}/${season}/rankings/league/${id}`,
@@ -394,9 +408,16 @@ export const getLeagueData = (season, id) => ({
   }
 });
 
-export const getScoringDownloadUrl = (id, test)  => ({
+export const getLeagueDataWithTeams = (season, id) => dispatch => {
+  return dispatch(getLeagueData(season, id))
+    .then((payload) => {
+      return dispatch(getTeams(payload.payload.rankings.map((r) => r.team)));
+    });
+};
+
+export const getScoringDownloadUrl = (season, id, test)  => ({
   [RSAA]: {
-    endpoint: `${API_BASE}/events/${id}/download_scoring_system_url?test=${test}`,
+    endpoint: `${API_BASE}/${season}/events/${id}/download_db_url?test=${test}`,
     method: 'GET',
     types: [
       SCORING_URL_REQUEST,

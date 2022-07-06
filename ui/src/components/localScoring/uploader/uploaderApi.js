@@ -4,71 +4,71 @@ export default class UploaderApi {
     this.fetcher = httpRequestFunc;
   }
 
-  postRankings(event, division, rankings) {
+  postRankings(season, event, division, rankings) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/rankings/${event}?division=${division}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/rankings?division=${division}`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({rankings}),
     });
   }
 
-  postTeams(event, division, teams) {
+  postTeams(season, event, division, teams) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/teams/${event}?division=${division}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/teams?division=${division}`,
       method: 'POST',
       headers: {'Content-Type': 'application/json; charset=utf-8'},
       body: JSON.stringify({teams})
     });
   }
-  postAlliances(event, division, alliances) {
+  postAlliances(season, event, division, alliances) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/alliances/${event}?division=${division}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/alliances?division=${division}`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({alliances})
     });
   }
 
-  postMatches(event, division, matches) {
+  postMatches(season, event, division, matches) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/matches/${event}?division=${division}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/matches?division=${division}`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({matches})
     });
   }
 
-  postMatch(event, division, id, match) {
+  postMatch(season, event, division, id, match) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/matches/${event}/${id}?division=${division}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/matches/${id}?division=${division}`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify(match)
     });
   }
 
-  postAwards(event, awards) {
+  postAwards(season, event, awards) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/awards/${event}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/awards`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({awards})
     });
   }
 
-  postState(event, state) {
+  postState(season, event, state) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/state/${event}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/state`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({state})
     });
   }
 
-  resetEvent(event) {
+  resetEvent(season, event) {
     return this.fetcher({
-      endpoint: `${this.apiBase}/events/reset/${event}`,
+      endpoint: `${this.apiBase}/${season}/events/${event}/reset`,
       method: 'POST',
       headers: {'Content-Type': 'application/json; charset=utf-8'},
       body: JSON.stringify({})

@@ -7,7 +7,6 @@ import {Link} from 'react-router-dom';
 import { push } from 'connected-react-router';
 import EventCards from './components/EventCards';
 import SeasonSelector from './components/SeasonSelector';
-import * as queryString from 'query-string';
 import {connect} from 'react-redux';
 import Button from '@material-ui/core/Button';
 

@@ -42,7 +42,7 @@ const styles = theme => ({
 class Uploader extends Component {
   componentDidMount() {
     if(!this.props.event) {
-      this.props.getEvent(parseInt(this.props.id));
+      this.props.getEvent(this.props.selectedSeason, this.props.id);
     }
     if(this.props.localServer.verified && !this.props.localEvents) {
       this.props.getLocalEvents();
@@ -131,7 +131,7 @@ class Uploader extends Component {
         {localServer.event !== '' ?
             <Button onClick={this.toggleRunning} variant="contained">{localServer.uploadRunning ? 'Stop' : 'Start'}</Button>
         : null}
-        <InternalUploader event={this.props.id} /><br/>
+        <InternalUploader season={this.props.selectedSeason} event={this.props.id} /><br/>
 
         <Button onClick={this.resetEvent} variant="contained">Reset Event</Button>
       </Paper>
@@ -143,7 +143,8 @@ const mapStateToProps = (state, props) => {
   const ret = {};
   const id = parseInt(props.id);
   if (state.events) {
-    ret.event = state.events[id];
+    ret.event = Object.values(state.events).find((e) => e.slug === props.id );
+    if(!ret.event || !ret.event.id) ret.event = null;
   }
   ret.localServer = state.localScoring.server;
   ret.localEvents = state.localScoring.events;

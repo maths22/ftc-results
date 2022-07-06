@@ -9,12 +9,12 @@ export default function (
   switch (action.type) {
     case GET_EVENT_ALLIANCES_SUCCESS:
       let oldVals = Object.values(state);
-      if(action.payload.alliances.length > 0) {
-        const remove = action.payload.alliances[0].event_id;
+      if(action.payload.rankings.length > 0) {
+        const remove = action.payload.rankings[0].event_id;
         oldVals = oldVals.filter((v) => v.event_id !== remove);
       }
 
-      return oldVals.concat(action.payload.alliances).reduce(function(map, obj) {
+      return oldVals.concat(action.payload.rankings).reduce(function(map, obj) {
         map[obj.id] = obj;
         return map;
       }, {});

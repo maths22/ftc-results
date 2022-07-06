@@ -52,6 +52,11 @@ module FtcResults
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
 
+    # prevent segfault in sassc :sob:
+    config.assets.configure do |env|
+      env.export_concurrent = false
+    end
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
@@ -85,5 +90,7 @@ module FtcResults
                       expose: DeviseTokenAuth.headers_names.values
       end
     end
+
+    config.middleware.use Plezi
   end
 end

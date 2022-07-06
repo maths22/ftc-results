@@ -10,10 +10,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 import {
-  getLeagueData,
-  getLeagueRankings,
-  getSeasons,
-  getTeams
+  getLeagueDataWithTeams,
+  getLeagueRankingsWithTeams,
+  getSeasons
 } from '../actions/api';
 import {setTitle} from '../actions/ui';
 
@@ -23,7 +22,6 @@ import LoadingSpinner from './LoadingSpinner';
 import TextLink from './TextLink';
 import Typography from '@material-ui/core/Typography';
 import SeasonSelector from './SeasonSelector';
-import * as queryString from 'query-string';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 
 const styles = (theme) => ({
@@ -64,7 +62,6 @@ class LeagueRankings extends Component {
 
   componentDidMount() {
     if(!this.props.rankings) {
-      this.props.getTeams();
       this.props.getSeasons();
       this.refresh();
     }
@@ -82,9 +79,9 @@ class LeagueRankings extends Component {
 
   refresh() {
     if(this.props.type === 'all') {
-      this.props.getLeagueRankings(this.props.selectedSeason);
+      this.props.getLeagueRankingsWithTeams(this.props.selectedSeason);
     } else if(this.props.type === 'league') {
-      this.props.getLeagueData(this.props.selectedSeason, this.props.id);
+      this.props.getLeagueDataWithTeams(this.props.selectedSeason, this.props.id);
     }
   }
 
@@ -237,9 +234,8 @@ const mapStateToProps = (state, props) => {
 };
 
 const mapDispatchToProps = {
-  getLeagueRankings,
-  getLeagueData,
-  getTeams,
+  getLeagueRankingsWithTeams,
+  getLeagueDataWithTeams,
   getSeasons,
   setTitle,
   push,

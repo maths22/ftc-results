@@ -6,7 +6,7 @@ import {
 } from '../../actions/uploaderApi';
 import {API_BASE} from '../../actions/api';
 
-import Uploader from 'ftc-scoring-uploader';
+import Uploader from './uploader/index';
 
 class OldUploader extends Component {
   state = {};
@@ -35,6 +35,7 @@ class OldUploader extends Component {
       this.props.localServer.hostname,
       this.props.localServer.port,
       this.props.localServer.event,
+      this.props.season,
       this.props.event,
       API_BASE,
       this.props.postRequest,

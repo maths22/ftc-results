@@ -22,7 +22,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
 import RegisterForm from '../users/RegisterForm';
-import * as queryString from 'query-string';
 
 const styles = {
   root: {

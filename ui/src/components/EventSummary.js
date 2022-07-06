@@ -5,9 +5,9 @@ import queryString from 'query-string';
 import invert from 'lodash/invert';
 
 import {
-  getEventMatches, getEventRankings, getEventTeams, getEventAwards,
+  getEventMatches, getEventRankings, getEventTeamsWithTeams, getEventAwards,
   getEvent,
-  getLeagues, getTeams, getEventAlliances,
+  getLeagues, getEventAlliances,
 } from '../actions/api';
 import {hideVideo, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
@@ -72,9 +72,6 @@ class EventSummary extends Component {
   };
 
   componentDidMount() {
-    if(!this.teams) {
-      this.props.getTeams();
-    }
     this.refresh();
     this.enablePersistentRefresh();
     this.setTitle();
@@ -107,7 +104,7 @@ class EventSummary extends Component {
     } else {
       this.updateTabs();
     }
-    this.props.getEventTeams(this.props.selectedSeason, this.props.id);
+    this.props.getEventTeamsWithTeams(this.props.selectedSeason, this.props.id);
     this.props.getEventMatches(this.props.selectedSeason, this.props.id);
     this.props.getEventRankings(this.props.selectedSeason, this.props.id);
     this.props.getEventAwards(this.props.selectedSeason, this.props.id);
@@ -229,7 +226,7 @@ class EventSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const { classes, event, league, matches, rankings, alliances, awards, teams } = this.props;
+    const { classes, event, league, matches, rankings, elimsRankings, alliances, awards, teams } = this.props;
     const { selectedDivision, selectedTab } = this.state;
 
 
@@ -253,6 +250,10 @@ class EventSummary extends Component {
             onRefresh={this.refresh}/>
         </div> : null,
       this.showAlliances() ? <div className={classes.tabPanel} key="alliances">
+        <RankingsTable elims
+                       rankings={elimsRankings && elimsRankings.filter(r => selectedDivision === 0 ? !r.division : selectedDivision === r.division)}
+                       showRecord={!this.props.event.remote}
+                       onRefresh={this.refresh}/>
         <AlliancesTable
           alliances={alliances && alliances.filter(a => selectedDivision === 0 ? !a.division : selectedDivision === a.division)}
           onRefresh={this.refresh}/>
@@ -369,6 +370,13 @@ const mapStateToProps = (state, props) => {
         .map((a) => Object.assign({}, a, {
           teams: a.teams.map((t) => state.teams[t])
         }));
+      ret.elimsRankings = Object.values(state.elimsRankings).filter((m) => m.context_type === 'Event' && m.context_id === id)
+        .sort((a, b) => {
+          const ar = a.ranking < 0 ? 1000000 : a.ranking;
+          const br = b.ranking < 0 ? 1000000 : b.ranking;
+          return ar - br;
+        })
+        .map((r) => Object.assign({}, r, {alliance: ret.alliances.find(a => r.alliance === a.id)}));
     }
   }
   if (state.leagues && ret.event && ret.event.context_type === 'League') {
@@ -381,11 +389,10 @@ const mapDispatchToProps = {
   getEvent,
   getEventMatches,
   getEventRankings,
-  getEventTeams,
+  getEventTeamsWithTeams,
   getEventAlliances,
   getEventAwards,
   getLeagues,
-  getTeams,
   setTitle,
   hideVideo,
   push,

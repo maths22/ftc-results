@@ -1,5 +1,9 @@
 json.id ranking.id
-json.team ranking.team_id
+if ranking.team_id
+  json.team ranking.team_id
+elsif ranking.alliance_id
+  json.alliance ranking.alliance_id
+end
 json.context_type ranking.context_type
 json.context_id ranking.context_id
 json.ranking ranking.ranking

@@ -11,13 +11,13 @@ module ScoringSystem
   # rubocop:disable Naming/AccessorMethodName
   class SqlitedbExportService
     include Rails.application.routes.url_helpers
-    attr_reader :event, :test_db, :token, :api_base
+    attr_reader :event, :test_db, :token, :root_url
 
-    def initialize(event, test_db:, token:, api_base:)
+    def initialize(event, test_db:, token:, root_url:)
       @event = event
       @test_db = test_db
       @token = token
-      @api_base = api_base
+      @root_url = root_url
     end
 
     def cleanup
@@ -28,77 +28,6 @@ module ScoringSystem
     require 'net/http'
     require 'tempfile'
     require 'uri'
-
-    def updated_global_db
-      Rails.cache.fetch('global_db_path_v2', expires_in: 12.hours) do
-        ZipService.new(event.season).with_globaldb do |db_file|
-          db = SQLite3::Database.new db_file
-
-          with_defaultdb do |defaultdb_file|
-            copy_from_globaldb(db, 'Team', globaldb: defaultdb_file)
-          end
-          update_team_stmt = db.prepare 'UPDATE Team SET TeamNameShort = :name, TeamNameLong = :school, City = :city, StateProv = :state, Country = :country, ModifiedOn = :modified_on, ModifiedBy = :modified_by WHERE TeamNumber = :number'
-          insert_team_stmt = db.prepare 'INSERT INTO Team (FMSTeamId, FMSSeasonId, TeamId, TeamNumber, TeamNameShort, TeamNameLong, City, StateProv, Country, RookieYear, CreatedOn, CreatedBy, ModifiedOn, ModifiedBy, WasAddedFromUI, CMPPrequalified, DemoTeam)
-                                                      VALUES (:team_id, :season_id, 0, :number, :name, :school, :city, :state, :country, :rookie_year, :created_on, :created_by, :modified_on, :modified_by, 1, 0, 0)'
-
-          update_team_info_stmt = db.prepare 'UPDATE teamInfo SET name = :name, school = :school, city = :city, state = :state, country = :country, rookie = :rookie WHERE number = :number'
-          insert_team_info_stmt = db.prepare 'INSERT INTO teamInfo (number, name, school, city, state, country, rookie) VALUES (:number, :name, :school, :city, :state, :country, :rookie)'
-
-          Team.all.each do |team|
-            update_team_stmt.execute number: team.number,
-                                     name: team.name,
-                                     school: team.organization,
-                                     city: team.city,
-                                     state: team.state,
-                                     country: team.country,
-                                     modified_on: team.updated_at.utc.iso8601(3),
-                                     modified_by: 'IL FTC Results'
-
-            if db.changes.zero?
-              insert_team_stmt.execute team_id: DataHelper.uuid_to_bytes(SecureRandom.uuid),
-                                       # TODO: don't hardcode skystone
-                                       season_id: DataHelper.uuid_to_bytes('803cdf38-6b9a-6544-b8f6-daf20191133a'),
-                                       number: team.number,
-                                       name: team.name,
-                                       school: team.organization,
-                                       city: team.city,
-                                       state: team.state,
-                                       country: team.country,
-                                       rookie_year: team.rookie_year,
-                                       created_on: team.updated_at.utc.iso8601(3),
-                                       created_by: 'IL FTC Results',
-                                       modified_on: team.updated_at.utc.iso8601(3),
-                                       modified_by: 'IL FTC Results'
-            end
-
-            update_team_info_stmt.execute number: team.number,
-                                          name: team.name,
-                                          school: team.organization,
-                                          city: team.city,
-                                          state: team.state,
-                                          country: team.country,
-                                          rookie: team.rookie_year
-            next unless db.changes.zero?
-
-            insert_team_info_stmt.execute number: team.number,
-                                          name: team.name,
-                                          school: team.organization,
-                                          city: team.city,
-                                          state: team.state,
-                                          country: team.country,
-                                          rookie: team.rookie_year
-          end
-
-          FileUtils.cp(db_file, Rails.root.join('tmp/globaldb'))
-        end
-        Rails.root.join('tmp/globaldb').to_s
-      end
-    end
-
-    def server_db
-      @server_db ||= Tempfile.new('serverdb').tap { |f| make_server_db(f.path) }
-      @server_db.path
-    end
 
     def event_dbs
       @event_dbs ||= begin
@@ -113,46 +42,6 @@ module ScoringSystem
 
     private
 
-    def make_server_db(db_file)
-      db = SQLite3::Database.new db_file
-      db.execute_batch IO.binread(File.join(__dir__, 'sql', 'create_server_db.sql'))
-
-      create_event_stmt = prepare_insert_statement(db, 'events',
-                                                   %w[code name type status finals divisions start end region])
-
-      type = if event.league_meet?
-               ScoringSystem::TYPE_LEAGUE_MEET
-             elsif event.league_tournament?
-               ScoringSystem::TYPE_LEAGUE_TOURNAMENT
-             elsif event.season.offseason?
-               ScoringSystem::TYPE_OTHER
-             else
-               ScoringSystem::TYPE_CHAMPIONSHIP
-             end
-
-      create_event_stmt.execute code: (test_db ? 'test_' : '') + event.slug + (event.divisions? ? '_0' : ''),
-                                name: (test_db ? 'TEST ' : '') + event.name,
-                                type: type,
-                                status: 1, # setup status
-                                finals: event.divisions? ? 1 : 0,
-                                divisions: 0,
-                                start: event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000',
-                                end: event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000',
-                                region: apk.split('-')[0]
-
-      event.event_divisions.each do |div|
-        create_event_stmt.execute code: (test_db ? 'test_' : '') + event.slug + '_' + div.number.to_s,
-                                  name: (test_db ? 'TEST ' : '') + div.name,
-                                  type: type,
-                                  status: 1, # setup status
-                                  finals: 0,
-                                  divisions: div.number,
-                                  start: event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000',
-                                  end: event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000',
-                                  region: apk.split('-')[0]
-      end
-    end
-
     def make_event_dbs(db_files)
       db_files.each do |db_file|
         db = SQLite3::Database.new db_file[1]
@@ -162,31 +51,68 @@ module ScoringSystem
 
         set_field_count db
         set_uuid db, event_uuid
-        set_apk db unless test_db
-        set_il_token db unless test_db
 
-        copy_from_globaldb(db, 'awardInfo')
+        #TODO redo this for the modern world? or just ignore it?
+        # copy_from_globaldb(db, 'awardInfo')
 
         # Note only works with new scoring system
-        copy_from_globaldb(db, 'Award')
-        add_award_assignment_stmt = db.prepare 'INSERT INTO AwardAssignment VALUES(:FMSAwardId,:FMSEventId,:Series,NULL,NULL,NULL,0,:CreatedOn,:CreatedBy,NULL,NULL,NULL);'
-        db.execute('SELECT FMSAwardId, DefaultQuantity from Award').map do |award|
-          id = award['FMSAwardId']
-          Range.new(1, award['DefaultQuantity']).each do |series|
-            add_award_assignment_stmt.execute FMSAwardId: id,
-                                              FMSEventId: DataHelper.uuid_to_bytes(event_uuid),
-                                              Series: series,
-                                              CreatedOn: DateTime.now.utc.iso8601(3),
-                                              CreatedBy: 'Event Creator'
-          end
-        end
+        # copy_from_globaldb(db, 'Award')
+        # add_award_assignment_stmt = db.prepare 'INSERT INTO AwardAssignment VALUES(:FMSAwardId,:FMSEventId,:Series,NULL,NULL,NULL,0,:CreatedOn,:CreatedBy,NULL,NULL,NULL);'
+        # db.execute('SELECT FMSAwardId, DefaultQuantity from Award').map do |award|
+        #   id = award['FMSAwardId']
+        #   Range.new(1, award['DefaultQuantity']).each do |series|
+        #     add_award_assignment_stmt.execute FMSAwardId: id,
+        #                                       FMSEventId: DataHelper.uuid_to_bytes(event_uuid),
+        #                                       Series: series,
+        #                                       CreatedOn: DateTime.now.utc.iso8601(3),
+        #                                       CreatedBy: 'Event Creator'
+        #   end
+        # end
 
-        copy_from_globaldb(db, 'formRows')
+        # copy_from_globaldb(db, 'formRows')
 
-        copy_from_globaldb(db, 'formItems')
+        # copy_from_globaldb(db, 'formItems')
 
-        add_sponsors db
+        # add_sponsors db
       end
+
+      db = SQLite3::Database.new db_files[0]
+
+      set_config db, "code", event.slug
+      set_config db, "onlineResultsUrl", "#{root_url}#{event.season.year}/events/summary/#{event.slug}"
+      set_config db, "name", event.name
+      set_config db, "start", event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000'
+      set_config db, "end", event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000'
+      set_config db, "division", 0
+      set_config db, "status", 1
+      set_config db, "finals", "false"
+
+      type = if event.league_meet?
+                     ScoringSystem::TYPE_LEAGUE_MEET
+                   elsif event.league_tournament?
+                     ScoringSystem::TYPE_LEAGUE_TOURNAMENT
+                   elsif event.season.offseason?
+                     ScoringSystem::TYPE_OTHER
+                   else
+                     ScoringSystem::TYPE_CHAMPIONSHIP
+                   end
+      set_config db, "type", type
+      set_config db, "region", "USIL"
+      set_config db, "address", event.address
+      set_config db, "venue", event.location
+      # here would be league/leagueId/leagueName if it was a league meet
+      set_config db, "city", event.city
+      set_config db, "state", event.state
+      set_config db, "country", event.country
+      set_config db, "ek", token
+      set_config db, "cloudBaseUrl", "#{root_url}api/v1/scoring"
+      set_config db, "advancement.enabled", "false"
+
+
+
+      # map.put("db.version", "2022_0");
+      # map.put("db.version.initial", "2022_0");
+
 
       setup_divisional_dbs db_files
 
@@ -297,16 +223,6 @@ module ScoringSystem
 
     def set_uuid(db, uuid)
       set_config(db, 'FMSEventId', uuid)
-    end
-
-    def set_apk(db)
-      set_config(db, 'apk', apk)
-    end
-
-    def set_il_token(db)
-      set_config(db, '_il_token', token)
-      set_config(db, '_il_api_base', api_base)
-      set_config(db, '_il_event_id', @event.id)
     end
 
     def set_config(db, key, value)

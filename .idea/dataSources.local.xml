@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal">
+  <component name="dataSourceStorageLocal" created-in="RM-221.5921.22">
     <data-source name="Rails api: development" uuid="fcfe2a0d-4300-4644-8bdf-28c4103c5a01">
-      <database-info product="PostgreSQL" version="11.4" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="11.4" exact-driver-version="42.2">
+      <database-info product="PostgreSQL" version="14.4" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.3.3" dbms="POSTGRES" exact-version="14.4" exact-driver-version="42.3">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <auth-provider>no-auth</auth-provider>
       <user-name>ftc_results</user-name>
       <schema-mapping>
         <introspection-scope>

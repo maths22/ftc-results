@@ -22,8 +22,11 @@ const styles = (theme) => ({
   }
 });
 
-function rankingsTable ({rankings, classes, showRecord}) {
+function rankingsTable ({rankings, classes, showRecord, elims}) {
   if(!rankings || rankings.length === 0) {
+    if(elims) {
+      return null;
+    }
     return <Typography variant="body1" style={{textAlign: 'center'}}>Rankings are not currently available</Typography>;
   }
 
@@ -33,8 +36,13 @@ function rankingsTable ({rankings, classes, showRecord}) {
     <TableHead>
       <TableRow style={rowStyle}>
         <TableCell className={classes.tableCell}>Rank</TableCell>
-        <TableCell className={classes.tableCell}>Team Number</TableCell>
-        <TableCell className={classes.tableCell}>Team Name</TableCell>
+        {elims ? <>
+          <TableCell className={classes.tableCell}>Alliance</TableCell>
+          <TableCell className={classes.tableCell}>Championship Points</TableCell>
+        </> : <>
+          <TableCell className={classes.tableCell}>Team Number</TableCell>
+          <TableCell className={classes.tableCell}>Team Name</TableCell>
+        </>}
         <TableCell className={classes.tableCell}>Ranking Points</TableCell>
         <TableCell className={classes.tableCell}>Tie Breaker Points 1</TableCell>
         <TableCell className={classes.tableCell}>Tie Breaker Points 2</TableCell>
@@ -50,13 +58,18 @@ function rankingsTable ({rankings, classes, showRecord}) {
         }
         return <TableRow key={r.id} style={rowStyle}>
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? 'NP' : r.ranking}</TableCell>
-          <TableCell className={classes.tableCell}>
-            <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
-          </TableCell>
-          <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
+          {elims ? <>
+            <TableCell className={classes.tableCell}>{r.alliance.seed}</TableCell>
+          </> : <>
+            <TableCell className={classes.tableCell}>
+              <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
+            </TableCell>
+            <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
+          </>}
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order1).toFixed(2)}</TableCell>
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order2).toFixed(2)}</TableCell>
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order3).toFixed(3)}</TableCell>
+          {elims ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order4).toFixed(3)}</TableCell> : null }
           {showRecord ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : recordLine}</TableCell> : null}
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
         </TableRow>;

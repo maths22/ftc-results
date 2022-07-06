@@ -1,0 +1,33 @@
+json.barcode_element1 score.barcode_element1
+json.barcode_element2 score.barcode_element2
+json.barcode_element3 score.barcode_element3
+json.carousel score.carousel
+json.auto_navigated1 score.auto_navigated1
+json.auto_navigated2 score.auto_navigated2
+json.auto_navigated3 score.auto_navigated3
+json.auto_bonus1 score.auto_bonus1
+json.auto_bonus2 score.auto_bonus2
+json.auto_bonus3 score.auto_bonus3
+json.auto_freight1 score.auto_freight1
+json.auto_freight2 score.auto_freight2
+json.auto_freight3 score.auto_freight3
+json.auto_coop_freight score.auto_coop_freight
+
+json.teleop_freight1 score.teleop_freight1
+json.teleop_freight2 score.teleop_freight2
+json.teleop_freight3 score.teleop_freight3
+json.shared_freight score.shared_freight
+json.teleop_coop_freight score.teleop_coop_freight
+json.teleop_other_coop_freight score.teleop_other_coop_freight
+
+json.end_delivered score.end_delivered
+json.alliance_balanced score.alliance_balanced
+json.shared_unbalanced score.shared_unbalanced
+json.coop_balanced score.coop_balanced
+json.end_parked1 score.end_parked1
+json.end_parked2 score.end_parked2
+json.end_parked3 score.end_parked3
+json.capped score.capped
+
+json.minor_penalties score.minor_penalties
+json.major_penalties score.major_penalties

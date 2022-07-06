@@ -20,10 +20,11 @@ class UploaderApiError extends Error {
 }
 
 export default class Uploader {
-  constructor(hostname, port, localEvent, hostedEvent, apiBase, uploadCallback, statusCallback) {
+  constructor(hostname, port, localEvent, season, hostedEvent, apiBase, uploadCallback, statusCallback) {
     this.hostname = hostname;
     this.port = port;
     this.localEvent = localEvent;
+    this.season = season;
     this.hostedEvent = hostedEvent;
     this.scoringApi = new ScoringApi(hostname, port);
     this.uploaderApi = new UploaderApi(apiBase, uploadCallback);
@@ -114,7 +115,7 @@ export default class Uploader {
     const state = ['Future', 'Setup'].includes(status) ? 'not_started' : 'started';
     const newHash = objectHash(state);
     if(this.hashes['state'] !== newHash) {
-      const postResult = await this.uploaderApi.postState(this.hostedEvent, state);
+      const postResult = await this.uploaderApi.postState(this.season, this.hostedEvent, state);
       if (postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['state'] = newHash;
@@ -125,7 +126,7 @@ export default class Uploader {
     const teams = teamsResult.payload.teamNumbers;
     const newHash = objectHash(teams);
     if(this.hashes['teamList'] !== newHash) {
-      const postResult = await this.uploaderApi.postTeams(this.hostedEvent, this.targetDivision, teams);
+      const postResult = await this.uploaderApi.postTeams(this.season, this.hostedEvent, this.targetDivision, teams);
       if (postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['teamList'] = newHash;
@@ -146,7 +147,7 @@ export default class Uploader {
 
     const newHash = objectHash(uploadAlliances);
     if(this.hashes['alliances'] !== newHash) {
-      const postResult = await this.uploaderApi.postAlliances(this.hostedEvent, this.targetDivision, uploadAlliances);
+      const postResult = await this.uploaderApi.postAlliances(this.season, this.hostedEvent, this.targetDivision, uploadAlliances);
       if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['alliances'] = newHash;
@@ -166,7 +167,7 @@ export default class Uploader {
     }));
     const newHash = objectHash(uploadRankings);
     if(this.hashes['rankings'] !== newHash) {
-      const postResult = await this.uploaderApi.postRankings(this.hostedEvent, this.targetDivision, uploadRankings);
+      const postResult = await this.uploaderApi.postRankings(this.season, this.hostedEvent, this.targetDivision, uploadRankings);
       if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['rankings'] = newHash;
@@ -185,7 +186,7 @@ export default class Uploader {
     }));
     const newHash = objectHash(uploadAwards);
     if(this.hashes['awards'] !== newHash) {
-      const postResult = await this.uploaderApi.postAwards(this.hostedEvent, uploadAwards);
+      const postResult = await this.uploaderApi.postAwards(this.season, this.hostedEvent, uploadAwards);
       if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['awards'] = newHash;
@@ -243,7 +244,7 @@ export default class Uploader {
 
     const newHash = objectHash(uploadMatches);
     if(this.hashes['matchList'] !== newHash) {
-      const postResult = await this.uploaderApi.postMatches(this.hostedEvent, this.targetDivision, uploadMatches);
+      const postResult = await this.uploaderApi.postMatches(this.season, this.hostedEvent, this.targetDivision, uploadMatches);
       if(postResult.error) throw new UploaderApiError(postResult.payload);
     }
     this.hashes['matchList'] = newHash;
@@ -306,7 +307,7 @@ export default class Uploader {
 
       const newHash = objectHash(uploadScore);
       if(this.hashes['match-' + mid] !== newHash) {
-        const postResult = await this.uploaderApi.postMatch(this.hostedEvent, this.targetDivision, mid, uploadScore);
+        const postResult = await this.uploaderApi.postMatch(this.season, this.hostedEvent, this.targetDivision, mid, uploadScore);
         if(postResult.error) throw new UploaderApiError(postResult.payload);
       }
       this.hashes['match-' + mid] = newHash;

@@ -94,8 +94,8 @@ class EventsSummary extends Component {
     this.setState({streamEvent: id});
   };
 
-  downloadScoring = async (id, test) => {
-    const result = await this.props.getScoringDownloadUrl(id, test);
+  downloadScoring = async (id) => {
+    const result = await this.props.getScoringDownloadUrl(this.props.selectedSeason, id, false);
     if(result.error) {
       window.alert("Download failed");
       console.log(result);
@@ -180,7 +180,8 @@ class EventsSummary extends Component {
                   {isLoggedIn ? <TableCell className={classes.tableCell}>
                     {e.can_import && e.aasm_state !== 'finalized' ? <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.manageOwners(e.id)}>Owners ({e.owners.length})</Button>
-                      <Button component={Link} target="_blank" style={{margin: '0.5em 0'}} variant="contained" size="small" to={`/events/uploader/${e.slug}`}>Live Upload</Button>
+                      <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.downloadScoring(e.slug)}>Download DB</Button>
+                      <Button component={Link} target="_blank" style={{margin: '0.5em 0'}} variant="contained" size="small" to={`/${this.props.selectedSeason}/events/uploader/${e.slug}`}>Live Upload</Button>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.setupStream(e.id)}>{e.channel ? 'Configure Stream' : 'Enable Stream'}</Button>
                     </div>: null}
                     {!e.can_import && e.aasm_state !== 'finalized' ? <Button variant="contained" size="small" onClick={() => this.requestAccess(e.id)}>Request Access</Button> : null}

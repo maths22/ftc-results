@@ -18,10 +18,12 @@ module ScoringSystem
           import_teams
           import_quals
           import_elims
-          import_league_results
+          import_rankings
+          # import_league_results
           import_awards
-          generate_rankings unless event.context_type == :league_meet
-          create_rankings
+          # generate_rankings unless event.context_type == :league_meet
+          # create_rankings
+          # TODO: import rankings
 
           event.finalize! unless event.finalized?
           event.save!
@@ -72,7 +74,7 @@ module ScoringSystem
         match.save!
       end
 
-      quals_scores = @db.execute 'SELECT match, alliance, card1, card2, dq1, dq2, noshow1, noshow2, major, minor FROM qualsScores'
+      quals_scores = @db.execute 'SELECT match, alliance, card1, card2, dq1, dq2, noshow1, noshow2, frontMajor, backMajor, frontMinor, backMinor FROM qualsScores'
       quals_scores.each do |s|
         match = ss_match_to_results_match('qual', s['match'])
         match_alliance = s['alliance'].zero? ? match.red_alliance : match.blue_alliance
@@ -83,7 +85,7 @@ module ScoringSystem
         match_alliance.teams_present[0] = s['noshow1'].zero?
         match_alliance.teams_present[1] = s['noshow2'].zero?
         match_alliance.save!
-        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
+        season_score = event.season.score_model.new major_penalties: s['frontMajor'] + s['backMajor'], minor_penalties: s['frontMinor'] + s['backMinor']
         score = Score.new season_score: season_score
         # rubocop:disable Style/NumericPredicate
         match.red_score = score if s['alliance'] == 0
@@ -96,14 +98,58 @@ module ScoringSystem
       send("import_#{event.season.score_model_name.tableize}", phase: 'qual', table: 'qualsGameSpecific')
     end
 
+    def import_rankings
+      rankings = @db.execute('SELECT TeamRanking.*,Team.TeamNumber AS TeamNumber FROM TeamRanking INNER JOIN Team ON TeamRanking.FMSTeamId=Team.FMSTeamId')
+
+      rankings.each do |r|
+        @event.rankings.create!(
+          team_id: r['TeamNumber'],
+          ranking: r['Ranking'],
+          sort_order1: r['SortOrder1'],
+          sort_order2: r['SortOrder2'],
+          sort_order3: r['SortOrder3'],
+          sort_order4: r['SortOrder4'],
+          sort_order5: r['SortOrder5'],
+          sort_order6: r['SortOrder6'],
+          matches_played: r['MatchesPlayed'],
+          wins: r['Wins'],
+          losses: r['Losses'],
+          ties: r['Ties'],
+          # Sadness
+          matches_counted: r['MatchesPlayed']
+        )
+      end
+      rankings = @db.execute('SELECT * FROM ElimsRanking')
+
+      rankings.each do |r|
+        @event.rankings.create!(
+          alliance: Alliance.find_by(event: @event, is_elims: true, seed: r['Seed']),
+          ranking: r['Ranking'],
+          sort_order1: r['SortOrder1'],
+          sort_order2: r['SortOrder2'],
+          sort_order3: r['SortOrder3'],
+          sort_order4: r['SortOrder4'],
+          sort_order5: r['SortOrder5'],
+          sort_order6: r['SortOrder6'],
+          matches_played: r['MatchesPlayed'],
+          wins: r['Wins'],
+          losses: r['Losses'],
+          ties: r['Ties'],
+          # Sadness
+          matches_counted: r['MatchesPlayed']
+        )
+      end
+    end
+
     def import_elims
-      alliances = @db.execute 'SELECT rank, team1, team2, team3 FROM alliances'
+      alliances = @db.execute 'SELECT rank, team1, team2, team3, backupTeam FROM alliances'
       alliance_map = {}
       alliances.each do |a|
         next unless a['team1'].positive?
 
         teams = [Team.find(a['team1']), Team.find(a['team2'])]
         teams.append(Team.find(a['team3'])) if a['team3'].positive?
+        teams.append(Team.find(a['backupTeam'])) if a['backupTeam'].positive?
         alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams, event_division: event_division
         alliance.save!
         alliance_map[alliance.seed] = alliance
@@ -117,7 +163,7 @@ module ScoringSystem
         match.update(elim_match_map[e['match']])
         match.save!
       end
-      elims_score = @db.execute 'SELECT match, alliance, card, dq, noshow1, noshow2, noshow3, major, minor FROM elimsScores'
+      elims_score = @db.execute 'SELECT match, alliance, card, dq, noshow1, noshow2, noshow3, frontMajor, backMajor, frontMinor, backMinor FROM elimsScores'
       elims_score.each do |s|
         match = ss_match_to_results_match('elim', s['match'])
         # rubocop:disable Style/NumericPredicate
@@ -129,7 +175,7 @@ module ScoringSystem
         match_alliance.teams_present[1] = s['noshow2'].zero?
         match_alliance.teams_present[2] = s['noshow3'].zero?
         match_alliance.save!
-        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
+        season_score = event.season.score_model.new major_penalties: s['frontMajor'] + s['backMajor'], minor_penalties: s['frontMinor'] + s['backMinor']
         score = Score.new season_score: season_score
         # rubocop:disable Style/NumericPredicate
         match.red_score = score if s['alliance'] == 0
@@ -204,6 +250,27 @@ module ScoringSystem
       end
     end
 
+    def import_freight_frenzy_cri_scores(phase:, table:)
+      stmt = 'SELECT match, Match.ScoreDetails FROM ' + (table.gsub 'GameSpecific', 'Data') + " JOIN Match on Match.FMSMatchId = #{table.gsub('GameSpecific', 'Data')}.FMSMatchId"
+
+      season_results = @db.execute stmt
+
+      season_results.each do |r|
+        match = ss_match_to_results_match(phase, r['match'])
+        fms_scores = JSON.parse(Zlib.gunzip(r['ScoreDetails']))
+        match.red_score.season_score.update_from_fms_score!(fms_scores['RedAllianceScore'], fms_scores['BlueAllianceScore'])
+        match.red_score.update(auto: fms_scores['RedAllianceScore']['AutoPoints'],
+                               teleop: fms_scores['RedAllianceScore']['DcPoints'],
+                               endgame: fms_scores['RedAllianceScore']['EndgamePoints'],
+                               penalty: fms_scores['RedAllianceScore']['PenaltyPoints'])
+        match.blue_score.season_score.update_from_fms_score!(fms_scores['BlueAllianceScore'], fms_scores['RedAllianceScore'])
+        match.blue_score.update(auto: fms_scores['BlueAllianceScore']['AutoPoints'],
+                                teleop: fms_scores['BlueAllianceScore']['DcPoints'],
+                                endgame: fms_scores['BlueAllianceScore']['EndgamePoints'],
+                                penalty: fms_scores['BlueAllianceScore']['PenaltyPoints'])
+      end
+    end
+
     def elim_match_map
       @elim_match_map ||= begin
         elims = @db.execute 'SELECT match, red, blue FROM elims'
@@ -218,15 +285,19 @@ module ScoringSystem
             map[e['match']] = { phase: 'interfinal', number: seriespos[:interfinal] += 1 }
             next
           end
-          if e['red'] == 1 && e['blue'] == 4
-            map[e['match']] = { phase: 'semi', series: 1, number: seriespos[:sf1] += 1 }
-            next
+          # if e['red'] == 1 && e['blue'] == 4
+          #   map[e['match']] = { phase: 'semi', series: 1, number: seriespos[:sf1] += 1 }
+          #   next
+          # end
+          # if e['red'] == 2 && e['blue'] == 3
+          #   map[e['match']] = { phase: 'semi', series: 2, number: seriespos[:sf2] += 1 }
+          #   next
+          # end
+          if e['match'] <= 6
+            map[e['match']] = { phase: 'semi', number: seriespos[:sf] += 1 }
+          else
+            map[e['match']] = { phase: 'final', number: seriespos[:final] += 1 }
           end
-          if e['red'] == 2 && e['blue'] == 3
-            map[e['match']] = { phase: 'semi', series: 2, number: seriespos[:sf2] += 1 }
-            next
-          end
-          map[e['match']] = { phase: 'final', number: seriespos[:final] += 1 }
         end
         map
       end
@@ -267,7 +338,7 @@ module ScoringSystem
       end
       base_rankings.sort.reverse.map.with_index do |tr, idx|
         rank = Ranking.new team: tr.team,
-                           event: event,
+                           context: event,
                            event_division: event_division,
                            ranking: idx + 1,
                            ranking_points: tr.rp,
