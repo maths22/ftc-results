@@ -1,22 +1,24 @@
 ---
-- name: Brightbox ruby availible
-  apt_repository:
-    repo: ppa:brightbox/ruby-ng
+# Commented out blocks are because ARM
+#- name: Brightbox ruby availible
+#  apt_repository:
+#    repo: ppa:brightbox/ruby-ng
 - name: Latest version of Ruby is installed
   apt:
-    pkg: ["ruby2.6", "ruby2.6-dev", "libjemalloc-dev"]
+    update_cache: true
+    pkg: ["ruby2.7", "ruby2.7-dev", "libjemalloc-dev"]
     state: latest
 - name: Set LD_PRELOAD
   lineinfile:
     path: /etc/environment
     regexp: '^LD_PRELOAD'
-    line: 'LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.1'
+    line: 'LD_PRELOAD=/usr/lib/{{ ansible_architecture }}-linux-gnu/libjemalloc.so'
 - name: Bundler installed
   gem:
     name: bundler
     user_install: no
     state: latest
-- name: Monitoring installed
-  shell: "curl https://agent.servermonitoring.me/agent/installer | bash -s {{ monitoring_key }}"
-  args:
-    creates: /etc/init.d/cloudstats-agent
+#- name: Monitoring installed
+#  shell: "curl https://agent.servermonitoring.me/agent/installer | bash -s {{ monitoring_key }}"
+#  args:
+#    creates: /etc/init.d/cloudstats-agent

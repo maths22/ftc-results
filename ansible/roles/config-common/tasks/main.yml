@@ -1,5 +1,5 @@
 ---
-- rds_instance_facts:
+- rds_instance_info:
     db_instance_identifier: "{{ db_instance_id }}"
     region: "{{ db_instance_region }}"
   delegate_to: localhost

@@ -10,7 +10,7 @@
     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 - name: Build dependencies installed
   apt:
-    pkg: ["build-essential", "postgresql-client", "libpq-dev", "libicu-dev", "libsqlite3-dev"]
+    pkg: ["build-essential", "postgresql-client", "libpq-dev", "libicu-dev", "libsqlite3-dev", "zlib1g-dev"]
     state: latest
 - name: Deploy dependencies installed
   apt:

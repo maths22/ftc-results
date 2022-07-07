@@ -1,16 +1,14 @@
 [Unit]
-Description=Puma HTTP Forking Server
+Description=Iodine HTTP Server
 After=network.target
 
 [Service]
 User=deploy
-
+UMask=0000
 EnvironmentFile=-/etc/environment
 
 WorkingDirectory=/var/www/ftc_results/current/
-ExecStart=/usr/local/bin/bundle exec iodine -C /etc/puma/ftc_results.rb
-ExecStop=/usr/local/bin/bundle exec pumactl -F /etc/puma/ftc_results.rb stop
-ExecReload=/usr/local/bin/bundle exec pumactl -F /etc/puma/ftc_results.rb phased-restart
+ExecStart=/usr/local/bin/bundle exec iodine -p 0 -b /var/www/ftc_results/shared/tmp/sockets/iodine.sock
 
 TimeoutSec=15
 Restart=always

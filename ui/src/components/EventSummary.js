@@ -180,7 +180,7 @@ class EventSummary extends Component {
           <iframe
               title="Twitch Player"
               style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
-              src={`https://player.twitch.tv/?channel=${event.channel}`}
+              src={`https://player.twitch.tv/?channel=${event.channel}&parent=${window.location.hostname}`}
               frameBorder="0"
               scrolling="no"
               allowFullScreen>

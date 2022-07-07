@@ -2,8 +2,8 @@ rails_env: production
 
 swap_file_size_mb: '1024'
 
-smtp_user: jburroughs
-smtp_address: mail.firstillinoisrobotics.org
+smtp_user: jburroughs@firstillinoisrobotics.org
+smtp_address: smtp.gmail.com
 smtp_port: 465
 smtp_pass: !vault |
   $ANSIBLE_VAULT;1.1;AES256

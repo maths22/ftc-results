@@ -2,7 +2,7 @@ server {
   listen 443;
   server_name {{ https_server_name | trim }};
   root /var/www/ftc_results/current/public;
-  try_files $uri/index.html $uri @puma_ftc_results;
+  try_files $uri/index.html $uri @iodine_ftc_results;
 
   client_max_body_size 4G;
   keepalive_timeout 10;
@@ -27,7 +27,7 @@ server {
   ssl_dhparam /etc/nginx/dhparams.pem;
   ssl_prefer_server_ciphers on;
 
-  location @puma_ftc_results {
+  location @iodine_ftc_results {
     proxy_set_header Host $host;
     proxy_redirect off;
     proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -36,7 +36,7 @@ server {
       set $doctored_scheme "https";
     }
     proxy_set_header  X-Forwarded-Proto $doctored_scheme;
-    proxy_pass http://puma_ftc_results;
+    proxy_pass http://iodine_ftc_results;
     # limit_req zone=one;
     access_log /var/www/ftc_results/shared/log/nginx.access.log;
     error_log /var/www/ftc_results/shared/log/nginx.error.log;

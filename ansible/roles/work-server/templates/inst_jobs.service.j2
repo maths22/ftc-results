@@ -13,8 +13,8 @@ EnvironmentFile=-/etc/environment
 
 WorkingDirectory=/var/www/ftc_results/current/
 
-ExecStart=/usr/local/bin/bundle exec inst_jobs start
-ExecStop=/usr/local/bin/bundle exec inst_jobs stop
+ExecStart=/var/www/ftc_results/current/bin/inst_jobs start
+ExecStop=/var/www/ftc_results/current/bin/inst_jobs stop
 
 PIDFile=/var/www/ftc_results/shared/tmp/pids/delayed_jobs_pool.pid
 
