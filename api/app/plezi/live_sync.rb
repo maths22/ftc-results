@@ -135,7 +135,7 @@ class LiveSync
       match = @event.matches.qual.find_or_initialize_by(number: data['number'])
       # TODO need to update the alliance if it already exists...
       red_teams = [data['red1'], data['red2'], data['red3']]
-      red_alliance = alliance_scope.having(alliance_scope, red_teams).create_with(team_ids: red_teams).first_or_create!
+      red_alliance = alliance_scope.having(having_clause, red_teams).create_with(team_ids: red_teams).first_or_create!
       match.red_alliance ||= MatchAlliance.new(alliance: red_alliance)
       match.red_alliance.surrogate = [data['red1S'], data['red2S'], data['red3S']]
       match.red_alliance.teams_present = [!data['red1NS'], !data['red2NS'], !data['red3NS']]
@@ -144,7 +144,7 @@ class LiveSync
       match.red_alliance.save!
 
       blue_teams = [data['blue1'], data['blue2'], data['blue3']]
-      blue_alliance = alliance_scope.having(alliance_scope, blue_teams).create_with(team_ids: blue_teams).first_or_create!
+      blue_alliance = alliance_scope.having(having_clause, blue_teams).create_with(team_ids: blue_teams).first_or_create!
       match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
       match.blue_alliance.surrogate = [data['blue1S'], data['blue2S'], data['blue3S']]
       match.blue_alliance.teams_present = [!data['blue1NS'], !data['blue2NS'], !data['blue3NS']]
