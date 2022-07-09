@@ -276,7 +276,7 @@ class LiveSync
       end
     end
     @event.elims_rankings.reject { |r| match_list['ranks'].pluck('team').include?(r.alliance.seed) }.each(&:destroy)
-    @event.elims_rankings.reload.sort_by { |rk| [rk.sort_order1, rk.sort_order2, rk.sort_order3, rk.matches_played.zero? ? -rk.team_id : rk.sort_order4, rk.sort_order5, rk.sort_order6] }.reverse.each_with_index do |rk, idx|
+    @event.elims_rankings.reload.sort_by { |rk| [rk.sort_order1, rk.sort_order2, rk.sort_order3, rk.matches_played.zero? ? -rk.alliance.seed : rk.sort_order4, rk.sort_order5, rk.sort_order6] }.reverse.each_with_index do |rk, idx|
       rk.update(ranking: (idx + 1) * (rk.matches_played.zero? ? -1 : 1))
     end
   end
