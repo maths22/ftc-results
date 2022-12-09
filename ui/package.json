@@ -12,7 +12,7 @@
     "connected-react-router": "^6.5.2",
     "core-js": "^3.3.1",
     "es6-promise": "^4.2.5",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "form-urlencoded": "^3.0.0",
     "history": "latest",
     "ignore-styles": "^5.0.1",
