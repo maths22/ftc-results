@@ -16,7 +16,7 @@ const styles = {
 function TextLink(props) {
   const Component = props.to ? Link : 'a';
   return (
-    <Component to={props.to} href={props.href} target={props.target} onClick={props.onClick} className={props.classes.myTextStyle} >
+    <Component to={props.to} href={props.href} target={props.target} onClick={props.onClick} className={`${props.className || ''} ${props.classes.myTextStyle}`} >
       {props.children}
     </Component>
   );

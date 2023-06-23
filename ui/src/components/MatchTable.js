@@ -27,8 +27,10 @@ const styles = (theme) => ({
     }
   },
   flexCell: {
-    display: 'flex',
-    justifyContent: 'space-around'
+    display: 'flex'
+  },
+  teamNumber: {
+    flex: 1
   },
   redCell: {
     background: '#fee',
@@ -164,7 +166,7 @@ class MatchTable extends React.Component {
             <div className={classes.flexCell}>
               {m.red_alliance.map((t, idx) => {
                 const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/summary/${t}`}>{t}
+                return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
                     {m.red_surrogate[idx] ? '*' : ''}</Component>;
               })}
             </div>
@@ -173,7 +175,7 @@ class MatchTable extends React.Component {
             <div className={classes.flexCell}>
               {m.blue_alliance.map((t, idx) => {
                 const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/summary/${t}`}>{t}
+                return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
                     {m.blue_surrogate[idx] ? '*' : ''}</Component>
                 ;
               })}
