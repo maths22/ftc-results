@@ -9,9 +9,9 @@ resource "aws_route53_record" "api" {
 
   zone_id = data.aws_route53_zone.maths22.id
   name    = "api.${local.workspace}.ftc-results.maths22.com"
-  type    = "A"
+  type    = "CNAME"
   ttl     = "300"
-  records = [aws_eip.api_eip.public_ip]
+  records = [module.lb.dns_name]
 }
 
 resource "aws_route53_record" "cloudfront" {

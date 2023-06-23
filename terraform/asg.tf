@@ -3,7 +3,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 
   filter {
@@ -26,8 +26,11 @@ data "aws_security_group" "http" {
   name = "http"
 }
 
-data "aws_subnet_ids" "subnets" {
-  vpc_id = local.vpc[local.workspace]
+data "aws_subnets" "subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc[local.workspace]]
+  }
 }
 
 resource "aws_launch_template" "web_config" {
@@ -37,7 +40,7 @@ resource "aws_launch_template" "web_config" {
 
   name          = "ftc-results-web-${local.workspace}"
   image_id      = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
+  instance_type = "t4g.micro"
 
   iam_instance_profile {
     arn = aws_iam_instance_profile.ec2_instance_profile.arn
@@ -69,7 +72,7 @@ resource "aws_autoscaling_group" "web_asg" {
   min_size = 1
   max_size = 1
 
-  vpc_zone_identifier = data.aws_subnet_ids.subnets.ids
+  vpc_zone_identifier = data.aws_subnets.subnets.ids
 
   enabled_metrics = [
     "GroupDesiredCapacity",
@@ -106,7 +109,7 @@ resource "aws_launch_template" "work_config" {
 
   name          = "ftc-results-work-${local.workspace}"
   image_id      = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
+  instance_type = "t4g.micro"
 
   iam_instance_profile {
     arn = aws_iam_instance_profile.ec2_instance_profile.arn
@@ -138,7 +141,7 @@ resource "aws_autoscaling_group" "work_asg" {
   min_size = 1
   max_size = 1
 
-  vpc_zone_identifier = data.aws_subnet_ids.subnets.ids
+  vpc_zone_identifier = data.aws_subnets.subnets.ids
 
   enabled_metrics = [
     "GroupDesiredCapacity",

@@ -5,7 +5,7 @@ locals {
   }
   cert_arns = {
     dev        = "arn:aws:acm:us-east-1:902151335766:certificate/44099ea8-fdb6-4bba-bad8-7848e5e72489"
-    production = "arn:aws:acm:us-east-1:119630856374:certificate/3141637f-8e6c-4b3b-a14b-924d9a7c61da"
+    production = "arn:aws:acm:us-east-1:119630856374:certificate/b6ff677b-7664-43e7-876e-9be465181276"
   }
   vpc = {
     dev        = "vpc-0119b764"

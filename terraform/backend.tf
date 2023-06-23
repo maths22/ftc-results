@@ -7,6 +7,4 @@ terraform {
       prefix = "ftc-results-"
     }
   }
-
-  required_version = "~> 0.12.7"
 }
