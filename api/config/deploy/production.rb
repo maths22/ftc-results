@@ -6,37 +6,4 @@ set :aws_ec2_stage_tag, 'Environment'
 set :aws_ec2_stage, 'Production'
 set :aws_ec2_roles_tag, 'Role'
 
-aws_ec2_register user: 'deploy'
-
-# Configuration
-# =============
-# You can set any configuration variable like in config/deploy.rb
-# These variables are then only loaded and set in this stage.
-# For available Capistrano configuration variables see the documentation page.
-# http://capistranorb.com/documentation/getting-started/configuration/
-# Feel free to add new variables to customise your setup.
-
-# Custom SSH Options
-# ==================
-# You may pass any option but keep in mind that net/ssh understands a
-# limited set of options, consult the Net::SSH documentation.
-# http://net-ssh.github.io/net-ssh/classes/Net/SSH.html#method-c-start
-#
-# Global options
-# --------------
- set :ssh_options, {
-   keys: ["#{ENV["HOME"]}/.ssh/id_rsa"]
- }
-#
-# The server-based syntax can be used to override options:
-# ------------------------------------
-# server "example.com",
-#   user: "user_name",
-#   roles: %w{web app},
-#   ssh_options: {
-#     user: "user_name", # overrides user setting above
-#     keys: %w(/home/user_name/.ssh/id_rsa),
-#     forward_agent: false,
-#     auth_methods: %w(publickey password)
-#     # password: "please use keys"
-#   }
+aws_ec2_register user: 'deploy', ssh_options: { keys: ["#{ENV["HOME"]}/.ssh/id_rsa"] }
