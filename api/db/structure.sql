@@ -2498,10 +2498,10 @@ CREATE INDEX index_rankings_on_team_id ON public.rankings USING btree (team_id);
 
 
 --
--- Name: index_scores_on_season_score; Type: INDEX; Schema: public; Owner: -
+-- Name: index_scores_on_season_score_type_and_season_score_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_scores_on_season_score ON public.scores USING btree (season_score_type, season_score_id);
+CREATE INDEX index_scores_on_season_score_type_and_season_score_id ON public.scores USING btree (season_score_type, season_score_id);
 
 
 --

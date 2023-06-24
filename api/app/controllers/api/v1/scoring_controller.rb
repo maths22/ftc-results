@@ -39,7 +39,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           Rails.logger.error e.full_message
           return
         end

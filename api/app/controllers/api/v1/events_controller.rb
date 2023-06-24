@@ -44,7 +44,7 @@ module Api
           AccessMailer.with(request: request).request_email.deliver_now
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -59,7 +59,7 @@ module Api
           request.destroy!
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -162,7 +162,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -173,7 +173,7 @@ module Api
           @event.reset!
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -209,7 +209,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -237,7 +237,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -263,7 +263,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -286,7 +286,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -302,7 +302,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -356,7 +356,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -389,7 +389,7 @@ module Api
           end
         rescue StandardError => e
           render json: { error: e.message }, status: :internal_server_error
-          Raven.capture_exception(e)
+          Sentry.capture_exception(e)
           return
         end
         render json: { success: true }
@@ -401,7 +401,7 @@ module Api
         render json: { channel_name: true }
       rescue StandardError => e
         render json: { error: e.message }, status: :internal_server_error
-        Raven.capture_exception(e)
+        Sentry.capture_exception(e)
       end
 
       def remove_twitch
@@ -409,7 +409,7 @@ module Api
         render json: { channel_name: true }
       rescue StandardError => e
         render json: { error: e.message }, status: :internal_server_error
-        Raven.capture_exception(e)
+        Sentry.capture_exception(e)
       end
 
       # POST /events

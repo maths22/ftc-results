@@ -99,7 +99,7 @@ module FtcApi
 
           event.teams = Team.find(teams.map { |t| t[:teamNumber] })
           unless event.remote && !event.finalized?
-            import_matches(event)
+            # import_matches(event)
             import_rankings(event) unless event.league_meet?
             import_awards(event)
           end

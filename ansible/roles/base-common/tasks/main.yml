@@ -1,12 +1,12 @@
 ---
 # Commented out blocks are because ARM
-#- name: Brightbox ruby availible
-#  apt_repository:
-#    repo: ppa:brightbox/ruby-ng
+- name: Instructure ruby availible
+  apt_repository:
+    repo: ppa:instructure/ruby
 - name: Latest version of Ruby is installed
   apt:
     update_cache: true
-    pkg: ["ruby2.7", "ruby2.7-dev", "libjemalloc-dev"]
+    pkg: ["ruby3.2", "ruby3.2-dev", "libjemalloc-dev"]
     state: latest
 - name: Set LD_PRELOAD
   lineinfile:

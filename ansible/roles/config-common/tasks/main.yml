@@ -24,7 +24,6 @@
     line: "{{ item|upper }}={{ lookup('vars', item) }}"
   loop:
     - rails_env
-    - ap_upload_key
     - db_name
     - db_username
     - secret_key_base

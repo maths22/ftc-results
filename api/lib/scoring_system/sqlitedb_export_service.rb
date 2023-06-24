@@ -278,10 +278,6 @@ module ScoringSystem
         yield file.path
       end
     end
-
-    def apk
-      @apk ||= ENV.fetch('AP_UPLOAD_KEY', 'dummy-key')
-    end
   end
   # rubocop:enable Naming/AccessorMethodName
 end
