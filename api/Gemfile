@@ -40,7 +40,6 @@ gem 'sinatra'
 gem 'sinatra-contrib', require: false
 
 gem 'materialize-sass'
-gem 'mini_racer'
 
 gem 'sentry-ruby'
 gem 'sentry-rails'
