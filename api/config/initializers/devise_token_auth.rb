@@ -42,7 +42,9 @@ DeviseTokenAuth.setup do |config|
                            'client': 'X-Client',
                            'expiry': 'X-Expiry',
                            'uid': 'X-Uid',
-                           'token-type': 'X-Token-Type' }
+                           'token-type': 'X-Token-Type',
+                           'authorization': 'X-Authorization'
+                         }
 
   # By default, only Bearer Token authentication is implemented out of the box.
   # If, however, you wish to integrate with legacy Devise authentication, you can

@@ -57,6 +57,9 @@ class EventSummary extends Component {
   }
 
   updateTabs = () => {
+    if(!this.props.event) {
+      return;
+    }
     const values = queryString.parse(window.location.search);
     const curTab = this.tabNameToId()[values['tab']];
     if(curTab && this.state.selectedTab !== curTab) {

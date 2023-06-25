@@ -1,12 +1,11 @@
 ---
-# Commented out blocks are because ARM
 - name: Instructure ruby availible
   apt_repository:
     repo: ppa:instructure/ruby
-- name: Latest version of Ruby is installed
+- name: Latest version of Ruby and some version of node is installed
   apt:
     update_cache: true
-    pkg: ["ruby3.2", "ruby3.2-dev", "libjemalloc-dev"]
+    pkg: ["ruby3.2", "ruby3.2-dev", "libjemalloc-dev", "nodejs"]
     state: latest
 - name: Set LD_PRELOAD
   lineinfile:

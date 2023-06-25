@@ -24,6 +24,8 @@ class AppRouter extends Component {
       <Suspense fallback={<LoadingSpinner/>}>
         <Switch>
           <DefaultLayout exact path="/" component={AsyncHome} />
+          <DefaultLayout exact path="/account" component={AsyncUpdateAccount}/>
+          <DefaultLayout exact path="/account/confirm" component={AsyncConfirmAccount}/>
           <DefaultLayout exact path="/:season" component={({match}) => <AsyncHome selectedSeason={match.params.season} />} />
           <DefaultLayout exact path="/:season/leagues/summary" component={({match}) => <AsyncLeaguesSummary selectedSeason={match.params.season}/>} />
           <DefaultLayout exact path="/:season/events/all" component={({match}) => <AsyncEventsSummary selectedSeason={match.params.season} />} />
@@ -32,8 +34,6 @@ class AppRouter extends Component {
           <DefaultLayout exact path="/:season/teams/rankings" component={({match}) => <AsyncLeagueRankings type="all" selectedSeason={match.params.season}/>}/>
           <DefaultLayout exact path="/:season/leagues/rankings/:id" component={({match}) => <AsyncLeagueRankings type="league" id={match.params.id} selectedSeason={match.params.season}/>}/>
           <DefaultLayout exact path="/teams/summary/:id" component={({match}) => <AsyncTeamSummary id={match.params.id}/>}/>
-          <DefaultLayout exact path="/account" component={AsyncUpdateAccount}/>
-          <DefaultLayout exact path="/account/confirm" component={AsyncConfirmAccount}/>
           <DefaultLayout component={() => (<div>404 – Page Not Found</div>)} />
         </Switch>
       </Suspense>
