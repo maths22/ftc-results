@@ -1,5 +1,7 @@
 class Score < ApplicationRecord
   belongs_to :season_score, polymorphic: true, optional: true, dependent: :destroy
+  has_one :red_match, foreign_key: :red_score_id, class_name: :Match
+  has_one :blue_match, foreign_key: :blue_score_id, class_name: :Match
 
   before_save do |s|
     next if season_score.nil?
@@ -45,6 +47,12 @@ class Score < ApplicationRecord
   end
 
   def match
-    Match.where('red_score = ? OR blue_score = ?', id, id)
+    red_match || blue_match
+  end
+
+  def alliance_color
+    return :red if red_match.present?
+    return :blue if blue_match.present?
+    nil
   end
 end

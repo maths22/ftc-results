@@ -99,7 +99,7 @@ module FtcApi
 
           event.teams = Team.find(teams.map { |t| t[:teamNumber] })
           unless event.remote && !event.finalized?
-            # import_matches(event)
+            import_matches(event)
             import_rankings(event) unless event.league_meet?
             import_awards(event)
           end
@@ -233,20 +233,20 @@ module FtcApi
       end
 
       def import_awards(event)
-        awards = {}
+        awards = []
         season_awards(event.season).each do |award|
           a = Award.find_or_create_by(name: award[:name], event: event) do |new_award|
             new_award.description = award[:description]
           end
-          awards[award[:award_id]] = a
+          awards.push([a, award[:awardId]])
         end
 
         awards_api.v20_season_awards_event_code_get(event.season.first_api_year, event.slug).awards.each do |award|
           AwardFinalist.find_or_create_by(
             place: award[:series],
-            award: awards[award[:award_id]]
+            award: awards.find { |info| info[1] == award[:awardId] && award[:name].starts_with?(info[0].name) }[0]
           ) do |new_finalist|
-            new_finalist.team_id = award[:team_number]
+            new_finalist.team_id = award[:teamNumber]
             new_finalist.recipient = award[:person]
           end
         end
@@ -271,6 +271,8 @@ module FtcApi
             api_score[:alliances].each do |alliance|
               score = match.send("#{alliance[:alliance].downcase}_score")
               score.season_score ||= event.season.score_model(remote: false).new
+              score.season_score.score = score
+              score.save!
               score.season_score.minor_penalties = alliance[:minorPenalties]
               score.season_score.major_penalties = alliance[:majorPenalties]
               send("import_#{score.season_score.class.table_name}", score.season_score, alliance)
@@ -370,6 +372,25 @@ module FtcApi
         score.end_parked = api_score[:endgameParked]
         score.capped = api_score[:capped]
         
+        score.save!
+      end
+
+      def import_power_play_scores(score, api_score)
+        score.init_signal_sleeve1 = api_score[:initSignalSleeve1]
+        score.init_signal_sleeve2 = api_score[:initSignalSleeve2]
+        score.auto_navigated1 = api_score[:robot1Auto]
+        score.auto_navigated2 = api_score[:robot2Auto]
+        score.auto_terminal = api_score[:autoTerminal]
+        score.auto_junctions = api_score[:autoJunctions]
+
+
+        score.teleop_junctions = api_score[:dcJunctions]
+        score.teleop_terminal_near = api_score[:dcTerminalNear]
+        score.teleop_terminal_far = api_score[:dcTerminalFar]
+
+        score.teleop_navigated1 = api_score[:egNavigated1]
+        score.teleop_navigated2 = api_score[:egNavigated2]
+
         score.save!
       end
 

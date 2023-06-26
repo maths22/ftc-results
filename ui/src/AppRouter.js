@@ -29,7 +29,7 @@ class AppRouter extends Component {
           <DefaultLayout exact path="/:season" component={({match}) => <AsyncHome selectedSeason={match.params.season} />} />
           <DefaultLayout exact path="/:season/leagues/summary" component={({match}) => <AsyncLeaguesSummary selectedSeason={match.params.season}/>} />
           <DefaultLayout exact path="/:season/events/all" component={({match}) => <AsyncEventsSummary selectedSeason={match.params.season} />} />
-          <DefaultLayout exact path="/:season/events/summary/:id" component={({match}) => <AsyncEventSummary id={match.params.id} selectedSeason={match.params.season} />} />
+          <DefaultLayout exact path="/:season/events/summary/:id" component={({match, location}) => <AsyncEventSummary id={match.params.id} selectedSeason={match.params.season} search={location.search} />} />
           <DefaultLayout exact path="/:season/events/uploader/:id" component={({match}) => <AsyncUploader id={match.params.id} selectedSeason={match.params.season}/>} />
           <DefaultLayout exact path="/:season/teams/rankings" component={({match}) => <AsyncLeagueRankings type="all" selectedSeason={match.params.season}/>}/>
           <DefaultLayout exact path="/:season/leagues/rankings/:id" component={({match}) => <AsyncLeagueRankings type="league" id={match.params.id} selectedSeason={match.params.season}/>}/>

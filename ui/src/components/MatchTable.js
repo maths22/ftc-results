@@ -13,6 +13,9 @@ import TextLink from './TextLink';
 import Typography from '@material-ui/core/Typography/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
 import Hidden from '@material-ui/core/Hidden/Hidden';
+import {push} from 'connected-react-router';
+import {connect} from 'react-redux';
+import queryString from 'query-string';
 
 const styles = (theme) => ({
   table: {
@@ -63,13 +66,16 @@ const styles = (theme) => ({
 });
 
 class MatchTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { selectedMatch: null };
-  }
-
   showDetails = (id) => {
-    this.setState({selectedMatch: id});
+    const values = queryString.parse(this.props.search);
+    values['match'] = id;
+    this.props.push({ search: queryString.stringify(values) });
+  };
+
+  hideDetails = () => {
+    const values = queryString.parse(this.props.search);
+    delete values['match'];
+    this.props.push({ search: queryString.stringify(values) });
   };
 
   render() {
@@ -78,8 +84,10 @@ class MatchTable extends React.Component {
   }
 
   renderRemote() {
-    const {matches, team, classes} = this.props;
-    const {selectedMatch} = this.state;
+    const {matches, team, classes, search} = this.props;
+    const values = queryString.parse(search);
+    const selectedMatch = parseInt(values['match']) || null;
+
     if (matches.length === 0) {
       return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
     }
@@ -110,13 +118,14 @@ class MatchTable extends React.Component {
         </TableRow>;
     })}
     </TableBody>
-  </Table>, <MatchDetailsDialog key={2} id={selectedMatch} onClose={() => this.setState({selectedMatch: null})}/>];
+  </Table>, <MatchDetailsDialog key={2} id={selectedMatch} onClose={() => this.hideDetails()}/>];
 
   }
 
   renderTraditional() {
-    const {matches, team, classes} = this.props;
-    const {selectedMatch} = this.state;
+    const {matches, team, classes, search} = this.props;
+    const values = queryString.parse(search);
+    const selectedMatch = parseInt(values['match']) || null;
     if (matches.length === 0) {
       return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
     }
@@ -224,8 +233,17 @@ class MatchTable extends React.Component {
         </TableRow> : null}
         {groupedMatches['qual'] ? groupedMatches['qual'] : null}
       </TableBody>
-    </Table>, <MatchDetailsDialog key={2} id={selectedMatch} onClose={() => this.setState({selectedMatch: null})}/>];
+    </Table>, <MatchDetailsDialog key={2} id={selectedMatch} onClose={() => this.hideDetails()}/>];
   }
 }
 
-export default withStyles(styles)(MatchTable);
+const mapStateToProps = (state) => ({
+  search: state.router.location.search,
+});
+
+const mapDispatchToProps = {
+  push,
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MatchTable));

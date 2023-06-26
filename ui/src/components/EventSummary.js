@@ -53,26 +53,7 @@ class EventSummary extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {selectedTab: 1, selectedDivision: 0};
   }
-
-  updateTabs = () => {
-    if(!this.props.event) {
-      return;
-    }
-    const values = queryString.parse(window.location.search);
-    const curTab = this.tabNameToId()[values['tab']];
-    if(curTab && this.state.selectedTab !== curTab) {
-      this.setState({selectedTab: curTab});
-    }
-    const curDivision = parseInt(values['division']);
-    if((curDivision || curDivision === 0) && this.state.selectedDivision !== curDivision) {
-      this.setState({selectedDivision: curDivision});
-    }
-    if(values['tab'] && !curTab) {
-      this.selectTab(1);
-    }
-  };
 
   componentDidMount() {
     this.refresh();
@@ -82,7 +63,6 @@ class EventSummary extends Component {
 
   componentDidUpdate(oldProps) {
     if (!this.props.event && !oldProps.event) return;
-    this.updateTabs();
     if((!!this.props.event === !oldProps.event) || (oldProps.event.id !== this.props.event.id)) {
       this.setTitle();
 
@@ -104,8 +84,6 @@ class EventSummary extends Component {
       this.props.getEvent(this.props.selectedSeason, this.props.id);
       //TODO only load these if relevant
       this.props.getLeagues(this.props.selectedSeason);
-    } else {
-      this.updateTabs();
     }
     this.props.getEventTeamsWithTeams(this.props.selectedSeason, this.props.id);
     this.props.getEventMatches(this.props.selectedSeason, this.props.id);
@@ -124,7 +102,7 @@ class EventSummary extends Component {
   }
 
   selectTab = (selectedTab) => {
-    const values = queryString.parse(window.location.search);
+    const values = queryString.parse(this.props.search);
     values['tab'] = this.tabIdToName()[selectedTab];
     this.props.push({ search: queryString.stringify(values) });
     if(this.props.event.status === 'in_progress') {
@@ -133,7 +111,7 @@ class EventSummary extends Component {
   };
 
   selectDivision = (div) => {
-    const values = queryString.parse(window.location.search);
+    const values = queryString.parse(this.props.search);
     values['division'] = div;
     this.props.push({ search: queryString.stringify(values) });
     if(this.props.event.status === 'in_progress') {
@@ -147,12 +125,22 @@ class EventSummary extends Component {
     return !(!event.divisions || event.divisions.length === 0);
   };
 
+  selectedDivision = () => {
+    const values = queryString.parse(this.props.search);
+    return parseInt(values['division']) || 0;
+  }
+
+  selectedTab = () => {
+    const values = queryString.parse(this.props.search);
+    return this.tabNameToId()[values['tab']] || 1;
+  }
+
   renderDivisionPicker = () => {
     const { event } = this.props;
     if(!this.hasDivisions()) return null;
 
     return <div>
-        <Select value={this.state.selectedDivision} onChange={(evt) => this.selectDivision(evt.target.value)} classes={{root: this.props.classes.h5}}>
+        <Select value={this.selectedDivision()} onChange={(evt) => this.selectDivision(evt.target.value)} classes={{root: this.props.classes.h5}}>
           <MenuItem value={0}>Finals Division</MenuItem>
           {event.divisions.map((d) => {
             return <MenuItem value={d.number}>{d.name} Division</MenuItem>;
@@ -213,11 +201,11 @@ class EventSummary extends Component {
   }
 
   showRankings() {
-    return !this.hasDivisions() || this.state.selectedDivision !== 0;
+    return this.props.event.type !== 'league_meet' && (!this.hasDivisions() || this.selectedDivision() !== 0);
   }
 
   showAwards() {
-    return (!this.hasDivisions() && this.props.event.type !== 'league_meet') || (this.hasDivisions() && this.state.selectedDivision === 0);
+    return (!this.hasDivisions() && this.props.event.type !== 'league_meet') || (this.hasDivisions() && this.selectedDivision() === 0);
   }
 
   showAlliances() {
@@ -230,8 +218,8 @@ class EventSummary extends Component {
     }
 
     const { classes, event, league, matches, rankings, elimsRankings, alliances, awards, teams } = this.props;
-    const { selectedDivision, selectedTab } = this.state;
-
+    const selectedDivision = this.selectedDivision();
+    const selectedTab = this.selectedTab();
 
     const showDivisionAssignments = this.hasDivisions() && selectedDivision === 0;
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;

@@ -1,13 +1,11 @@
 import {SET_TITLE, HIDE_VIDEO, SHOW_ONLY_MY_EVENTS} from '../actions/ui';
 import {GET_SEASONS_SUCCESS} from '../actions/api';
-import queryString from 'query-string';
 
 export const LOCAL_STORAGE_VIDEO_KEY = 'hide_video';
 export const SHOW_ONLY_MY_EVENTS_KEY = 'show_only_my_events';
 const hideVideo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_VIDEO_KEY)) || false;
 const showOnlyMyEvents = JSON.parse(localStorage.getItem(SHOW_ONLY_MY_EVENTS_KEY)) || false;
-const values = queryString.parse(window.location.search);
-const initialState = {season: values['season'], hideVideo, showOnlyMyEvents};
+const initialState = {hideVideo, showOnlyMyEvents};
 
 export default function (
     state = initialState,

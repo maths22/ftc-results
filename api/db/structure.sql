@@ -55,6 +55,17 @@ CREATE TYPE public.ff_endgame_parked_status AS ENUM (
 
 
 --
+-- Name: pp_auto_navigated_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.pp_auto_navigated_status AS ENUM (
+    'NONE',
+    'SUBSTATION_TERMINAL',
+    'SIGNAL_ZONE'
+);
+
+
+--
 -- Name: delayed_jobs_after_delete_row_tr_fn(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -62,11 +73,13 @@ CREATE FUNCTION public.delayed_jobs_after_delete_row_tr_fn() RETURNS trigger
     LANGUAGE plpgsql
     AS $_$
 DECLARE
+  next_strand varchar;
   running_count integer;
   should_lock boolean;
   should_be_precise boolean;
   update_query varchar;
   skip_locked varchar;
+  transition boolean;
 BEGIN
   IF OLD.strand IS NOT NULL THEN
     should_lock := true;
@@ -91,7 +104,7 @@ BEGIN
       SELECT id FROM delayed_jobs j2
         WHERE next_in_strand=false AND
           j2.strand=$1.strand AND
-          (j2.singleton IS NULL OR NOT EXISTS (SELECT 1 FROM delayed_jobs j3 WHERE j3.singleton=j2.singleton AND j3.id<>j2.id AND (j3.locked_by IS NULL OR j3.locked_by IS NOT NULL)))
+          (j2.singleton IS NULL OR NOT EXISTS (SELECT 1 FROM delayed_jobs j3 WHERE j3.singleton=j2.singleton AND j3.id<>j2.id AND (j3.locked_by IS NULL OR j3.locked_by = ''on hold'' OR j3.locked_by <> ''on hold'')))
         ORDER BY j2.strand_order_override ASC, j2.id ASC
         LIMIT ';
 
@@ -116,8 +129,42 @@ BEGIN
 
     update_query := update_query || ' FOR UPDATE' || COALESCE(skip_locked, '') || ')';
     EXECUTE update_query USING OLD, running_count;
-  ELSIF OLD.singleton IS NOT NULL THEN
-    UPDATE delayed_jobs SET next_in_strand = 't' WHERE singleton=OLD.singleton AND next_in_strand=false AND locked_by IS NULL;
+  END IF;
+
+  IF OLD.singleton IS NOT NULL THEN
+    PERFORM pg_advisory_xact_lock(half_md5_as_bigint(CONCAT('singleton:', OLD.singleton)));
+
+    transition := EXISTS (SELECT 1 FROM delayed_jobs AS j1 WHERE j1.singleton = OLD.singleton AND j1.strand IS DISTINCT FROM OLD.strand AND locked_by IS NULL);
+
+    IF transition THEN
+      next_strand := (SELECT j1.strand FROM delayed_jobs AS j1 WHERE j1.singleton = OLD.singleton AND j1.strand IS DISTINCT FROM OLD.strand AND locked_by IS NULL AND j1.strand IS NOT NULL LIMIT 1);
+
+      IF next_strand IS NOT NULL THEN
+        -- if the singleton has a new strand defined, we need to lock it to ensure we obey n_strand constraints --
+        IF NOT pg_try_advisory_xact_lock(half_md5_as_bigint(next_strand)) THEN
+          -- a failure to acquire the lock means that another process already has it and will thus handle this singleton --
+          RETURN OLD;
+        END IF;
+      END IF;
+    ELSIF OLD.strand IS NOT NULL THEN
+      -- if there is no transition and there is a strand then we have already handled this singleton in the case above --
+      RETURN OLD;
+    END IF;
+
+    -- handles transitioning a singleton from stranded to not stranded --
+    -- handles transitioning a singleton from unstranded to stranded --
+    -- handles transitioning a singleton from strand A to strand B --
+    -- these transitions are a relatively rare case, so we take a shortcut and --
+    -- only start the next singleton if its strand does not currently have any running jobs --
+    -- if it does, the next stranded job that finishes will start this singleton if it can --
+    UPDATE delayed_jobs SET next_in_strand=true WHERE id IN (
+      SELECT id FROM delayed_jobs j2
+        WHERE next_in_strand=false AND
+          j2.singleton=OLD.singleton AND
+          j2.locked_by IS NULL AND
+          (j2.strand IS NULL OR NOT EXISTS (SELECT 1 FROM delayed_jobs j3 WHERE j3.strand=j2.strand AND j3.id<>j2.id))
+        FOR UPDATE
+      );
   END IF;
   RETURN OLD;
 END;
@@ -141,9 +188,10 @@ BEGIN
     END IF;
   END IF;
   IF NEW.singleton IS NOT NULL THEN
+    PERFORM pg_advisory_xact_lock(half_md5_as_bigint(CONCAT('singleton:', NEW.singleton)));
     -- this condition seems silly, but it forces postgres to use the two partial indexes on singleton,
     -- rather than doing a seq scan
-    PERFORM 1 FROM delayed_jobs WHERE singleton = NEW.singleton AND (locked_by IS NULL OR locked_by IS NOT NULL);
+    PERFORM 1 FROM delayed_jobs WHERE singleton = NEW.singleton AND (locked_by IS NULL OR locked_by = 'on hold' OR locked_by <> 'on hold');
     IF FOUND THEN
       NEW.next_in_strand := false;
     END IF;
@@ -794,7 +842,8 @@ CREATE TABLE public.failed_jobs (
     source character varying(255),
     expires_at timestamp without time zone,
     strand_order_override integer DEFAULT 0 NOT NULL,
-    singleton character varying
+    singleton character varying,
+    requeued_job_id bigint
 );
 
 
@@ -1121,6 +1170,49 @@ CREATE SEQUENCE public.matches_id_seq
 --
 
 ALTER SEQUENCE public.matches_id_seq OWNED BY public.matches.id;
+
+
+--
+-- Name: power_play_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.power_play_scores (
+    id bigint NOT NULL,
+    init_signal_sleeve1 boolean DEFAULT false,
+    init_signal_sleeve2 boolean DEFAULT false,
+    auto_navigated1 public.pp_auto_navigated_status DEFAULT 'NONE'::public.pp_auto_navigated_status,
+    auto_navigated2 public.pp_auto_navigated_status DEFAULT 'NONE'::public.pp_auto_navigated_status,
+    auto_terminal integer DEFAULT 0,
+    auto_junctions json DEFAULT '[]'::json,
+    teleop_junctions json DEFAULT '[]'::json,
+    teleop_terminal_near integer DEFAULT 0,
+    teleop_terminal_far integer DEFAULT 0,
+    teleop_navigated1 boolean DEFAULT false,
+    teleop_navigated2 boolean DEFAULT false,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: power_play_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.power_play_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: power_play_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.power_play_scores_id_seq OWNED BY public.power_play_scores.id;
 
 
 --
@@ -1768,6 +1860,13 @@ ALTER TABLE ONLY public.matches ALTER COLUMN id SET DEFAULT nextval('public.matc
 
 
 --
+-- Name: power_play_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.power_play_scores ALTER COLUMN id SET DEFAULT nextval('public.power_play_scores_id_seq'::regclass);
+
+
+--
 -- Name: rankings id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2045,6 +2144,14 @@ ALTER TABLE ONLY public.matches
 
 
 --
+-- Name: power_play_scores power_play_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.power_play_scores
+    ADD CONSTRAINT power_play_scores_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: rankings rankings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2256,14 +2363,14 @@ CREATE INDEX index_delayed_jobs_on_run_at_and_tag ON public.delayed_jobs USING b
 -- Name: index_delayed_jobs_on_singleton_not_running; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_delayed_jobs_on_singleton_not_running ON public.delayed_jobs USING btree (singleton) WHERE ((singleton IS NOT NULL) AND (locked_by IS NULL));
+CREATE UNIQUE INDEX index_delayed_jobs_on_singleton_not_running ON public.delayed_jobs USING btree (singleton) WHERE ((singleton IS NOT NULL) AND ((locked_by IS NULL) OR ((locked_by)::text = 'on hold'::text)));
 
 
 --
 -- Name: index_delayed_jobs_on_singleton_running; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_delayed_jobs_on_singleton_running ON public.delayed_jobs USING btree (singleton) WHERE ((singleton IS NOT NULL) AND (locked_by IS NOT NULL));
+CREATE UNIQUE INDEX index_delayed_jobs_on_singleton_running ON public.delayed_jobs USING btree (singleton) WHERE ((singleton IS NOT NULL) AND (locked_by IS NOT NULL) AND ((locked_by)::text <> 'on hold'::text));
 
 
 --
@@ -2390,6 +2497,34 @@ CREATE INDEX index_events_users_on_event_id_and_user_id ON public.events_users U
 --
 
 CREATE INDEX index_events_users_on_user_id_and_event_id ON public.events_users USING btree (user_id, event_id);
+
+
+--
+-- Name: index_failed_jobs_on_failed_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_failed_jobs_on_failed_at ON public.failed_jobs USING btree (failed_at);
+
+
+--
+-- Name: index_failed_jobs_on_singleton; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_failed_jobs_on_singleton ON public.failed_jobs USING btree (singleton) WHERE (singleton IS NOT NULL);
+
+
+--
+-- Name: index_failed_jobs_on_strand; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_failed_jobs_on_strand ON public.failed_jobs USING btree (strand) WHERE (strand IS NOT NULL);
+
+
+--
+-- Name: index_failed_jobs_on_tag; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_failed_jobs_on_tag ON public.failed_jobs USING btree (tag);
 
 
 --
@@ -2776,6 +2911,16 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211118170527'),
 ('20211118170528'),
 ('20220703173404'),
-('20220706125817');
+('20220706125817'),
+('20230625151457'),
+('20230625151458'),
+('20230625151459'),
+('20230625151460'),
+('20230625151461'),
+('20230625151462'),
+('20230625151463'),
+('20230625151464'),
+('20230625151465'),
+('20230625151524');
 
 
