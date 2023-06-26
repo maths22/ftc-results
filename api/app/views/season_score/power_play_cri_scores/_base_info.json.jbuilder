@@ -1,0 +1,27 @@
+json.init_signal_sleeve1 score.init_signal_sleeve1
+json.init_signal_sleeve2 score.init_signal_sleeve2
+json.init_signal_sleeve3 score.init_signal_sleeve3
+json.auto_navigated1 score.auto_navigated1
+json.auto_navigated2 score.auto_navigated2
+json.auto_navigated3 score.auto_navigated3
+json.auto_terminal score.auto_terminal
+json.auto_junctions score.auto_junctions
+
+json.teleop_junctions score.teleop_junctions
+json.teleop_terminal_near score.teleop_terminal_near
+json.teleop_terminal_far score.teleop_terminal_far
+
+json.teleop_navigated1 score.teleop_navigated1
+json.teleop_navigated2 score.teleop_navigated2
+json.teleop_navigated3 score.teleop_navigated3
+
+json.auto_cone_counts score.auto_cone_counts
+json.auto_transformed_cones score.auto_transformed_cones
+json.teleop_cone_counts score.teleop_cone_counts
+json.teleop_transformed_cones score.teleop_transformed_cones
+json.cone_owned_junctions score.cone_owned_junctions
+json.beacon_owned_junctions score.beacon_owned_junctions
+json.has_circuit score.has_circuit?
+
+json.minor_penalties score.minor_penalties
+json.major_penalties score.major_penalties

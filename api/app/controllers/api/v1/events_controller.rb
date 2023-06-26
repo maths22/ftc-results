@@ -140,7 +140,7 @@ module Api
 
         File.open(db_service.event_dbs[0], 'r') do |data|
           headers['Content-Length'] = data.size if data.respond_to?(:size)
-          send_data(data.read, filename: "#{test_db ? 'TEST-' : ''}#{@event.slug}.db")
+          send_data(data.read, filename: "#{test_db ? 'TEST-' : ''}#{@event.slug.downcase}.db")
         end
         db_service.cleanup
       end

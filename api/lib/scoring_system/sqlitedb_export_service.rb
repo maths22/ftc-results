@@ -78,7 +78,7 @@ module ScoringSystem
 
       db = SQLite3::Database.new db_files[0]
 
-      set_config db, "code", event.slug
+      set_config db, "code", event.slug.downcase
       set_config db, "onlineResultsUrl", "#{root_url}#{event.season.year}/events/summary/#{event.slug}"
       set_config db, "name", event.name
       set_config db, "start", event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000'

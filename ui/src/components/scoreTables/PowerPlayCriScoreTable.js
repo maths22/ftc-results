@@ -1,5 +1,4 @@
 import ScoreTable from './ScoreTable';
-
 export default ScoreTable((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
@@ -17,6 +16,13 @@ export default ScoreTable((match) => {
       blue: blue_det.auto_navigated2 === 'NONE' ? '-' : (blue_det.auto_navigated2 === 'SIGNAL_ZONE' ? (blue_det.init_signal_sleeve2 ? 'Signal Zone (TSE)' : 'Signal Zone') : 'Terminal/Substation'),
       red_pts: red_det.auto_navigated2 === 'NONE' ? 0 : (red_det.auto_navigated2 === 'SIGNAL_ZONE' ? (red_det.init_signal_sleeve2 ? 20 : 10) : 2),
       blue_pts: blue_det.auto_navigated2 === 'NONE' ? 0 : (blue_det.auto_navigated2 === 'SIGNAL_ZONE' ? (blue_det.init_signal_sleeve2 ? 20 : 10) : 2),
+    },
+    {
+      desc: 'Robot 3 Parking',
+      red: red_det.auto_navigated3 === 'NONE' ? '-' : (red_det.auto_navigated3 === 'SIGNAL_ZONE' ? (red_det.init_signal_sleeve3 ? 'Signal Zone (TSE)' : 'Signal Zone') : 'Terminal/Substation'),
+      blue: blue_det.auto_navigated3 === 'NONE' ? '-' : (blue_det.auto_navigated3 === 'SIGNAL_ZONE' ? (blue_det.init_signal_sleeve3 ? 'Signal Zone (TSE)' : 'Signal Zone') : 'Terminal/Substation'),
+      red_pts: red_det.auto_navigated3 === 'NONE' ? 0 : (red_det.auto_navigated3 === 'SIGNAL_ZONE' ? (red_det.init_signal_sleeve3 ? 20 : 10) : 2),
+      blue_pts: blue_det.auto_navigated3 === 'NONE' ? 0 : (blue_det.auto_navigated3 === 'SIGNAL_ZONE' ? (blue_det.init_signal_sleeve3 ? 20 : 10) : 2),
     },
     {
       desc: 'Auto High Junctions',
@@ -41,6 +47,12 @@ export default ScoreTable((match) => {
       red: red_det.auto_cone_counts.GROUND,
       blue: blue_det.auto_cone_counts.GROUND,
       value: 2
+    },
+    {
+      desc: 'Auto Transformer Bonus',
+      red: red_det.auto_transformed_cones,
+      blue: blue_det.auto_transformed_cones,
+      value: 3
     },
     {
       desc: 'Auto Terminal',
@@ -85,6 +97,12 @@ export default ScoreTable((match) => {
       value: 1
     },
     {
+      desc: 'Driver-controlled Transformer Bonus',
+      red: red_det.teleop_transformed_cones,
+      blue: blue_det.teleop_transformed_cones,
+      value: 3
+    },
+    {
       desc: 'Driver-controlled Total',
       red: match.red_score.teleop,
       blue: match.blue_score.teleop,
@@ -94,15 +112,22 @@ export default ScoreTable((match) => {
       desc: 'Robot 1 Parking',
       red: red_det.teleop_navigated1 ? 'Parked' : '-',
       blue: blue_det.teleop_navigated1 ? 'Parked' : '-',
-      red_pts: red_det.teleop_navigated1 ? 2 : 0,
-      blue_pts: blue_det.teleop_navigated1 ? 2 : 0,
+      red_pts: red_det.teleop_navigated1 ? 5 : 0,
+      blue_pts: blue_det.teleop_navigated1 ? 5 : 0,
     },
     {
       desc: 'Robot 2 Parking',
       red: red_det.teleop_navigated2 ? 'Parked' : '-',
       blue: blue_det.teleop_navigated2 ? 'Parked' : '-',
-      red_pts: red_det.teleop_navigated2 ? 2 : 0,
-      blue_pts: blue_det.teleop_navigated2 ? 2 : 0,
+      red_pts: red_det.teleop_navigated2 ? 5 : 0,
+      blue_pts: blue_det.teleop_navigated2 ? 5 : 0,
+    },
+    {
+      desc: 'Robot 3 Parking',
+      red: red_det.teleop_navigated3 ? 'Parked' : '-',
+      blue: blue_det.teleop_navigated3 ? 'Parked' : '-',
+      red_pts: red_det.teleop_navigated3 ? 5 : 0,
+      blue_pts: blue_det.teleop_navigated3 ? 5 : 0,
     },
     {
       desc: 'Ownership (with cone)',
@@ -120,8 +145,8 @@ export default ScoreTable((match) => {
       desc: 'Circuit',
       red: red_det.has_circuit ? 'Completed' : '-',
       blue: blue_det.has_circuit ? 'Completed' : '-',
-      red_pts: red_det.has_circuit ? 20 : 0,
-      blue_pts: blue_det.has_circuit ? 20 : 0,
+      red_pts: red_det.has_circuit ? 40 : 0,
+      blue_pts: blue_det.has_circuit ? 40 : 0,
     },
     {
       desc: 'Endgame Total',

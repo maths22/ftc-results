@@ -1173,6 +1173,52 @@ ALTER SEQUENCE public.matches_id_seq OWNED BY public.matches.id;
 
 
 --
+-- Name: power_play_cri_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.power_play_cri_scores (
+    id bigint NOT NULL,
+    init_signal_sleeve1 boolean DEFAULT false,
+    init_signal_sleeve2 boolean DEFAULT false,
+    init_signal_sleeve3 boolean DEFAULT false,
+    auto_navigated1 public.pp_auto_navigated_status DEFAULT 'NONE'::public.pp_auto_navigated_status,
+    auto_navigated2 public.pp_auto_navigated_status DEFAULT 'NONE'::public.pp_auto_navigated_status,
+    auto_navigated3 public.pp_auto_navigated_status DEFAULT 'NONE'::public.pp_auto_navigated_status,
+    auto_terminal integer DEFAULT 0,
+    auto_junctions json DEFAULT '[]'::json,
+    teleop_junctions json DEFAULT '[]'::json,
+    teleop_terminal_near integer DEFAULT 0,
+    teleop_terminal_far integer DEFAULT 0,
+    teleop_navigated1 boolean DEFAULT false,
+    teleop_navigated2 boolean DEFAULT false,
+    teleop_navigated3 boolean DEFAULT false,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: power_play_cri_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.power_play_cri_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: power_play_cri_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.power_play_cri_scores_id_seq OWNED BY public.power_play_cri_scores.id;
+
+
+--
 -- Name: power_play_scores; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1860,6 +1906,13 @@ ALTER TABLE ONLY public.matches ALTER COLUMN id SET DEFAULT nextval('public.matc
 
 
 --
+-- Name: power_play_cri_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.power_play_cri_scores ALTER COLUMN id SET DEFAULT nextval('public.power_play_cri_scores_id_seq'::regclass);
+
+
+--
 -- Name: power_play_scores id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2141,6 +2194,14 @@ ALTER TABLE ONLY public.match_alliances
 
 ALTER TABLE ONLY public.matches
     ADD CONSTRAINT matches_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: power_play_cri_scores power_play_cri_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.power_play_cri_scores
+    ADD CONSTRAINT power_play_cri_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -2921,6 +2982,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230625151463'),
 ('20230625151464'),
 ('20230625151465'),
-('20230625151524');
+('20230625151524'),
+('20230626163309');
 
 

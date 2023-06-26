@@ -38,7 +38,6 @@ function rankingsTable ({rankings, classes, showRecord, elims}) {
         <TableCell className={classes.tableCell}>Rank</TableCell>
         {elims ? <>
           <TableCell className={classes.tableCell}>Alliance</TableCell>
-          <TableCell className={classes.tableCell}>Championship Points</TableCell>
         </> : <>
           <TableCell className={classes.tableCell}>Team Number</TableCell>
           <TableCell className={classes.tableCell}>Team Name</TableCell>
@@ -68,8 +67,7 @@ function rankingsTable ({rankings, classes, showRecord, elims}) {
           </>}
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order1).toFixed(2)}</TableCell>
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order2).toFixed(2)}</TableCell>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order3).toFixed(3)}</TableCell>
-          {elims ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order4).toFixed(3)}</TableCell> : null }
+          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order3).toFixed(2)}</TableCell>
           {showRecord ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : recordLine}</TableCell> : null}
           <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
         </TableRow>;
