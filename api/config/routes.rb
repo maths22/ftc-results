@@ -42,8 +42,7 @@ Rails.application.routes.draw do
             get 'awards', action: 'view_awards'
             get 'alliances', action: 'view_alliances'
             get 'teams', action: 'view_teams'
-            get 'download_db_url', action: 'download_scoring_system_url'
-            get 'download_db', action: 'download_scoring_system'
+            post 'transform_db', action: 'transform_scoring_system'
 
             post 'import_results'
 

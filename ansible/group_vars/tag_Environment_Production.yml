@@ -1,5 +1,6 @@
 server_name: >
   ftc-results.firstillinoisrobotics.org
+  results.chicagoroboticsinvitational.com
   api.production.ftc-results.maths22.com
   ftc-results-dev.maths22.com
   d10vnerie8x4db.cloudfront.net

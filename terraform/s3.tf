@@ -5,7 +5,7 @@ resource "aws_s3_bucket" "upload" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["PUT", "POST", "DELETE"]
-    allowed_origins = ["https://ftc-results.firstillinoisrobotics.org"]
+    allowed_origins = ["https://ftc-results.firstillinoisrobotics.org", "https://results.chicagoroboticsinvitational.com"]
   }
 
   cors_rule {

@@ -9,7 +9,6 @@ class Ability
       can :manage, :all
     else
       can :read, :all
-      can :download_scoring_system_url, :all
       can :details, :all
       can :view_matches, :all
       can :view_rankings, :all
@@ -24,7 +23,7 @@ class Ability
         manage_results
         twitch
         remove_twitch
-        read_scoring_secrets
+        transform_scoring_system
         add_owner
         remove_owner
       ], Event, owners: { id: user.id }

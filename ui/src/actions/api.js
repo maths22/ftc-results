@@ -75,12 +75,12 @@ export const GET_MATCH_DETAILS_FAILURE = 'GET_MATCH_DETAILS_FAILURE';
 export const GET_LEAGUE_RANKINGS_REQUEST = 'GET_LEAGUE_RANKINGS_REQUEST';
 export const GET_LEAGUE_RANKINGS_SUCCESS = 'GET_LEAGUE_RANKINGS_SUCCESS';
 export const GET_LEAGUE_RANKINGS_FAILURE = 'GET_LEAGUE_RANKINGS_FAILURE';
-export const SCORING_URL_REQUEST = 'SCORING_URL_REQUEST';
-export const SCORING_URL_SUCCESS = 'SCORING_URL_SUCCESS';
-export const SCORING_URL_FAILURE = 'SCORING_URL_FAILURE';
 export const IMPORT_EVENT_RESULTS_REQUEST = 'IMPORT_EVENT_RESULTS_REQUEST';
 export const IMPORT_EVENT_RESULTS_SUCCESS = 'IMPORT_EVENT_RESULTS_SUCCESS';
 export const IMPORT_EVENT_RESULTS_FAILURE = 'IMPORT_EVENT_RESULTS_FAILURE';
+export const TRANSFORM_EVENT_DB_REQUEST = 'TRANSFORM_EVENT_DB_REQUEST';
+export const TRANSFORM_EVENT_DB_SUCCESS = 'TRANSFORM_EVENT_DB_SUCCESS';
+export const TRANSFORM_EVENT_DB_FAILURE = 'TRANSFORM_EVENT_DB_FAILURE';
 export const REQUEST_ACCESS_REQUEST = 'REQUEST_ACCESS_REQUEST';
 export const REQUEST_ACCESS_SUCCESS = 'REQUEST_ACCESS_SUCCESS';
 export const REQUEST_ACCESS_FAILURE = 'REQUEST_ACCESS_FAILURE';
@@ -415,18 +415,6 @@ export const getLeagueDataWithTeams = (season, id) => dispatch => {
     });
 };
 
-export const getScoringDownloadUrl = (season, id, test)  => ({
-  [RSAA]: {
-    endpoint: `${API_BASE}/${season}/events/${id}/download_db_url?test=${test}`,
-    method: 'GET',
-    types: [
-      SCORING_URL_REQUEST,
-      SCORING_URL_SUCCESS,
-      SCORING_URL_FAILURE
-    ]
-  }
-});
-
 export const importEventResults = (id, file, division) => {
   const formData = new FormData();
   formData.append("import", file);
@@ -439,6 +427,28 @@ export const importEventResults = (id, file, division) => {
         IMPORT_EVENT_RESULTS_REQUEST,
         IMPORT_EVENT_RESULTS_SUCCESS,
         IMPORT_EVENT_RESULTS_FAILURE
+      ]
+    }
+  }
+};
+
+export const transformEventDb = (season, id, file) => {
+  const formData = new FormData();
+  formData.append('db', file);
+  return {
+    [RSAA]: {
+      endpoint: `${API_BASE}/${season}/events/${id}/transform_db`,
+      method: 'POST',
+      body: formData,
+      types: [
+        TRANSFORM_EVENT_DB_REQUEST,
+        {
+          type: TRANSFORM_EVENT_DB_SUCCESS,
+          payload: (action, state, res) => {
+            return res.blob();
+          }
+        },
+        TRANSFORM_EVENT_DB_FAILURE
       ]
     }
   }

@@ -29,9 +29,9 @@ resource "aws_cloudfront_distribution" "distribution" {
   aliases = local.domains[local.workspace]
 
   viewer_certificate {
-    acm_certificate_arn            = local.cert_arns[local.workspace]
-    ssl_support_method             = local.cert_arns[local.workspace] == "" ? null : "sni-only"
-    cloudfront_default_certificate = local.cert_arns[local.workspace] == ""
+    acm_certificate_arn            = aws_acm_certificate.cert.arn
+    ssl_support_method             = "sni-only"
+    cloudfront_default_certificate = false
     minimum_protocol_version       = "TLSv1.1_2016"
   }
 

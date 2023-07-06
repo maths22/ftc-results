@@ -10,8 +10,9 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/CheckCircle';
 
-import {API_HOST, getEvents, getLeagues, getScoringDownloadUrl} from '../actions/api';
+import {API_HOST, getEvents, getLeagues} from '../actions/api';
 import EventImportDialog from './EventImportDialog';
+import EventTransformDialog from './EventTransformDialog';
 import {setShowOnlyMyEvents, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
 import {withStyles} from '@material-ui/core';
@@ -82,6 +83,10 @@ class EventsSummary extends Component {
     this.setState({importEvent: id});
   };
 
+  transform = (id) => {
+    this.setState({transformEvent: id});
+  };
+
   requestAccess = (id) => {
     this.setState({accessEvent: id});
   };
@@ -92,16 +97,6 @@ class EventsSummary extends Component {
 
   setupStream = (id) => {
     this.setState({streamEvent: id});
-  };
-
-  downloadScoring = async (id) => {
-    const result = await this.props.getScoringDownloadUrl(this.props.selectedSeason, id, false);
-    if(result.error) {
-      window.alert("Download failed");
-      console.log(result);
-      return;
-    }
-    window.location.href = result.payload.url;
   };
 
   renderDbs(e) {
@@ -180,7 +175,7 @@ class EventsSummary extends Component {
                   {isLoggedIn ? <TableCell className={classes.tableCell}>
                     {e.can_import && e.aasm_state !== 'finalized' ? <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.manageOwners(e.id)}>Owners ({e.owners.length})</Button>
-                      <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.downloadScoring(e.slug)}>Download DB</Button>
+                      <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.transform(e.id)}>Configure DB</Button>
                       <Button component={Link} target="_blank" style={{margin: '0.5em 0'}} variant="contained" size="small" to={`/${this.props.selectedSeason}/events/uploader/${e.slug}`}>Live Upload</Button>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.setupStream(e.id)}>{e.channel ? 'Configure Stream' : 'Enable Stream'}</Button>
                     </div>: null}
@@ -192,6 +187,7 @@ class EventsSummary extends Component {
         </TableBody>
       </Table>
       <EventImportDialog id={this.state.importEvent} onClose={() => this.setState({importEvent: null})}/>
+      <EventTransformDialog id={this.state.transformEvent} selectedSeason={this.props.selectedSeason} onClose={() => this.setState({transformEvent: null})}/>
       <RequestAccessDialog id={this.state.accessEvent} onClose={() => this.setState({accessEvent: null})}/>
       <TwitchSetupDialog id={this.state.streamEvent} onClose={() => this.setState({streamEvent: null})}/>
       <ManageOwnersDialog id={this.state.manageOwners} onClose={() => this.setState({manageOwners: null})}/>
@@ -226,7 +222,6 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = {
   getEvents,
   getLeagues,
-  getScoringDownloadUrl,
   setShowOnlyMyEvents,
   setTitle,
   push,

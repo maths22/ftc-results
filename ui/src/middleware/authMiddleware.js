@@ -33,6 +33,7 @@ export default store => next => action => {
     endpoint = parsedUrl.url + '?' + queryString.stringify(parsedUrl.query);
   }
 
+  const successType = action[RSAA].types[1];
   const finalAction = Object.assign({}, action, {
     [RSAA]: Object.assign({}, action[RSAA], {
       endpoint: endpoint,
@@ -41,8 +42,8 @@ export default store => next => action => {
         action[RSAA].headers),
       types: [action[RSAA].types[0],
         {
-          type: action[RSAA].types[1],
-          payload: (action, state, res) => getJSON(res),
+          type: typeof successType === 'string' ? successType : successType.type,
+          payload: typeof successType === 'string' || !successType.payload ? (action, state, res) => getJSON(res) : successType.payload,
           meta: metaFunc
         },
         {

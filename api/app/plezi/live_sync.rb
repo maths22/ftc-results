@@ -240,6 +240,7 @@ class LiveSync
         fms_scores = JSON.parse(Zlib.gunzip(Base64.decode64(data['fmsScores'])))
         match.red_score ||= Score.new
         match.red_score.season_score ||= @event.season.score_model.new
+        match.red_score.save!
         match.red_score.season_score.update_from_fms_score!(fms_scores['RedAllianceScore'], fms_scores['BlueAllianceScore'])
         match.red_score.update(auto: fms_scores['RedAllianceScore']['AutoPoints'],
                                teleop: fms_scores['RedAllianceScore']['DcPoints'],
@@ -247,6 +248,7 @@ class LiveSync
                                penalty: fms_scores['RedAllianceScore']['PenaltyPoints'])
         match.blue_score ||= Score.new
         match.blue_score.season_score ||= @event.season.score_model.new
+        match.blue_score.save!
         match.blue_score.season_score.update_from_fms_score!(fms_scores['BlueAllianceScore'], fms_scores['RedAllianceScore'])
         match.blue_score.update(auto: fms_scores['BlueAllianceScore']['AutoPoints'],
                                 teleop: fms_scores['BlueAllianceScore']['DcPoints'],

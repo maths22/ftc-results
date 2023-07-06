@@ -17,9 +17,8 @@ module Api
       before_action :load_event
       authorize_resource
       skip_before_action :load_event, only: %i[index approve_access]
-      skip_authorize_resource only: %i[approve_access download_scoring_system] + MANAGE_RESULTS_ACTIONS
+      skip_authorize_resource only: %i[approve_access] + MANAGE_RESULTS_ACTIONS
       skip_authorization_check only: %i[approve_access]
-      before_action :validate_jwt, only: %i[download_scoring_system]
       before_action :validate_jwt_or_authorize_resource, only: MANAGE_RESULTS_ACTIONS
 
       # skip_before_action :doorkeeper_authorize!, only: %i[download_scoring_system]
@@ -123,26 +122,17 @@ module Api
         render json: { id: @event.id, teams: div_teams }
       end
 
-      def download_scoring_system_url
-        test_db = params[:test] != 'false'
-        authorize!(:read_scoring_secrets, @event) unless test_db
-        token = generate_jwt(subject: @event, action: 'download_scoring_system', test: test_db)
-        render json: { url: download_db_api_v1_event_url(@event.season.year, @event, token: token) }
-      end
-
-      def download_scoring_system
-        test_db = @decoded_token[0]['test']
-
-        db_service = ::ScoringSystem::SqlitedbExportService.new(@event,
-                                                                test_db: test_db,
+      def transform_scoring_system
+        db_service = ::ScoringSystem::SqlitedbTransformerService.new(@event,
                                                                 root_url: root_url,
                                                                 token: generate_jwt(subject: @event, action: 'manage_results', exp: (@event.end_date + 5.days).to_time.to_i))
+        db_file = params[:db]
+        db_service.transform_event_db(db_file.tempfile)
 
-        File.open(db_service.event_dbs[0], 'r') do |data|
+        File.open(db_file.tempfile, 'r') do |data|
           headers['Content-Length'] = data.size if data.respond_to?(:size)
-          send_data(data.read, filename: "#{test_db ? 'TEST-' : ''}#{@event.slug.downcase}.db")
+          send_data(data.read, filename: "#{@event.slug.downcase}.db")
         end
-        db_service.cleanup
       end
 
       def import_results
