@@ -1,5 +1,7 @@
 import ScoreTable from './ScoreTable';
-export default ScoreTable((match) => {
+import Visualization from './PowerPlayCri/Visualization';
+
+const PowerPlayRawCriScoreTable = ScoreTable((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
   return [
@@ -176,3 +178,12 @@ export default ScoreTable((match) => {
     }
   ];
 });
+export default function ({match}) {
+  console.log(match);
+  return <>
+    <PowerPlayRawCriScoreTable match={match} />
+
+    <Visualization grid={match.red_score_details.auto_junctions} label={'Auto Grid'} />
+    <Visualization grid={match.red_score_details.teleop_junctions} label={'Driver-Controlled Grid'} />
+  </>;
+}

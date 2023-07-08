@@ -4,14 +4,14 @@ import {connect} from 'react-redux';
 import {getTeamDetails, getLeagues, getSeasons} from '../actions/api';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
-import {withStyles} from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
+import withStyles from '@mui/styles/withStyles';
+import Typography from '@mui/material/Typography';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
 import EventChip from './EventChip';
 
-import WarningIcon from '@material-ui/icons/WarningRounded';
-import Card from '@material-ui/core/Card';
+import WarningIcon from '@mui/icons-material/WarningRounded';
+import Card from '@mui/material/Card';
 
 const styles = (theme) => ({
   root: {

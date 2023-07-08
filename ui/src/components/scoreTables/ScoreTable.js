@@ -1,10 +1,10 @@
 import classNames from 'classnames';
-import TableRow from '@material-ui/core/TableRow/TableRow';
-import TableCell from '@material-ui/core/TableCell/TableCell';
-import Table from '@material-ui/core/Table/Table';
-import TableBody from '@material-ui/core/TableBody/TableBody';
+import TableRow from '@mui/material/TableRow/TableRow';
+import TableCell from '@mui/material/TableCell/TableCell';
+import Table from '@mui/material/Table/Table';
+import TableBody from '@mui/material/TableBody/TableBody';
 import React from 'react';
-import {withStyles} from '@material-ui/core';
+import withStyles from '@mui/styles/withStyles';
 
 const styles = (theme) => ({
   table: {
@@ -80,7 +80,7 @@ const ScoreTable = (scoreInterpretation) => withStyles(styles)(({classes, match}
             {bluePrimary}
             {sc.bonus && !sc.bonus.first && sc.bonus.blueAccomplished ? <><br/>{bonusLabel}</> : null}
           </TableCell>
-        </TableRow>
+        </TableRow>;
       })}
     </TableBody>
   </Table>;

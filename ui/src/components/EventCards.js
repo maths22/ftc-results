@@ -5,14 +5,14 @@ import { push } from 'connected-react-router';
 
 import {getEvents, getLeagues} from '../actions/api';
 import LoadingSpinner from './LoadingSpinner';
-import {withStyles} from '@material-ui/core';
+import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
 import EventChip from './EventChip';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
+import Card from '@mui/material/Card';
+import CardActionArea from '@mui/material/CardActionArea';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
 
 const styles = (theme) => ({
   root: {

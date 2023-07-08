@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import Button from '@material-ui/core/Button';
-import {withStyles} from '@material-ui/core';
+import Button from '@mui/material/Button';
+import withStyles from '@mui/styles/withStyles';
 import {getEvent} from '../../actions/api';
 import {resetEvent} from '../../actions/uploaderApi';
 import connect from 'react-redux/es/connect/connect';
@@ -14,9 +14,9 @@ import {
 } from '../../actions/localScoringApi';
 import LoadingSpinner from '../LoadingSpinner';
 import {setTitle} from '../../actions/ui';
-import Paper from '@material-ui/core/Paper';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@mui/material/Paper';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import ScoringServerPicker from './ScoringServerPicker';
 import InternalUploader from './InternalUploader';
 

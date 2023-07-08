@@ -2,9 +2,9 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
 import { getSeasons } from '../actions/api';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Typography from '@material-ui/core/Typography';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Typography from '@mui/material/Typography';
 import {push} from 'connected-react-router';
 
 class SeasonSelector extends Component {
@@ -16,7 +16,7 @@ class SeasonSelector extends Component {
 
     setSeason = (val) => {
         this.props.onChange(val);
-    }
+    };
 
     render () {
         if(!this.props.seasons) return null;

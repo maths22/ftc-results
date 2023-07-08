@@ -6,6 +6,7 @@ import React, {lazy, Component, Suspense} from 'react';
 
 import DefaultLayout from './components/layout/DefaultLayout';
 import LoadingSpinner from './components/LoadingSpinner';
+import Visualization from './components/scoreTables/PowerPlayCri/Visualization';
 
 const AsyncUploader = lazy(() => import(/* webpackChunkName: "uploader" */ './components/localScoring/Uploader'));
 const AsyncLeagueRankings = lazy(() => import(/* webpackChunkName: "leagueRankings" */ './components/LeagueRankings'));
@@ -24,6 +25,7 @@ class AppRouter extends Component {
       <Suspense fallback={<LoadingSpinner/>}>
         <Switch>
           <DefaultLayout exact path="/" component={AsyncHome} />
+          <DefaultLayout exact path="/vistest" component={Visualization} />
           <DefaultLayout exact path="/account" component={AsyncUpdateAccount}/>
           <DefaultLayout exact path="/account/confirm" component={AsyncConfirmAccount}/>
           <DefaultLayout exact path="/:season" component={({match}) => <AsyncHome selectedSeason={match.params.season} />} />

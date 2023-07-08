@@ -2,27 +2,27 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import { push } from 'connected-react-router';
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Button from '@material-ui/core/Button';
-import CheckIcon from '@material-ui/icons/CheckCircle';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button';
+import CheckIcon from '@mui/icons-material/CheckCircle';
 
 import {API_HOST, getEvents, getLeagues} from '../actions/api';
 import EventImportDialog from './EventImportDialog';
 import EventTransformDialog from './EventTransformDialog';
 import {setShowOnlyMyEvents, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
-import {withStyles} from '@material-ui/core';
+import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
 import RequestAccessDialog from './RequestAccessDialog';
 import TwitchSetupDialog from './TwitchSetupDialog';
 import SeasonSelector from './SeasonSelector';
 import {Link} from 'react-router-dom';
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import ManageOwnersDialog from './ManageOwnersDialog';
 
 const styles = (theme) => ({

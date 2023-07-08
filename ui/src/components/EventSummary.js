@@ -11,23 +11,23 @@ import {
 } from '../actions/api';
 import {hideVideo, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
-import {withStyles} from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
+import withStyles from '@mui/styles/withStyles';
+import Typography from '@mui/material/Typography';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
 import AwardsTable from './AwardsTable';
 import RankingsTable from './RankingsTable';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import SwipeableViews from 'react-swipeable-views';
-import IconButton from '@material-ui/core/IconButton';
-import RefreshIcon from '@material-ui/icons/Refresh';
+import IconButton from '@mui/material/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import EventChip from './EventChip';
 import TeamsTable from './TeamsTable';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import AlliancesTable from './AlliancesTable';
 
 const styles = (theme) => ({
@@ -128,12 +128,12 @@ class EventSummary extends Component {
   selectedDivision = () => {
     const values = queryString.parse(this.props.search);
     return parseInt(values['division']) || 0;
-  }
+  };
 
   selectedTab = () => {
     const values = queryString.parse(this.props.search);
     return this.tabNameToId()[values['tab']] || 1;
-  }
+  };
 
   renderDivisionPicker = () => {
     const { event } = this.props;
@@ -263,53 +263,58 @@ class EventSummary extends Component {
 
     const season = (this.props.seasons || []).find((s) => s.id === this.props.event.season_id);
 
-    return <div className={classes.root}>
-      <div className={classes.heading}>
-        <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
-        {this.renderDivisionPicker()}
-        {season ? <><b>Season:</b> <span>{season.name} ({season.year})</span><br/></> : null}
-        <b>Date:</b> {new Date(event.start_date).getUTCFullYear() === 9999 ? 'TBA' : event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
-        <b>Location:</b>
-        {event.location && event.location.trim() !== '-' ? <>
-          <TextLink href={maps_url} target="_blank"> {event.location}{event.location && ', '}
-        {event.city}{event.city && ', '}
-        {event.state}{event.state && ', '}
-        {event.country}</TextLink>
-        </> : ' TBA' }
-        <br/>
-        {league && league.league ?
-          <><span><b>League:</b> <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${league.league.slug}`}>{league.league.name}</TextLink></span><br/></> : null }
-        {league ?
-          <span><b>{league.league ? 'Child ' : null} League:</b> <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${league.slug}`}>{league.name}</TextLink></span> : null }<br/>
+    return (
+      <div className={classes.root}>
+        <div className={classes.heading}>
+          <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
+          {this.renderDivisionPicker()}
+          {season ? <><b>Season:</b> <span>{season.name} ({season.year})</span><br/></> : null}
+          <b>Date:</b> {new Date(event.start_date).getUTCFullYear() === 9999 ? 'TBA' : event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
+          <b>Location:</b>
+          {event.location && event.location.trim() !== '-' ? <>
+            <TextLink href={maps_url} target="_blank"> {event.location}{event.location && ', '}
+          {event.city}{event.city && ', '}
+          {event.state}{event.state && ', '}
+          {event.country}</TextLink>
+          </> : ' TBA' }
+          <br/>
+          {league && league.league ?
+            <><span><b>League:</b> <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${league.league.slug}`}>{league.league.name}</TextLink></span><br/></> : null }
+          {league ?
+            <span><b>{league.league ? 'Child ' : null} League:</b> <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${league.slug}`}>{league.name}</TextLink></span> : null }<br/>
 
+        </div>
+
+        {this.renderVideo()}
+
+        <div>
+          <Tabs
+              value={selectedTab}
+              onChange={(_, tab) => this.selectTab(tab)}
+              indicatorColor="primary"
+              textColor="primary"
+          >
+            <Wrapper style={{width: '48px'}}/>
+            <Tab label="Teams" style={{marginLeft: 'auto'}}/>
+            { this.showRankings() ? <Tab label={this.props.event.type !== 'league_meet' ? 'Rankings' : 'League Rankings'} /> : null }
+            { this.showAlliances() ? <Tab label="Alliances" /> : null }
+            <Tab label="Matches" />
+            { this.showAwards() ? <Tab label="Awards" /> : null }
+            {event.aasm_state === 'in_progress' ?
+                <IconButton
+                  onClick={this.refresh}
+                  style={{marginLeft: 'auto', width: '48px'}}
+                  size="large"><RefreshIcon/></IconButton>
+                : <Wrapper style={{marginLeft: 'auto', width: '48px'}}/> }
+          </Tabs>
+        </div>
+
+        <SwipeableViews index={selectedTab - 1}
+                        onChangeIndex={(tab) => this.selectTab(tab + 1)}>
+          {tabs}
+        </SwipeableViews>
       </div>
-
-      {this.renderVideo()}
-
-      <div>
-        <Tabs
-            value={selectedTab}
-            onChange={(_, tab) => this.selectTab(tab)}
-            indicatorColor="primary"
-            textColor="primary"
-        >
-          <Wrapper style={{width: '48px'}}/>
-          <Tab label="Teams" style={{marginLeft: 'auto'}}/>
-          { this.showRankings() ? <Tab label={this.props.event.type !== 'league_meet' ? 'Rankings' : 'League Rankings'} /> : null }
-          { this.showAlliances() ? <Tab label="Alliances" /> : null }
-          <Tab label="Matches" />
-          { this.showAwards() ? <Tab label="Awards" /> : null }
-          {event.aasm_state === 'in_progress' ?
-              <IconButton onClick={this.refresh} style={{marginLeft: 'auto', width: '48px'}}><RefreshIcon/></IconButton>
-              : <Wrapper style={{marginLeft: 'auto', width: '48px'}}/> }
-        </Tabs>
-      </div>
-
-      <SwipeableViews index={selectedTab - 1}
-                      onChangeIndex={(tab) => this.selectTab(tab + 1)}>
-        {tabs}
-      </SwipeableViews>
-    </div>;
+    );
   }
 }
 

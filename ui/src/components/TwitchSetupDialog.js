@@ -1,16 +1,16 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import Typography from '@material-ui/core/Typography';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import Button from '@material-ui/core/Button';
+import Typography from '@mui/material/Typography';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 
 import {getEvents} from '../actions/api';
-import Grid from '@material-ui/core/Grid/Grid';
-import CircularProgress from '@material-ui/core/es/CircularProgress/CircularProgress';
+import Grid from '@mui/material/Grid/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
 import {setupTwitch, removeTwitch} from '../actions/uploaderApi';
 import TextLink from './TextLink';
 

@@ -1,12 +1,12 @@
-import TableRow from '@material-ui/core/TableRow/TableRow';
-import TableCell from '@material-ui/core/TableCell/TableCell';
-import Table from '@material-ui/core/Table/Table';
-import TableHead from '@material-ui/core/TableHead/TableHead';
-import TableBody from '@material-ui/core/TableBody/TableBody';
+import TableRow from '@mui/material/TableRow/TableRow';
+import TableCell from '@mui/material/TableCell/TableCell';
+import Table from '@mui/material/Table/Table';
+import TableHead from '@mui/material/TableHead/TableHead';
+import TableBody from '@mui/material/TableBody/TableBody';
 import React from 'react';
-import {withStyles} from '@material-ui/core';
+import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import AwardDetailsDialog from './AwardDetailsDialog';
 
 const styles = (theme) => ({

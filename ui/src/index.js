@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createBrowserHistory } from 'history';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 
 import configureStore from './store';
 
@@ -13,18 +13,18 @@ import * as serviceWorker from './serviceWorker';
 import AppRouter from './AppRouter';
 import * as Sentry from '@sentry/browser';
 
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import orange from '@material-ui/core/colors/orange';
-import blue from '@material-ui/core/colors/orange';
+import { ThemeProvider, StyledEngineProvider, createTheme, adaptV4Theme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import {TOKEN_UPDATE_RAW, LOCAL_STORAGE_KEY} from './reducers/tokenReducer';
 import {verifyToken} from './actions/api';
 
-const theme = createMuiTheme({
+import { orange, orange as blue } from '@mui/material/colors';
+
+const theme = createTheme(adaptV4Theme({
   palette: {
     primary: process.env.NODE_ENV !== 'development' ? orange : blue,
   },
-});
+}));
 
 Sentry.init({
  dsn: process.env.REACT_APP_SENTRY_DSN
@@ -54,11 +54,13 @@ window.addEventListener('storage', onStorageUpdate, false);
 
 ReactDOM.render(
     <CssBaseline>
-      <MuiThemeProvider theme={theme}>
-        <Provider store={store}>
-          <AppRouter history={history}/>
-        </Provider>
-      </MuiThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <AppRouter history={history}/>
+          </Provider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </CssBaseline>,
     document.getElementById('root')
 );

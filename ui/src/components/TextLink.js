@@ -1,4 +1,4 @@
-import {withStyles} from '@material-ui/core';
+import withStyles from '@mui/styles/withStyles';
 import {Link} from 'react-router-dom';
 import React from 'react';
 

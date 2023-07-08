@@ -15,7 +15,7 @@ const DISPLAY_DELAY = 10 * MINUTES_IN_MILIS;
 class UploaderApiError extends Error {
   constructor(message) {
     super(JSON.stringify(message, null, 2));
-    this.name = "UploaderApiError";
+    this.name = 'UploaderApiError';
   }
 }
 

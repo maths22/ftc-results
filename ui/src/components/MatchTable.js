@@ -2,24 +2,24 @@ import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
-import TableRow from '@material-ui/core/TableRow/TableRow';
-import TableCell from '@material-ui/core/TableCell/TableCell';
-import Table from '@material-ui/core/Table/Table';
-import TableHead from '@material-ui/core/TableHead/TableHead';
-import TableBody from '@material-ui/core/TableBody/TableBody';
+import TableRow from '@mui/material/TableRow/TableRow';
+import TableCell from '@mui/material/TableCell/TableCell';
+import Table from '@mui/material/Table/Table';
+import TableHead from '@mui/material/TableHead/TableHead';
+import TableBody from '@mui/material/TableBody/TableBody';
 import React from 'react';
-import {withStyles} from '@material-ui/core';
+import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
-import Typography from '@material-ui/core/Typography/Typography';
+import Typography from '@mui/material/Typography/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
-import Hidden from '@material-ui/core/Hidden/Hidden';
+import Hidden from '@mui/material/Hidden/Hidden';
 import {push} from 'connected-react-router';
 import {connect} from 'react-redux';
 import queryString from 'query-string';
 
 const styles = (theme) => ({
   table: {
-    minWidth: '20em',
+    minWidth: '30em',
   },
   tableCell: {
     paddingLeft: theme.spacing(1),
@@ -86,7 +86,8 @@ class MatchTable extends React.Component {
   renderRemote() {
     const {matches, team, classes, search} = this.props;
     const values = queryString.parse(search);
-    const selectedMatch = parseInt(values['match']) || null;
+    const matchNum = parseInt(values['match']);
+    const selectedMatch = matchNum && (matches.some(m => m.id == matchNum)) ? matchNum : null;
 
     if (matches.length === 0) {
       return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
@@ -125,7 +126,8 @@ class MatchTable extends React.Component {
   renderTraditional() {
     const {matches, team, classes, search} = this.props;
     const values = queryString.parse(search);
-    const selectedMatch = parseInt(values['match']) || null;
+    const matchNum = parseInt(values['match']);
+    const selectedMatch = matchNum && (matches.some(m => m.id == matchNum)) ? matchNum : null;
     if (matches.length === 0) {
       return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
     }
@@ -163,43 +165,45 @@ class MatchTable extends React.Component {
           [classes.surrogateCell]: isSurrogate,
         });
 
-        return <TableRow key={m.id} style={rowStyle}>
-          <TableCell
-              className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>
-            {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>{matchDisp}</TextLink> : matchDisp}
-          </TableCell>
-          <Hidden xsDown>
-            {team ? <TableCell className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>{m.played ? result : '-'}</TableCell> : null}
-          </Hidden>
-          <TableCell className={redClassnames}>
-            <div className={classes.flexCell}>
-              {m.red_alliance.map((t, idx) => {
-                const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
-                    {m.red_surrogate[idx] ? '*' : ''}</Component>;
-              })}
-            </div>
-          </TableCell>
-          <TableCell className={blueClassnames}>
-            <div className={classes.flexCell}>
-              {m.blue_alliance.map((t, idx) => {
-                const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
-                    {m.blue_surrogate[idx] ? '*' : ''}</Component>
-                ;
-              })}
-            </div>
-          </TableCell>
-          {m.played ? <TableCell className={redClassnames}>
-            <span>{m.red_score}</span>
-          </TableCell> : null}
-          {m.played ? <TableCell className={blueClassnames}>
-            <span>{m.blue_score}</span>
-          </TableCell>: null}
-          {!m.played ? <TableCell className={classes.tableCell} colSpan={2}>
-            <span>Awaiting results</span>
-          </TableCell>: null}
-        </TableRow>;
+        return (
+          <TableRow key={m.id} style={rowStyle}>
+            <TableCell
+                className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>
+              {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>{matchDisp}</TextLink> : matchDisp}
+            </TableCell>
+            <Hidden smDown>
+              {team ? <TableCell className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>{m.played ? result : '-'}</TableCell> : null}
+            </Hidden>
+            <TableCell className={redClassnames}>
+              <div className={classes.flexCell}>
+                {m.red_alliance.map((t, idx) => {
+                  const Component = t === team ? 'span' : TextLink;
+                  return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
+                      {m.red_surrogate[idx] ? '*' : ''}</Component>;
+                })}
+              </div>
+            </TableCell>
+            <TableCell className={blueClassnames}>
+              <div className={classes.flexCell}>
+                {m.blue_alliance.map((t, idx) => {
+                  const Component = t === team ? 'span' : TextLink;
+                  return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
+                      {m.blue_surrogate[idx] ? '*' : ''}</Component>
+                  ;
+                })}
+              </div>
+            </TableCell>
+            {m.played ? <TableCell className={redClassnames}>
+              <span>{m.red_score}</span>
+            </TableCell> : null}
+            {m.played ? <TableCell className={blueClassnames}>
+              <span>{m.blue_score}</span>
+            </TableCell>: null}
+            {!m.played ? <TableCell className={classes.tableCell} colSpan={2}>
+              <span>Awaiting results</span>
+            </TableCell>: null}
+          </TableRow>
+        );
       });
     });
 
@@ -207,7 +211,7 @@ class MatchTable extends React.Component {
       <TableHead>
         <TableRow style={rowStyle}>
           <TableCell className={classes.tableCell}>Match</TableCell>
-          <Hidden xsDown>
+          <Hidden smDown>
             {team ? <TableCell className={classes.tableCell}>Result</TableCell> : null}
           </Hidden>
           <TableCell className={classes.tableCell}>Red Alliance</TableCell>

@@ -1,2 +1,3 @@
 build/*
 node_modules/*
+src/components/scoreTables/PowerPlayCri/Cri-2023-field-only.jsx

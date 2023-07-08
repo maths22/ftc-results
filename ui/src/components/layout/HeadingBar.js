@@ -1,25 +1,25 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import { withStyles } from '@material-ui/core/styles';
+import withStyles from '@mui/styles/withStyles';
 
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import HomeIcon from '@material-ui/icons/Home';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import Popover from '@material-ui/core/Popover';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import HomeIcon from '@mui/icons-material/Home';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Popover from '@mui/material/Popover';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
 import { logout } from '../../actions/api';
 import {Link} from 'react-router-dom';
 import LoginForm from '../users/LoginForm';
 import {clearUserDependentState} from '../../actions/util';
-import MenuList from '@material-ui/core/MenuList';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
+import MenuList from '@mui/material/MenuList';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
 import { push } from 'connected-react-router';
 import RegisterForm from '../users/RegisterForm';
 
@@ -84,64 +84,70 @@ class HeadingBar extends Component {
       isLoggedIn = true;
     }
 
-    return <div>
-      <div className={this.props.classes.root}>
-        <AppBar position="static">
-          <Toolbar>
-            <IconButton className={this.props.classes.menuButton} color="inherit" aria-label="Home"
-                        to={this.props.selectedSeason ? `/${this.props.selectedSeason}` : '/'}
-                        component={Link}>
-              <HomeIcon />
-            </IconButton>
-            <Typography variant="h6" color="inherit" className={this.props.classes.grow}>
-              {this.props.title || 'FTC Results'}
-            </Typography>
-            <Button color="inherit" onClick={this.openUserMenu}>{ isLoggedIn ? `Welcome ${user ? user.name : uid}` : 'Login'}</Button>
-          </Toolbar>
-        </AppBar>
+    return (
+      <div>
+        <div className={this.props.classes.root}>
+          <AppBar position="static">
+            <Toolbar>
+              <IconButton
+                className={this.props.classes.menuButton}
+                color="inherit"
+                aria-label="Home"
+                to={this.props.selectedSeason ? `/${this.props.selectedSeason}` : '/'}
+                component={Link}
+                size="large">
+                <HomeIcon />
+              </IconButton>
+              <Typography variant="h6" color="inherit" className={this.props.classes.grow}>
+                {this.props.title || 'FTC Results'}
+              </Typography>
+              <Button color="inherit" onClick={this.openUserMenu}>{ isLoggedIn ? `Welcome ${user ? user.name : uid}` : 'Login'}</Button>
+            </Toolbar>
+          </AppBar>
+        </div>
+        <Popover
+            id="simple-popper"
+            open={open}
+            anchorEl={anchorEl}
+            onClose={this.handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'center',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'center',
+            }}
+        >
+          { isLoggedIn ?
+              <Paper>
+                {/*<ClickAwayListener onClickAway={this.handleClose}>*/}
+                  <MenuList>
+                    {/*<MenuItem onClick={this.handleClose}>Profile</MenuItem>*/}
+                    <MenuItem onClick={() => {this.props.push('/account'); this.handleClose();}}>My Account</MenuItem>
+                    <MenuItem onClick={() => {this.logout(); this.handleClose();}}>Logout</MenuItem>
+                  </MenuList>
+                {/*</ClickAwayListener>*/}
+              </Paper>
+              : <div className={this.props.classes.loginForm}>
+                <Tabs
+                    value={this.state.selectedTab}
+                    onChange={this.selectTab}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    fullWidth
+                >
+                  <Tab classes={{root: this.props.classes.tab}} value="login" label="Login" />
+                  <Tab classes={{root: this.props.classes.tab}} value="register" label="Register" />
+                </Tabs>
+              {this.state.selectedTab === 'login' ? <LoginForm onSubmitSuccess={this.handleClose}/> : null}
+              {this.state.selectedTab === 'register' ? <RegisterForm onSubmitSuccess={this.handleClose}/> : null}
+
+
+          </div> }
+        </Popover>
       </div>
-      <Popover
-          id="simple-popper"
-          open={open}
-          anchorEl={anchorEl}
-          onClose={this.handleClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
-      >
-        { isLoggedIn ?
-            <Paper>
-              {/*<ClickAwayListener onClickAway={this.handleClose}>*/}
-                <MenuList>
-                  {/*<MenuItem onClick={this.handleClose}>Profile</MenuItem>*/}
-                  <MenuItem onClick={() => {this.props.push('/account'); this.handleClose();}}>My Account</MenuItem>
-                  <MenuItem onClick={() => {this.logout(); this.handleClose();}}>Logout</MenuItem>
-                </MenuList>
-              {/*</ClickAwayListener>*/}
-            </Paper>
-            : <div className={this.props.classes.loginForm}>
-              <Tabs
-                  value={this.state.selectedTab}
-                  onChange={this.selectTab}
-                  indicatorColor="primary"
-                  textColor="primary"
-                  fullWidth
-              >
-                <Tab classes={{root: this.props.classes.tab}} value="login" label="Login" />
-                <Tab classes={{root: this.props.classes.tab}} value="register" label="Register" />
-              </Tabs>
-            {this.state.selectedTab === 'login' ? <LoginForm onSubmitSuccess={this.handleClose}/> : null}
-            {this.state.selectedTab === 'register' ? <RegisterForm onSubmitSuccess={this.handleClose}/> : null}
-
-
-        </div> }
-      </Popover>
-    </div>;
+    );
   }
 }
 

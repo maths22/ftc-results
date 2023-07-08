@@ -417,7 +417,7 @@ export const getLeagueDataWithTeams = (season, id) => dispatch => {
 
 export const importEventResults = (id, file, division) => {
   const formData = new FormData();
-  formData.append("import", file);
+  formData.append('import', file);
   return {
     [RSAA]: {
       endpoint: `${API_BASE}/events/${id}/import_results?division=${division}`,
@@ -429,7 +429,7 @@ export const importEventResults = (id, file, division) => {
         IMPORT_EVENT_RESULTS_FAILURE
       ]
     }
-  }
+  };
 };
 
 export const transformEventDb = (season, id, file) => {
@@ -451,7 +451,7 @@ export const transformEventDb = (season, id, file) => {
         TRANSFORM_EVENT_DB_FAILURE
       ]
     }
-  }
+  };
 };
 
 export const requestAccess = (id, user, message) => ({

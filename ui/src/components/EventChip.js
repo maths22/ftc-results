@@ -1,5 +1,5 @@
 import React from 'react';
-import Chip from '@material-ui/core/Chip/Chip';
+import Chip from '@mui/material/Chip/Chip';
 
 export default function ({event}) {
   const stateTag = {
