@@ -91,6 +91,6 @@ module FtcResults
       end
     end
 
-    # config.middleware.use Plezi
+    config.middleware.use Plezi
   end
 end
