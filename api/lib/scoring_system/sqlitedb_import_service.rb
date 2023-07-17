@@ -143,14 +143,14 @@ module ScoringSystem
     end
 
     def import_elims
-      alliances = @db.execute 'SELECT rank, team1, team2, team3, backupTeam FROM alliances'
+      alliances = @db.execute 'SELECT rank, team1, team2, team3, team4 FROM alliances'
       alliance_map = {}
       alliances.each do |a|
         next unless a['team1'].positive?
 
         teams = [Team.find(a['team1']), Team.find(a['team2'])]
         teams.append(Team.find(a['team3'])) if a['team3'].positive?
-        teams.append(Team.find(a['backupTeam'])) if a['backupTeam'].positive?
+        teams.append(Team.find(a['team4'])) if a['team4'].positive?
         alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams, event_division: event_division
         alliance.save!
         alliance_map[alliance.seed] = alliance
