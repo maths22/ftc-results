@@ -55,19 +55,21 @@ module ScoringSystem
     end
 
     def import_quals
-      quals = @db.execute 'SELECT match, red1, red2, blue1, blue2, red1s, red2s, blue1s, blue2s FROM quals'
+      quals = @db.execute 'SELECT match, red1, red2, red3, blue1, blue2, blue3, red1s, red2s, red3s, blue1s, blue2s, blue3s FROM quals'
 
       quals.each do |q|
-        red_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['red1']), Team.find(q['red2'])], event_division: event_division
-        blue_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['blue1']), Team.find(q['blue2'])], event_division: event_division
+        red_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['red1']), Team.find(q['red2']), Team.find(q['red3'])], event_division: event_division
+        blue_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['blue1']), Team.find(q['blue2']), Team.find(q['blue3'])], event_division: event_division
         red_alliance.save!
         blue_alliance.save!
         red_match_alliance = MatchAlliance.new alliance: red_alliance
         blue_match_alliance = MatchAlliance.new alliance: blue_alliance
         red_match_alliance.surrogate[0] = q['red1S'].positive?
         red_match_alliance.surrogate[1] = q['red2S'].positive?
+        red_match_alliance.surrogate[2] = q['red3S'].positive?
         blue_match_alliance.surrogate[0] = q['blue1S'].positive?
         blue_match_alliance.surrogate[1] = q['blue2S'].positive?
+        blue_match_alliance.surrogate[2] = q['blue3S'].positive?
         match = Match.new event: event, phase: 'qual', number: q['match'], red_alliance: red_match_alliance, blue_alliance: blue_match_alliance, event_division: event_division
         match.red_score = Score.new
         match.blue_score = Score.new
