@@ -23,6 +23,8 @@ const styles = (theme) => ({
   }
 });
 
+const allianceTitles = ['Captain: ', 'First Pick: ', 'Second Pick: ', 'Backup: '];
+
 class AwardsTable extends React.Component {
   constructor(props) {
     super(props);
@@ -61,16 +63,18 @@ class AwardsTable extends React.Component {
           const second = a.finalists.find((f) => f.place === (lowestPlace + 1));
           const third = a.finalists.find((f) => f.place === (lowestPlace + 2));
           const isNameLink = a.description || (first && first.description);
+          const isAlliance = a.name.includes('Alliance');
           const nameCell = <TableCell className={classes.tableCell}>{isNameLink ?
             <TextLink onClick={() => this.showDetails(a)}>{a.name}</TextLink> : a.name}</TableCell>;
-          if(finalistCount > 3) {
+          if(finalistCount > 3 || isAlliance) {
             return <TableRow key={a.id} style={rowStyle}>
               {nameCell}
               <TableCell className={classes.tableCell}>
                 {a.finalists.map((f) => <>
+                  {isAlliance ? allianceTitles[f.place - 1]: ''}
                   {f && f.recipient ? f.recipient : null}
-                  {f && f.team ? <TextLink
-                    to={`/teams/summary/${f.team.number}`}>{f.team.number} ({f.team.name})</TextLink> : null}
+                  {f && f.team ? <><TextLink
+                    to={`/teams/summary/${f.team.number}`}>{f.team.number} ({f.team.name})</TextLink></> : null}
                     <br/>
                   </>)}
               </TableCell>

@@ -13,6 +13,8 @@ import TextLink from './TextLink';
 // FIXME checkout https://mui.com/components/use-media-query/#using-material-uis-breakpoint-helpers
 const withMobileDialog = () => (WrappedComponent) => (props) => <WrappedComponent {...props} width="lg" fullScreen={false} />;
 
+const allianceTitles = ['Captain: ', 'First Pick: ', 'Second Pick: ', 'Backup: '];
+
 class AwardDetailsDialog extends Component {
 
 
@@ -26,6 +28,7 @@ class AwardDetailsDialog extends Component {
     const first = award.finalists.find((f) => f.place === lowestPlace);
     const second = award.finalists.find((f) => f.place === (lowestPlace + 1));
     const third = award.finalists.find((f) => f.place === (lowestPlace + 2));
+    const isAlliance = award.name.includes('Alliance');
 
     return (
       <Dialog
@@ -44,8 +47,9 @@ class AwardDetailsDialog extends Component {
               {award.description}
             </p> : null }
 
-            {finalistCount > 3 ? award.finalists.map((f) => <div>
-                <b>{f.team ? <TextLink
+            {finalistCount > 3 || isAlliance ? award.finalists.map((f) => <div>
+                <b>{isAlliance ? allianceTitles[f.place - 1]: ''}
+                  {f.team ? <TextLink
                   to={`/teams/summary/${f.team.number}`}>{f.team.number} ({f.team.name})</TextLink> : null}
                   {f && f.recipient ? f.recipient : null}</b></div>) : <>
               { first ? <div>
