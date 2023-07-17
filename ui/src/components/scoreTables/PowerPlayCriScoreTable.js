@@ -179,7 +179,6 @@ const PowerPlayRawCriScoreTable = ScoreTable((match) => {
   ];
 });
 export default function ({match}) {
-  console.log(match);
   return <>
     <PowerPlayRawCriScoreTable match={match} />
 

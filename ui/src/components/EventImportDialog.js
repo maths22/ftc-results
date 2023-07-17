@@ -30,7 +30,7 @@ class DivisionsSummary extends Component {
     this.setState({inProgress: true});
     const file = this.fileInput.current.files[0];
     try {
-      const results = await this.props.importEventResults(this.props.event.id, file, this.state.selectedDivision);
+      const results = await this.props.importEventResults(this.props.selectedSeason, this.props.event.id, file, this.state.selectedDivision);
       if(results.error) {
         this.setState({error: results.payload.response.error});
       } else {

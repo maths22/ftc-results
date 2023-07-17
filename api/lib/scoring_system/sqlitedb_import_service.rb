@@ -74,7 +74,7 @@ module ScoringSystem
         match.save!
       end
 
-      quals_scores = @db.execute 'SELECT match, alliance, card1, card2, dq1, dq2, noshow1, noshow2, frontMajor, backMajor, frontMinor, backMinor FROM qualsScores'
+      quals_scores = @db.execute 'SELECT match, alliance, card1, card2, dq1, dq2, noshow1, noshow2, major, minor FROM qualsScores'
       quals_scores.each do |s|
         match = ss_match_to_results_match('qual', s['match'])
         match_alliance = s['alliance'].zero? ? match.red_alliance : match.blue_alliance
@@ -85,7 +85,7 @@ module ScoringSystem
         match_alliance.teams_present[0] = s['noshow1'].zero?
         match_alliance.teams_present[1] = s['noshow2'].zero?
         match_alliance.save!
-        season_score = event.season.score_model.new major_penalties: s['frontMajor'] + s['backMajor'], minor_penalties: s['frontMinor'] + s['backMinor']
+        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
         score = Score.new season_score: season_score
         # rubocop:disable Style/NumericPredicate
         match.red_score = score if s['alliance'] == 0
@@ -95,7 +95,8 @@ module ScoringSystem
         match.save!
       end
 
-      send("import_#{event.season.score_model_name.tableize}", phase: 'qual', table: 'qualsGameSpecific')
+      specific_name = "import_#{event.season.score_model_name.tableize}"
+      send(respond_to?(specific_name) ? specific_name : "import_modern_scores", phase: 'qual', table: 'qualsGameSpecific')
     end
 
     def import_rankings
@@ -163,7 +164,7 @@ module ScoringSystem
         match.update(elim_match_map[e['match']])
         match.save!
       end
-      elims_score = @db.execute 'SELECT match, alliance, card, dq, noshow1, noshow2, noshow3, frontMajor, backMajor, frontMinor, backMinor FROM elimsScores'
+      elims_score = @db.execute 'SELECT match, alliance, card, dq, noshow1, noshow2, noshow3, major, minor FROM elimsScores'
       elims_score.each do |s|
         match = ss_match_to_results_match('elim', s['match'])
         # rubocop:disable Style/NumericPredicate
@@ -175,7 +176,7 @@ module ScoringSystem
         match_alliance.teams_present[1] = s['noshow2'].zero?
         match_alliance.teams_present[2] = s['noshow3'].zero?
         match_alliance.save!
-        season_score = event.season.score_model.new major_penalties: s['frontMajor'] + s['backMajor'], minor_penalties: s['frontMinor'] + s['backMinor']
+        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
         score = Score.new season_score: season_score
         # rubocop:disable Style/NumericPredicate
         match.red_score = score if s['alliance'] == 0
@@ -185,7 +186,8 @@ module ScoringSystem
         match.save!
       end
 
-      send("import_#{event.season.score_model_name.tableize}", phase: 'elim', table: 'elimsGameSpecific')
+      specific_name = "import_#{event.season.score_model_name.tableize}"
+      send(respond_to?(specific_name) ? specific_name : "import_modern_scores", phase: 'elim', table: 'elimsGameSpecific')
     end
 
     def import_rover_ruckus_scores(phase:, table:)
@@ -250,7 +252,7 @@ module ScoringSystem
       end
     end
 
-    def import_freight_frenzy_cri_scores(phase:, table:)
+    def import_modern_scores(phase:, table:)
       stmt = 'SELECT match, Match.ScoreDetails FROM ' + (table.gsub 'GameSpecific', 'Data') + " JOIN Match on Match.FMSMatchId = #{table.gsub('GameSpecific', 'Data')}.FMSMatchId"
 
       season_results = @db.execute stmt

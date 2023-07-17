@@ -186,7 +186,7 @@ class EventsSummary extends Component {
           })}
         </TableBody>
       </Table>
-      <EventImportDialog id={this.state.importEvent} onClose={() => this.setState({importEvent: null})}/>
+      <EventImportDialog id={this.state.importEvent} selectedSeason={this.props.selectedSeason} onClose={() => this.setState({importEvent: null})}/>
       <EventTransformDialog id={this.state.transformEvent} selectedSeason={this.props.selectedSeason} onClose={() => this.setState({transformEvent: null})}/>
       <RequestAccessDialog id={this.state.accessEvent} onClose={() => this.setState({accessEvent: null})}/>
       <TwitchSetupDialog id={this.state.streamEvent} onClose={() => this.setState({streamEvent: null})}/>

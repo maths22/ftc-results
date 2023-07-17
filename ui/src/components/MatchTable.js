@@ -45,7 +45,7 @@ const styles = (theme) => ({
     background: '#fdd',
   },
   blueWinningCell: {
-    background: '#ddf',
+    background: '#ddf'
   },
   allianceCell: {
     fontWeight: 'bold',
@@ -61,6 +61,17 @@ const styles = (theme) => ({
     '& a': {
       textDecoration: 'line-through',
       color: 'rgba(0, 0, 0, 0.4)'
+    }
+  },
+  smallOnly: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'table-row',
+    }
+  },
+  notSmallOnly: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
     }
   }
 });
@@ -165,7 +176,7 @@ class MatchTable extends React.Component {
           [classes.surrogateCell]: isSurrogate,
         });
 
-        return (
+        return [
           <TableRow key={m.id} style={rowStyle}>
             <TableCell
                 className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>
@@ -193,6 +204,18 @@ class MatchTable extends React.Component {
                 })}
               </div>
             </TableCell>
+            {m.played ? <TableCell className={redClassnames + ' ' + classes.notSmallOnly}>
+              <span>{m.red_score}</span>
+            </TableCell> : null}
+            {m.played ? <TableCell className={blueClassnames + ' ' + classes.notSmallOnly}>
+              <span>{m.blue_score}</span>
+            </TableCell>: null}
+            {!m.played ? <TableCell className={classNames(classes.tableCell, classes.notSmallOnly)} colSpan={2}>
+              <span>Awaiting results</span>
+            </TableCell>: null}
+          </TableRow>,
+          <TableRow key={m.id + '_results'} style={rowStyle} className={classes.smallOnly}>
+            <TableCell />
             {m.played ? <TableCell className={redClassnames}>
               <span>{m.red_score}</span>
             </TableCell> : null}
@@ -203,7 +226,7 @@ class MatchTable extends React.Component {
               <span>Awaiting results</span>
             </TableCell>: null}
           </TableRow>
-        );
+        ];
       });
     });
 
@@ -216,7 +239,7 @@ class MatchTable extends React.Component {
           </Hidden>
           <TableCell className={classes.tableCell}>Red Alliance</TableCell>
           <TableCell className={classes.tableCell}>Blue Alliance</TableCell>
-          <TableCell className={classes.tableCell} colSpan={2}>Scores</TableCell>
+          <TableCell className={classNames(classes.tableCell, classes.notSmallOnly)} colSpan={2} >Scores</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>

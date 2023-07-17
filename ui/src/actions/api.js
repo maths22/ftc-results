@@ -415,12 +415,12 @@ export const getLeagueDataWithTeams = (season, id) => dispatch => {
     });
 };
 
-export const importEventResults = (id, file, division) => {
+export const importEventResults = (season, id, file, division) => {
   const formData = new FormData();
   formData.append('import', file);
   return {
     [RSAA]: {
-      endpoint: `${API_BASE}/events/${id}/import_results?division=${division}`,
+      endpoint: `${API_BASE}/${season}/events/${id}/import_results?division=${division}`,
       method: 'POST',
       body: formData,
       types: [

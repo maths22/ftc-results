@@ -100,12 +100,8 @@ function Beacon({position = [0,0,0], color, number, ...props}) {
   );
 }
 
-export default function({grid, label}) {
+export default function({grid, label, teamNumbers}) {
   const handle = useFullScreenHandle();
-  const teamNumbers = [
-    [20202, 12343, 2345],
-    [8389, 20124, 18733]
-  ];
   return <FullScreen handle={handle}>
     <div style={{background: 'white'}}>
       <span>{label}
@@ -134,7 +130,7 @@ export default function({grid, label}) {
                 } else {
                   const mine = el.startsWith('MY_');
                   const robotNumber = Number.parseInt(el.match('[0-9]')[0]);
-                  element = <Beacon position={position} color={mine ? 'red' : 'blue'} number={(mine ? teamNumbers[0] : teamNumbers[1])[robotNumber - 1]}/>;
+                  element = <Beacon position={position} color={mine ? 'red' : 'blue'} number={`R ${robotNumber}`}/>;
                 }
                 if(element == null) {
                   return null;

@@ -85,8 +85,6 @@ Rails.application.routes.draw do
         end
       end
 
-      post 'events/import_results/:id', to: 'events#import_results'
-
       get 'matches/:id/details', to: 'matches#details'
 
       mount_devise_token_auth_for 'User', at: 'auth', controllers: {
