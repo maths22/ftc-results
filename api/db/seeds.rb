@@ -28,3 +28,19 @@ if Rails.env.development?
                password_confirmation: unknown_pass,
                role: 'admin'
 end
+
+if Rails.env.test?
+  s = Season.create!(id: 1, year: '2023-2024', name: 'CENTERSTAGE', active: true, score_model_name: 'CenterstageScore')
+  event = Event.create!(season: s, id: 1, type: :scrimmage,
+                slug: 'USILCHS1',
+                name: 'Illinois Test Scrimmage',
+                start_date: '2024-01-18',
+                end_date: '2024-01-18',
+                location: 'Tall Building',
+                address: '123 S Wacker Drive',
+                city: 'Chicago',
+                state: 'IL',
+                country: 'USA')
+  event.import.attach(io: File.open(Rails.root.join('db/seed/usilchs1.db')), filename: 'usilchs1.db')
+  ::ScoringSystem::SqlitedbImportService.new(event).process
+end

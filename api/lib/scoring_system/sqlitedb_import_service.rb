@@ -35,7 +35,7 @@ module ScoringSystem
 
     def verify_event
       team = @db.execute "SELECT value FROM config WHERE key LIKE 'code'"
-      raise "DB is for '#{team[0]['value']}', expected DB for '#{event.slug}'" unless team[0]['value'].start_with? event.slug
+      raise "DB is for '#{team[0]['value']}', expected DB for '#{event.slug.downcase}'" unless team[0]['value'].start_with? event.slug.downcase
     end
 
     def import_teams
@@ -55,27 +55,29 @@ module ScoringSystem
     end
 
     def import_quals
-      quals = @db.execute 'SELECT match, red1, red2, red3, blue1, blue2, blue3, red1s, red2s, red3s, blue1s, blue2s, blue3s FROM quals'
+      has_team3 = @db.execute("SELECT 1 FROM PRAGMA_TABLE_INFO('quals') WHERE name='red3'").size > 0
+      quals = @db.execute("SELECT match, red1, red2#{has_team3 ? ', red3' : ''}, blue1, blue2#{has_team3 ? ', blue3' : ''}, red1s, red2s#{has_team3 ? ', red3s' : ''}, blue1s, blue2s#{has_team3 ? ', blue3s' : ''} FROM quals")
 
       quals.each do |q|
-        red_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['red1']), Team.find(q['red2']), Team.find(q['red3'])], event_division: event_division
-        blue_alliance = Alliance.new event: event, is_elims: false, teams: [Team.find(q['blue1']), Team.find(q['blue2']), Team.find(q['blue3'])], event_division: event_division
+        red_alliance = Alliance.new event: event, is_elims: false, teams: (has_team3 ? [Team.find(q['red1']), Team.find(q['red2']), Team.find(q['red3'])] : [Team.find(q['red1']), Team.find(q['red2'])]), event_division: event_division
+        blue_alliance = Alliance.new event: event, is_elims: false, teams: (has_team3 ? [Team.find(q['blue1']), Team.find(q['blue2']), Team.find(q['blue3'])] : [Team.find(q['blue1']), Team.find(q['blue2'])]), event_division: event_division
         red_alliance.save!
         blue_alliance.save!
         red_match_alliance = MatchAlliance.new alliance: red_alliance
         blue_match_alliance = MatchAlliance.new alliance: blue_alliance
         red_match_alliance.surrogate[0] = q['red1S'].positive?
         red_match_alliance.surrogate[1] = q['red2S'].positive?
-        red_match_alliance.surrogate[2] = q['red3S'].positive?
+        red_match_alliance.surrogate[2] = q['red3S'].positive? if has_team3
         blue_match_alliance.surrogate[0] = q['blue1S'].positive?
         blue_match_alliance.surrogate[1] = q['blue2S'].positive?
-        blue_match_alliance.surrogate[2] = q['blue3S'].positive?
+        blue_match_alliance.surrogate[2] = q['blue3S'].positive? if has_team3
         match = Match.new event: event, phase: 'qual', number: q['match'], red_alliance: red_match_alliance, blue_alliance: blue_match_alliance, event_division: event_division
         match.red_score = Score.new
         match.blue_score = Score.new
         match.save!
       end
 
+      # TODO add team3 stuff for CRI this year
       quals_scores = @db.execute 'SELECT match, alliance, card1, card2, dq1, dq2, noshow1, noshow2, major, minor FROM qualsScores'
       quals_scores.each do |s|
         match = ss_match_to_results_match('qual', s['match'])
@@ -122,37 +124,42 @@ module ScoringSystem
           matches_counted: r['MatchesPlayed']
         )
       end
-      rankings = @db.execute('SELECT * FROM ElimsRanking')
 
-      rankings.each do |r|
-        @event.rankings.create!(
-          alliance: Alliance.find_by(event: @event, is_elims: true, seed: r['Seed']),
-          ranking: r['Ranking'],
-          sort_order1: r['SortOrder1'],
-          sort_order2: r['SortOrder2'],
-          sort_order3: r['SortOrder3'],
-          sort_order4: r['SortOrder4'],
-          sort_order5: r['SortOrder5'],
-          sort_order6: r['SortOrder6'],
-          matches_played: r['MatchesPlayed'],
-          wins: r['Wins'],
-          losses: r['Losses'],
-          ties: r['Ties'],
-          # Sadness
-          matches_counted: r['MatchesPlayed']
-        )
+      has_elims_rankings = @db.execute("SELECT 1 FROM PRAGMA_TABLE_INFO('ElimsRanking')").size > 0
+      if has_elims_rankings
+        rankings = @db.execute('SELECT * FROM ElimsRanking')
+
+        rankings.each do |r|
+          @event.rankings.create!(
+            alliance: Alliance.find_by(event: @event, is_elims: true, seed: r['Seed']),
+            ranking: r['Ranking'],
+            sort_order1: r['SortOrder1'],
+            sort_order2: r['SortOrder2'],
+            sort_order3: r['SortOrder3'],
+            sort_order4: r['SortOrder4'],
+            sort_order5: r['SortOrder5'],
+            sort_order6: r['SortOrder6'],
+            matches_played: r['MatchesPlayed'],
+            wins: r['Wins'],
+            losses: r['Losses'],
+            ties: r['Ties'],
+            # Sadness
+            matches_counted: r['MatchesPlayed']
+          )
+        end
       end
     end
 
     def import_elims
-      alliances = @db.execute 'SELECT rank, team1, team2, team3, team4 FROM alliances'
+      has_team4 = @db.execute("SELECT 1 FROM PRAGMA_TABLE_INFO('alliances') WHERE name='red3'").size > 0
+      alliances = @db.execute ("SELECT rank, team1, team2, team3#{has_team4 ? ", team4" : ""} FROM alliances")
       alliance_map = {}
       alliances.each do |a|
         next unless a['team1'].positive?
 
         teams = [Team.find(a['team1']), Team.find(a['team2'])]
         teams.append(Team.find(a['team3'])) if a['team3'].positive?
-        teams.append(Team.find(a['team4'])) if a['team4'].positive?
+        teams.append(Team.find(a['team4'])) if has_team4 && a['team4'].positive?
         alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams, event_division: event_division
         alliance.save!
         alliance_map[alliance.seed] = alliance

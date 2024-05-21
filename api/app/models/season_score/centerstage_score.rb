@@ -33,5 +33,33 @@ module SeasonScore
       30 * major_penalties +
         10 * minor_penalties
     end
+
+    def update_from_fms_score!(fms, other_fms)
+      puts fms.to_s
+      update!({
+                init_team_prop1: fms["InitTeamProp1"],
+                init_team_prop2: fms["InitTeamProp2"],
+                robot1_auto: fms["Robot1Auto"],
+                robot2_auto: fms["Robot2Auto"],
+                spike_mark_pixel1: fms["SpikeMarkPixel1"],
+                spike_mark_pixel2: fms["SpikeMarkPixel2"],
+                target_backdrop_pixel1: fms["TargetBackdropPixel1"],
+                target_backdrop_pixel2: fms["TargetBackdropPixel2"],
+                auto_backdrop: fms["AutoBackdrop"],
+                auto_backstage: fms["AutoBackstage"],
+
+                teleop_backdrop: fms["DcBackdrop"],
+                teleop_backstage: fms["DcBackstage"],
+                mosaics: fms["Mosaics"],
+                max_set_line: fms["MaxSetLine"],
+
+                teleop_robot1: fms["EgRobot1"],
+                teleop_robot2: fms["EgRobot2"],
+                drone1: fms["Drone1"],
+                drone2: fms["Drone2"],
+                major_penalties: fms["MajorPenalties"],
+                minor_penalties: fms["MinorPenalties"]
+              })
+    end
   end
 end

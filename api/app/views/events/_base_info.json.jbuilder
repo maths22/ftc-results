@@ -21,10 +21,10 @@ json.country event.country
 
 json.channel event.channel_name
 
-json.import rails_blob_path(event.import, disposition: 'attachment') if event.import.attached?
+json.import rails_blob_path(event.import, disposition: 'attachment') if event.import.attached? && can?(:manage_results, event)
 
 json.can_import can? :import_results, event
-json.owners event.owners.map(&:uid)
+json.owners event.owners.map(&:uid) if can? :add_owner, event
 
 json.divisions do
   json.array! event.event_divisions do |division|
@@ -32,6 +32,6 @@ json.divisions do
     json.event_id division.event_id
     json.name division.name
     json.slug division.slug
-    json.import rails_blob_path(division.import, disposition: 'attachment') if division.import.attached?
+    json.import rails_blob_path(division.import, disposition: 'attachment') if division.import.attached? && can?(:manage_results, event)
   end
 end

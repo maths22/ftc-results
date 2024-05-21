@@ -1,0 +1,828 @@
+---
+openapi: 3.1.0
+info:
+  title: IL FTC Results API V1
+  version: v1
+components:
+  schemas:
+    season:
+      type: object
+      properties:
+        id:
+          type: integer
+        year:
+          type: string
+          description: Full season year range (e.g. 2023-2024).  For offseasons, suffixed
+            with `-off-<short_name>`
+        name:
+          type: string
+        active:
+          type: boolean
+          description: Are events currently being played for this season?
+        offseason:
+          type: boolean
+          description: Does this season have data with modified rules and scoring?
+    event:
+      type: object
+      properties:
+        id:
+          type: integer
+        aasm_state:
+          type: string
+          enum:
+          - not_started
+          - in_progress
+          - finalized
+          - canceled
+        context_id:
+          type:
+          - integer
+          - 'null'
+        context_type:
+          oneOf:
+          - type: string
+            enum:
+            - League
+            - Division
+          - type: 'null'
+        season_id:
+          type: integer
+        season:
+          type: string
+          description: Year string for season
+        type:
+          type: string
+          enum:
+          - scrimmage
+          - league_meet
+          - qualifier
+          - league_tournament
+          - championship
+        remote:
+          type: boolean
+        slug:
+          type: string
+          description: Short human-readable ID for event
+        name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        location:
+          type: string
+          description: Name/description of venue
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        channel:
+          type:
+          - string
+          - 'null'
+          description: Twitch channel event is streaming on
+        can_import:
+          type: boolean
+          description: Always false in public API
+        divisions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              event_id:
+                type: integer
+                description: ID of event containing this division
+              name:
+                type: string
+              slug:
+                type: string
+                description: Short human-readable ID for division
+paths:
+  "/api/v1/{season}/events":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    get:
+      summary: list events
+      tags:
+      - Events
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - id: 1
+                aasm_state: finalized
+                context_id:
+                context_type:
+                season_id: 1
+                season: 2023-2024
+                type: scrimmage
+                remote: false
+                slug: USILCHS1
+                name: Illinois Test Scrimmage
+                start_date: '2020-01-18'
+                end_date: '2020-01-18'
+                location: Tall Building
+                address: 123 S Wacker Drive
+                city: Chicago
+                state: IL
+                country: USA
+                channel:
+                can_import: false
+                divisions: []
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/event"
+  "/api/v1/{season}/events/{slug}":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      description: slug
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show event
+      tags:
+      - Events
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+                id: 1
+                aasm_state: finalized
+                context_id:
+                context_type:
+                season_id: 1
+                season: 2023-2024
+                type: scrimmage
+                remote: false
+                slug: USILCHS1
+                name: Illinois Test Scrimmage
+                start_date: '2020-01-18'
+                end_date: '2020-01-18'
+                location: Tall Building
+                address: 123 S Wacker Drive
+                city: Chicago
+                state: IL
+                country: USA
+                channel:
+                can_import: false
+                divisions: []
+              schema:
+                "$ref": "#/components/schemas/event"
+  "/api/v1/{season}/events/{slug}/matches":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      description: slug
+      required: true
+      schema:
+        type: string
+    get:
+      summary: view_matches event
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - id: 25
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 1
+                played: true
+                red_alliance:
+                - 5037
+                - 8907
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 8698
+                - 3216
+                blue_surrogate:
+                - false
+                - false
+                red_score: 167
+                blue_score: 97
+              - id: 26
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 2
+                played:
+                red_alliance:
+                - 9929
+                - 10303
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 10138
+                - 10635
+                blue_surrogate:
+                - false
+                - false
+              - id: 27
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 3
+                played:
+                red_alliance:
+                - 9929
+                - 10635
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 3216
+                - 5037
+                blue_surrogate:
+                - false
+                - false
+              - id: 28
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 4
+                played:
+                red_alliance:
+                - 8698
+                - 8907
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 10138
+                - 10303
+                blue_surrogate:
+                - false
+                - false
+              - id: 29
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 5
+                played:
+                red_alliance:
+                - 10303
+                - 3216
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 10635
+                - 8698
+                blue_surrogate:
+                - false
+                - false
+              - id: 30
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 6
+                played:
+                red_alliance:
+                - 10138
+                - 5037
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 8907
+                - 9929
+                blue_surrogate:
+                - false
+                - false
+              - id: 31
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 7
+                played:
+                red_alliance:
+                - 10303
+                - 8698
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 5037
+                - 9929
+                blue_surrogate:
+                - false
+                - false
+              - id: 32
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 8
+                played:
+                red_alliance:
+                - 8907
+                - 10138
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 3216
+                - 10635
+                blue_surrogate:
+                - false
+                - false
+              - id: 33
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 9
+                played:
+                red_alliance:
+                - 3216
+                - 9929
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 10303
+                - 8907
+                blue_surrogate:
+                - false
+                - false
+              - id: 34
+                event_id: 1
+                division:
+                phase: qual
+                series:
+                number: 10
+                played:
+                red_alliance:
+                - 10635
+                - 5037
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 8698
+                - 10138
+                blue_surrogate:
+                - false
+                - false
+              - id: 35
+                event_id: 1
+                division:
+                phase: semi
+                series:
+                number: 1
+                played: true
+                red_alliance:
+                - 5037
+                - 10303
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 10138
+                - 10635
+                blue_surrogate:
+                - false
+                - false
+                red_score: 20
+                blue_score: 45
+              - id: 36
+                event_id: 1
+                division:
+                phase: semi
+                series:
+                number: 2
+                played:
+                red_alliance:
+                - 8907
+                - 8698
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 3216
+                - 9929
+                blue_surrogate:
+                - false
+                - false
+              - id: 37
+                event_id: 1
+                division:
+                phase: semi
+                series:
+                number: 3
+                played:
+                red_alliance:
+                - 5037
+                - 10303
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 10138
+                - 10635
+                blue_surrogate:
+                - false
+                - false
+              - id: 38
+                event_id: 1
+                division:
+                phase: semi
+                series:
+                number: 4
+                played:
+                red_alliance:
+                - 8907
+                - 8698
+                red_surrogate:
+                - false
+                - false
+                blue_alliance:
+                - 3216
+                - 9929
+                blue_surrogate:
+                - false
+                - false
+  "/api/v1/{season}/events/{slug}/rankings":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      description: slug
+      required: true
+      schema:
+        type: string
+    get:
+      summary: view_rankings event
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - id: 9
+                team: 5037
+                context_type: Event
+                context_id: 1
+                ranking: 1
+                sort_order1: 2.0
+                sort_order2: 54.0
+                sort_order3: 5.0
+                sort_order4: 167.0
+                sort_order5: 480061.539
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                division:
+                record:
+                  win: 1
+                  loss: 0
+                  tie: 0
+              - id: 10
+                team: 8907
+                context_type: Event
+                context_id: 1
+                ranking: 2
+                sort_order1: 2.0
+                sort_order2: 54.0
+                sort_order3: 5.0
+                sort_order4: 167.0
+                sort_order5: 63077.6838
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                division:
+                record:
+                  win: 1
+                  loss: 0
+                  tie: 0
+              - id: 11
+                team: 3216
+                context_type: Event
+                context_id: 1
+                ranking: 3
+                sort_order1: 0.0
+                sort_order2: 38.0
+                sort_order3: 15.0
+                sort_order4: 97.0
+                sort_order5: 478741.5451
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                division:
+                record:
+                  win: 0
+                  loss: 1
+                  tie: 0
+              - id: 12
+                team: 8698
+                context_type: Event
+                context_id: 1
+                ranking: 4
+                sort_order1: 0.0
+                sort_order2: 38.0
+                sort_order3: 15.0
+                sort_order4: 97.0
+                sort_order5: 105817.3573
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                division:
+                record:
+                  win: 0
+                  loss: 1
+                  tie: 0
+              - id: 13
+                team: 9929
+                context_type: Event
+                context_id: 1
+                ranking: -5
+                sort_order1: 0.0
+                sort_order2: 0.0
+                sort_order3: 0.0
+                sort_order4: 0.0
+                sort_order5: 814271.5677
+                sort_order6: 0.0
+                matches_played: 0
+                matches_counted: 0
+                division:
+                record:
+                  win: 0
+                  loss: 0
+                  tie: 0
+              - id: 14
+                team: 10138
+                context_type: Event
+                context_id: 1
+                ranking: -6
+                sort_order1: 0.0
+                sort_order2: 0.0
+                sort_order3: 0.0
+                sort_order4: 0.0
+                sort_order5: 519646.9834
+                sort_order6: 0.0
+                matches_played: 0
+                matches_counted: 0
+                division:
+                record:
+                  win: 0
+                  loss: 0
+                  tie: 0
+              - id: 15
+                team: 10303
+                context_type: Event
+                context_id: 1
+                ranking: -7
+                sort_order1: 0.0
+                sort_order2: 0.0
+                sort_order3: 0.0
+                sort_order4: 0.0
+                sort_order5: 570751.9221
+                sort_order6: 0.0
+                matches_played: 0
+                matches_counted: 0
+                division:
+                record:
+                  win: 0
+                  loss: 0
+                  tie: 0
+              - id: 16
+                team: 10635
+                context_type: Event
+                context_id: 1
+                ranking: -8
+                sort_order1: 0.0
+                sort_order2: 0.0
+                sort_order3: 0.0
+                sort_order4: 0.0
+                sort_order5: 765500.5307
+                sort_order6: 0.0
+                matches_played: 0
+                matches_counted: 0
+                division:
+                record:
+                  win: 0
+                  loss: 0
+                  tie: 0
+  "/api/v1/{season}/events/{slug}/awards":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      description: slug
+      required: true
+      schema:
+        type: string
+    get:
+      summary: view_awards event
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - id: 1
+                event_id: 1
+                name: Volunteer Award
+                description: ''
+                finalists:
+                - place: 1
+                  recipient: A Volunteer
+                  team_id: 8698
+                  description: ''
+              - id: 2
+                event_id: 1
+                name: Motivate Award
+                description: The team that receives the Motivate Award celebrates
+                  the culture of <i>FIRST</i> and clearly shows what it means to be
+                  a team. This award celebrates the team that represents the essence
+                  of the <i>FIRST</i> Tech Challenge competition through team building,
+                  team spirit, and displayed enthusiasm. This is a team who makes
+                  a collective effort to make <i>FIRST</i> known throughout their
+                  school and community and sparks others to embrace the culture of
+                  <i>FIRST</i>.
+                finalists:
+                - place: 1
+                  recipient: ''
+                  team_id: 5037
+                  description: ''
+                - place: 2
+                  recipient: ''
+                  team_id: 10303
+                  description:
+                - place: 3
+                  recipient: ''
+                  team_id: 10635
+                  description:
+  "/api/v1/{season}/events/{slug}/alliances":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      description: slug
+      required: true
+      schema:
+        type: string
+    get:
+      summary: view_alliances event
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+                alliances:
+                - id: 65
+                  event_id: 1
+                  seed: 1
+                  teams:
+                  - 5037
+                  - 10303
+                  division:
+                - id: 66
+                  event_id: 1
+                  seed: 2
+                  teams:
+                  - 8907
+                  - 8698
+                  division:
+                - id: 67
+                  event_id: 1
+                  seed: 3
+                  teams:
+                  - 3216
+                  - 9929
+                  division:
+                - id: 68
+                  event_id: 1
+                  seed: 4
+                  teams:
+                  - 10138
+                  - 10635
+                  division:
+                rankings: []
+  "/api/v1/{season}/events/{slug}/teams":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      description: slug
+      required: true
+      schema:
+        type: string
+    get:
+      summary: view_teams event
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+                id: 1
+                teams:
+                - division:
+                  team: 3216
+                - division:
+                  team: 5037
+                - division:
+                  team: 8698
+                - division:
+                  team: 8907
+                - division:
+                  team: 9929
+                - division:
+                  team: 10138
+                - division:
+                  team: 10303
+                - division:
+                  team: 10635
+  "/api/v1/seasons":
+    get:
+      summary: list seasons
+      tags:
+      - Seasons
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - id: 1
+                year: 2023-2024
+                name: CENTERSTAGE
+                active: true
+                offseason: false
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/season"
+servers:
+- url: "{protocol}://{host}"
+  variables:
+    protocol:
+      default: https
+    host:
+      default: ftc-results.firstillinoisrobotics.org

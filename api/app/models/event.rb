@@ -25,6 +25,7 @@ class Event < ApplicationRecord
   has_and_belongs_to_many :owners, class_name: 'User'
 
   enum type: {
+    scrimmage: 0,
     league_meet: 1,
     qualifier: 2,
     league_tournament: 3,

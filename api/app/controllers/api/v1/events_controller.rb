@@ -87,7 +87,7 @@ module Api
       def view_matches
         expires_in(30.seconds, public: true) if request_cacheable?
 
-        @matches = Match.includes([:event, :event_division, red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
+        @matches = Match.includes([:event, :event_division, red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).order(:phase, :series, :number).where(event: @event)
       end
 
       def view_rankings

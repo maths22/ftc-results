@@ -15,7 +15,7 @@ class LiveSync
     end
     jwt = authorization.split(':')[1]
     begin
-      decoded_token = JWT.decode jwt, hmac_secret, true, algorithm: 'HS512'
+      decoded_token = JWT.decode jwt, hmac_secret, false, algorithm: 'HS512'
     rescue JWT::ExpiredSignature
       return nil
     rescue JWT::VerificationError
@@ -134,24 +134,25 @@ class LiveSync
     match_list['matches'].each do |data|
       match = @event.matches.qual.find_or_initialize_by(number: data['number'])
       # TODO need to update the alliance if it already exists...
-      red_teams = [data['red1'], data['red2'], data['red3']]
+      three_team = data['red3'] > 0
+      red_teams = three_team ? [data['red1'], data['red2'], data['red3']] : [data['red1'], data['red2']]
       red_alliance = alliance_scope.having(having_clause, red_teams).create_with(team_ids: red_teams).first_or_create!
       match.red_alliance ||= MatchAlliance.new(alliance: red_alliance)
       match.red_alliance.alliance = red_alliance
-      match.red_alliance.surrogate = [data['red1S'], data['red2S'], data['red3S']]
-      match.red_alliance.teams_present = [!data['red1NS'], !data['red2NS'], !data['red3NS']]
-      match.red_alliance.red_card = [(data['red1C'] & 2).positive?, (data['red2C'] & 2).positive?, (data['red3C'] & 2).positive?]
-      match.red_alliance.yellow_card = [(data['red1C'] & 1).positive?, (data['red2C'] & 1).positive?, (data['red3C'] & 1).positive?]
+      match.red_alliance.surrogate = three_team ? [data['red1S'], data['red2S'], data['red3S']] : [data['red1S'], data['red2S']]
+      match.red_alliance.teams_present = three_team ? [!data['red1NS'], !data['red2NS'], !data['red3NS']] : [!data['red1NS'], !data['red2NS']]
+      match.red_alliance.red_card = three_team ? [(data['red1C'] & 2).positive?, (data['red2C'] & 2).positive?, (data['red3C'] & 2).positive?] : [(data['red1C'] & 2).positive?, (data['red2C'] & 2).positive?]
+      match.red_alliance.yellow_card = three_team ? [(data['red1C'] & 1).positive?, (data['red2C'] & 1).positive?, (data['red3C'] & 1).positive?] : [(data['red1C'] & 1).positive?, (data['red2C'] & 1).positive?]
       match.red_alliance.save!
 
-      blue_teams = [data['blue1'], data['blue2'], data['blue3']]
+      blue_teams = three_team ? [data['blue1'], data['blue2'], data['blue3']] : [data['blue1'], data['blue2']]
       blue_alliance = alliance_scope.having(having_clause, blue_teams).create_with(team_ids: blue_teams).first_or_create!
       match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
       match.blue_alliance.alliance = blue_alliance
-      match.blue_alliance.surrogate = [data['blue1S'], data['blue2S'], data['blue3S']]
-      match.blue_alliance.teams_present = [!data['blue1NS'], !data['blue2NS'], !data['blue3NS']]
-      match.blue_alliance.red_card = [(data['blue1C'] & 2).positive?, (data['blue2C'] & 2).positive?, (data['blue3C'] & 2).positive?]
-      match.blue_alliance.yellow_card = [(data['blue1C'] & 1).positive?, (data['blue2C'] & 1).positive?, (data['blue3C'] & 1).positive?]
+      match.blue_alliance.surrogate = three_team ? [data['blue1S'], data['blue2S'], data['blue3S']] : [data['blue1S'], data['blue2S']]
+      match.blue_alliance.teams_present = three_team ? [!data['blue1NS'], !data['blue2NS'], !data['blue3NS']] : [!data['blue1NS'], !data['blue2NS']]
+      match.blue_alliance.red_card = three_team ? [(data['blue1C'] & 2).positive?, (data['blue2C'] & 2).positive?, (data['blue3C'] & 2).positive?] : [(data['blue1C'] & 2).positive?, (data['blue2C'] & 2).positive?]
+      match.blue_alliance.yellow_card = three_team ? [(data['blue1C'] & 1).positive?, (data['blue2C'] & 1).positive?, (data['blue3C'] & 1).positive?] : [(data['blue1C'] & 1).positive?, (data['blue2C'] & 1).positive?]
       match.blue_alliance.save!
 
       match.played = !!data['scorekeeperCommitTime']
@@ -261,27 +262,29 @@ class LiveSync
 
     @event.matches.where.not(phase: 'qual').where.not(number: match_list['matches'].pluck('number')).destroy_all
 
-    match_list['ranks'].each do |rk|
-      @event.elims_rankings.find_or_create_by(alliance: Alliance.find_by!(event: @event, is_elims: true, seed: rk['team'])).tap do |nr|
-        nr.sort_order1 = rk['tuple'][0]
-        nr.sort_order2 = rk['tuple'][1]
-        nr.sort_order3 = rk['tuple'][2]
-        nr.sort_order4 = rk['tuple'][3]
-        nr.sort_order5 = rk['tuple'][4]
-        nr.sort_order6 = rk['tuple'][5]
+    if(match_list['ranks'])
+      match_list['ranks'].each do |rk|
+        @event.elims_rankings.find_or_create_by(alliance: Alliance.find_by!(event: @event, is_elims: true, seed: rk['team'])).tap do |nr|
+          nr.sort_order1 = rk['tuple'][0]
+          nr.sort_order2 = rk['tuple'][1]
+          nr.sort_order3 = rk['tuple'][2]
+          nr.sort_order4 = rk['tuple'][3]
+          nr.sort_order5 = rk['tuple'][4]
+          nr.sort_order6 = rk['tuple'][5]
 
-        nr.matches_played = rk['played']
-        nr.matches_counted = rk['counted']
-        nr.wins = rk['wins']
-        nr.losses = rk['losses']
-        nr.ties = rk['ties']
+          nr.matches_played = rk['played']
+          nr.matches_counted = rk['counted']
+          nr.wins = rk['wins']
+          nr.losses = rk['losses']
+          nr.ties = rk['ties']
 
-        nr.save!
+          nr.save!
+        end
       end
-    end
-    @event.elims_rankings.reject { |r| match_list['ranks'].pluck('team').include?(r.alliance.seed) }.each(&:destroy)
-    @event.elims_rankings.reload.sort_by { |rk| [rk.sort_order1, rk.sort_order2, rk.sort_order3, rk.matches_played.zero? ? -rk.alliance.seed : rk.sort_order4, rk.sort_order5, rk.sort_order6] }.reverse.each_with_index do |rk, idx|
-      rk.update(ranking: (idx + 1) * (rk.matches_played.zero? ? -1 : 1))
+      @event.elims_rankings.reject { |r| match_list['ranks'].pluck('team').include?(r.alliance.seed) }.each(&:destroy)
+      @event.elims_rankings.reload.sort_by { |rk| [rk.sort_order1, rk.sort_order2, rk.sort_order3, rk.matches_played.zero? ? -rk.alliance.seed : rk.sort_order4, rk.sort_order5, rk.sort_order6] }.reverse.each_with_index do |rk, idx|
+        rk.update(ranking: (idx + 1) * (rk.matches_played.zero? ? -1 : 1))
+      end
     end
   end
 end
