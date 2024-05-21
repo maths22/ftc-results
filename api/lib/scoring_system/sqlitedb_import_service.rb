@@ -297,7 +297,7 @@ module ScoringSystem
           #   map[e['match']] = { phase: 'semi', series: 2, number: seriespos[:sf2] += 1 }
           #   next
           # end
-          if e['match'] <= 6
+          if e['match'] <= 15
             map[e['match']] = { phase: 'semi', number: seriespos[:sf] += 1 }
           else
             map[e['match']] = { phase: 'final', number: seriespos[:final] += 1 }

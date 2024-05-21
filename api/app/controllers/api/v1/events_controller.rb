@@ -115,7 +115,7 @@ module Api
 
         div_teams = @event.events_teams.includes(:team, :event_division).map do |et|
           {
-            division: et.event_division&.number,
+            division: et.event_division&.slug,
             team: et.team.number
           }
         end

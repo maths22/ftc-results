@@ -10,6 +10,24 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- Name: cs_teleop_robot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.cs_teleop_robot_status AS ENUM (
+    'NONE',
+    'BACKSTAGE',
+    'RIGGING'
+);
+
+
+--
 -- Name: ff_auto_navigated_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -521,6 +539,56 @@ ALTER SEQUENCE public.awards_id_seq OWNED BY public.awards.id;
 
 
 --
+-- Name: centerstage_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.centerstage_scores (
+    id bigint NOT NULL,
+    init_team_prop1 boolean DEFAULT false,
+    init_team_prop2 boolean DEFAULT false,
+    robot1_auto boolean DEFAULT false,
+    robot2_auto boolean DEFAULT false,
+    spike_mark_pixel1 boolean DEFAULT false,
+    spike_mark_pixel2 boolean DEFAULT false,
+    target_backdrop_pixel1 boolean DEFAULT false,
+    target_backdrop_pixel2 boolean DEFAULT false,
+    auto_backdrop integer DEFAULT 0,
+    auto_backstage integer DEFAULT 0,
+    teleop_backdrop integer DEFAULT 0,
+    teleop_backstage integer DEFAULT 0,
+    mosaics integer DEFAULT 0,
+    max_set_line integer DEFAULT 0,
+    teleop_robot1 public.cs_teleop_robot_status DEFAULT 'NONE'::public.cs_teleop_robot_status,
+    teleop_robot2 public.cs_teleop_robot_status DEFAULT 'NONE'::public.cs_teleop_robot_status,
+    drone1 integer DEFAULT 0,
+    drone2 integer DEFAULT 0,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: centerstage_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.centerstage_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: centerstage_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.centerstage_scores_id_seq OWNED BY public.centerstage_scores.id;
+
+
+--
 -- Name: delayed_jobs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -676,7 +744,7 @@ ALTER SEQUENCE public.event_channel_assignments_id_seq OWNED BY public.event_cha
 CREATE TABLE public.event_divisions (
     id bigint NOT NULL,
     event_id bigint,
-    number integer,
+    slug text,
     name character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
@@ -1794,6 +1862,13 @@ ALTER TABLE ONLY public.awards ALTER COLUMN id SET DEFAULT nextval('public.award
 
 
 --
+-- Name: centerstage_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.centerstage_scores ALTER COLUMN id SET DEFAULT nextval('public.centerstage_scores_id_seq'::regclass);
+
+
+--
 -- Name: delayed_jobs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2066,6 +2141,14 @@ ALTER TABLE ONLY public.award_finalists
 
 ALTER TABLE ONLY public.awards
     ADD CONSTRAINT awards_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: centerstage_scores centerstage_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.centerstage_scores
+    ADD CONSTRAINT centerstage_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -2983,6 +3066,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230625151464'),
 ('20230625151465'),
 ('20230625151524'),
-('20230626163309');
+('20230626163309'),
+('20240520071107'),
+('20240521143711');
 
 

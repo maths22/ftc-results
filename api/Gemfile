@@ -47,7 +47,7 @@ gem 'sentry-inst_jobs'
 
 gem 'instrumental_agent'
 
-gem 'ftc_events_client', '0.2.2'
+gem 'ftc_events_client', '0.3.2'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

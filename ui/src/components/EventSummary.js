@@ -112,7 +112,11 @@ class EventSummary extends Component {
 
   selectDivision = (div) => {
     const values = queryString.parse(this.props.search);
-    values['division'] = div;
+    if(div !== 'parent') {
+      values['division'] = div;
+    } else {
+      delete values['division'];
+    }
     this.props.push({ search: queryString.stringify(values) });
     if(this.props.event.status === 'in_progress') {
       this.refresh();
@@ -127,7 +131,7 @@ class EventSummary extends Component {
 
   selectedDivision = () => {
     const values = queryString.parse(this.props.search);
-    return parseInt(values['division']) || 0;
+    return values['division'] || 'parent';
   };
 
   selectedTab = () => {
@@ -141,9 +145,9 @@ class EventSummary extends Component {
 
     return <div>
         <Select value={this.selectedDivision()} onChange={(evt) => this.selectDivision(evt.target.value)} classes={{root: this.props.classes.h5}}>
-          <MenuItem value={0}>Finals Division</MenuItem>
+          <MenuItem value={'parent'}>Finals Division</MenuItem>
           {event.divisions.map((d) => {
-            return <MenuItem value={d.number}>{d.name} Division</MenuItem>;
+            return <MenuItem key={d.slug} value={d.slug}>{d.name} Division</MenuItem>;
           })}
         </Select>
     </div>;
@@ -201,11 +205,11 @@ class EventSummary extends Component {
   }
 
   showRankings() {
-    return this.props.event.type !== 'league_meet' && (!this.hasDivisions() || this.selectedDivision() !== 0);
+    return this.props.event.type !== 'league_meet' && (!this.hasDivisions() || this.selectedDivision() !== 'parent');
   }
 
   showAwards() {
-    return (!this.hasDivisions() && this.props.event.type !== 'league_meet') || (this.hasDivisions() && this.selectedDivision() === 0);
+    return (!this.hasDivisions() && this.props.event.type !== 'league_meet') || (this.hasDivisions() && this.selectedDivision() === 'parent');
   }
 
   showAlliances() {
@@ -221,14 +225,14 @@ class EventSummary extends Component {
     const selectedDivision = this.selectedDivision();
     const selectedTab = this.selectedTab();
 
-    const showDivisionAssignments = this.hasDivisions() && selectedDivision === 0;
+    const showDivisionAssignments = this.hasDivisions() && selectedDivision === 'parent';
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
 
     const tabs = [
       <div className={classes.tabPanel} key="teams">
         <TeamsTable
-          teams={teams && teams.filter(t => selectedDivision === 0 ? true : selectedDivision === t.division)}
+          teams={teams && teams.filter(t => selectedDivision === 'parent' ? true : selectedDivision === t.division)}
           showDivisionAssignments={showDivisionAssignments}
           divisions={event.divisions}
           onClickDivision={this.selectDivision}
@@ -236,22 +240,22 @@ class EventSummary extends Component {
       </div>,
       this.showRankings() ? <div className={classes.tabPanel} key="rankings">
         <RankingsTable
-            rankings={rankings && rankings.filter(r => selectedDivision === 0 ? !r.division : selectedDivision === r.division)}
+            rankings={rankings && rankings.filter(r => selectedDivision === 'parent' ? !r.division : selectedDivision === r.division)}
             showRecord={!this.props.event.remote}
             onRefresh={this.refresh}/>
         </div> : null,
       this.showAlliances() ? <div className={classes.tabPanel} key="alliances">
         <RankingsTable elims
-                       rankings={elimsRankings && elimsRankings.filter(r => selectedDivision === 0 ? !r.division : selectedDivision === r.division)}
+                       rankings={elimsRankings && elimsRankings.filter(r => selectedDivision === 'parent' ? !r.division : selectedDivision === r.division)}
                        showRecord={!this.props.event.remote}
                        onRefresh={this.refresh}/>
         <AlliancesTable
-          alliances={alliances && alliances.filter(a => selectedDivision === 0 ? !a.division : selectedDivision === a.division)}
+          alliances={alliances && alliances.filter(a => selectedDivision === 'parent' ? !a.division : selectedDivision === a.division)}
           onRefresh={this.refresh}/>
         </div> : null,
       <div className={classes.tabPanel} key="matches">
         <MatchTable remote={event.remote}
-            matches={matches && matches.filter(m => selectedDivision === 0 ? !m.division : selectedDivision === m.division)}
+            matches={matches && matches.filter(m => selectedDivision === 'parent' ? !m.division : selectedDivision === m.division)}
         />
       </div>,
       this.showAwards() ? <div className={classes.tabPanel} key="awards">

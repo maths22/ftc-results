@@ -45,10 +45,10 @@ function teamsTable({teams, classes, showDivisionAssignments, divisions, onClick
     <TableBody>
       {teams.sort((a, b) => a.team.number - b.team.number).map((td) => {
         const t = td.team;
-        const division = divisions.find((d) => d.number === td.division);
+        const division = divisions.find((d) => d.slug === td.division);
         return <TableRow key={t.number} style={rowStyle}>
           { showDivisionAssignments && division ? <TableCell className={classes.tableCell}>
-            <TextLink onClick={() => onClickDivision(division.number)}>{division.name}</TextLink>
+            <TextLink onClick={() => onClickDivision(division.slug)}>{division.name}</TextLink>
           </TableCell> : ( showDivisionAssignments ? <TableCell className={classes.tableCell}/> : null) }
           <TableCell className={classes.tableCell}>
             <TextLink to={`/teams/summary/${t.number}`}>{t.number}</TextLink>

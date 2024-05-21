@@ -31,7 +31,7 @@ json.divisions do
     json.id division.id
     json.event_id division.event_id
     json.name division.name
-    json.number division.number
+    json.slug division.slug
     json.import rails_blob_path(division.import, disposition: 'attachment') if division.import.attached?
   end
 end

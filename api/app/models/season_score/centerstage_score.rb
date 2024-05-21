@@ -1,0 +1,37 @@
+module SeasonScore
+  class CenterstageScore < ApplicationRecord
+    has_one :score, -> {includes(:red_match, :blue_match)}, as: :season_score
+
+    def calc_auto
+      (robot1_auto ? 5 : 0) +
+        (robot2_auto ? 5 : 0) +
+        auto_backdrop * 5 +
+        auto_backstage * 3 +
+        (spike_mark_pixel1 ? 10 : 0) * (init_team_prop1 ? 2 : 1) +
+        (spike_mark_pixel2 ? 10 : 0) * (init_team_prop2 ? 2 : 1)+
+        (target_backdrop_pixel1 ? 10 : 0) * (init_team_prop1 ? 2 : 1) +
+        (target_backdrop_pixel2 ? 10 : 0) * (init_team_prop2 ? 2 : 1)
+    end
+
+    def calc_teleop
+      1 * teleop_backstage +
+        3 * teleop_backdrop +
+        10 * mosaics +
+        10 * max_set_line
+    end
+
+    def calc_endgame
+      (teleop_robot1 == 'RIGGING' ? 20 : 0) +
+        (teleop_robot2 == 'RIGGING' ? 20 : 0) +
+        (teleop_robot1 == 'BACKSTAGE' ? 5 : 0) +
+        (teleop_robot2 == 'BACKSTAGE' ? 5 : 0) +
+        (drone1 == 0 ? 0 : (4 - drone1) * 10) +
+        (drone2 == 0 ? 0 : (4 - drone2) * 10)
+    end
+
+    def calc_penalty
+      30 * major_penalties +
+        10 * minor_penalties
+    end
+  end
+end

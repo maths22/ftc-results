@@ -20,7 +20,7 @@ Rails.application.routes.draw do
     get 'twitch/callback', to: 'twitch_oauth#callback', as: 'twitch_oauth_callback'
   end
 
-  namespace :api do
+  namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
       resources :seasons
       resources :teams do

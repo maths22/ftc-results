@@ -15,7 +15,7 @@ json.sort_order5 ranking.sort_order5
 json.sort_order6 ranking.sort_order6
 json.matches_played ranking.matches_played
 json.matches_counted ranking.matches_counted
-json.division ranking.event_division&.number
+json.division ranking.event_division&.slug
 
 json.record do
   json.win ranking.wins

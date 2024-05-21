@@ -73,35 +73,50 @@ module FtcApi
         events = res.events.select { |e| e[:regionCode] == 'USIL' && %w[1 2 3 4].include?(e[:type]) && !e[:code].start_with?('off ') }
 
         events.each do |event_data|
-          event = Event.find_or_create_by(season: season, slug: event_data[:code])
-          next unless full || event.aasm_state != 'finalized'
-          event.name = event_data[:name]
-          event.location = event_data[:venue]
-          event.address = event_data[:address]
-          event.city = event_data[:city]
-          event.state = event_data[:stateprov]
-          event.country = event_data[:country]
-          event.start_date = event_data[:dateStart]
-          event.end_date = event_data[:dateEnd]
-          event.aasm_state = 'finalized' if event_data[:published]
-          event.type = event_data[:type].to_i
-          event.remote = event_data[:remote]
-          event.context = League.find_by(season: season, slug: event_data[:leagueCode]) if event_data[:leagueCode]
+          event = Event.find_or_create_by(season: season, slug: event_data[:divisionCode] || event_data[:code])
+          next unless full || event.aasm_state != 'finalized' || event_data[:divisionCode]
+          division = nil
+          if event_data[:divisionCode]
+            division_name = event_data[:name].split('-').last.gsub('Division', '').strip
+            division_code = event_data[:code].delete_prefix(event_data[:divisionCode])
+            division = event.event_divisions.find_or_create_by(slug: division_code)
+            division.name = division_name
+            division.save!
+          else
+            event.name = event_data[:name]
+            event.location = event_data[:venue]
+            event.address = event_data[:address]
+            event.city = event_data[:city]
+            event.state = event_data[:stateprov]
+            event.country = event_data[:country]
+            event.start_date = event_data[:dateStart]
+            event.end_date = event_data[:dateEnd]
+            event.aasm_state = 'finalized' if event_data[:published]
+            event.type = event_data[:type].to_i
+            event.remote = event_data[:remote]
+            event.context = League.find_by(season: season, slug: event_data[:leagueCode]) if event_data[:leagueCode]
+          end
 
           Rails.logger.error "Could not save event #{event.slug}" unless event.save
           teams = []
-          res = season_data_api.v20_season_teams_get(season.first_api_year, { event_code: event.slug })
+          res = season_data_api.v20_season_teams_get(season.first_api_year, { event_code: event_data[:code] })
           teams += res.teams
           while res.page_current < res.page_total
-            res = season_data_api.v20_season_teams_get(season.first_api_year, { event_code: event.slug, page: res.page_current + 1 })
+            res = season_data_api.v20_season_teams_get(season.first_api_year, { event_code: event_data[:code], page: res.page_current + 1 })
             teams += res.teams
           end
-
-          event.teams = Team.find(teams.map { |t| t[:teamNumber] })
+          if division
+            event_teams = teams.map do |t|
+              event.events_teams.find_or_create_by!(team_id: t[:teamNumber])
+            end
+            EventsTeam.where(id: event_teams.map(&:id)).update_all(event_division_id: division.id)
+          else
+            event.teams = Team.find(teams.map { |t| t[:teamNumber] })
+          end
           unless event.remote && !event.finalized?
-            import_matches(event)
-            import_rankings(event) unless event.league_meet?
-            import_awards(event)
+            import_matches(event, division)
+            import_rankings(event, division) unless event.league_meet?
+            import_awards(event) unless division
           end
           Rails.logger.error "Could not save event #{league.slug}" unless event.save
         end
@@ -115,11 +130,11 @@ module FtcApi
 
       private
       
-      def import_matches(event)
-        event_matches = Match.includes(red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }, event: []).where(event: event).to_a
-        event_alliances = Alliance.includes(:teams, :event).where(event: event).to_a
+      def import_matches(event, division = nil)
+        event_matches = Match.includes(red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }, event: []).where(event: event, event_division: division).to_a
+        event_alliances = Alliance.includes(:teams, :event).where(event: event, event_division: division).to_a
         event_teams = event.teams.to_a
-        quals = schedule_api.v20_season_schedule_event_code_get(event.season.first_api_year, event.slug, { tournament_level: 'qual' }).schedule
+        quals = schedule_api.v20_season_schedule_event_code_get(event.season.first_api_year, event.slug + (division ? division.slug : ''), { tournament_level: 'qual' }).schedule
         if quals.length.positive? && !event.in_progress? && !event.finalized?
           event.start!
         end
@@ -127,7 +142,7 @@ module FtcApi
         quals.each do |q|
           if !event.remote
             match = event_matches.detect { |m| m.phase == 'qual' && m.number == q[:matchNumber] } ||
-                      Match.new(event: event, phase: 'qual', number: q[:matchNumber])
+                      Match.new(event: event, event_division: division, phase: 'qual', number: q[:matchNumber])
             red1 = q[:teams].detect { |t| t[:station] == 'Red1' }
             red2 = q[:teams].detect { |t| t[:station] == 'Red2' }
             blue1 = q[:teams].detect { |t| t[:station] == 'Blue1' }
@@ -135,9 +150,9 @@ module FtcApi
             red_teams = [event_teams.detect { |t| t.number == red1[:teamNumber] }, event_teams.detect { |t| t.number == red2[:teamNumber] }]
             blue_teams = [event_teams.detect { |t| t.number == blue1[:teamNumber] }, event_teams.detect { |t| t.number == blue2[:teamNumber] }]
             red_alliance = event_alliances.detect { |ea| !ea.is_elims && ea.teams == red_teams } ||
-              Alliance.new(event: event, is_elims: false, teams: red_teams)
+              Alliance.new(event: event, event_division: division, is_elims: false, teams: red_teams)
             blue_alliance = event_alliances.detect { |ea| !ea.is_elims && ea.teams == blue_teams } ||
-              Alliance.new(event: event, is_elims: false, teams: blue_teams)
+              Alliance.new(event: event, event_division: division, is_elims: false, teams: blue_teams)
             match.red_alliance ||= MatchAlliance.new(alliance: red_alliance)
             match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
             match.red_alliance.surrogate[0] = red1[:surrogate]
@@ -169,26 +184,26 @@ module FtcApi
           match.blue_score ||= Score.new
           match.save!
         end
-        import_match_results(event, :qual, event_matches)
+        import_match_results(event, :qual, event_matches, division)
 
         alliance_list = []
-        alliance_selection_api.v20_season_alliances_event_code_get(event.season.first_api_year, event.slug).alliances.each do |alliance|
+        alliance_selection_api.v20_season_alliances_event_code_get(event.season.first_api_year, event.slug + (division ? division.slug : '')).alliances.each do |alliance|
           teams = []
           teams << event_teams.detect { |t| t.number == alliance[:captain] } if alliance[:captain]
           teams << event_teams.detect { |t| t.number == alliance[:round1] } if alliance[:round1]
           teams << event_teams.detect { |t| t.number == alliance[:round2] } if alliance[:round2]
           teams << event_teams.detect { |t| t.number == alliance[:round3] } if alliance[:round3]
           db_alliance = event_alliances.detect { |ea| ea.is_elims && ea.seed == alliance[:number] } ||
-            Alliance.new(event: event, is_elims: true, seed: alliance[:number])
+            Alliance.new(event: event, event_division: division, is_elims: true, seed: alliance[:number])
           db_alliance.teams = teams
           db_alliance.save!
           alliance_list << db_alliance
         end
 
-        elims = schedule_api.v20_season_schedule_event_code_get(event.season.first_api_year, event.slug, { tournament_level: 'playoff' }).schedule
+        elims = schedule_api.v20_season_schedule_event_code_get(event.season.first_api_year, event.slug + (division ? division.slug : ''), { tournament_level: 'playoff' }).schedule
         elims.each do |e|
           match = event_matches.detect { |m| m.phase == (e[:tournamentLevel] == 'SEMIFINAL' ? 'semi' : 'final') && m.number == e[:matchNumber] && (e[:tournamentLevel] != 'SEMIFINAL' || m.series == e[:series])} ||
-                    Match.new(event: event, phase: e[:tournamentLevel] == 'SEMIFINAL' ? 'semi' : 'final', number: e[:matchNumber], series: e[:series])
+                    Match.new(event: event, event_division: division, phase: e[:tournamentLevel] == 'SEMIFINAL' ? 'semi' : 'final', number: e[:matchNumber], series: e[:series])
 
           red_teams = e[:teams].select { |t| t[:station].start_with?('Red') }.map { |t| t[:teamNumber] }
           blue_teams = e[:teams].select { |t| t[:station].start_with?('Blue') }.map { |t| t[:teamNumber] }
@@ -206,16 +221,16 @@ module FtcApi
           event_matches << match if match.new_record?
           match.save!
         end
-        import_match_results(event, :playoff, event_matches)
+        import_match_results(event, :playoff, event_matches, division)
       end
 
-      def import_rankings(event)
+      def import_rankings(event, division = nil)
         Ranking.where(context: event).where.not(team: event.teams).delete_all
         rankings = Ranking.includes(:team).where(context: event, team: event.teams).to_a
-        api_rankings = rankings_api.v20_season_rankings_event_code_get(event.season.first_api_year, event.slug).rankings
+        api_rankings = rankings_api.v20_season_rankings_event_code_get(event.season.first_api_year, event.slug + (division ? division.slug : '')).rankings
         api_rankings.each do |api_ranking|
           ranking = rankings.detect { |r| r.team.number == api_ranking[:teamNumber]} ||
-            Ranking.new(context: event, team_id: api_ranking[:teamNumber])
+            Ranking.new(context: event, event_division: division, team_id: api_ranking[:teamNumber])
           ranking.ranking = api_ranking[:rank]
           ranking.sort_order1 = api_ranking[:sortOrder1]
           ranking.sort_order2 = api_ranking[:sortOrder2]
@@ -242,9 +257,11 @@ module FtcApi
         end
 
         awards_api.v20_season_awards_event_code_get(event.season.first_api_year, event.slug).awards.each do |award|
+          db_award = awards.find { |info| info[1] == award[:awardId] && award[:name].starts_with?(info[0].name) }
+          next unless db_award
           AwardFinalist.find_or_create_by(
             place: award[:series],
-            award: awards.find { |info| info[1] == award[:awardId] && award[:name].starts_with?(info[0].name) }[0]
+            award: db_award[0]
           ) do |new_finalist|
             new_finalist.team_id = award[:teamNumber]
             new_finalist.recipient = award[:person]
@@ -252,8 +269,8 @@ module FtcApi
         end
       end
 
-      def import_match_results(event, phase, matches)
-        match_results_api.v20_season_scores_event_code_tournament_level_get(event.season.first_api_year, event.slug, phase.to_s).match_scores.each do |api_score|
+      def import_match_results(event, phase, matches, division = null)
+        match_results_api.v20_season_scores_event_code_tournament_level_get(event.season.first_api_year, event.slug + (division ? division.slug : ''), phase.to_s).match_scores.each do |api_score|
           if event.remote?
             match = matches.detect { |m| m.number == api_score[:matchNumber] && m.red_alliance.alliance.teams.first.number == api_score[:teamNumber] }
             score = match.red_score
@@ -390,6 +407,31 @@ module FtcApi
 
         score.teleop_navigated1 = api_score[:egNavigated1]
         score.teleop_navigated2 = api_score[:egNavigated2]
+
+        score.save!
+      end
+
+      def import_centerstage_scores(score, api_score)
+        score.init_team_prop1 = api_score[:initTeamProp1]
+        score.init_team_prop2 = api_score[:initTeamProp2]
+        score.robot1_auto = api_score[:robot1Auto]
+        score.robot2_auto = api_score[:robot2Auto]
+        score.spike_mark_pixel1 = api_score[:spikeMarkPixel1]
+        score.spike_mark_pixel2 = api_score[:spikeMarkPixel2]
+        score.target_backdrop_pixel1 = api_score[:targetBackdropPixel1]
+        score.target_backdrop_pixel2 = api_score[:targetBackdropPixel2]
+        score.auto_backdrop = api_score[:autoBackdrop]
+        score.auto_backstage = api_score[:autoBackstage]
+
+        score.teleop_backdrop = api_score[:dcBackdrop]
+        score.teleop_backstage = api_score[:dcBackstage]
+        score.mosaics = api_score[:mosaics]
+        score.max_set_line = api_score[:maxSetLine]
+
+        score.teleop_robot1 = api_score[:egRobot1]
+        score.teleop_robot2 = api_score[:egRobot2]
+        score.drone1 = api_score[:drone1]
+        score.drone2 = api_score[:drone2]
 
         score.save!
       end
