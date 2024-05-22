@@ -1,14 +1,12 @@
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import classNames from 'classnames';
 import TableRow from '@mui/material/TableRow/TableRow';
 import TableCell from '@mui/material/TableCell/TableCell';
 import Table from '@mui/material/Table/Table';
 import TableHead from '@mui/material/TableHead/TableHead';
 import TableBody from '@mui/material/TableBody/TableBody';
 import React from 'react';
-import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
@@ -16,65 +14,40 @@ import Hidden from '@mui/material/Hidden/Hidden';
 import {push} from 'connected-react-router';
 import {connect} from 'react-redux';
 import queryString from 'query-string';
+import {styled} from '@mui/material/styles';
 
-const styles = (theme) => ({
-  table: {
-    minWidth: '30em',
-  },
-  tableCell: {
-    paddingLeft: theme.spacing(1),
+const plainColors = {
+  red: '#fee',
+  blue: '#eef'
+};
+
+const winningColors = {
+  red: '#fdd',
+  blue: '#ddf'
+};
+
+const MatchCell = styled(TableCell)(({theme, ownerState = {}}) => ({
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(1),
+  textAlign: 'center',
+  '&:last-child': {
     paddingRight: theme.spacing(1),
-    textAlign: 'center',
-    '&:last-child': {
-      paddingRight: theme.spacing(1),
-    }
   },
-  flexCell: {
-    display: 'flex'
+  background: ownerState.color ? (ownerState.win ? winningColors[ownerState.color] : plainColors[ownerState.color]) : undefined,
+  fontWeight: ownerState.alliance ? 'bold' : undefined,
+  opacity: ownerState.surrogate ? '0.6' : undefined,
+}));
+
+const DisabledRow = styled(TableRow)(() => ({
+  '& td': {
+    textDecoration: 'line-through',
+    color: 'rgba(0, 0, 0, 0.4)'
   },
-  teamNumber: {
-    flex: 1
-  },
-  redCell: {
-    background: '#fee',
-  },
-  blueCell: {
-    background: '#eef',
-  },
-  redWinningCell: {
-    background: '#fdd',
-  },
-  blueWinningCell: {
-    background: '#ddf'
-  },
-  allianceCell: {
-    fontWeight: 'bold',
-  },
-  surrogateCell: {
-    opacity: '0.6'
-  },
-  disabledRow: {
-    '& td': {
-      textDecoration: 'line-through',
-      color: 'rgba(0, 0, 0, 0.4)'
-    },
-    '& a': {
-      textDecoration: 'line-through',
-      color: 'rgba(0, 0, 0, 0.4)'
-    }
-  },
-  smallOnly: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'table-row',
-    }
-  },
-  notSmallOnly: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    }
+  '& a': {
+    textDecoration: 'line-through',
+    color: 'rgba(0, 0, 0, 0.4)'
   }
-});
+}));
 
 class MatchTable extends React.Component {
   showDetails = (id) => {
@@ -95,7 +68,7 @@ class MatchTable extends React.Component {
   }
 
   renderRemote() {
-    const {matches, team, classes, search} = this.props;
+    const {matches, team, search} = this.props;
     const values = queryString.parse(search);
     const matchNum = parseInt(values['match']);
     const selectedMatch = matchNum && (matches.some(m => m.id == matchNum)) ? matchNum : null;
@@ -106,28 +79,29 @@ class MatchTable extends React.Component {
 
     const rowStyle = {height: '2rem'};
 
-    return [<Table key={1} className={classes.table} size="small">
+    return [<Table key={1} sx={{minWidth: '30em'}} size="small">
     <TableHead>
       <TableRow style={rowStyle}>
-        {team ? null : <TableCell className={classes.tableCell}>Team</TableCell> }
-        <TableCell className={classes.tableCell}>Match</TableCell>
-        <TableCell className={classes.tableCell}>Score</TableCell>
+        {team ? null : <MatchCell>Team</MatchCell> }
+        <MatchCell>Match</MatchCell>
+        <MatchCell>Score</MatchCell>
       </TableRow>
     </TableHead>
     <TableBody>
     {sortBy(matches, ['team', 'number']).map((m) => {
-      return <TableRow key={m.id} style={rowStyle} className={m.no_show ? classes.disabledRow : null}>
-          {team ? null : <TableCell className={classes.tableCell}>
+      const RowElement = m.no_show ? DisabledRow : TableRow;
+      return <RowElement key={m.id} style={rowStyle}>
+          {team ? null : <MatchCell>
               <TextLink to={`/teams/summary/${m.team}`}>{m.team}</TextLink>
-            </TableCell>
+            </MatchCell>
           }
-          <TableCell className={classes.tableCell}>
+          <MatchCell>
             {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>#{m.number}</TextLink> : `#${m.number}`}
-          </TableCell>
-          <TableCell className={classes.tableCell}>
+          </MatchCell>
+          <MatchCell>
             <span>{!m.played ? 'Awaiting results' : m.score}</span>
-          </TableCell>
-        </TableRow>;
+          </MatchCell>
+        </RowElement>;
     })}
     </TableBody>
   </Table>, <MatchDetailsDialog key={2} id={selectedMatch} onClose={() => this.hideDetails()}/>];
@@ -135,7 +109,7 @@ class MatchTable extends React.Component {
   }
 
   renderTraditional() {
-    const {matches, team, classes, search} = this.props;
+    const {matches, team, search} = this.props;
     const values = queryString.parse(search);
     const matchNum = parseInt(values['match']);
     const selectedMatch = matchNum && (matches.some(m => m.id == matchNum)) ? matchNum : null;
@@ -165,98 +139,106 @@ class MatchTable extends React.Component {
           }
         }
 
-        const redClassnames = classNames(classes.tableCell, classes.redCell, {
-          [classes.redWinningCell]: m.red_score > m.blue_score,
-          [classes.allianceCell]: team && isRedTeam,
-          [classes.surrogateCell]: isSurrogate,
-        });
-        const blueClassnames = classNames(classes.tableCell, classes.blueCell, {
-          [classes.blueWinningCell]: m.red_score < m.blue_score,
-          [classes.allianceCell]: team && !isRedTeam,
-          [classes.surrogateCell]: isSurrogate,
-        });
+        const redOwnerState = {
+          color: 'red',
+          win: m.red_score > m.blue_score,
+          alliance: team && isRedTeam,
+          surrogate: isSurrogate
+        };
+        const blueOwnerState = {
+          color: 'blue',
+          win: m.red_score < m.blue_score,
+          alliance: team && !isRedTeam,
+          surrogate: isSurrogate
+        };
 
         return [
           <TableRow key={m.id} style={rowStyle}>
-            <TableCell
-                className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>
+            <MatchCell ownerState={{surrogate: isSurrogate}}>
               {m.played ? <TextLink onClick={() => this.showDetails(m.id)}>{matchDisp}</TextLink> : matchDisp}
-            </TableCell>
+            </MatchCell>
             <Hidden smDown>
-              {team ? <TableCell className={classNames(classes.tableCell, {[classes.surrogateCell]: isSurrogate})}>{m.played ? result : '-'}</TableCell> : null}
+              {team ? <MatchCell ownerState={{surrogate: isSurrogate}}>{m.played ? result : '-'}</MatchCell> : null}
             </Hidden>
-            <TableCell className={redClassnames}>
-              <div className={classes.flexCell}>
+            <MatchCell ownerState={redOwnerState}>
+              <div style={{display: 'flex'}}>
                 {m.red_alliance.map((t, idx) => {
                   const Component = t === team ? 'span' : TextLink;
-                  return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
+                  return <Component key={t} to={`/teams/summary/${t}`} style={{flex: 1}}>{t}
                       {m.red_surrogate[idx] ? '*' : ''}</Component>;
                 })}
               </div>
-            </TableCell>
-            <TableCell className={blueClassnames}>
-              <div className={classes.flexCell}>
+            </MatchCell>
+            <MatchCell ownerState={blueOwnerState}>
+              <div style={{display: 'flex'}}>
                 {m.blue_alliance.map((t, idx) => {
                   const Component = t === team ? 'span' : TextLink;
-                  return <Component key={t} to={`/teams/summary/${t}`} className={classes.teamNumber}>{t}
+                  return <Component key={t} to={`/teams/summary/${t}`} style={{flex: 1}}>{t}
                       {m.blue_surrogate[idx] ? '*' : ''}</Component>
                   ;
                 })}
               </div>
-            </TableCell>
-            {m.played ? <TableCell className={redClassnames + ' ' + classes.notSmallOnly}>
-              <span>{m.red_score}</span>
-            </TableCell> : null}
-            {m.played ? <TableCell className={blueClassnames + ' ' + classes.notSmallOnly}>
-              <span>{m.blue_score}</span>
-            </TableCell>: null}
-            {!m.played ? <TableCell className={classNames(classes.tableCell, classes.notSmallOnly)} colSpan={2}>
-              <span>Awaiting results</span>
-            </TableCell>: null}
+            </MatchCell>
+
+            <Hidden smDown>
+              {m.played ? <MatchCell ownerState={redOwnerState}>
+                <span>{m.red_score}</span>
+              </MatchCell> : null}
+              {m.played ? <MatchCell ownerState={blueOwnerState} >
+                <span>{m.blue_score}</span>
+              </MatchCell>: null}
+              {!m.played ? <MatchCell colSpan={2}>
+                <span>Awaiting results</span>
+              </MatchCell>: null}
+            </Hidden>
           </TableRow>,
-          <TableRow key={m.id + '_results'} style={rowStyle} className={classes.smallOnly}>
-            <TableCell />
-            {m.played ? <TableCell className={redClassnames}>
-              <span>{m.red_score}</span>
-            </TableCell> : null}
-            {m.played ? <TableCell className={blueClassnames}>
-              <span>{m.blue_score}</span>
-            </TableCell>: null}
-            {!m.played ? <TableCell className={classes.tableCell} colSpan={2}>
-              <span>Awaiting results</span>
-            </TableCell>: null}
-          </TableRow>
+          <Hidden mdUp>
+            <TableRow key={m.id + '_results'} style={rowStyle}>
+              <TableCell />
+              {m.played ? <MatchCell ownerState={redOwnerState}>
+                <span>{m.red_score}</span>
+              </MatchCell> : null}
+              {m.played ? <MatchCell ownerState={blueOwnerState}>
+                <span>{m.blue_score}</span>
+              </MatchCell>: null}
+              {!m.played ? <MatchCell colSpan={2}>
+                <span>Awaiting results</span>
+              </MatchCell>: null}
+            </TableRow>
+          </Hidden>
         ];
       });
     });
 
-    return [<Table key={1} className={classes.table} size="small">
+    return [<Table key={1} sx={{minWidth: '30em'}} size="small">
       <TableHead>
         <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell}>Match</TableCell>
+          <MatchCell>Match</MatchCell>
           <Hidden smDown>
-            {team ? <TableCell className={classes.tableCell}>Result</TableCell> : null}
+            {team ? <MatchCell>Result</MatchCell> : null}
           </Hidden>
-          <TableCell className={classes.tableCell}>Red Alliance</TableCell>
-          <TableCell className={classes.tableCell}>Blue Alliance</TableCell>
-          <TableCell className={classNames(classes.tableCell, classes.notSmallOnly)} colSpan={2} >Scores</TableCell>
+          <MatchCell>Red Alliance</MatchCell>
+          <MatchCell>Blue Alliance</MatchCell>
+          <Hidden smDown>
+            <MatchCell colSpan={2} >Scores</MatchCell>
+          </Hidden>
         </TableRow>
       </TableHead>
       <TableBody>
         {groupedMatches['interfinal'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={5}>Inter-division Finals</TableCell>
+          <MatchCell colSpan={5}>Inter-division Finals</MatchCell>
         </TableRow> : null}
         {groupedMatches['interfinal'] ? groupedMatches['interfinal'] : null}
         {groupedMatches['final'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={5}>Finals</TableCell>
+          <MatchCell colSpan={5}>Finals</MatchCell>
         </TableRow> : null}
         {groupedMatches['final'] ? groupedMatches['final'] : null}
         {groupedMatches['semi'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={5}>Semi-Finals</TableCell>
+          <MatchCell colSpan={5}>Semi-Finals</MatchCell>
         </TableRow> : null}
         {groupedMatches['semi'] ? groupedMatches['semi'] : null}
         {groupedMatches['qual'] ? <TableRow style={rowStyle}>
-          <TableCell className={classes.tableCell} colSpan={5}>Qualifications</TableCell>
+          <MatchCell colSpan={5}>Qualifications</MatchCell>
         </TableRow> : null}
         {groupedMatches['qual'] ? groupedMatches['qual'] : null}
       </TableBody>
@@ -273,4 +255,4 @@ const mapDispatchToProps = {
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MatchTable));
+export default connect(mapStateToProps, mapDispatchToProps)(MatchTable);

@@ -4,7 +4,6 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import withStyles from '@mui/styles/withStyles';
 import {login, resetPassword} from '../../actions/api';
 import {clearUserDependentState} from '../../actions/util';
 
@@ -42,15 +41,6 @@ const renderTextField = ({
     />
 );
 
-const styles = theme => ({
-  button: {
-    margin: theme.spacing(1),
-  },
-  input: {
-    width: '100%',
-  }
-});
-
 const onSubmit = (values, dispatch) => {
   return dispatch(login(values)).then((resp) => {
     if(resp.error) {
@@ -75,29 +65,26 @@ const onResetPassword = (values, dispatch) => {
 };
 
 const LoginForm = props => {
-  const { handleSubmit, pristine, submitting, invalid, error, classes } = props;
+  const { handleSubmit, pristine, submitting, invalid, error } = props;
   return (
     <form onSubmit={handleSubmit}>
       <Grid container spacing={3} justifyContent="center">
         <Grid item xs={12}>
-          <Field name="email" component={renderTextField} label="Email" className={classes.input} />
+          <Field name="email" component={renderTextField} label="Email" sx={{width: '100%'}} />
         </Grid>
         <Grid item xs={12}>
-          <Field name="password" component={renderTextField} label="Password" type="password" className={classes.input} />
+          <Field name="password" component={renderTextField} label="Password" type="password" sx={{width: '100%'}} />
         </Grid>
         {error && <Grid item xs={12}>
           <Typography color="error">{error.join(', ')}</Typography>
         </Grid> }
         <Grid item xs={12}>
-          <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid} className={classes.button}>
+          <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid}>
             Login
           </Button>
-          <Button type="submit" onClick={handleSubmit(onResetPassword)} color="primary" disabled={pristine || submitting} className={classes.button}>
+          <Button type="submit" onClick={handleSubmit(onResetPassword)} color="primary" disabled={pristine || submitting} sx={{marginLeft: 1}}>
             Forgot?
           </Button>
-          {/*<Button variant="contained" type="button" disabled={pristine || submitting || invalid} onClick={reset} className={classes.button}>*/}
-            {/*Clear*/}
-          {/*</Button>*/}
         </Grid>
       </Grid>
     </form>
@@ -109,4 +96,4 @@ export default reduxForm({
   validate,
   // asyncValidate,
   onSubmit
-})(withStyles(styles)(LoginForm));
+})(LoginForm);

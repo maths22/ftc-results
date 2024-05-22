@@ -4,7 +4,6 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import withStyles from '@mui/styles/withStyles';
 import {setPassword, updateAccount, activateAccount, TOKEN_UPDATE} from '../../actions/api';
 import {clearUserDependentState} from '../../actions/util';
 import {setTitle} from '../../actions/ui';
@@ -48,14 +47,6 @@ const renderTextField = ({
     />
 );
 
-const styles = theme => ({
-  button: {
-    margin: theme.spacing(1),
-  },
-  input: {
-    width: '100%',
-  }
-});
 
 const headings = {
   reset_password: 'Reset Password',
@@ -108,7 +99,7 @@ class UpdateAccount extends React.Component {
   }
 
   render() {
-    const {handleSubmit, pristine, submitting, invalid, error, classes} = this.props;
+    const {handleSubmit, pristine, submitting, invalid, error} = this.props;
     const values = queryString.parse(window.location.search);
     let type = 'update_account';
     if(values.reset_password_token) type = 'reset_password';
@@ -121,35 +112,31 @@ class UpdateAccount extends React.Component {
           </Grid>
           { type === 'update_account' ? <Grid item xs={12}>
             <Field name="email" component={renderTextField} label="Email" type="email" required={true}
-                   className={classes.input} />
+                   sx={{width: '100%'}} />
           </Grid> : null }
           { type !== 'reset_password' ? <Grid item xs={12}>
             <Field name="name" component={renderTextField} label="Name" required={true}
-                   className={classes.input} />
+                   sx={{width: '100%'}} />
           </Grid> : null }
           { type === 'update_account' ? <Grid item xs={12}>
             <Field name="current_password" component={renderTextField} label="Current password" type="password"
-                   className={classes.input}/>
+                   sx={{width: '100%'}} />
           </Grid> : null }
           <Grid item xs={12}>
             <Field name="password" component={renderTextField} label="New password" type="password"
-                   className={classes.input}/>
+                   sx={{width: '100%'}} />
           </Grid>
           <Grid item xs={12}>
             <Field name="password_confirmation" component={renderTextField} label="Password confirmation"
-                   type="password" className={classes.input}/>
+                   type="password" sx={{width: '100%'}} />
           </Grid>
           {error && <Grid item xs={12}>
             <Typography color="error">{error}</Typography>
           </Grid>}
           <Grid item xs={12}>
-            <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid}
-                    className={classes.button}>
+            <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid}>
               { type === 'activate_account' ? 'Activate' : 'Change' }
             </Button>
-            {/*<Button variant="contained" type="button" disabled={pristine || submitting || invalid} onClick={reset} className={classes.button}>*/}
-            {/*Clear*/}
-            {/*</Button>*/}
           </Grid>
         </Grid>
       </form>
@@ -193,4 +180,4 @@ export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({
   push,
   // asyncValidate,
   onSubmit
-})(withStyles(styles)(UpdateAccount)));
+})(UpdateAccount));

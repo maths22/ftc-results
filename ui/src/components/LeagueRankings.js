@@ -5,7 +5,6 @@ import { push } from 'connected-react-router';
 import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
@@ -17,46 +16,24 @@ import {
 import {setTitle} from '../actions/ui';
 
 import ChevronRight from '@mui/icons-material/ChevronRight';
-import withStyles from '@mui/styles/withStyles';
 import LoadingSpinner from './LoadingSpinner';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import SeasonSelector from './SeasonSelector';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
+import {PaddedCell} from './util';
+import {styled} from '@mui/material/styles';
 
-const styles = (theme) => ({
-  breadcrumbParent: {
-    display: 'flex',
-    height: '2em',
-    alignItems: 'center',
-    padding: '1em 1em 1em 0',
+const DisabledRow = styled(TableRow)(() => ({
+  '& td': {
+    textDecoration: 'line-through',
+    color: 'rgba(0, 0, 0, 0.4)'
   },
-  root: {
-    width: '100%',
-    overflowX: 'auto',
-  },
-  table: {
-    minWidth: '20em',
-  },
-  tableCell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    textAlign: 'left',
-    '&:last-child': {
-      paddingRight: theme.spacing(1),
-    }
-  },
-  disabledRow: {
-    '& td': {
-      textDecoration: 'line-through',
-      color: 'rgba(0, 0, 0, 0.4)'
-    },
-    '& a': {
-      textDecoration: 'line-through',
-      color: 'rgba(0, 0, 0, 0.4)'
-    }
+  '& a': {
+    textDecoration: 'line-through',
+    color: 'rgba(0, 0, 0, 0.4)'
   }
-});
+}));
 
 class LeagueRankings extends Component {
 
@@ -102,7 +79,12 @@ class LeagueRankings extends Component {
   }
 
   renderBreadcrumbs = () => {
-    return <Breadcrumbs className={this.props.classes.breadcrumbParent} aria-label="breadcrumb" separator={<ChevronRight/>}>
+    return <Breadcrumbs sx={{
+      display: 'flex',
+      height: '2em',
+      alignItems: 'center',
+      padding: '1em 1em 1em 0',
+    }} aria-label="breadcrumb" separator={<ChevronRight/>}>
       {['league'].includes(this.props.type) ?
         <Link component={RouterLink} color="inherit" to={`/${this.props.selectedSeason}/teams/rankings`}>Statewide</Link>
       : null}
@@ -119,48 +101,48 @@ class LeagueRankings extends Component {
       return <LoadingSpinner/>;
     }
 
-    const {classes} = this.props;
     const rowStyle = { height: '2rem' };
 
     return <>
       {this.props.type === 'all' ? <SeasonSelector onChange={v => this.props.push(`/${v}/teams/rankings`)} selectedSeason={this.props.selectedSeason} /> : (this.props.season ? <Typography variant="h6">Season: {this.props.season.name} ({this.props.season.year})</Typography> : '')}
-      <div className={classes.root}>
+      <div style={{width: '100%', overflowX: 'auto'}}>
       {this.renderBreadcrumbs()}
-          <Table className={classes.table} size="small">
+          <Table sx={{minWidth: '20em'}} size="small">
             <TableHead>
               <TableRow style={rowStyle}>
-                <TableCell className={classes.tableCell}>Rank</TableCell>
-                <TableCell className={classes.tableCell}>Number</TableCell>
-                <TableCell className={classes.tableCell}>Name</TableCell>
-                { ['all'].includes(this.props.type) ? <TableCell className={classes.tableCell}>League</TableCell> : null }
-                { ['all', 'league'].includes(this.props.type) && (!this.props.league || !this.props.league.league) ? <TableCell className={classes.tableCell}>Child League</TableCell> : null }
-                <TableCell className={classes.tableCell}>RP</TableCell>
-                <TableCell className={classes.tableCell}>TBP1</TableCell>
-                <TableCell className={classes.tableCell}>TBP2</TableCell>
-                <TableCell className={classes.tableCell}>Matches Played</TableCell>
-                <TableCell className={classes.tableCell}>Matches Counted</TableCell>
+                <PaddedCell>Rank</PaddedCell>
+                <PaddedCell>Number</PaddedCell>
+                <PaddedCell>Name</PaddedCell>
+                { ['all'].includes(this.props.type) ? <PaddedCell>League</PaddedCell> : null }
+                { ['all', 'league'].includes(this.props.type) && (!this.props.league || !this.props.league.league) ? <PaddedCell>Child League</PaddedCell> : null }
+                <PaddedCell>RP</PaddedCell>
+                <PaddedCell>TBP1</PaddedCell>
+                <PaddedCell>TBP2</PaddedCell>
+                <PaddedCell>Matches Played</PaddedCell>
+                <PaddedCell>Matches Counted</PaddedCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {this.props.rankings.map((r, idx) => {
+                const RowElement = r.team.consent_missing ? DisabledRow : TableRow;
                 return (
-                    <TableRow key={r.team.number} style={rowStyle} className={r.team.consent_missing ? classes.disabledRow : null}>
-                      <TableCell className={classes.tableCell}>{idx + 1}</TableCell>
-                      <TableCell className={classes.tableCell}><TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink></TableCell>
-                      <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
+                    <RowElement key={r.team.number} style={rowStyle}>
+                      <PaddedCell>{idx + 1}</PaddedCell>
+                      <PaddedCell><TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink></PaddedCell>
+                      <PaddedCell>{r.team.name}</PaddedCell>
                       { ['all'].includes(this.props.type) && r.league.league ?
-                          <TableCell className={classes.tableCell}><TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${r.league.league.slug}`}>{r.league.league.name}</TextLink></TableCell>
+                          <PaddedCell><TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${r.league.league.slug}`}>{r.league.league.name}</TextLink></PaddedCell>
                           : null }
                       { ['all', 'league'].includes(this.props.type) && (!this.props.league || !this.props.league.league) ?
-                          <TableCell className={classes.tableCell}>{r.league !== this.props.league ? <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${r.league.slug}`}>{r.league.name}</TextLink> : null}</TableCell>
+                          <PaddedCell>{r.league !== this.props.league ? <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${r.league.slug}`}>{r.league.name}</TextLink> : null}</PaddedCell>
                           : null }
-                      { ['all'].includes(this.props.type) && !r.league.league ? <TableCell className={classes.tableCell} /> : null }
-                      <TableCell className={classes.tableCell}>{Number(r.sort_order1).toFixed(2)}</TableCell>
-                      <TableCell className={classes.tableCell}>{Number(r.sort_order2).toFixed(2)}</TableCell>
-                      <TableCell className={classes.tableCell}>{Number(r.sort_order3).toFixed(2)}</TableCell>
-                      <TableCell className={classes.tableCell}>{r.matches_played}</TableCell>
-                      <TableCell className={classes.tableCell}>{r.matches_counted}</TableCell>
-                    </TableRow>
+                      { ['all'].includes(this.props.type) && !r.league.league ? <PaddedCell /> : null }
+                      <PaddedCell>{Number(r.sort_order1).toFixed(2)}</PaddedCell>
+                      <PaddedCell>{Number(r.sort_order2).toFixed(2)}</PaddedCell>
+                      <PaddedCell>{Number(r.sort_order3).toFixed(2)}</PaddedCell>
+                      <PaddedCell>{r.matches_played}</PaddedCell>
+                      <PaddedCell>{r.matches_counted}</PaddedCell>
+                    </RowElement>
                 );
               })}
             </TableBody>
@@ -241,4 +223,4 @@ const mapDispatchToProps = {
   push,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LeagueRankings));
+export default connect(mapStateToProps, mapDispatchToProps)(LeagueRankings);

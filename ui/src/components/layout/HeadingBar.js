@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import withStyles from '@mui/styles/withStyles';
-
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -22,26 +20,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import { push } from 'connected-react-router';
 import RegisterForm from '../users/RegisterForm';
-
-const styles = {
-  root: {
-    flexGrow: 1,
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginLeft: -12,
-    marginRight: 20,
-  },
-  loginForm: {
-    width: '18em',
-    padding: '1em'
-  },
-  tab: {
-    minWidth: 0
-  }
-};
 
 class HeadingBar extends Component {
   state = {
@@ -86,11 +64,11 @@ class HeadingBar extends Component {
 
     return (
       <div>
-        <div className={this.props.classes.root}>
+        <div style={{flexGrow: 1}}>
           <AppBar position="static">
             <Toolbar>
               <IconButton
-                className={this.props.classes.menuButton}
+                sx={{marginLeft: -1.5, marginRight: 2}}
                 color="inherit"
                 aria-label="Home"
                 to={this.props.selectedSeason ? `/${this.props.selectedSeason}` : '/'}
@@ -98,7 +76,7 @@ class HeadingBar extends Component {
                 size="large">
                 <HomeIcon />
               </IconButton>
-              <Typography variant="h6" color="inherit" className={this.props.classes.grow}>
+              <Typography variant="h6" color="inherit" sx={{flexGrow: 1}}>
                 {this.props.title || 'FTC Results'}
               </Typography>
               <Button color="inherit" onClick={this.openUserMenu}>{ isLoggedIn ? `Welcome ${user ? user.name : uid}` : 'Login'}</Button>
@@ -121,15 +99,12 @@ class HeadingBar extends Component {
         >
           { isLoggedIn ?
               <Paper>
-                {/*<ClickAwayListener onClickAway={this.handleClose}>*/}
                   <MenuList>
-                    {/*<MenuItem onClick={this.handleClose}>Profile</MenuItem>*/}
                     <MenuItem onClick={() => {this.props.push('/account'); this.handleClose();}}>My Account</MenuItem>
                     <MenuItem onClick={() => {this.logout(); this.handleClose();}}>Logout</MenuItem>
                   </MenuList>
-                {/*</ClickAwayListener>*/}
               </Paper>
-              : <div className={this.props.classes.loginForm}>
+              : <div style={{width: '18em', padding: '1em'}}>
                 <Tabs
                     value={this.state.selectedTab}
                     onChange={this.selectTab}
@@ -137,8 +112,8 @@ class HeadingBar extends Component {
                     textColor="primary"
                     fullWidth
                 >
-                  <Tab classes={{root: this.props.classes.tab}} value="login" label="Login" />
-                  <Tab classes={{root: this.props.classes.tab}} value="register" label="Register" />
+                  <Tab sx={{minWidth: 0}} value="login" label="Login" />
+                  <Tab sx={{minWidth: 0}} value="register" label="Register" />
                 </Tabs>
               {this.state.selectedTab === 'login' ? <LoginForm onSubmitSuccess={this.handleClose}/> : null}
               {this.state.selectedTab === 'register' ? <RegisterForm onSubmitSuccess={this.handleClose}/> : null}
@@ -173,4 +148,4 @@ const mapDispatchToProps = {
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(HeadingBar));
+export default connect(mapStateToProps, mapDispatchToProps)(HeadingBar);

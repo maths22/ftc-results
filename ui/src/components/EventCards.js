@@ -2,10 +2,8 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import { push } from 'connected-react-router';
 
-
 import {getEvents, getLeagues} from '../actions/api';
 import LoadingSpinner from './LoadingSpinner';
-import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
 import EventChip from './EventChip';
 import Card from '@mui/material/Card';
@@ -13,15 +11,6 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-
-const styles = (theme) => ({
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(1),
-    overflowX: 'auto',
-    padding: theme.spacing(2)
-  },
-});
 
 class EventCards extends Component {
 
@@ -48,7 +37,7 @@ class EventCards extends Component {
     if(!this.props.events) {
       return <LoadingSpinner/>;
     }
-    const { classes, limit, heading, showNone } = this.props;
+    const { limit, heading, showNone } = this.props;
     let vals = [...this.props.events].sort((a, b) => {
       const diff = a.start_date.localeCompare(b.start_date);
       if(diff !== 0) return diff;
@@ -73,7 +62,7 @@ class EventCards extends Component {
         <Typography variant="h5" gutterBottom>{heading}</Typography>
         <Grid container spacing={3}>
           {vals.map(e => <Grid item md={4} key={e.id}>
-              <Card className={classes.card}>
+              <Card>
               <CardActionArea onClick={() => this.props.push(`/${this.props.selectedSeason}/events/summary/${e.slug}`)}>
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="h2">
@@ -107,9 +96,6 @@ class EventCards extends Component {
   }
 }
 
-
-
-
 const mapStateToProps = (state, props) => {
   const ret = {};
   if (state.events && state.leagues) {
@@ -134,4 +120,4 @@ const mapDispatchToProps = {
   push
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventCards));
+export default connect(mapStateToProps, mapDispatchToProps)(EventCards);

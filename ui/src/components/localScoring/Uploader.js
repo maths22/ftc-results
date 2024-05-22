@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import Button from '@mui/material/Button';
-import withStyles from '@mui/styles/withStyles';
 import {getEvent} from '../../actions/api';
 import {resetEvent} from '../../actions/uploaderApi';
 import connect from 'react-redux/es/connect/connect';
@@ -19,25 +18,6 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import ScoringServerPicker from './ScoringServerPicker';
 import InternalUploader from './InternalUploader';
-
-
-const styles = theme => ({
-  button: {
-    margin: theme.spacing(1),
-  },
-  input: {
-    width: '100%',
-  },
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(1),
-    overflowX: 'auto',
-    padding: theme.spacing(2)
-  },
-  serverPicker: {
-    width: '50em'
-  }
-});
 
 class Uploader extends Component {
   componentDidMount() {
@@ -107,12 +87,16 @@ class Uploader extends Component {
       return <LoadingSpinner/>;
     }
 
-    const {classes, localEvents, localServer} = this.props;
+    const {localEvents, localServer} = this.props;
 
     return (
-      <Paper className={classes.root}>
+      <Paper sx={{
+        marginTop: 1,
+        padding: 2,
+        width: '100%',
+        overflowX: 'auto'
+      }}>
         <ScoringServerPicker
-            className={classes.serverPicker}
             disabled={localServer.uploadRunning}
         />
         {localEvents ? <div>
@@ -163,4 +147,4 @@ const mapDispatchToProps = {
   setRunning
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Uploader));
+export default connect(mapStateToProps, mapDispatchToProps)(Uploader);

@@ -11,7 +11,6 @@ import {
 } from '../actions/api';
 import {hideVideo, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
-import withStyles from '@mui/styles/withStyles';
 import Typography from '@mui/material/Typography';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
@@ -29,21 +28,16 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import AlliancesTable from './AlliancesTable';
+import {styled} from '@mui/material/styles';
 
-const styles = (theme) => ({
-  root: {
-    width: '100%',
-    overflowX: 'auto',
-  },
-  heading: {
-    padding: theme.spacing(2),
-  },
-  tabPanel: {
-    width: '100%',
-    overflow: 'auto'
-  },
-  h5: theme.typography.h5,
-});
+const Heading = styled('div')(({theme}) => ({
+  padding: theme.spacing(2)
+}));
+
+const TabPanel = styled('div')(() => ({
+  width: '100%',
+  overflow: 'auto'
+}));
 
 function Wrapper(props) {
   return <div style={props.style}/>;
@@ -144,7 +138,7 @@ class EventSummary extends Component {
     if(!this.hasDivisions()) return null;
 
     return <div>
-        <Select value={this.selectedDivision()} onChange={(evt) => this.selectDivision(evt.target.value)} classes={{root: this.props.classes.h5}}>
+        <Select value={this.selectedDivision()} onChange={(evt) => this.selectDivision(evt.target.value)} >
           <MenuItem value={'parent'}>Finals Division</MenuItem>
           {event.divisions.map((d) => {
             return <MenuItem key={d.slug} value={d.slug}>{d.name} Division</MenuItem>;
@@ -221,7 +215,7 @@ class EventSummary extends Component {
       return <LoadingSpinner/>;
     }
 
-    const { classes, event, league, matches, rankings, elimsRankings, alliances, awards, teams } = this.props;
+    const { event, league, matches, rankings, elimsRankings, alliances, awards, teams } = this.props;
     const selectedDivision = this.selectedDivision();
     const selectedTab = this.selectedTab();
 
@@ -230,21 +224,21 @@ class EventSummary extends Component {
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
 
     const tabs = [
-      <div className={classes.tabPanel} key="teams">
+      <TabPanel key="teams">
         <TeamsTable
           teams={teams && teams.filter(t => selectedDivision === 'parent' ? true : selectedDivision === t.division)}
           showDivisionAssignments={showDivisionAssignments}
           divisions={event.divisions}
           onClickDivision={this.selectDivision}
         />
-      </div>,
-      this.showRankings() ? <div className={classes.tabPanel} key="rankings">
+      </TabPanel>,
+      this.showRankings() ? <TabPanel key="rankings">
         <RankingsTable
             rankings={rankings && rankings.filter(r => selectedDivision === 'parent' ? !r.division : selectedDivision === r.division)}
             showRecord={!this.props.event.remote}
             onRefresh={this.refresh}/>
-        </div> : null,
-      this.showAlliances() ? <div className={classes.tabPanel} key="alliances">
+        </TabPanel> : null,
+      this.showAlliances() ? <TabPanel key="alliances">
         <RankingsTable elims
                        rankings={elimsRankings && elimsRankings.filter(r => selectedDivision === 'parent' ? !r.division : selectedDivision === r.division)}
                        showRecord={!this.props.event.remote}
@@ -252,24 +246,24 @@ class EventSummary extends Component {
         <AlliancesTable
           alliances={alliances && alliances.filter(a => selectedDivision === 'parent' ? !a.division : selectedDivision === a.division)}
           onRefresh={this.refresh}/>
-        </div> : null,
-      <div className={classes.tabPanel} key="matches">
+        </TabPanel> : null,
+      <TabPanel key="matches">
         <MatchTable remote={event.remote}
             matches={matches && matches.filter(m => selectedDivision === 'parent' ? !m.division : selectedDivision === m.division)}
         />
-      </div>,
-      this.showAwards() ? <div className={classes.tabPanel} key="awards">
+      </TabPanel>,
+      this.showAwards() ? <TabPanel key="awards">
         <AwardsTable
             awards={awards}
             onRefresh={this.refresh}/>
-      </div>: null
+      </TabPanel>: null
     ].filter(e => e);
 
     const season = (this.props.seasons || []).find((s) => s.id === this.props.event.season_id);
 
     return (
-      <div className={classes.root}>
-        <div className={classes.heading}>
+      <div style={{width: '100%', overflowX: 'auto'}}>
+        <Heading>
           <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
           {this.renderDivisionPicker()}
           {season ? <><b>Season:</b> <span>{season.name} ({season.year})</span><br/></> : null}
@@ -287,7 +281,7 @@ class EventSummary extends Component {
           {league ?
             <span><b>{league.league ? 'Child ' : null} League:</b> <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${league.slug}`}>{league.name}</TextLink></span> : null }<br/>
 
-        </div>
+        </Heading>
 
         {this.renderVideo()}
 
@@ -398,4 +392,4 @@ const mapDispatchToProps = {
   push,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventSummary));
+export default connect(mapStateToProps, mapDispatchToProps)(EventSummary);

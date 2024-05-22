@@ -12,18 +12,7 @@ import {getLeagues, getSeasons} from '../actions/api';
 import {Link} from 'react-router-dom';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
-import withStyles from '@mui/styles/withStyles';
 import SeasonSelector from './SeasonSelector';
-
-const styles = (theme) => ({
-  root: {
-    width: '100%',
-    overflowX: 'auto',
-  },
-  table: {
-    minWidth: '30em',
-  },
-});
 
 class LeaguesSummary extends Component {
 
@@ -63,8 +52,8 @@ class LeaguesSummary extends Component {
 
     return <>
       <SeasonSelector onChange={v => this.props.push(`/${v}/leagues/summary`)} selectedSeason={this.props.selectedSeason} />
-      <div className={this.props.classes.root}>
-        <Table className={this.props.classes.table}>
+      <div style={{width: '100%', overflowX: 'auto'}}>
+        <Table sx={{minWidth: '30em'}}>
           <TableHead>
             <TableRow style={rowStyle}>
               <TableCell>League</TableCell>
@@ -112,4 +101,4 @@ const mapDispatchToProps = {
   push,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LeaguesSummary));
+export default connect(mapStateToProps, mapDispatchToProps)(LeaguesSummary);

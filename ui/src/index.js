@@ -1,7 +1,7 @@
 import './polyfill';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { createBrowserHistory } from 'history';
 import ReactGA from 'react-ga4';
@@ -20,11 +20,11 @@ import {verifyToken} from './actions/api';
 
 import { orange, orange as blue } from '@mui/material/colors';
 
-const theme = createTheme(adaptV4Theme({
+const theme = createTheme({
   palette: {
     primary: process.env.NODE_ENV !== 'development' ? orange : blue,
   },
-}));
+});
 
 Sentry.init({
  dsn: process.env.REACT_APP_SENTRY_DSN
@@ -52,7 +52,9 @@ if(store.getState()['token']['x-uid']) {
 
 window.addEventListener('storage', onStorageUpdate, false);
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
     <CssBaseline>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
@@ -61,8 +63,7 @@ ReactDOM.render(
           </Provider>
         </ThemeProvider>
       </StyledEngineProvider>
-    </CssBaseline>,
-    document.getElementById('root')
+    </CssBaseline>
 );
 
 // If you want your app to work offline and load faster, you can change

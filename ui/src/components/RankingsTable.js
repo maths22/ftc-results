@@ -1,28 +1,13 @@
 import TableRow from '@mui/material/TableRow/TableRow';
-import TableCell from '@mui/material/TableCell/TableCell';
 import Table from '@mui/material/Table/Table';
 import TableHead from '@mui/material/TableHead/TableHead';
 import TableBody from '@mui/material/TableBody/TableBody';
 import React from 'react';
-import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
+import {PaddedCell} from './util';
 
-const styles = (theme) => ({
-  table: {
-    minWidth: '20em',
-  },
-  tableCell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    textAlign: 'center',
-    '&:last-child': {
-      paddingRight: theme.spacing(1),
-    }
-  }
-});
-
-function rankingsTable ({rankings, classes, showRecord, elims}) {
+export default function RankingsTable({rankings, showRecord, elims}) {
   if(!rankings || rankings.length === 0) {
     if(elims) {
       return null;
@@ -32,21 +17,21 @@ function rankingsTable ({rankings, classes, showRecord, elims}) {
 
   const rowStyle = { height: '2rem' };
 
-  return <Table className={classes.table} size="small">
+  return <Table sx={{minWidth: '20em'}} size="small">
     <TableHead>
       <TableRow style={rowStyle}>
-        <TableCell className={classes.tableCell}>Rank</TableCell>
+        <PaddedCell>Rank</PaddedCell>
         {elims ? <>
-          <TableCell className={classes.tableCell}>Alliance</TableCell>
+          <PaddedCell>Alliance</PaddedCell>
         </> : <>
-          <TableCell className={classes.tableCell}>Team Number</TableCell>
-          <TableCell className={classes.tableCell}>Team Name</TableCell>
+          <PaddedCell>Team Number</PaddedCell>
+          <PaddedCell>Team Name</PaddedCell>
         </>}
-        <TableCell className={classes.tableCell}>Ranking Points</TableCell>
-        <TableCell className={classes.tableCell}>Tie Breaker Points 1</TableCell>
-        <TableCell className={classes.tableCell}>Tie Breaker Points 2</TableCell>
-        {showRecord ? <TableCell className={classes.tableCell}>Record (W-L-T)</TableCell> : null}
-        <TableCell className={classes.tableCell}>Matches Played</TableCell>
+        <PaddedCell>Ranking Points</PaddedCell>
+        <PaddedCell>Tie Breaker Points 1</PaddedCell>
+        <PaddedCell>Tie Breaker Points 2</PaddedCell>
+        {showRecord ? <PaddedCell>Record (W-L-T)</PaddedCell> : null}
+        <PaddedCell>Matches Played</PaddedCell>
       </TableRow>
     </TableHead>
     <TableBody>
@@ -56,24 +41,22 @@ function rankingsTable ({rankings, classes, showRecord, elims}) {
           recordLine = `${r.record.win}-${r.record.loss}-${r.record.tie}`;
         }
         return <TableRow key={r.id} style={rowStyle}>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? 'NP' : r.ranking}</TableCell>
+          <PaddedCell>{r.ranking < 0 ? 'NP' : r.ranking}</PaddedCell>
           {elims ? <>
-            <TableCell className={classes.tableCell}>{r.alliance.seed}</TableCell>
+            <PaddedCell>{r.alliance.seed}</PaddedCell>
           </> : <>
-            <TableCell className={classes.tableCell}>
+            <PaddedCell>
               <TextLink to={`/teams/summary/${r.team.number}`}>{r.team.number}</TextLink>
-            </TableCell>
-            <TableCell className={classes.tableCell}>{r.team.name}</TableCell>
+            </PaddedCell>
+            <PaddedCell>{r.team.name}</PaddedCell>
           </>}
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order1).toFixed(2)}</TableCell>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order2).toFixed(2)}</TableCell>
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : Number(r.sort_order3).toFixed(2)}</TableCell>
-          {showRecord ? <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : recordLine}</TableCell> : null}
-          <TableCell className={classes.tableCell}>{r.ranking < 0 ? '-' : r.matches_played}</TableCell>
+          <PaddedCell>{r.ranking < 0 ? '-' : Number(r.sort_order1).toFixed(2)}</PaddedCell>
+          <PaddedCell>{r.ranking < 0 ? '-' : Number(r.sort_order2).toFixed(2)}</PaddedCell>
+          <PaddedCell>{r.ranking < 0 ? '-' : Number(r.sort_order3).toFixed(2)}</PaddedCell>
+          {showRecord ? <PaddedCell>{r.ranking < 0 ? '-' : recordLine}</PaddedCell> : null}
+          <PaddedCell>{r.ranking < 0 ? '-' : r.matches_played}</PaddedCell>
         </TableRow>;
       })}
     </TableBody>
   </Table>;
 }
-
-export default withStyles(styles)(rankingsTable);

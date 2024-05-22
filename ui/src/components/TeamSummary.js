@@ -4,7 +4,6 @@ import {connect} from 'react-redux';
 import {getTeamDetails, getLeagues, getSeasons} from '../actions/api';
 import {setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
-import withStyles from '@mui/styles/withStyles';
 import Typography from '@mui/material/Typography';
 import MatchTable from './MatchTable';
 import TextLink from './TextLink';
@@ -12,19 +11,11 @@ import EventChip from './EventChip';
 
 import WarningIcon from '@mui/icons-material/WarningRounded';
 import Card from '@mui/material/Card';
+import {styled} from '@mui/material/styles';
 
-const styles = (theme) => ({
-  root: {
-    width: '100%',
-    overflowX: 'auto',
-  },
-  heading: {
-    padding: theme.spacing(2),
-  },
-  eventHeader: {
-    display: 'flex'
-  }
-});
+const Heading = styled('div')(({theme}) => ({
+  padding: theme.spacing(2)
+}));
 
 class EventsSummary extends Component {
 
@@ -74,8 +65,8 @@ class EventsSummary extends Component {
     } ).map((evt) => {
       const theMatches = matches.filter((m) => m.event_id === evt.id);
       return <Card key={evt.id} style={{margin: '1em 0'}}>
-        <div className={this.props.classes.heading}>
-          <div className={this.props.classes.eventHeader}>
+        <Heading>
+          <div style={{display: 'flex'}}>
             <Typography variant="h6" gutterBottom><TextLink to={`/${season.year}/events/summary/${evt.slug}`}>{evt.name}</TextLink></Typography>
             <EventChip event={evt}/>
           </div>
@@ -85,7 +76,7 @@ class EventsSummary extends Component {
             {evt.remote ? null : <>{evt.type === 'league_meet' ? ' ' + (evt.aasm_state === 'in_progress' ? 'has' : 'had') + ' a record of ' : ' with a record of '}
             <b style={{whiteSpace: 'nowrap'}}>{`${team.event_records[evt.id].win}-${team.event_records[evt.id].loss}-${team.event_records[evt.id].tie}`}</b></>}
           </p> : null}
-        </div>
+        </Heading>
         <MatchTable team={this.props.team.number} matches={theMatches} remote={evt.remote} />
       </Card>;});
   };
@@ -97,8 +88,8 @@ class EventsSummary extends Component {
 
     const {team, leagues, seasons} = this.props;
 
-    return <div className={this.props.classes.root}>
-      <div className={this.props.classes.heading}>
+    return <div style={{width: '100%', overflowX: 'auto'}}>
+      <Heading>
         <Typography variant="h4">Team {team.number} – {team.name}</Typography>
         { team.consent_missing ? <Card >
               <div width="100%" style={{background: 'red', color: 'white'}}><WarningIcon/></div>
@@ -128,7 +119,7 @@ class EventsSummary extends Component {
           </div>;
         })}
 
-      </div>
+      </Heading>
 
 
     </div>;
@@ -175,4 +166,4 @@ const mapDispatchToProps = {
   getSeasons
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventsSummary));
+export default connect(mapStateToProps, mapDispatchToProps)(EventsSummary);

@@ -4,7 +4,6 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import withStyles from '@mui/styles/withStyles';
 import connect from 'react-redux/es/connect/connect';
 import {getLocalVersion, localClearEvents, setServer} from '../../actions/localScoringApi';
 
@@ -37,15 +36,6 @@ const renderTextField = ({
     />
 );
 
-const styles = theme => ({
-  button: {
-    margin: theme.spacing(1),
-  },
-  input: {
-    width: '100%',
-  }
-});
-
 const onSubmit = (values, dispatch) => {
   dispatch(localClearEvents());
   dispatch(setServer(values.hostname, values.port));
@@ -72,24 +62,20 @@ class ScoringServerPicker extends Component {
   }
 
   render() {
-    const {handleSubmit, pristine, submitting, invalid, error, classes, className, localServer, disabled} = this.props;
+    const {handleSubmit, pristine, submitting, invalid, error, localServer, disabled} = this.props;
     return (
-      <form onSubmit={handleSubmit} className={className}>
+      <form onSubmit={handleSubmit} style={{width: '50em'}}>
         <Grid container spacing={3} justifyContent="center">
           <Grid item xs={4}>
-            <Field name="hostname" component={renderTextField} disabled={disabled} label="Hostname" className={classes.input}/>
+            <Field name="hostname" component={renderTextField} disabled={disabled} label="Hostname" sx={{width: '100%'}} />
           </Grid>
           <Grid item xs={2}>
-            <Field name="port" component={renderTextField} disabled={disabled} label="Port"  className={classes.input}/>
+            <Field name="port" component={renderTextField} disabled={disabled} label="Port" sx={{width: '100%'}} />
           </Grid>
           <Grid item xs={6}>
-            <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid}
-                    className={classes.button}>
+            <Button variant="contained" type="submit" color="primary" disabled={pristine || submitting || invalid} sx={{margin: 1}}>
               Update
             </Button>
-            {/*<Button variant="contained" type="button" disabled={pristine || submitting || invalid} onClick={reset} className={classes.button}>*/}
-            {/*Clear*/}
-            {/*</Button>*/}
           </Grid>
           {error && <Grid item xs={12}>
             <Typography color="error">{error.join(', ')}</Typography>
@@ -122,4 +108,4 @@ export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({
   // asyncValidate,
   onSubmit,
   enableReinitialize: true
-})(withStyles(styles)(ScoringServerPicker)));
+})(ScoringServerPicker));

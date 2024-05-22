@@ -4,7 +4,6 @@ import { push } from 'connected-react-router';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
@@ -15,7 +14,6 @@ import EventImportDialog from './EventImportDialog';
 import EventTransformDialog from './EventTransformDialog';
 import {setShowOnlyMyEvents, setTitle} from '../actions/ui';
 import LoadingSpinner from './LoadingSpinner';
-import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
 import RequestAccessDialog from './RequestAccessDialog';
 import TwitchSetupDialog from './TwitchSetupDialog';
@@ -24,34 +22,19 @@ import {Link} from 'react-router-dom';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import ManageOwnersDialog from './ManageOwnersDialog';
+import {PaddedCell} from './util';
+import {styled} from '@mui/material/styles';
 
-const styles = (theme) => ({
-  root: {
-    width: '100%',
-    overflowX: 'auto',
+const CanceledRow = styled(TableRow)(() => ({
+  '& td': {
+    textDecoration: 'line-through',
+    color: 'rgba(0, 0, 0, 0.4)'
   },
-  table: {
-    minWidth: '30em',
-  },
-  tableCell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    textAlign: 'left',
-    '&:last-child': {
-      paddingRight: theme.spacing(1),
-    }
-  },
-  canceled: {
-    '& td': {
-      textDecoration: 'line-through',
-      color: 'rgba(0, 0, 0, 0.4)'
-    },
-    '& a': {
-      textDecoration: 'line-through',
-      color: 'rgba(0, 0, 0, 0.4)'
-    }
+  '& a': {
+    textDecoration: 'line-through',
+    color: 'rgba(0, 0, 0, 0.4)'
   }
-});
+}));
 
 class EventsSummary extends Component {
 
@@ -110,9 +93,9 @@ class EventsSummary extends Component {
         links.push(<div><TextLink href={API_HOST + d.import} ref={d.id}>{d.name} Database</TextLink></div>);
       });
     }
-    return <TableCell className={this.props.classes.tableCell}>
+    return <PaddedCell>
       {links}
-    </TableCell>;
+    </PaddedCell>;
   }
 
   render () {
@@ -126,12 +109,12 @@ class EventsSummary extends Component {
     } );
 
     const rowStyle = { height: '2rem' };
-    const { classes, uid, uiShowOnlyMyEvents } = this.props;
+    const { uid, uiShowOnlyMyEvents } = this.props;
     const isLoggedIn = !!uid;
 
     return  <>
       <SeasonSelector onChange={(v) => this.props.push(`/${v}/events/all`)} selectedSeason={this.props.selectedSeason} />
-      <div className={classes.root}>
+      <div style={{width: '100%', overflowX: 'auto'}}>
       { isLoggedIn ? <FormControlLabel
         style={{padding: '0.5em'}}
         control={
@@ -139,40 +122,41 @@ class EventsSummary extends Component {
         }
         label="Only Show Events I Manage"
       /> : null }
-      <Table className={this.props.classes.table} size="small">
+      <Table mx={{minWidth: '30em'}} size="small">
         <TableHead>
           <TableRow style={rowStyle}>
-            <TableCell className={classes.tableCell}>Name</TableCell>
-            <TableCell className={classes.tableCell}>League</TableCell>
-            <TableCell className={classes.tableCell}>Location</TableCell>
-            <TableCell className={classes.tableCell}>Date</TableCell>
-            <TableCell className={classes.tableCell}>Imported</TableCell>
-            <TableCell className={classes.tableCell}>Download</TableCell>
-            {isLoggedIn ? <TableCell className={classes.tableCell}>Manage</TableCell> : null}
+            <PaddedCell>Name</PaddedCell>
+            <PaddedCell>League</PaddedCell>
+            <PaddedCell>Location</PaddedCell>
+            <PaddedCell>Date</PaddedCell>
+            <PaddedCell>Imported</PaddedCell>
+            <PaddedCell>Download</PaddedCell>
+            {isLoggedIn ? <PaddedCell>Manage</PaddedCell> : null}
           </TableRow>
         </TableHead>
         <TableBody>
           {vals.filter(e => uiShowOnlyMyEvents ? (!isLoggedIn || e.can_import) : true).map(e => {
             const divFinalsLeft = e.divisions.some((d) => !d.import);
+            const RowElement = e.aasm_state === 'canceled' ? CanceledRow : TableRow;
             return (
-                <TableRow key={e.id} style={rowStyle} className={e.aasm_state === 'canceled' ? classes.canceled :null}>
-                  <TableCell className={classes.tableCell}><TextLink to={`/${this.props.selectedSeason}/events/summary/${e.slug}`}>{e.name}</TextLink></TableCell>
-                  <TableCell className={classes.tableCell}>
+                <RowElement key={e.id} style={rowStyle}>
+                  <PaddedCell><TextLink to={`/${this.props.selectedSeason}/events/summary/${e.slug}`}>{e.name}</TextLink></PaddedCell>
+                  <PaddedCell>
                   { e.league && e.league.league ?
                       <><TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${e.league.league.slug}`}>{e.league.league.name}</TextLink><wbr/>{' – '}</>
                       : null }
                   { e.league ?
                       <TextLink to={`/${this.props.selectedSeason}/leagues/rankings/${e.league.slug}`}>{e.league.name}</TextLink>
                       : null }
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>{e.location && e.location.trim() !== '-' ? <>{e.location}<br/>{e.city}, {e.state}, {e.country}</> : 'TBA' }</TableCell>
-                  <TableCell className={classes.tableCell}>{new Date(e.start_date).getUTCFullYear() === 9999 ? 'TBA' : e.start_date === e.end_date ? e.start_date : <>{e.start_date}<wbr/>{' - ' + e.end_date}</>}</TableCell>
-                  <TableCell className={classes.tableCell}>{e.aasm_state === 'finalized' && !divFinalsLeft ? <CheckIcon/> :
-                      (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</TableCell>
+                  </PaddedCell>
+                  <PaddedCell>{e.location && e.location.trim() !== '-' ? <>{e.location}<br/>{e.city}, {e.state}, {e.country}</> : 'TBA' }</PaddedCell>
+                  <PaddedCell>{new Date(e.start_date).getUTCFullYear() === 9999 ? 'TBA' : e.start_date === e.end_date ? e.start_date : <>{e.start_date}<wbr/>{' - ' + e.end_date}</>}</PaddedCell>
+                  <PaddedCell>{e.aasm_state === 'finalized' && !divFinalsLeft ? <CheckIcon/> :
+                      (e.can_import ? <Button variant="contained" size="small" onClick={() => this.import(e.id)}>Import</Button>: null)}</PaddedCell>
                   {e.aasm_state === 'finalized'
                       ? this.renderDbs(e)
                       : null }
-                  {isLoggedIn ? <TableCell className={classes.tableCell}>
+                  {isLoggedIn ? <PaddedCell>
                     {e.can_import && e.aasm_state !== 'finalized' ? <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.manageOwners(e.id)}>Owners ({e.owners.length})</Button>
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.transform(e.id)}>Configure DB</Button>
@@ -180,8 +164,8 @@ class EventsSummary extends Component {
                       <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => this.setupStream(e.id)}>{e.channel ? 'Configure Stream' : 'Enable Stream'}</Button>
                     </div>: null}
                     {!e.can_import && e.aasm_state !== 'finalized' ? <Button variant="contained" size="small" onClick={() => this.requestAccess(e.id)}>Request Access</Button> : null}
-                  </TableCell>: null}
-                </TableRow>
+                  </PaddedCell>: null}
+                </RowElement>
             );
           })}
         </TableBody>
@@ -227,4 +211,4 @@ const mapDispatchToProps = {
   push,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(EventsSummary));
+export default connect(mapStateToProps, mapDispatchToProps)(EventsSummary);

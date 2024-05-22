@@ -1,30 +1,14 @@
 import TableRow from '@mui/material/TableRow/TableRow';
-import TableCell from '@mui/material/TableCell/TableCell';
 import Table from '@mui/material/Table/Table';
 import TableHead from '@mui/material/TableHead/TableHead';
 import TableBody from '@mui/material/TableBody/TableBody';
 import React from 'react';
-import withStyles from '@mui/styles/withStyles';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import uniq from 'lodash/uniq';
+import {PaddedCell} from './util';
 
-const styles = (theme) => ({
-  table: {
-    minWidth: '20em',
-  },
-  tableCell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    textAlign: 'left',
-    '&:last-child': {
-      paddingRight: theme.spacing(1),
-    },
-    whiteSpace: 'pre-line',
-  }
-});
-
-function teamsTable({teams, classes, showDivisionAssignments, divisions, onClickDivision}) {
+export default function TeamsTable({teams, showDivisionAssignments, divisions, onClickDivision}) {
   if(!teams || teams.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>Team list is not currently available</Typography>;
   }
@@ -32,14 +16,14 @@ function teamsTable({teams, classes, showDivisionAssignments, divisions, onClick
   const rowStyle = { height: '2rem' };
 
 
-  return <Table className={classes.table} size="small">
+  return <Table sx={{minWidth: '20em'}} size="small">
     <TableHead>
       <TableRow style={rowStyle}>
-        { showDivisionAssignments ? <TableCell className={classes.tableCell}>Division</TableCell> : null }
-        <TableCell className={classes.tableCell}>Team Number</TableCell>
-        <TableCell className={classes.tableCell}>Team Name</TableCell>
-        <TableCell className={classes.tableCell}>Location</TableCell>
-        <TableCell className={classes.tableCell}>Organization</TableCell>
+        { showDivisionAssignments ? <PaddedCell>Division</PaddedCell> : null }
+        <PaddedCell>Team Number</PaddedCell>
+        <PaddedCell>Team Name</PaddedCell>
+        <PaddedCell>Location</PaddedCell>
+        <PaddedCell>Organization</PaddedCell>
       </TableRow>
     </TableHead>
     <TableBody>
@@ -47,19 +31,17 @@ function teamsTable({teams, classes, showDivisionAssignments, divisions, onClick
         const t = td.team;
         const division = divisions.find((d) => d.slug === td.division);
         return <TableRow key={t.number} style={rowStyle}>
-          { showDivisionAssignments && division ? <TableCell className={classes.tableCell}>
+          { showDivisionAssignments && division ? <PaddedCell>
             <TextLink onClick={() => onClickDivision(division.slug)}>{division.name}</TextLink>
-          </TableCell> : ( showDivisionAssignments ? <TableCell className={classes.tableCell}/> : null) }
-          <TableCell className={classes.tableCell}>
+          </PaddedCell> : ( showDivisionAssignments ? <PaddedCell/> : null) }
+          <PaddedCell>
             <TextLink to={`/teams/summary/${t.number}`}>{t.number}</TextLink>
-          </TableCell>
-          <TableCell className={classes.tableCell}>{t.name}</TableCell>
-          <TableCell className={classes.tableCell}>{[t.city, t.state, t.country].join(', ')}</TableCell>
-          <TableCell className={classes.tableCell}>{t.organization ? uniq(t.organization.split('&').map((s) => s.trim())).join('\n') : null}</TableCell>
+          </PaddedCell>
+          <PaddedCell>{t.name}</PaddedCell>
+          <PaddedCell>{[t.city, t.state, t.country].join(', ')}</PaddedCell>
+          <PaddedCell>{t.organization ? uniq(t.organization.split('&').map((s) => s.trim())).join('\n') : null}</PaddedCell>
         </TableRow>;
       })}
     </TableBody>
   </Table>;
 }
-
-export default withStyles(styles)(teamsTable);
