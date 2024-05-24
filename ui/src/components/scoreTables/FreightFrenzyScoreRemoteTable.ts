@@ -1,4 +1,4 @@
-import RemoteScoreTable from './RemoteScoreTable';
+import RemoteScoreTable from './RemoteScoreTable.js';
 
 function toTitleCase(str) {
   return str.replaceAll('_', ' ').replace(

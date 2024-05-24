@@ -1,4 +1,4 @@
-import ScoreTable from './ScoreTable';
+import ScoreTable from './ScoreTable.js';
 
 export default ScoreTable((match) => {
   const red_det = match.red_score_details;

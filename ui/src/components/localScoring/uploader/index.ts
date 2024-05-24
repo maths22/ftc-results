@@ -1,13 +1,7 @@
-import 'regenerator-runtime/runtime';
-import 'isomorphic-fetch';
-import 'core-js/features/object/assign';
-import 'core-js/features/array/includes';
-
-import WebSocket from 'isomorphic-ws';
 import PersistentWebSocket from 'pws';
 import ScoringApi, {websocketPath} from './scoringApi';
 import UploaderApi from './uploaderApi';
-import objectHash from 'object-hash';
+// import objectHash from 'object-hash';
 
 const MINUTES_IN_MILIS = 60000;
 const DISPLAY_DELAY = 10 * MINUTES_IN_MILIS;

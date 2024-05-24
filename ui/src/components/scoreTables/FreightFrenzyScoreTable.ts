@@ -1,4 +1,4 @@
-import ScoreTable from './ScoreTable';
+import ScoreTable from './ScoreTable.js';
 
 function toTitleCase(str) {
   return str.replaceAll('_', ' ').replace(
