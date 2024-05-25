@@ -12,28 +12,17 @@ import {useMatchDetails} from '../api';
 import LoadingSpinner from './LoadingSpinner';
 import type {components} from "../api/v1";
 import ErrorBoundary from "./ErrorBoundary";
-import CenterstageScoreTable from "./scoreTables/CenterstageScoreTable";
-import FreightFrenzyCriScoreTable from "./scoreTables/FreightFrenzyCriScoreTable";
-import PowerPlayScoreTable from "./scoreTables/PowerPlayScoreTable";
-import FreightFrenzyScoreTable from "./scoreTables/FreightFrenzyScoreTable";
-import SkystoneScoreTable from "./scoreTables/SkystoneScoreTable";
-import RoverRuckusCriScoreTable from "./scoreTables/RoverRuckusCriScoreTable";
-import RoverRuckusScoreTable from "./scoreTables/RoverRuckusScoreTable";
-import PowerPlayCriScoreTable from "./scoreTables/PowerPlayCriScoreTable";
-import FreightFrenzyScoreRemoteTable from "./scoreTables/FreightFrenzyScoreRemoteTable";
-import UltimateGoalScoreRemoteTable from "./scoreTables/UltimateGoalScoreRemoteTable";
-
 const scoreTables = {
-  'RoverRuckusScore': RoverRuckusScoreTable,
-  'RoverRuckusCriScore': RoverRuckusCriScoreTable,
-  'SkystoneScore': SkystoneScoreTable,
-  'UltimateGoalScoreRemote': UltimateGoalScoreRemoteTable,
-  'FreightFrenzyScore': FreightFrenzyScoreTable,
-  'FreightFrenzyScoreRemote': FreightFrenzyScoreRemoteTable,
-  'FreightFrenzyCriScore': FreightFrenzyCriScoreTable,
-  'PowerPlayScore': PowerPlayScoreTable,
-  'PowerPlayCriScore': PowerPlayCriScoreTable,
-  'CenterstageScore': CenterstageScoreTable
+  'RoverRuckusScore': lazy(() => import('./scoreTables/RoverRuckusScoreTable.ts')),
+  'RoverRuckusCriScore': lazy(() => import('./scoreTables/RoverRuckusCriScoreTable.ts')),
+  'SkystoneScore': lazy(() => import('./scoreTables/SkystoneScoreTable.ts')),
+  'UltimateGoalScoreRemote': lazy(() => import('./scoreTables/UltimateGoalScoreRemoteTable.ts')),
+  'FreightFrenzyScore': lazy(() => import('./scoreTables/FreightFrenzyScoreTable.ts')),
+  'FreightFrenzyScoreRemote': lazy(() => import('./scoreTables/FreightFrenzyScoreRemoteTable.ts')),
+  'FreightFrenzyCriScore': lazy(() => import('./scoreTables/FreightFrenzyCriScoreTable.ts')),
+  'PowerPlayScore': lazy(() => import('./scoreTables/PowerPlayScoreTable.ts')),
+  'PowerPlayCriScore': lazy(() => import('./scoreTables/PowerPlayCriScoreTable.tsx')),
+  'CenterstageScore': lazy(() => import('./scoreTables/CenterstageScoreTable.ts'))
 }
 
 export default function MatchDetailsDialog({event, matchName, onClose}: {

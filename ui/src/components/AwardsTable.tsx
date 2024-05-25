@@ -7,7 +7,7 @@ import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import AwardDetailsDialog from './AwardDetailsDialog';
 import {PaddedCell} from './util';
-import {useParams} from "@tanstack/react-router";
+import {createLazyRoute, useParams} from "@tanstack/react-router";
 import {useEventAwards, useTeam} from "../api";
 import type {components} from "../api/v1";
 import LoadingSpinner from "./LoadingSpinner";
@@ -113,3 +113,7 @@ export default function AwardsTable() {
     <AwardDetailsDialog award={selectedAward} onClose={() => setSelectedAward(undefined)}/>
   </>;
 }
+
+export const Route = createLazyRoute("/$season/events/$slug/alliances")({
+  component: AwardsTable
+})

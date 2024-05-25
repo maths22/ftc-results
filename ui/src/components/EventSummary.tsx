@@ -13,7 +13,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import {styled} from '@mui/material/styles';
-import {Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
+import {createLazyRoute, Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/v1";
 import {stringToDate} from "./util";
 import {refreshEvent, useEvent, useEvents, useLeague, useSeason} from "../api";
@@ -167,3 +167,7 @@ export default function EventSummary() {
         <Outlet />
       </div>
 }
+
+export const Route = createLazyRoute("/$season/events/$slug")({
+  component: EventSummary
+})

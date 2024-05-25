@@ -5,6 +5,8 @@ export default defineConfig(() => {
   return {
     build: {
       outDir: 'build',
+      assetsDir: 'static',
+      sourcemap: true
     },
     server: {
       proxy: {

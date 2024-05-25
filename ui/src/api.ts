@@ -246,8 +246,8 @@ export function useEvents(season: string) {
 }
 
 export function eventQueryOpts(season: string, slug: string) {
-    return { queryKey: ['event', season, slug], queryFn: async ({signal}) => {
-            const { data } = await client.GET("/api/v1/{season}/events/{slug}", {signal, params: {
+    return { queryKey: ['event', season, slug], queryFn: async ({}) => {
+            const { data } = await client.GET("/api/v1/{season}/events/{slug}", {params: {
                     path: {
                         season, slug
                     }

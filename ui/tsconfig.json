@@ -8,6 +8,7 @@
     "strict": true,
     "module": "ES2022",
     "allowSyntheticDefaultImports": true,
-    "types": ["vite/client"]
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client"],
   }
 }

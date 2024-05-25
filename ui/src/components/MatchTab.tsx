@@ -1,9 +1,10 @@
-import {useParams, useSearch} from "@tanstack/react-router";
+import {createLazyRoute, useParams, useSearch} from "@tanstack/react-router";
 import {useEvent, useEventAlliances, useEventMatches} from "../api";
 import AlliancesTable from "./AlliancesTable";
 import LoadingSpinner from "./LoadingSpinner";
 import RankingsTable from "./RankingsTable";
 import MatchTable from "./MatchTable";
+import RankingsTab from "./RankingsTab.tsx";
 
 export default function MatchTab() {
     const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
@@ -15,7 +16,11 @@ export default function MatchTab() {
         return <LoadingSpinner />
     }
 
-    const alliances = (matches || []).filter(a => !division ? !a.division : a.division == division)
+    const filteredMatches = (matches || []).filter(a => !division ? !a.division : a.division == division)
 
-    return <MatchTable matches={matches} event={event} />
+    return <MatchTable matches={filteredMatches} event={event} />
 }
+
+export const Route = createLazyRoute("/$season/events/$slug/matches")({
+    component: MatchTab
+})

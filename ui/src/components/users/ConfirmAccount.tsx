@@ -1,5 +1,5 @@
 import {useEffect} from "react";
-import {useNavigate} from "@tanstack/react-router";
+import {createLazyRoute, useNavigate} from "@tanstack/react-router";
 
 export default function ConfirmAccount() {
   const navigate = useNavigate()
@@ -16,5 +16,8 @@ export default function ConfirmAccount() {
   return <p>
       Login complete
   </p>
-
 }
+
+export const Route = createLazyRoute("/account/confirm")({
+  component: ConfirmAccount
+})

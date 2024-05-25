@@ -5,7 +5,7 @@ import TableBody from '@mui/material/TableBody/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import {PaddedCell} from './util';
-import {useNavigate, useParams, useSearch} from "@tanstack/react-router";
+import {createLazyRoute, useNavigate, useParams, useSearch} from "@tanstack/react-router";
 import {useEvent, useEventTeams, useTeam} from "../api";
 import type {components} from "../api/v1";
 import LoadingSpinner from "./LoadingSpinner";
@@ -73,3 +73,12 @@ export default function TeamsTable() {
     </TableBody>
   </Table>;
 }
+
+export const IndexRoute = createLazyRoute("/$season/events/$slug/")({
+  component: TeamsTable
+})
+
+export const Route = createLazyRoute("/$season/events/$slug/teams")({
+  component: TeamsTable
+})
+

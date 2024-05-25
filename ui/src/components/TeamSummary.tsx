@@ -6,7 +6,7 @@ import EventChip from './EventChip';
 
 import Card from '@mui/material/Card';
 import {styled} from '@mui/material/styles';
-import {useParams} from '@tanstack/react-router';
+import {createLazyRoute, useParams} from '@tanstack/react-router';
 import {useLeague, useSeason, useTeamDetails} from "../api";
 import {components} from "../api/v1";
 
@@ -95,3 +95,7 @@ export default function TeamSummary() {
     </Heading>
   </div>;
 }
+
+export const Route = createLazyRoute("/teams/$number")({
+  component: TeamSummary
+})

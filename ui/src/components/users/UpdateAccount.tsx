@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import {FieldApi, useForm} from "@tanstack/react-form";
-import {useNavigate, useSearch} from "@tanstack/react-router";
+import {createLazyRoute, useNavigate, useSearch} from "@tanstack/react-router";
 import {useStore} from "@tanstack/react-store";
 import {activateAccount, authorizationStore, changePassword, updateAccount} from "../../api";
 
@@ -79,24 +79,6 @@ export default function UpdateAccount() {
         } else {
             await navigate({ to: '/'});
         }
-      // const func = submitFunctions[type];
-      // let base_attrs = {};
-      // if(reset_password_token) {
-      //   base_attrs.reset_password_token = reset_password_token;
-      // }
-      // if(invitation_token) {
-      //   base_attrs.invitation_token = invitation_token;
-      // }
-      // Object.assign(base_attrs, value);
-      // return dispatch(func(base_attrs)).then((resp) => {
-      //   if(resp.error) {
-      //     throw new SubmissionError(resp.payload.response.errors || { _error: resp.payload.message });
-      //   }
-      //   dispatch(clearUserDependentState());
-      //
-      //   //TODO better messaging
-      //   return true;
-      // });
     },
   })
   return (
@@ -183,3 +165,7 @@ export default function UpdateAccount() {
     </form>
   );
 };
+
+export const Route = createLazyRoute("/account")({
+    component: UpdateAccount
+})

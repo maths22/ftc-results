@@ -5,7 +5,7 @@ import ListItemText from '@mui/material/ListItemText';
 import EventCards from './components/EventCards';
 import SeasonSelector from './components/SeasonSelector';
 import Button from '@mui/material/Button';
-import {Link, useParams, useRouter} from '@tanstack/react-router';
+import {createLazyRoute, Link, useParams, useRouter} from '@tanstack/react-router';
 import {useSeason, useSeasons} from './api';
 import LoadingSpinner from './components/LoadingSpinner';
 import {stringToDate} from "./components/util";
@@ -79,3 +79,11 @@ export function RoutableSeasonHome() {
   const {season} = useParams({ from: '/$season' });
   return <App selectedSeason={season} />;
 }
+
+export const Route = createLazyRoute("/")({
+    component: RoutableHome
+})
+
+export const SeasonRoute = createLazyRoute("/$season")({
+    component: RoutableSeasonHome
+})

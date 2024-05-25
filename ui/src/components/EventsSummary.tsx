@@ -14,7 +14,7 @@ import TextLink from './TextLink';
 import RequestAccessDialog from './RequestAccessDialog';
 import TwitchSetupDialog from './TwitchSetupDialog';
 import SeasonSelector from './SeasonSelector';
-import {Link, useParams, useRouter} from '@tanstack/react-router';
+import {createLazyRoute, Link, useParams, useRouter} from '@tanstack/react-router';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 // import ManageOwnersDialog from './ManageOwnersDialog';
@@ -25,6 +25,7 @@ import type {components} from "../api/v1";
 
 import { useStore } from "@tanstack/react-store";
 import ManageOwnersDialog from "./ManageOwnersDialog";
+import {RoutableLeagueRankings} from "./LeagueRankings.tsx";
 
 const CanceledRow = styled(TableRow)(() => ({
   '& td': {
@@ -171,3 +172,7 @@ export default function RoutableEventsSummary() {
   const {season} = useParams({ from: '/$season/events/all' });
   return <EventsSummary selectedSeason={season} />;
 }
+
+export const Route = createLazyRoute("/$season/events/all")({
+  component: RoutableEventsSummary
+})

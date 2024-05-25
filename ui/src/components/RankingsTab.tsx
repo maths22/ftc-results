@@ -1,7 +1,8 @@
-import {useParams, useSearch} from "@tanstack/react-router";
+import {createLazyRoute, useParams, useSearch} from "@tanstack/react-router";
 import {useEvent, useEventRankings} from "../api";
 import RankingsTable from "./RankingsTable";
 import LoadingSpinner from "./LoadingSpinner";
+import TeamsTable from "./TeamsTable.tsx";
 
 export default function RankingsTab() {
     const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
@@ -17,3 +18,7 @@ export default function RankingsTab() {
 
     return <RankingsTable rankings={rankings} showRecord={!event?.remote} elims={false} />
 }
+
+export const Route = createLazyRoute("/$season/events/$slug/rankings")({
+    component: RankingsTab
+})

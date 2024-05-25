@@ -4,10 +4,11 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-import {Link, useParams, useRouter} from '@tanstack/react-router';
+import {createLazyRoute, Link, useParams, useRouter} from '@tanstack/react-router';
 import LoadingSpinner from './LoadingSpinner';
 import SeasonSelector from './SeasonSelector';
 import {useLeagues} from "../api";
+import {RoutableHome} from "../App.tsx";
 
 function LeaguesSummary({selectedSeason}: {selectedSeason: string}){
     const { isLoading, isError, data: leagues } = useLeagues(selectedSeason);
@@ -78,3 +79,7 @@ export default function RoutableLeaguesSummary() {
   const {season} = useParams({ from: '/$season/leagues/summary' });
   return <LeaguesSummary selectedSeason={season} />;
 }
+
+export const Route = createLazyRoute("/$season/leagues/summary")({
+    component: RoutableLeaguesSummary
+})

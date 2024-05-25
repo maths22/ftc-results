@@ -1,4 +1,4 @@
-import {useParams, useSearch} from "@tanstack/react-router";
+import {createLazyRoute, useParams, useSearch} from "@tanstack/react-router";
 import {useEventAlliances} from "../api";
 import AlliancesTable from "./AlliancesTable";
 import LoadingSpinner from "./LoadingSpinner";
@@ -20,3 +20,7 @@ export default function AlliancesTab() {
         <AlliancesTable alliances={alliances} />
     </>
 }
+
+export const Route = createLazyRoute("/$season/events/$slug/alliances")({
+    component: AlliancesTab
+})

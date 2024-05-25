@@ -1,5 +1,4 @@
-import React, {Component, useRef, useState} from 'react';
-import {connect} from 'react-redux';
+import React, {useRef, useState} from 'react';
 
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
@@ -12,7 +11,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import type {components} from "../api/v1";
-import {useAddOwnerMutation, useTransformDbMutation} from "../api";
+import {useTransformDbMutation} from "../api";
 
 export default function EventTransformDialog({event, onClose}: {
   event?: components['schemas']['event'],

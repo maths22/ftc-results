@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import ScoringServerPicker from './ScoringServerPicker.js';
-import {useParams} from "@tanstack/react-router";
+import {createLazyRoute, useParams} from "@tanstack/react-router";
 import {useEvent} from "../../api";
 import {useQuery} from "@tanstack/react-query";
 import Uploader, {UploadStatus} from "./uploader"
@@ -131,3 +131,7 @@ export default function LocalUploader() {
     </Paper>
   );
 }
+
+export const Route = createLazyRoute("/$season/events/$slug/uploader")({
+  component: LocalUploader
+})

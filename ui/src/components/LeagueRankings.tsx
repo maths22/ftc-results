@@ -1,4 +1,4 @@
-import {Link as RouterLink, useParams} from '@tanstack/react-router';
+import {createLazyRoute, Link as RouterLink, useParams} from '@tanstack/react-router';
 import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -114,3 +114,11 @@ export function RoutableLeagueRankings() {
   const { data: rankings } = useLeagueRankings(season, slug);
   return <LeagueRankings selectedSeason={season} rankings={rankings} slug={slug} type={'league'} />;
 }
+
+export const AllRoute = createLazyRoute("/$season/teams/rankings")({
+  component: RoutableAllRankings
+})
+
+export const LeagueRoute = createLazyRoute("/$season/leagues/rankings/$slug")({
+  component: RoutableLeagueRankings
+})

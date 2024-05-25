@@ -216,7 +216,7 @@ function RemoteMatchTable({matches, team, showMatchDetail}: {
 }
 
 export default function MatchTable({event, matches, team}: {
-  matches?: components['schemas']['match'][] | components['schemas']['remoteMatch'][],
+  matches?: (components['schemas']['match'] | components['schemas']['remoteMatch'])[],
   event?: components['schemas']['event'],
   team?: number
 }) {
@@ -232,7 +232,7 @@ export default function MatchTable({event, matches, team}: {
     {event.remote ?
         <RemoteMatchTable matches={matches as components['schemas']['remoteMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
         <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} />}
-    <MatchDetailsDialog event={event} matchName={'match' in search && ('event_id' in search && search.event_id == event.id) ? search.match : undefined} onClose={() => showMatchDetail()}/>
+    <MatchDetailsDialog event={event} matchName={'match' in search && (!team || ('event_id' in search && search.event_id == event.id)) ? search.match : undefined} onClose={() => showMatchDetail()}/>
   </>;
 }
 
