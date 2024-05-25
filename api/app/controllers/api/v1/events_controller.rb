@@ -100,8 +100,8 @@ module Api
       def view_alliances
         expires_in(30.seconds, public: true) if request_cacheable?
 
-        @alliances = @event.alliances.where(is_elims: true)
-        @rankings = @event.elims_rankings.joins(:alliance).includes(:alliance, :event_division).order(:seed)
+        @alliances = @event.alliances.where(is_elims: true).order(:seed)
+        @rankings = @event.elims_rankings.joins(:alliance).includes(:alliance, :event_division).order(:ranking)
       end
 
       def view_awards
