@@ -1,13 +1,5 @@
-import ScoreTable from './ScoreTable.js';
-
-function toTitleCase(str) {
-  return str.replaceAll('_', ' ').replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
-}
+import ScoreTable, {toTitleCase} from './ScoreTable.js';
+import type {components} from "../../api/v1";
 
 const autoNavigatedPoints = {
   NONE: 0,
@@ -21,7 +13,7 @@ const endParkedPoints = {
   COMPLETELY_IN_WAREHOUSE: 6
 };
 
-export default ScoreTable((match) => {
+export default ScoreTable<components['schemas']['FreightFrenzyCriScore']>((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
   return [

@@ -1,7 +1,22 @@
 ---
 openapi: 3.1.0
 info:
-  title: IL FTC Results API V1
+  title: IL/CRI FTC Results API V1
+  summary: API for retrieving event information, including matches, rankings, and
+    awards for FTC events in Illinois, including CRI
+  description: |
+    This API provides historical event data going back to the 2018-2019 rover ruckus season. This API also provides real
+    time data for the Chicago Robotics Invitational, which is unable to use the FIRST-provided API due to the modified game played at
+    that event.
+
+    No authentication is required to use this API.
+
+    Most endpoints are cached in a CDN for 30 seconds to reduce load on the server, so there is no value in requesting updated data
+    more frequently than that.  A few endpoints that rarely change are cached for longer.  The `cache-control` header can be viewed to
+    see how long data will be cached, and the `date` header can be viewed on any request to see how stale the data is.
+  contact:
+    name: Jacob Burroughs
+    email: jburroughs@firstillinoisrobotics.org
   version: v1
 components:
   schemas:
@@ -22,6 +37,25 @@ components:
         offseason:
           type: boolean
           description: Does this season have data with modified rules and scoring?
+      required:
+      - id
+      - year
+      - name
+      - active
+      - offseason
+    winRecord:
+      type: object
+      properties:
+        win:
+          type: integer
+        loss:
+          type: integer
+        tie:
+          type: integer
+      required:
+      - win
+      - loss
+      - tie
     event:
       type: object
       properties:
@@ -35,16 +69,15 @@ components:
           - finalized
           - canceled
         context_id:
-          type:
-          - integer
-          - 'null'
+          type: integer
         context_type:
-          oneOf:
-          - type: string
-            enum:
-            - League
-            - Division
-          - type: 'null'
+          type: string
+          enum:
+          - League
+          - Division
+        league:
+          type: string
+          description: Slug of league this event belongs to
         season_id:
           type: integer
         season:
@@ -83,13 +116,26 @@ components:
         country:
           type: string
         channel:
-          type:
-          - string
-          - 'null'
+          type: string
           description: Twitch channel event is streaming on
         can_import:
           type: boolean
           description: Always false in public API
+        import:
+          type: string
+          description: Link to download database (authenticated event owners only)
+        owners:
+          type: array
+          description: List of event owners (authenticated event owners only)
+          items:
+            type: object
+            properties:
+              uid:
+                type: string
+              name:
+                type: string
+            required:
+            - uid
         divisions:
           type: array
           items:
@@ -105,6 +151,1275 @@ components:
               slug:
                 type: string
                 description: Short human-readable ID for division
+              import:
+                type: string
+                description: Link to download database (authenticated event owners
+                  only)
+            required:
+            - id
+            - event_id
+            - name
+            - slug
+      required:
+      - id
+      - aasm_state
+      - season_id
+      - season
+      - type
+      - remote
+      - slug
+      - name
+      - start_date
+      - end_date
+      - location
+      - city
+      - state
+      - country
+      - can_import
+      - divisions
+    league:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+          description: Short human-readable ID for league
+        team_count:
+          type: integer
+        season_id:
+          type: integer
+        parent_league:
+          type: string
+          description: Parent league slug (only populated for child leagues)
+      required:
+      - id
+      - name
+      - slug
+      - team_count
+      - season_id
+    team:
+      type: object
+      properties:
+        number:
+          type: integer
+        name:
+          type: string
+        organization:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        rookie_year:
+          type: string
+        updated_at:
+          type: string
+      required:
+      - number
+      - name
+      - organization
+      - city
+      - state
+      - country
+      - rookie_year
+      - updated_at
+    alliance:
+      type: object
+      properties:
+        id:
+          type: integer
+        event_id:
+          type: integer
+        seed:
+          type: integer
+        teams:
+          type: array
+          items:
+            type: integer
+        division:
+          type: string
+      required:
+      - id
+      - event_id
+      - seed
+      - teams
+    ranking:
+      type: object
+      properties:
+        id:
+          type: integer
+        team:
+          type: integer
+        context_id:
+          type: integer
+        context_type:
+          type: string
+          enum:
+          - Event
+          - League
+          - Division
+        league:
+          type: string
+        ranking:
+          type: integer
+        sort_order1:
+          type: number
+        sort_order2:
+          type: number
+        sort_order3:
+          type: number
+        sort_order4:
+          type: number
+        sort_order5:
+          type: number
+        sort_order6:
+          type: number
+        matches_played:
+          type: integer
+        matches_counted:
+          type: integer
+        division:
+          type: string
+        record:
+          "$ref": "#/components/schemas/winRecord"
+      required:
+      - id
+      - team
+      - context_id
+      - context_type
+      - ranking
+      - sort_order1
+      - sort_order2
+      - sort_order3
+      - sort_order4
+      - sort_order5
+      - sort_order6
+      - sort_order6
+      - matches_played
+      - matches_counted
+      - record
+    elimRanking:
+      type: object
+      properties:
+        id:
+          type: integer
+        alliance:
+          type: integer
+        context_id:
+          type: integer
+        context_type:
+          type: string
+          enum:
+          - Event
+          - League
+          - Division
+        ranking:
+          type: integer
+        sort_order1:
+          type: number
+        sort_order2:
+          type: number
+        sort_order3:
+          type: number
+        sort_order4:
+          type: number
+        sort_order5:
+          type: number
+        sort_order6:
+          type: number
+        matches_played:
+          type: integer
+        matches_counted:
+          type: integer
+        division:
+          type: string
+        record:
+          "$ref": "#/components/schemas/winRecord"
+      required:
+      - id
+      - team
+      - context_id
+      - context_type
+      - ranking
+      - sort_order1
+      - sort_order2
+      - sort_order3
+      - sort_order4
+      - sort_order5
+      - sort_order6
+      - sort_order6
+      - matches_played
+      - matches_counted
+      - record
+    award:
+      type: object
+      properties:
+        id:
+          type: integer
+        event_id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        finalists:
+          type: array
+          items:
+            "$ref": "#/components/schemas/awardFinalist"
+      required:
+      - id
+      - event_id
+      - name
+      - finalists
+    awardFinalist:
+      type: object
+      properties:
+        place:
+          type: integer
+        recipient:
+          type: string
+        team_id:
+          type: number
+        description:
+          type: string
+      required:
+      - place
+    match:
+      type: object
+      properties:
+        id:
+          type: integer
+        event_id:
+          type: integer
+        division:
+          type: string
+        phase:
+          type: string
+          enum:
+          - qual
+          - semi
+          - final
+          - interfinal
+        series:
+          type: integer
+        number:
+          type: integer
+        name:
+          type: string
+        played:
+          type: boolean
+        red_alliance:
+          type: array
+          items:
+            type: integer
+        red_surrogate:
+          type: array
+          items:
+            type: boolean
+        blue_alliance:
+          type: array
+          items:
+            type: integer
+        blue_surrogate:
+          type: array
+          items:
+            type: boolean
+        red_score:
+          type: integer
+        blue_score:
+          type: integer
+      required:
+      - id
+      - event_id
+      - phase
+      - number
+      - name
+      - played
+      - red_alliance
+      - red_surrogate
+      - blue_alliance
+      - blue_surrogate
+    remoteMatch:
+      type: object
+      properties:
+        id:
+          type: integer
+        event_id:
+          type: integer
+        division:
+          type: string
+        phase:
+          type: string
+          enum:
+          - qual
+          - semi
+          - final
+          - interfinal
+        series:
+          type: integer
+        number:
+          type: integer
+        name:
+          type: string
+        played:
+          type: boolean
+        team:
+          type: integer
+        score:
+          type: integer
+        no_show:
+          type: boolean
+      required:
+      - id
+      - event_id
+      - phase
+      - number
+      - name
+      - played
+      - team
+      - no_show
+    matchDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+        phase:
+          type: string
+          enum:
+          - qual
+          - semi
+          - final
+          - interfinal
+        series:
+          type: integer
+        number:
+          type: integer
+        event_id:
+          type: integer
+        season_score_type:
+          type: string
+          enum:
+          - RoverRuckusScore
+          - RoverRuckusCriScore
+          - SkystoneScore
+          - FreightFrenzyScore
+          - FreightFrenzyCriScore
+          - PowerPlayScore
+          - PowerPlayCriScore
+          - CenterstageScore
+        red_score_total:
+          type: integer
+        red_score:
+          type: object
+          properties:
+            auto:
+              type: integer
+            teleop:
+              type: integer
+            endgame:
+              type: integer
+            penalty:
+              type: integer
+          required:
+          - auto
+          - teleop
+          - endgame
+          - penalty
+        red_score_details:
+          oneOf:
+          - "$ref": "#/components/schemas/RoverRuckusScore"
+          - "$ref": "#/components/schemas/RoverRuckusCriScore"
+          - "$ref": "#/components/schemas/SkystoneScore"
+          - "$ref": "#/components/schemas/FreightFrenzyScore"
+          - "$ref": "#/components/schemas/FreightFrenzyCriScore"
+          - "$ref": "#/components/schemas/PowerPlayScore"
+          - "$ref": "#/components/schemas/PowerPlayCriScore"
+          - "$ref": "#/components/schemas/CenterstageScore"
+        blue_score_total:
+          type: integer
+        blue_score:
+          type: object
+          properties:
+            auto:
+              type: integer
+            teleop:
+              type: integer
+            endgame:
+              type: integer
+            penalty:
+              type: integer
+          required:
+          - auto
+          - teleop
+          - endgame
+          - penalty
+        blue_score_details:
+          oneOf:
+          - "$ref": "#/components/schemas/RoverRuckusScore"
+          - "$ref": "#/components/schemas/RoverRuckusCriScore"
+          - "$ref": "#/components/schemas/SkystoneScore"
+          - "$ref": "#/components/schemas/FreightFrenzyScore"
+          - "$ref": "#/components/schemas/FreightFrenzyCriScore"
+          - "$ref": "#/components/schemas/PowerPlayScore"
+          - "$ref": "#/components/schemas/PowerPlayCriScore"
+          - "$ref": "#/components/schemas/CenterstageScore"
+      required:
+      - id
+      - phase
+      - number
+      - event_id
+      - season_score_type
+      - red_score_total
+      - red_score
+      - red_score_details
+      - blue_score_total
+      - blue_score
+      - blue_score_details
+    remoteMatchDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+        phase:
+          type: string
+          enum:
+          - qual
+          - semi
+          - final
+          - interfinal
+        series:
+          type: integer
+        number:
+          type: integer
+        event_id:
+          type: integer
+        season_score_type:
+          type: string
+          enum:
+          - UltimateGoalScoreRemote
+          - FreightFrenzyScoreRemote
+        score_total:
+          type: integer
+        score:
+          type: object
+          properties:
+            auto:
+              type: integer
+            teleop:
+              type: integer
+            endgame:
+              type: integer
+            penalty:
+              type: integer
+          required:
+          - auto
+          - teleop
+          - endgame
+          - penalty
+        score_details:
+          oneOf:
+          - "$ref": "#/components/schemas/UltimateGoalScoreRemote"
+          - "$ref": "#/components/schemas/FreightFrenzyScoreRemote"
+      required:
+      - id
+      - phase
+      - number
+      - event_id
+      - season_score_type
+      - score_total
+      - score
+      - score_details
+    RoverRuckusScore:
+      type: object
+      properties:
+        robots_landed:
+          type: integer
+        depots_claimed:
+          type: integer
+        robots_parked_auto:
+          type: integer
+        fields_sampled:
+          type: integer
+        depot_minerals:
+          type: integer
+        gold_cargo:
+          type: integer
+        silver_cargo:
+          type: integer
+        latched_robots:
+          type: integer
+        robots_in_crater:
+          type: integer
+        robots_completely_in_crater:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - robots_landed
+      - depots_claimed
+      - robots_parked_auto
+      - fields_sampled
+      - depot_minerals
+      - gold_cargo
+      - silver_cargo
+      - latched_robots
+      - robots_in_crater
+      - robots_completely_in_crater
+      - minor_penalties
+      - major_penalties
+    RoverRuckusCriScore:
+      type: object
+      properties:
+        robots_landed:
+          type: integer
+        depots_claimed:
+          type: integer
+        robots_parked_auto:
+          type: integer
+        fields_sampled:
+          type: integer
+        depot_minerals:
+          type: integer
+        depot_platinum_minerals:
+          type: integer
+        gold_cargo:
+          type: integer
+        silver_cargo:
+          type: integer
+        any_cargo:
+          type: integer
+        platinum_cargo:
+          type: integer
+        latched_robots:
+          type: integer
+        any_latched_robots:
+          type: integer
+        robots_in_crater:
+          type: integer
+        robots_completely_in_crater:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - robots_landed
+      - depots_claimed
+      - robots_parked_auto
+      - fields_sampled
+      - depot_minerals
+      - depot_platinum_minerals
+      - gold_cargo
+      - silver_cargo
+      - any_cargo
+      - platinum_cargo
+      - latched_robots
+      - any_latched_robots
+      - robots_in_crater
+      - robots_completely_in_crater
+      - minor_penalties
+      - major_penalties
+    SkystoneScore:
+      type: object
+      properties:
+        auto_skystones:
+          type: integer
+        auto_delivered:
+          type: integer
+        auto_placed:
+          type: integer
+        robots_navigated:
+          type: integer
+        foundation_repositioned:
+          type: integer
+        teleop_placed:
+          type: integer
+        teleop_delivered:
+          type: integer
+        tallest_height:
+          type: integer
+        foundation_moved:
+          type: integer
+        robots_parked:
+          type: integer
+        capstone_1_level:
+          type: integer
+        capstone_2_level:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - auto_skystones
+      - auto_delivered
+      - auto_placed
+      - robots_navigated
+      - foundation_repositioned
+      - teleop_placed
+      - teleop_delivered
+      - tallest_height
+      - foundation_moved
+      - robots_parked
+      - capstone_1_level
+      - capstone_2_level
+      - minor_penalties
+      - major_penalties
+    UltimateGoalScoreRemote:
+      type: object
+      properties:
+        wobble_1_delivered:
+          type: boolean
+        wobble_2_delivered:
+          type: boolean
+        auto_tower_high:
+          type: integer
+        auto_tower_mid:
+          type: integer
+        auto_tower_low:
+          type: integer
+        auto_power_shot_left:
+          type: boolean
+        auto_power_shot_center:
+          type: boolean
+        auto_power_shot_right:
+          type: boolean
+        navigated:
+          type: boolean
+        teleop_tower_high:
+          type: integer
+        teleop_tower_mid:
+          type: integer
+        teleop_tower_low:
+          type: integer
+        teleop_power_shot_left:
+          type: boolean
+        teleop_power_shot_center:
+          type: boolean
+        teleop_power_shot_right:
+          type: boolean
+        wobble_1_rings:
+          type: integer
+        wobble_2_rings:
+          type: integer
+        wobble_1_end:
+          type: integer
+        wobble_2_end:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - wobble_1_delivered
+      - wobble_2_delivered
+      - auto_tower_high
+      - auto_tower_mid
+      - auto_tower_low
+      - auto_power_shot_left
+      - auto_power_shot_center
+      - auto_power_shot_right
+      - navigated
+      - teleop_tower_high
+      - teleop_tower_mid
+      - teleop_tower_low
+      - teleop_power_shot_left
+      - teleop_power_shot_center
+      - teleop_power_shot_right
+      - wobble_1_rings
+      - wobble_2_rings
+      - wobble_1_end
+      - wobble_2_end
+      - minor_penalties
+      - major_penalties
+    FreightFrenzyScore:
+      type: object
+      properties:
+        barcode_element1:
+          type: string
+          enum:
+          - DUCK
+          - TEAM_SHIPPING_ELEMENT
+        barcode_element2:
+          type: string
+          enum:
+          - DUCK
+          - TEAM_SHIPPING_ELEMENT
+        carousel:
+          type: boolean
+        auto_navigated1:
+          type: string
+          enum:
+          - NONE
+          - IN_STORAGE
+          - COMPLETELY_IN_STORAGE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        auto_navigated2:
+          type: string
+          enum:
+          - NONE
+          - IN_STORAGE
+          - COMPLETELY_IN_STORAGE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        auto_bonus1:
+          type: boolean
+        auto_bonus2:
+          type: boolean
+        auto_storage_freight:
+          type: integer
+        auto_freight1:
+          type: integer
+        auto_freight2:
+          type: integer
+        auto_freight3:
+          type: integer
+        teleop_storage_freight:
+          type: integer
+        teleop_freight1:
+          type: integer
+        teleop_freight2:
+          type: integer
+        teleop_freight3:
+          type: integer
+        shared_freight:
+          type: integer
+        end_delivered:
+          type: integer
+        alliance_balanced:
+          type: boolean
+        shared_unbalanced:
+          type: boolean
+        end_parked1:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        end_parked2:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        capped:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - barcode_element1
+      - barcode_element2
+      - carousel
+      - auto_navigated1
+      - auto_navigated2
+      - auto_bonus1
+      - auto_bonus2
+      - auto_storage_freight
+      - auto_freight1
+      - auto_freight2
+      - auto_freight3
+      - teleop_storage_freight
+      - teleop_freight1
+      - teleop_freight2
+      - teleop_freight3
+      - shared_freight
+      - end_delivered
+      - alliance_balanced
+      - shared_unbalanced
+      - end_parked1
+      - end_parked2
+      - capped
+      - minor_penalties
+      - major_penalties
+    FreightFrenzyScoreRemote:
+      type: object
+      properties:
+        barcode_element:
+          type: string
+          enum:
+          - DUCK
+          - TEAM_SHIPPING_ELEMENT
+        carousel:
+          type: boolean
+        auto_navigated:
+          type: string
+          enum:
+          - NONE
+          - IN_STORAGE
+          - COMPLETELY_IN_STORAGE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        auto_bonus:
+          type: boolean
+        auto_storage_freight:
+          type: integer
+        auto_freight1:
+          type: integer
+        auto_freight2:
+          type: integer
+        auto_freight3:
+          type: integer
+        teleop_storage_freight:
+          type: integer
+        teleop_freight1:
+          type: integer
+        teleop_freight2:
+          type: integer
+        teleop_freight3:
+          type: integer
+        end_delivered:
+          type: integer
+        alliance_balanced:
+          type: boolean
+        end_parked:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        capped:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - barcode_element
+      - carousel
+      - auto_navigated
+      - auto_bonus
+      - auto_storage_freight
+      - auto_freight1
+      - auto_freight2
+      - auto_freight3
+      - teleop_storage_freight
+      - teleop_freight1
+      - teleop_freight2
+      - teleop_freight3
+      - end_delivered
+      - alliance_balanced
+      - end_parked
+      - capped
+      - minor_penalties
+      - major_penalties
+    FreightFrenzyCriScore:
+      type: object
+      properties:
+        barcode_element1:
+          type: string
+          enum:
+          - DUCK
+          - TEAM_SHIPPING_ELEMENT
+        barcode_element2:
+          type: integer
+          enum:
+          - DUCK
+          - TEAM_SHIPPING_ELEMENT
+        barcode_element3:
+          type: integer
+          enum:
+          - DUCK
+          - TEAM_SHIPPING_ELEMENT
+        carousel:
+          type: boolean
+        auto_navigated1:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        auto_navigated2:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        auto_navigated3:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        auto_bonus1:
+          type: boolean
+        auto_bonus2:
+          type: boolean
+        auto_bonus3:
+          type: boolean
+        auto_freight1:
+          type: integer
+        auto_freight2:
+          type: integer
+        auto_freight3:
+          type: integer
+        auto_coop_freight:
+          type: integer
+        teleop_freight1:
+          type: integer
+        teleop_freight2:
+          type: integer
+        teleop_freight3:
+          type: integer
+        shared_freight:
+          type: integer
+        teleop_coop_freight:
+          type: integer
+        teleop_other_coop_freight:
+          type: integer
+        end_delivered:
+          type: integer
+        alliance_balanced:
+          type: boolean
+        shared_unbalanced:
+          type: boolean
+        coop_balanced:
+          type: boolean
+        end_parked1:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        end_parked2:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        end_parked3:
+          type: string
+          enum:
+          - NONE
+          - IN_WAREHOUSE
+          - COMPLETELY_IN_WAREHOUSE
+        capped:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - barcode_element1
+      - barcode_element2
+      - barcode_element3
+      - carousel
+      - auto_navigated1
+      - auto_navigated2
+      - auto_navigated3
+      - auto_bonus1
+      - auto_bonus2
+      - auto_bonus3
+      - auto_freight1
+      - auto_freight2
+      - auto_freight3
+      - auto_coop_freight
+      - teleop_freight1
+      - teleop_freight2
+      - teleop_freight3
+      - shared_freight
+      - teleop_coop_freight
+      - teleop_other_coop_freight
+      - end_delivered
+      - alliance_balanced
+      - shared_unbalanced
+      - coop_balanced
+      - end_parked1
+      - end_parked2
+      - end_parked3
+      - capped
+      - minor_penalties
+      - major_penalties
+    PowerPlayScore:
+      type: object
+      properties:
+        init_signal_sleeve1:
+          type: boolean
+        init_signal_sleeve2:
+          type: integer
+        auto_navigated1:
+          type: string
+          enum:
+          - NONE
+          - SUBSTATION_TERMINAL
+          - SIGNAL_ZONE
+        auto_navigated2:
+          type: string
+          enum:
+          - NONE
+          - SUBSTATION_TERMINAL
+          - SIGNAL_ZONE
+        auto_terminal:
+          type: integer
+        auto_junctions:
+          type: array
+        teleop_junctions:
+          type: array
+        teleop_terminal_near:
+          type: integer
+        teleop_terminal_far:
+          type: integer
+        teleop_navigated1:
+          type: boolean
+        teleop_navigated2:
+          type: boolean
+        auto_cone_counts:
+          type: object
+          properties:
+            HIGH:
+              type: integer
+            MEDIUM:
+              type: integer
+            LOW:
+              type: integer
+            GROUND:
+              type: integer
+          required:
+          - HIGH
+          - MEDIUM
+          - LOW
+          - GROUND
+        teleop_cone_counts:
+          type: object
+          properties:
+            HIGH:
+              type: integer
+            MEDIUM:
+              type: integer
+            LOW:
+              type: integer
+            GROUND:
+              type: integer
+          required:
+          - HIGH
+          - MEDIUM
+          - LOW
+          - GROUND
+        cone_owned_junctions:
+          type: integer
+        beacon_owned_junctions:
+          type: integer
+        has_circuit:
+          type: boolean
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - init_signal_sleeve1
+      - init_signal_sleeve2
+      - auto_navigated1
+      - auto_navigated2
+      - auto_terminal
+      - auto_junctions
+      - teleop_junctions
+      - teleop_terminal_near
+      - teleop_terminal_far
+      - teleop_navigated1
+      - teleop_navigated2
+      - auto_cone_counts
+      - teleop_cone_counts
+      - cone_owned_junctions
+      - beacon_owned_junctions
+      - has_circuit
+      - minor_penalties
+      - major_penalties
+    PowerPlayCriScore:
+      type: object
+      properties:
+        init_signal_sleeve1:
+          type: boolean
+        init_signal_sleeve2:
+          type: integer
+        init_signal_sleeve3:
+          type: integer
+        auto_navigated1:
+          type: string
+          enum:
+          - NONE
+          - SUBSTATION_TERMINAL
+          - SIGNAL_ZONE
+        auto_navigated2:
+          type: string
+          enum:
+          - NONE
+          - SUBSTATION_TERMINAL
+          - SIGNAL_ZONE
+        auto_navigated3:
+          type: string
+          enum:
+          - NONE
+          - SUBSTATION_TERMINAL
+          - SIGNAL_ZONE
+        auto_terminal:
+          type: integer
+        auto_junctions:
+          type: array
+        teleop_junctions:
+          type: array
+        teleop_terminal_near:
+          type: integer
+        teleop_terminal_far:
+          type: integer
+        teleop_navigated1:
+          type: boolean
+        teleop_navigated2:
+          type: boolean
+        teleop_navigated3:
+          type: boolean
+        auto_cone_counts:
+          type: object
+          properties:
+            HIGH:
+              type: integer
+            MEDIUM:
+              type: integer
+            LOW:
+              type: integer
+            GROUND:
+              type: integer
+          required:
+          - HIGH
+          - MEDIUM
+          - LOW
+          - GROUND
+        auto_transformed_cones:
+          type: integer
+        teleop_cone_counts:
+          type: object
+          properties:
+            HIGH:
+              type: integer
+            MEDIUM:
+              type: integer
+            LOW:
+              type: integer
+            GROUND:
+              type: integer
+          required:
+          - HIGH
+          - MEDIUM
+          - LOW
+          - GROUND
+        teleop_transformed_cones:
+          type: integer
+        cone_owned_junctions:
+          type: integer
+        beacon_owned_junctions:
+          type: integer
+        has_circuit:
+          type: boolean
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - init_signal_sleeve1
+      - init_signal_sleeve2
+      - init_signal_sleeve3
+      - auto_navigated1
+      - auto_navigated2
+      - auto_navigated3
+      - auto_terminal
+      - auto_junctions
+      - teleop_junctions
+      - teleop_terminal_near
+      - teleop_terminal_far
+      - teleop_navigated1
+      - teleop_navigated2
+      - teleop_navigated3
+      - auto_cone_counts
+      - auto_transformed_cones
+      - teleop_cone_counts
+      - teleop_transformed_cones
+      - cone_owned_junctions
+      - beacon_owned_junctions
+      - has_circuit
+      - minor_penalties
+      - major_penalties
+    CenterstageScore:
+      type: object
+      properties:
+        init_team_prop1:
+          type: boolean
+        init_team_prop2:
+          type: boolean
+        robot1_auto:
+          type: boolean
+        robot2_auto:
+          type: boolean
+        spike_mark_pixel1:
+          type: boolean
+        spike_mark_pixel2:
+          type: boolean
+        target_backdrop_pixel1:
+          type: boolean
+        target_backdrop_pixel2:
+          type: boolean
+        auto_backdrop:
+          type: integer
+        auto_backstage:
+          type: integer
+        teleop_backdrop:
+          type: integer
+        teleop_backstage:
+          type: integer
+        mosaics:
+          type: integer
+        max_set_line:
+          type: integer
+        teleop_robot1:
+          type: string
+          enum:
+          - NONE
+          - BACKSTAGE
+          - RIGGING
+        teleop_robot2:
+          type: string
+          enum:
+          - NONE
+          - BACKSTAGE
+          - RIGGING
+        drone1:
+          type: integer
+        drone2:
+          type: integer
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+        major_penalties3:
+          type: integer
+      required:
+      - init_team_prop1
+      - init_team_prop2
+      - robot1_auto
+      - robot2_auto
+      - spike_mark_pixel1
+      - spike_mark_pixel2
+      - target_backdrop_pixel1
+      - target_backdrop_pixel2
+      - auto_backdrop
+      - auto_backstage
+      - teleop_backdrop
+      - teleop_backstage
+      - mosaics
+      - max_set_line
+      - teleop_robot1
+      - teleop_robot2
+      - drone1
+      - drone2
+      - minor_penalties
+      - major_penalties
 paths:
   "/api/v1/{season}/events":
     parameters:
@@ -126,8 +1441,6 @@ paths:
               example:
               - id: 1
                 aasm_state: finalized
-                context_id:
-                context_type:
                 season_id: 1
                 season: 2023-2024
                 type: scrimmage
@@ -141,7 +1454,6 @@ paths:
                 city: Chicago
                 state: IL
                 country: USA
-                channel:
                 can_import: false
                 divisions: []
               schema:
@@ -158,7 +1470,6 @@ paths:
         type: string
     - name: slug
       in: path
-      description: slug
       required: true
       schema:
         type: string
@@ -174,8 +1485,6 @@ paths:
               example:
                 id: 1
                 aasm_state: finalized
-                context_id:
-                context_type:
                 season_id: 1
                 season: 2023-2024
                 type: scrimmage
@@ -189,7 +1498,6 @@ paths:
                 city: Chicago
                 state: IL
                 country: USA
-                channel:
                 can_import: false
                 divisions: []
               schema:
@@ -204,12 +1512,13 @@ paths:
         type: string
     - name: slug
       in: path
-      description: slug
       required: true
       schema:
         type: string
     get:
-      summary: view_matches event
+      summary: show event matches
+      tags:
+      - Events
       responses:
         '200':
           description: successful
@@ -218,10 +1527,9 @@ paths:
               example:
               - id: 25
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 1
+                name: Q-1
                 played: true
                 red_alliance:
                 - 5037
@@ -239,11 +1547,10 @@ paths:
                 blue_score: 97
               - id: 26
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 2
-                played:
+                name: Q-2
+                played: false
                 red_alliance:
                 - 9929
                 - 10303
@@ -258,11 +1565,10 @@ paths:
                 - false
               - id: 27
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 3
-                played:
+                name: Q-3
+                played: false
                 red_alliance:
                 - 9929
                 - 10635
@@ -277,11 +1583,10 @@ paths:
                 - false
               - id: 28
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 4
-                played:
+                name: Q-4
+                played: false
                 red_alliance:
                 - 8698
                 - 8907
@@ -296,11 +1601,10 @@ paths:
                 - false
               - id: 29
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 5
-                played:
+                name: Q-5
+                played: false
                 red_alliance:
                 - 10303
                 - 3216
@@ -315,11 +1619,10 @@ paths:
                 - false
               - id: 30
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 6
-                played:
+                name: Q-6
+                played: false
                 red_alliance:
                 - 10138
                 - 5037
@@ -334,11 +1637,10 @@ paths:
                 - false
               - id: 31
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 7
-                played:
+                name: Q-7
+                played: false
                 red_alliance:
                 - 10303
                 - 8698
@@ -353,11 +1655,10 @@ paths:
                 - false
               - id: 32
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 8
-                played:
+                name: Q-8
+                played: false
                 red_alliance:
                 - 8907
                 - 10138
@@ -372,11 +1673,10 @@ paths:
                 - false
               - id: 33
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 9
-                played:
+                name: Q-9
+                played: false
                 red_alliance:
                 - 3216
                 - 9929
@@ -391,11 +1691,10 @@ paths:
                 - false
               - id: 34
                 event_id: 1
-                division:
                 phase: qual
-                series:
                 number: 10
-                played:
+                name: Q-10
+                played: false
                 red_alliance:
                 - 10635
                 - 5037
@@ -410,10 +1709,9 @@ paths:
                 - false
               - id: 35
                 event_id: 1
-                division:
                 phase: semi
-                series:
                 number: 1
+                name: SF-1
                 played: true
                 red_alliance:
                 - 5037
@@ -431,11 +1729,10 @@ paths:
                 blue_score: 45
               - id: 36
                 event_id: 1
-                division:
                 phase: semi
-                series:
                 number: 2
-                played:
+                name: SF-2
+                played: false
                 red_alliance:
                 - 8907
                 - 8698
@@ -450,11 +1747,10 @@ paths:
                 - false
               - id: 37
                 event_id: 1
-                division:
                 phase: semi
-                series:
                 number: 3
-                played:
+                name: SF-3
+                played: false
                 red_alliance:
                 - 5037
                 - 10303
@@ -469,11 +1765,10 @@ paths:
                 - false
               - id: 38
                 event_id: 1
-                division:
                 phase: semi
-                series:
                 number: 4
-                played:
+                name: SF-4
+                played: false
                 red_alliance:
                 - 8907
                 - 8698
@@ -486,6 +1781,14 @@ paths:
                 blue_surrogate:
                 - false
                 - false
+              schema:
+                oneOf:
+                - type: array
+                  items:
+                    "$ref": "#/components/schemas/match"
+                - type: array
+                  items:
+                    "$ref": "#/components/schemas/remoteMatch"
   "/api/v1/{season}/events/{slug}/rankings":
     parameters:
     - name: season
@@ -496,122 +1799,32 @@ paths:
         type: string
     - name: slug
       in: path
-      description: slug
       required: true
       schema:
         type: string
     get:
-      summary: view_rankings event
+      summary: show event rankings
+      tags:
+      - Events
       responses:
         '200':
           description: successful
           content:
             application/json:
               example:
-              - id: 9
-                team: 5037
+              - id: 16
+                team: 10635
                 context_type: Event
                 context_id: 1
-                ranking: 1
-                sort_order1: 2.0
-                sort_order2: 54.0
-                sort_order3: 5.0
-                sort_order4: 167.0
-                sort_order5: 480061.539
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                division:
-                record:
-                  win: 1
-                  loss: 0
-                  tie: 0
-              - id: 10
-                team: 8907
-                context_type: Event
-                context_id: 1
-                ranking: 2
-                sort_order1: 2.0
-                sort_order2: 54.0
-                sort_order3: 5.0
-                sort_order4: 167.0
-                sort_order5: 63077.6838
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                division:
-                record:
-                  win: 1
-                  loss: 0
-                  tie: 0
-              - id: 11
-                team: 3216
-                context_type: Event
-                context_id: 1
-                ranking: 3
-                sort_order1: 0.0
-                sort_order2: 38.0
-                sort_order3: 15.0
-                sort_order4: 97.0
-                sort_order5: 478741.5451
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                division:
-                record:
-                  win: 0
-                  loss: 1
-                  tie: 0
-              - id: 12
-                team: 8698
-                context_type: Event
-                context_id: 1
-                ranking: 4
-                sort_order1: 0.0
-                sort_order2: 38.0
-                sort_order3: 15.0
-                sort_order4: 97.0
-                sort_order5: 105817.3573
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                division:
-                record:
-                  win: 0
-                  loss: 1
-                  tie: 0
-              - id: 13
-                team: 9929
-                context_type: Event
-                context_id: 1
-                ranking: -5
+                ranking: -8
                 sort_order1: 0.0
                 sort_order2: 0.0
                 sort_order3: 0.0
                 sort_order4: 0.0
-                sort_order5: 814271.5677
+                sort_order5: 765500.5307
                 sort_order6: 0.0
                 matches_played: 0
                 matches_counted: 0
-                division:
-                record:
-                  win: 0
-                  loss: 0
-                  tie: 0
-              - id: 14
-                team: 10138
-                context_type: Event
-                context_id: 1
-                ranking: -6
-                sort_order1: 0.0
-                sort_order2: 0.0
-                sort_order3: 0.0
-                sort_order4: 0.0
-                sort_order5: 519646.9834
-                sort_order6: 0.0
-                matches_played: 0
-                matches_counted: 0
-                division:
                 record:
                   win: 0
                   loss: 0
@@ -629,29 +1842,116 @@ paths:
                 sort_order6: 0.0
                 matches_played: 0
                 matches_counted: 0
-                division:
                 record:
                   win: 0
                   loss: 0
                   tie: 0
-              - id: 16
-                team: 10635
+              - id: 14
+                team: 10138
                 context_type: Event
                 context_id: 1
-                ranking: -8
+                ranking: -6
                 sort_order1: 0.0
                 sort_order2: 0.0
                 sort_order3: 0.0
                 sort_order4: 0.0
-                sort_order5: 765500.5307
+                sort_order5: 519646.9834
                 sort_order6: 0.0
                 matches_played: 0
                 matches_counted: 0
-                division:
                 record:
                   win: 0
                   loss: 0
                   tie: 0
+              - id: 13
+                team: 9929
+                context_type: Event
+                context_id: 1
+                ranking: -5
+                sort_order1: 0.0
+                sort_order2: 0.0
+                sort_order3: 0.0
+                sort_order4: 0.0
+                sort_order5: 814271.5677
+                sort_order6: 0.0
+                matches_played: 0
+                matches_counted: 0
+                record:
+                  win: 0
+                  loss: 0
+                  tie: 0
+              - id: 9
+                team: 5037
+                context_type: Event
+                context_id: 1
+                ranking: 1
+                sort_order1: 2.0
+                sort_order2: 54.0
+                sort_order3: 5.0
+                sort_order4: 167.0
+                sort_order5: 480061.539
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                record:
+                  win: 1
+                  loss: 0
+                  tie: 0
+              - id: 10
+                team: 8907
+                context_type: Event
+                context_id: 1
+                ranking: 2
+                sort_order1: 2.0
+                sort_order2: 54.0
+                sort_order3: 5.0
+                sort_order4: 167.0
+                sort_order5: 63077.6838
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                record:
+                  win: 1
+                  loss: 0
+                  tie: 0
+              - id: 11
+                team: 3216
+                context_type: Event
+                context_id: 1
+                ranking: 3
+                sort_order1: 0.0
+                sort_order2: 38.0
+                sort_order3: 15.0
+                sort_order4: 97.0
+                sort_order5: 478741.5451
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                record:
+                  win: 0
+                  loss: 1
+                  tie: 0
+              - id: 12
+                team: 8698
+                context_type: Event
+                context_id: 1
+                ranking: 4
+                sort_order1: 0.0
+                sort_order2: 38.0
+                sort_order3: 15.0
+                sort_order4: 97.0
+                sort_order5: 105817.3573
+                sort_order6: 0.0
+                matches_played: 1
+                matches_counted: 1
+                record:
+                  win: 0
+                  loss: 1
+                  tie: 0
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/ranking"
   "/api/v1/{season}/events/{slug}/awards":
     parameters:
     - name: season
@@ -662,12 +1962,13 @@ paths:
         type: string
     - name: slug
       in: path
-      description: slug
       required: true
       schema:
         type: string
     get:
-      summary: view_awards event
+      summary: show event awards
+      tags:
+      - Events
       responses:
         '200':
           description: successful
@@ -702,11 +2003,13 @@ paths:
                 - place: 2
                   recipient: ''
                   team_id: 10303
-                  description:
                 - place: 3
                   recipient: ''
                   team_id: 10635
-                  description:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/award"
   "/api/v1/{season}/events/{slug}/alliances":
     parameters:
     - name: season
@@ -717,12 +2020,13 @@ paths:
         type: string
     - name: slug
       in: path
-      description: slug
       required: true
       schema:
         type: string
     get:
-      summary: view_alliances event
+      summary: show event alliances
+      tags:
+      - Events
       responses:
         '200':
           description: successful
@@ -736,30 +2040,112 @@ paths:
                   teams:
                   - 5037
                   - 10303
-                  division:
                 - id: 66
                   event_id: 1
                   seed: 2
                   teams:
                   - 8907
                   - 8698
-                  division:
                 - id: 67
                   event_id: 1
                   seed: 3
                   teams:
                   - 3216
                   - 9929
-                  division:
                 - id: 68
                   event_id: 1
                   seed: 4
                   teams:
                   - 10138
                   - 10635
-                  division:
                 rankings: []
+              schema:
+                type: object
+                properties:
+                  alliances:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/alliance"
+                  rankings:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/elimRanking"
   "/api/v1/{season}/events/{slug}/teams":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show event teams
+      tags:
+      - Events
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - division:
+                number: 3216
+              - division:
+                number: 5037
+              - division:
+                number: 8698
+              - division:
+                number: 8907
+              - division:
+                number: 9929
+              - division:
+                number: 10138
+              - division:
+                number: 10303
+              - division:
+                number: 10635
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    division:
+                      type:
+                      - string
+                      - 'null'
+                    number:
+                      type: number
+                  required:
+                  - number
+                  - division
+  "/api/v1/{season}/rankings/league":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    get:
+      summary: list all league rankings
+      tags:
+      - Leagues
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example: []
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/ranking"
+  "/api/v1/{season}/rankings/league/{slug}":
     parameters:
     - name: season
       in: path
@@ -774,7 +2160,63 @@ paths:
       schema:
         type: string
     get:
-      summary: view_teams event
+      summary: list league rankings for one league
+      tags:
+      - Leagues
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example: []
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/ranking"
+  "/api/v1/{season}/leagues":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    get:
+      summary: list leagues
+      tags:
+      - Leagues
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - id: 1
+                name: Chicago
+                slug: CHI
+                season_id: 1
+                team_count: 0
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/league"
+  "/api/v1/{season}/leagues/{slug}":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show league
+      tags:
+      - Leagues
       responses:
         '200':
           description: successful
@@ -782,23 +2224,104 @@ paths:
             application/json:
               example:
                 id: 1
-                teams:
-                - division:
-                  team: 3216
-                - division:
-                  team: 5037
-                - division:
-                  team: 8698
-                - division:
-                  team: 8907
-                - division:
-                  team: 9929
-                - division:
-                  team: 10138
-                - division:
-                  team: 10303
-                - division:
-                  team: 10635
+                name: Chicago
+                slug: CHI
+                season_id: 1
+                team_count: 0
+              schema:
+                "$ref": "#/components/schemas/league"
+  "/api/v1/{season}/events/{slug}/matches/{name}":
+    parameters:
+    - name: season
+      in: path
+      description: Full season year
+      required: true
+      schema:
+        type: string
+    - name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: name
+      in: path
+      description: Match name (e.g. Q-1)
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show match score details
+      tags:
+      - Matches
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+                id: 25
+                phase: qual
+                number: 1
+                event_id: 1
+                season_score_type: CenterstageScore
+                red_score_total: 167
+                red_score:
+                  auto: 54
+                  teleop: 58
+                  endgame: 5
+                  penalty: 0
+                red_score_details:
+                  init_team_prop1: true
+                  init_team_prop2: false
+                  robot1_auto: true
+                  robot2_auto: true
+                  spike_mark_pixel1: true
+                  spike_mark_pixel2: false
+                  target_backdrop_pixel1: false
+                  target_backdrop_pixel2: true
+                  auto_backdrop: 1
+                  auto_backstage: 3
+                  teleop_backdrop: 12
+                  teleop_backstage: 2
+                  mosaics: 1
+                  max_set_line: 1
+                  teleop_robot1: BACKSTAGE
+                  teleop_robot2: NONE
+                  drone1: 0
+                  drone2: 0
+                  minor_penalties: 0
+                  major_penalties: 0
+                blue_score_total: 97
+                blue_score:
+                  auto: 38
+                  teleop: 44
+                  endgame: 15
+                  penalty: 50
+                blue_score_details:
+                  init_team_prop1: true
+                  init_team_prop2: false
+                  robot1_auto: false
+                  robot2_auto: true
+                  spike_mark_pixel1: true
+                  spike_mark_pixel2: false
+                  target_backdrop_pixel1: false
+                  target_backdrop_pixel2: false
+                  auto_backdrop: 2
+                  auto_backstage: 1
+                  teleop_backdrop: 4
+                  teleop_backstage: 2
+                  mosaics: 1
+                  max_set_line: 2
+                  teleop_robot1: NONE
+                  teleop_robot2: BACKSTAGE
+                  drone1: 0
+                  drone2: 3
+                  minor_penalties: 2
+                  major_penalties: 1
+              schema:
+                oneOf:
+                - "$ref": "#/components/schemas/matchDetails"
+                - "$ref": "#/components/schemas/remoteMatchDetails"
   "/api/v1/seasons":
     get:
       summary: list seasons
@@ -819,10 +2342,316 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/season"
+  "/api/v1/teams":
+    parameters:
+    - name: numbers[]
+      in: query
+      schema:
+        type: array
+        items:
+          type: number
+      required: true
+    get:
+      summary: list teams
+      tags:
+      - Teams
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+              - number: 3216
+                name: got robot?
+                organization: Klapperich Tool, Inc./Angularis Technologies, Inc.&4-H
+                  Robotics Special Interest Club
+                city: Elgin
+                state: IL
+                country: USA
+                rookie_year: '2011'
+                updated_at: '2024-05-23T16:05:59.487-05:00'
+                consent_missing:
+              - number: 5037
+                name: got robot?
+                organization: Klapperich Tool, Inc./Angularis Technologies, Inc.&4-H
+                  Robotics Special Interest Club
+                city: Elgin
+                state: IL
+                country: USA
+                rookie_year: '2011'
+                updated_at: '2024-05-23T16:05:47.893-05:00'
+                consent_missing:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/team"
+  "/api/v1/teams/{number}":
+    parameters:
+    - name: number
+      in: path
+      required: true
+      schema:
+        type: number
+    get:
+      summary: show team
+      tags:
+      - Teams
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+                number: 3216
+                name: got robot?
+                organization: Klapperich Tool, Inc./Angularis Technologies, Inc.&4-H
+                  Robotics Special Interest Club
+                city: Elgin
+                state: IL
+                country: USA
+                rookie_year: '2011'
+                updated_at: '2024-05-23T16:05:59.487-05:00'
+                consent_missing:
+              schema:
+                "$ref": "#/components/schemas/team"
+  "/api/v1/teams/{number}/details":
+    parameters:
+    - name: number
+      in: path
+      required: true
+      schema:
+        type: number
+    get:
+      summary: show team details
+      tags:
+      - Teams
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              example:
+                team:
+                  number: 3216
+                  name: got robot?
+                  organization: Klapperich Tool, Inc./Angularis Technologies, Inc.&4-H
+                    Robotics Special Interest Club
+                  city: Elgin
+                  state: IL
+                  country: USA
+                  rookie_year: '2011'
+                  consent_missing:
+                  updated_at: '2024-05-23T16:05:59.487-05:00'
+                seasons:
+                - season: 2023-2024
+                  record:
+                    win: 0
+                    loss: 1
+                    tie: 0
+                  events:
+                  - data:
+                      id: 1
+                      aasm_state: finalized
+                      season_id: 1
+                      season: 2023-2024
+                      type: scrimmage
+                      remote: false
+                      slug: USILCHS1
+                      name: Illinois Test Scrimmage
+                      start_date: '2020-01-18'
+                      end_date: '2020-01-18'
+                      location: Tall Building
+                      address: 123 S Wacker Drive
+                      city: Chicago
+                      state: IL
+                      country: USA
+                      can_import: false
+                      divisions: []
+                    ranking:
+                      id: 11
+                      team: 3216
+                      context_type: Event
+                      context_id: 1
+                      ranking: 3
+                      sort_order1: 0.0
+                      sort_order2: 38.0
+                      sort_order3: 15.0
+                      sort_order4: 97.0
+                      sort_order5: 478741.5451
+                      sort_order6: 0.0
+                      matches_played: 1
+                      matches_counted: 1
+                      record:
+                        win: 0
+                        loss: 1
+                        tie: 0
+                    matches:
+                    - id: 27
+                      event_id: 1
+                      phase: qual
+                      number: 3
+                      name: Q-3
+                      played: false
+                      red_alliance:
+                      - 9929
+                      - 10635
+                      red_surrogate:
+                      - false
+                      - false
+                      blue_alliance:
+                      - 3216
+                      - 5037
+                      blue_surrogate:
+                      - false
+                      - false
+                    - id: 32
+                      event_id: 1
+                      phase: qual
+                      number: 8
+                      name: Q-8
+                      played: false
+                      red_alliance:
+                      - 8907
+                      - 10138
+                      red_surrogate:
+                      - false
+                      - false
+                      blue_alliance:
+                      - 3216
+                      - 10635
+                      blue_surrogate:
+                      - false
+                      - false
+                    - id: 33
+                      event_id: 1
+                      phase: qual
+                      number: 9
+                      name: Q-9
+                      played: false
+                      red_alliance:
+                      - 3216
+                      - 9929
+                      red_surrogate:
+                      - false
+                      - false
+                      blue_alliance:
+                      - 10303
+                      - 8907
+                      blue_surrogate:
+                      - false
+                      - false
+                    - id: 36
+                      event_id: 1
+                      phase: semi
+                      number: 2
+                      name: SF-2
+                      played: false
+                      red_alliance:
+                      - 8907
+                      - 8698
+                      red_surrogate:
+                      - false
+                      - false
+                      blue_alliance:
+                      - 3216
+                      - 9929
+                      blue_surrogate:
+                      - false
+                      - false
+                    - id: 38
+                      event_id: 1
+                      phase: semi
+                      number: 4
+                      name: SF-4
+                      played: false
+                      red_alliance:
+                      - 8907
+                      - 8698
+                      red_surrogate:
+                      - false
+                      - false
+                      blue_alliance:
+                      - 3216
+                      - 9929
+                      blue_surrogate:
+                      - false
+                      - false
+                    - id: 25
+                      event_id: 1
+                      phase: qual
+                      number: 1
+                      name: Q-1
+                      played: true
+                      red_alliance:
+                      - 5037
+                      - 8907
+                      red_surrogate:
+                      - false
+                      - false
+                      blue_alliance:
+                      - 8698
+                      - 3216
+                      blue_surrogate:
+                      - false
+                      - false
+                      red_score: 167
+                      blue_score: 97
+                    - id: 29
+                      event_id: 1
+                      phase: qual
+                      number: 5
+                      name: Q-5
+                      played: false
+                      red_alliance:
+                      - 10303
+                      - 3216
+                      red_surrogate:
+                      - false
+                      - false
+                      blue_alliance:
+                      - 10635
+                      - 8698
+                      blue_surrogate:
+                      - false
+                      - false
+              schema:
+                type: object
+                properties:
+                  team:
+                    "$ref": "#/components/schemas/team"
+                  seasons:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        season:
+                          type: string
+                        record:
+                          "$ref": "#/components/schemas/winRecord"
+                        league:
+                          type: string
+                        events:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              data:
+                                "$ref": "#/components/schemas/event"
+                              ranking:
+                                "$ref": "#/components/schemas/ranking"
+                              matches:
+                                type: array
+                                items:
+                                  "$ref": "#/components/schemas/match"
+                            required:
+                            - data
+                            - matches
+                      required:
+                      - season
+                      - record
+                      - events
+                required:
+                - team
+                - seasons
 servers:
-- url: "{protocol}://{host}"
-  variables:
-    protocol:
-      default: https
-    host:
-      default: ftc-results.firstillinoisrobotics.org
+- url: https://ftc-results.firstillinoisrobotics.org

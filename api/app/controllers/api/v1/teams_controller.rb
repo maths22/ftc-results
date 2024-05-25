@@ -6,7 +6,7 @@ module Api
 
       # GET /teams
       def index
-        render json: @teams.where(number: params[:ids].split(',')), except: %i[created_at]
+        render json: @teams.where(number: params[:numbers]), except: %i[created_at]
       end
 
       # GET /teams/1

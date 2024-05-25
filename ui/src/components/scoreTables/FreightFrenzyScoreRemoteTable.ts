@@ -1,13 +1,6 @@
 import RemoteScoreTable from './RemoteScoreTable.js';
-
-function toTitleCase(str) {
-  return str.replaceAll('_', ' ').replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
-}
+import type {components} from "../../api/v1";
+import {toTitleCase} from "./ScoreTable";
 
 const autoNavigatedPoints = {
   NONE: 0,
@@ -23,7 +16,7 @@ const endParkedPoints = {
   COMPLETELY_IN_WAREHOUSE: 6
 };
 
-export default RemoteScoreTable((match) => {
+export default RemoteScoreTable<components['schemas']['FreightFrenzyScoreRemote']>((match) => {
   const det = match.score_details;
   return [
     {

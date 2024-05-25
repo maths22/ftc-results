@@ -6,6 +6,7 @@ class Team < ApplicationRecord
   has_many :alliance_teams, dependent: :destroy
   has_many :alliances, through: :alliance_teams
   has_many :rankings, dependent: :destroy
+  has_many :seasons, -> { distinct.order(year: :desc) }, through: :events
 
   def assign_to_league(league)
     ActiveRecord::Base.transaction do

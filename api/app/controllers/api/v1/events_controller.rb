@@ -94,14 +94,14 @@ module Api
         expires_in(30.seconds, public: true) if request_cacheable?
 
         @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
-        @rankings = @event.league_meet? ? Ranking.includes(:team).where(context: @event.context) : @event.rankings.includes(:team, :event_division)
+        @rankings = @event.league_meet? ? Ranking.includes(:team).where(context: @event.context).order(:ranking) : @event.rankings.includes(:team, :event_division).order(:ranking)
       end
 
       def view_alliances
         expires_in(30.seconds, public: true) if request_cacheable?
 
         @alliances = @event.alliances.where(is_elims: true)
-        @rankings = @event.elims_rankings.includes(:alliance, :event_division)
+        @rankings = @event.elims_rankings.joins(:alliance).includes(:alliance, :event_division).order(:seed)
       end
 
       def view_awards
@@ -113,13 +113,13 @@ module Api
       def view_teams
         expires_in(3.minutes, public: true) if request_cacheable?
 
-        div_teams = @event.events_teams.includes(:team, :event_division).map do |et|
+        div_teams = @event.events_teams.order('teams.number').includes(:team, :event_division).map do |et|
           {
             division: et.event_division&.slug,
-            team: et.team.number
+            number: et.team.number
           }
         end
-        render json: { id: @event.id, teams: div_teams }
+        render json: div_teams
       end
 
       def transform_scoring_system

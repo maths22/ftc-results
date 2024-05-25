@@ -10,3 +10,8 @@ export const PaddedCell = styled(TableCell)(({theme}) => ({
   },
   whiteSpace: 'pre-line'
 }));
+
+export function stringToDate(str: string) {
+  const parts = str.split('-');
+  return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+}

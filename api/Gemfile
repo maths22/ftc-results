@@ -34,7 +34,7 @@ gem 'rubyzip', '>= 1.0.0', require: 'zip'
 gem 'sqlite3'
 
 gem 'plezi'
-gem 'rswag'
+gem 'rswag-api'
 
 gem 'inst-jobs'
 gem 'sinatra'

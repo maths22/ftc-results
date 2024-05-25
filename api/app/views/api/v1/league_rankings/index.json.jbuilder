@@ -1,2 +1,1 @@
-json.rankings @rankings, partial: 'rankings/base_info', as: :ranking
-json.leagues @leagues
+json.array! @rankings, partial: 'rankings/base_info', as: :ranking

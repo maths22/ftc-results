@@ -1,7 +1,9 @@
 export const websocketPath = '/api/v2/stream/';
 
 export default class ScoringApi {
-  constructor(hostname, port) {
+  private readonly hostname: string;
+  private readonly port: number;
+  constructor(hostname: string, port: number) {
     this.hostname = hostname;
     this.port = port;
   }
@@ -14,46 +16,46 @@ export default class ScoringApi {
     return this._fetch(this._apiUrl('/v1/version'));
   }
 
-  getEvent(event) {
+  getEvent(event: string) {
     return this._fetch(this._apiUrl(`/v1/events/${event}`));
   }
 
-  getTeamList(event) {
+  getTeamList(event: string) {
     return this._fetch(this._apiUrl(`/v1/events/${event}/teams`));
   }
 
-  getRankings(event) {
+  getRankings(event: string) {
     return this._fetch(this._apiUrl(`/v1/events/${event}/rankings`));
   }
 
-  getCombinedRankings(event) {
+  getCombinedRankings(event: string) {
     return this._fetch(this._apiUrl(`/v1/events/${event}/rankings/combined`));
   }
 
-  getAlliances(event) {
+  getAlliances(event: string) {
     return this._fetch(this._apiUrl(`/v1/events/${event}/elim/alliances`));
   }
 
-  getMatches(event) {
+  getMatches(event: string) {
     return this._fetch(this._apiUrl(`/v1/events/${event}/matches`));
   }
 
-  getElimMatches(event, prefix) {
+  getElimMatches(event: string, prefix: string) {
     return this._fetch(this._apiUrl(`/v1/events/${event}/elim/${prefix}`));
   }
 
-  getMatchDetails(event, season, prefix, matchNo) {
+  getMatchDetails(event: string, season: string, prefix: string, matchNo: number) {
     return this._fetch(this._apiUrl(`/${season}/v1/events/${event}/${prefix}/${matchNo}`));
   }
 
-  getAwards(event) {
+  getAwards(event: string) {
     return this._fetch(this._apiUrl(`/v2/events/${event}/awards`));
   }
 
-  async _fetch(url) {
+  async _fetch(url: string) {
     const resp = await fetch(url);
 
-    let payload = await resp.text();
+    let payload: any = await resp.text();
     try {
       payload = JSON.parse(payload);
     } catch (err) {}
@@ -74,7 +76,7 @@ export default class ScoringApi {
 
   }
 
-  _apiUrl(path) {
+  _apiUrl(path: string) {
     return `http://${this.hostname}:${this.port}/api${path}/`;
   }
 }

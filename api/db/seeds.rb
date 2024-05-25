@@ -30,6 +30,20 @@ if Rails.env.development?
 end
 
 if Rails.env.test?
+  Team.create!(number: 3216,
+               name: "Robophins",
+               organization: "Whitney Young Magnet High Sch",
+               city: "Chicago",
+               state: "IL",
+               country: "USA",
+               rookie_year: "2008")
+  Team.create!(number: 5037,
+               name: "got robot?",
+               organization: "Klapperich Tool, Inc./Angularis Technologies, Inc.&4-H Robotics Special Interest Club",
+               city: "Elgin",
+               state: "IL",
+               country: "USA",
+               rookie_year: "2011")
   s = Season.create!(id: 1, year: '2023-2024', name: 'CENTERSTAGE', active: true, score_model_name: 'CenterstageScore')
   event = Event.create!(season: s, id: 1, type: :scrimmage,
                 slug: 'USILCHS1',
@@ -43,4 +57,5 @@ if Rails.env.test?
                 country: 'USA')
   event.import.attach(io: File.open(Rails.root.join('db/seed/usilchs1.db')), filename: 'usilchs1.db')
   ::ScoringSystem::SqlitedbImportService.new(event).process
+  League.create!(season_id: s.id, name: 'Chicago', slug: 'CHI')
 end

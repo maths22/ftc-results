@@ -35,7 +35,6 @@ module SeasonScore
     end
 
     def update_from_fms_score!(fms, other_fms)
-      puts fms.to_s
       update!({
                 init_team_prop1: fms["InitTeamProp1"],
                 init_team_prop2: fms["InitTeamProp2"],

@@ -8,16 +8,9 @@ module Api
 
       def index
         expires_in(15.minutes, public: true) if request_cacheable?
-
-        render json: @leagues,
-               only: %w[id name slug season_id league_id],
-               methods: :team_count
       end
 
       def show
-        render json: @league,
-               only: %w[id name slug season_id league_id],
-               methods: :team_count
       end
 
       def details

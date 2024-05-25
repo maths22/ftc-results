@@ -1,14 +1,5 @@
-import ScoreTable from './ScoreTable';
-
-
-function toTitleCase(str) {
-  return str.replaceAll('_', ' ').replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
-}
+import ScoreTable, {toTitleCase} from './ScoreTable';
+import type {components} from "../../api/v1";
 
 const endLocationPoints = {
   NONE: 0,
@@ -16,7 +7,7 @@ const endLocationPoints = {
   RIGGING: 20
 };
 
-export default ScoreTable((match) => {
+export default ScoreTable<components['schemas']['CenterstageScore']>((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
   return [

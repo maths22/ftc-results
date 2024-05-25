@@ -1,6 +1,6 @@
 json.id @match.id
 json.phase @match.phase
-json.series @match.series
+json.series @match.series if @match.series
 json.number @match.number
 json.event_id @match.event_id
 

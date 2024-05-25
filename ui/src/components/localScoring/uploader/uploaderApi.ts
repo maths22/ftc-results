@@ -1,10 +1,23 @@
+export type Fetcher = (req: {
+  endpoint: string,
+  method: 'GET' | 'POST',
+  headers: Record<string, string>,
+  body: string
+}) => Promise<{
+  error: boolean,
+  payload: string
+}>
+
 export default class UploaderApi {
-  constructor(apiBase, httpRequestFunc) {
+  private readonly fetcher: Fetcher;
+  private readonly apiBase: string;
+  
+  constructor(apiBase: string, httpRequestFunc: Fetcher) {
     this.apiBase = apiBase;
     this.fetcher = httpRequestFunc;
   }
 
-  postRankings(season, event, division, rankings) {
+  postRankings(season: string, event: string, division: number, rankings: any) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/rankings?division=${division}`,
       method: 'POST',
@@ -13,7 +26,7 @@ export default class UploaderApi {
     });
   }
 
-  postTeams(season, event, division, teams) {
+  postTeams(season: string, event: string, division: number, teams: any) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/teams?division=${division}`,
       method: 'POST',
@@ -21,7 +34,7 @@ export default class UploaderApi {
       body: JSON.stringify({teams})
     });
   }
-  postAlliances(season, event, division, alliances) {
+  postAlliances(season: string, event: string, division: number, alliances: any) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/alliances?division=${division}`,
       method: 'POST',
@@ -30,7 +43,7 @@ export default class UploaderApi {
     });
   }
 
-  postMatches(season, event, division, matches) {
+  postMatches(season: string, event: string, division: number, matches: any) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/matches?division=${division}`,
       method: 'POST',
@@ -39,7 +52,7 @@ export default class UploaderApi {
     });
   }
 
-  postMatch(season, event, division, id, match) {
+  postMatch(season: string, event: string, division: number, id: number, match: any) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/matches/${id}?division=${division}`,
       method: 'POST',
@@ -48,7 +61,7 @@ export default class UploaderApi {
     });
   }
 
-  postAwards(season, event, awards) {
+  postAwards(season: string, event: string, awards: any) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/awards`,
       method: 'POST',
@@ -57,7 +70,7 @@ export default class UploaderApi {
     });
   }
 
-  postState(season, event, state) {
+  postState(season: string, event: string, state: any) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/state`,
       method: 'POST',
@@ -66,7 +79,7 @@ export default class UploaderApi {
     });
   }
 
-  resetEvent(season, event) {
+  resetEvent(season: string, event: string) {
     return this.fetcher({
       endpoint: `${this.apiBase}/${season}/events/${event}/reset`,
       method: 'POST',

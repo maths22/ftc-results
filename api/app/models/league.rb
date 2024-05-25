@@ -1,5 +1,6 @@
 class League < ApplicationRecord
   scope :current_season, -> { where(season: Season.active.first) }
+  scope :leaf, -> { left_outer_joins(:leagues).where(leagues_leagues: { id: nil }) }
 
   has_many :leagues, dependent: :destroy
   belongs_to :season

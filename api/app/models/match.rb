@@ -124,6 +124,20 @@ class Match < ApplicationRecord
     blue_alliance.score[1] = blue_score_total unless blue_alliance.surrogate[1]
   end
 
+  NAME_PREFIXES = { qual: 'Q', semi: 'SF', final: 'F', interfinal: 'IF' }
+  def name
+    [NAME_PREFIXES[phase.to_sym], series == 0 ? nil : series, number].compact.join('-')
+  end
+
+  def self.parse_name(name)
+    parts = name.split('-')
+    ret = { phase: NAME_PREFIXES.invert[parts.first], number: parts.last.to_i }
+    if parts.length == 3
+      ret[:series] = parts[1].to_i
+    end
+    ret
+  end
+
   enum phase: {
     qual: 0,
     semi: 1,

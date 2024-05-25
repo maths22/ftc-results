@@ -1,20 +1,40 @@
 import PersistentWebSocket from 'pws';
 import ScoringApi, {websocketPath} from './scoringApi';
-import UploaderApi from './uploaderApi';
-// import objectHash from 'object-hash';
+import UploaderApi, {Fetcher} from './uploaderApi';
+import objectHash from 'object-hash';
 
 const MINUTES_IN_MILIS = 60000;
 const DISPLAY_DELAY = 10 * MINUTES_IN_MILIS;
 
 class UploaderApiError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(JSON.stringify(message, null, 2));
     this.name = 'UploaderApiError';
   }
 }
 
+export type UploadStatus ={
+  success: true,
+  date: Date
+} | {
+  success: false,
+  date: Date,
+  error: Error
+}
+
 export default class Uploader {
-  constructor(hostname, port, localEvent, season, hostedEvent, apiBase, uploadCallback, statusCallback) {
+  private readonly hostname: string;
+  private readonly port: number;
+  private readonly localEvent: string;
+  private readonly season: string;
+  private readonly hostedEvent: string;
+  private readonly scoringApi: ScoringApi;
+  private readonly uploaderApi: UploaderApi;
+  private readonly statusCallback: (status: UploadStatus) => void;
+  private syncInterval: number | undefined;
+  private pws: WebSocket | undefined;
+  private useCombinedRankings: boolean = false;
+  constructor(hostname: string, port: number, localEvent: string, season: string, hostedEvent: string, apiBase: string, uploadCallback: Fetcher, statusCallback: (status: UploadStatus) => void) {
     this.hostname = hostname;
     this.port = port;
     this.localEvent = localEvent;
@@ -25,14 +45,14 @@ export default class Uploader {
     this.statusCallback = statusCallback;
   }
 
-  displayedMatches = {};
+  displayedMatches: Record<string, any> = {};
   displayedInitialized = false;
 
   targetDivision = 0;
-  hashes = {};
+  hashes: Record<string, string> = {};
   state = {};
 
-  setState(newState) {
+  setState(newState: UploadStatus) {
     Object.assign(this.state, newState);
     this.statusCallback(newState);
   }
@@ -52,13 +72,13 @@ export default class Uploader {
     this.useCombinedRankings = eventInfo.payload.type === 'League Tournament';
     this.syncData();
     this.syncInterval = setInterval(this.syncData, 30000);
-    this.pws = new PersistentWebSocket(`ws://${this.hostname}:${this.port}${websocketPath}?code=${this.localEvent}`, WebSocket);
+    this.pws = PersistentWebSocket(`ws://${this.hostname}:${this.port}${websocketPath}?code=${this.localEvent}`);
     this.pws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if(msg.updateType === 'MATCH_POST') {
         const shortName = msg.payload.shortName;
         let phase = '';
-        let matchNum = '';
+        let matchNum = 0;
         let series = null;
         if(shortName[0] === 'Q') {
           phase = 'qual';
@@ -78,7 +98,7 @@ export default class Uploader {
           matchNum = parseInt(shortName.substr(2));
         }
         const mid = phase + '-' + (series ? (series + '-') : '') + matchNum;
-        const dispMatch = this.displayedMatches[mid] || {};
+        const dispMatch: any = this.displayedMatches[mid] || {};
         dispMatch.displayAt = new Date();
         this.displayedMatches[mid] = dispMatch;
       }
@@ -131,10 +151,10 @@ export default class Uploader {
     if(alliancesResult.error && alliancesResult.payload.response.errorCode === 'NOT_READY') {
       return;
     } else if(alliancesResult.error) {
-      throw new UploaderApiError(alliancesResult.payload);
+      throw new UploaderApiError(alliancesResult.payload.response);
     }
     const alliances = alliancesResult.payload.alliances;
-    const uploadAlliances = alliances.map((a) => ({
+    const uploadAlliances = alliances.map((a: any) => ({
       seed: a.seed,
       teams: [a.captain, a.pick1, a.pick2, a.pick3].filter((t) => t && t !== -1)
     }));
@@ -152,7 +172,7 @@ export default class Uploader {
       await this.scoringApi.getCombinedRankings(this.localEvent) :
       await this.scoringApi.getRankings(this.localEvent);
     const rankings = rankingsResult.payload.rankingList;
-    const uploadRankings = rankings.map((r) => ({
+    const uploadRankings = rankings.map((r: any) => ({
       team_id: r.team,
       ranking: r.ranking,
       ranking_points: r.rankingPoints,
@@ -170,9 +190,9 @@ export default class Uploader {
   syncAwards = async () => {
     const awardsResult = await this.scoringApi.getAwards(this.localEvent);
     const awards = awardsResult.payload.awards;
-    const uploadAwards = awards.map((a) => ({
+    const uploadAwards = awards.map((a: any) => ({
       name: a.name,
-      finalists: a.winners.map((fin) => ({
+      finalists: a.winners.map((fin: any) => ({
         place: fin.series,
         recipient: a.isTeamAward ? undefined : `${fin.firstName} ${fin.lastName}`,
         team_id: fin.team
@@ -189,7 +209,7 @@ export default class Uploader {
   getQualMatches = async () => {
     const matchesResult = await this.scoringApi.getMatches(this.localEvent);
     const matches = matchesResult.payload.matches;
-    return matches.map((m) => ({
+    return matches.map((m: any) => ({
       phase: 'qual',
       number: m.matchNumber,
       red_alliance: [m.red.team1, m.red.team2, m.red.team3].filter(Boolean),
@@ -200,20 +220,19 @@ export default class Uploader {
     }));
   };
 
-  getElimMatches = async (phase, series) => {
+  getElimMatches = async (phase: any, series?: number) => {
     const prefix = phase === 'final' ? 'finals' : ('sf/' + series);
     const matchesResult = await this.scoringApi.getElimMatches(this.localEvent, prefix);
     if(matchesResult.error && (
-      matchesResult.payload.name === 'InternalError' ||
       matchesResult.payload.response.errorCode === 'NOT_READY' ||
       matchesResult.payload.response.errorCode === 'NO_SUCH_EVENT') // This error code makes no sense for the situation in which it appears
     ) {
       return [];
     } else if(matchesResult.error) {
-      throw new UploaderApiError(matchesResult.payload);
+      throw new UploaderApiError(matchesResult.payload.response);
     }
     const matches = matchesResult.payload.matchList;
-    return matches.map((m) => ({
+    return matches.map((m: any) => ({
       phase: phase,
       series: series,
       //TODO check this pls (is this really right for semis)
@@ -234,7 +253,7 @@ export default class Uploader {
       this.getElimMatches('final'),
     ]);
 
-    const uploadMatches = [].concat.apply([], matches);
+    const uploadMatches: any[] = [].concat.apply([], matches);
 
     const newHash = objectHash(uploadMatches);
     if(this.hashes['matchList'] !== newHash) {
@@ -246,9 +265,9 @@ export default class Uploader {
     return uploadMatches.filter((m) => m.finished);
   };
 
-  syncMatchResults = async (matches) => {
+  syncMatchResults = async (matches: any) => {
     // Calculate which results should be posted
-    matches.forEach((m) => {
+    matches.forEach((m: any) => {
       const mid = m.phase + '-' + (m.series ? (m.series + '-') : '') + m.number;
       const dispMatch = this.displayedMatches[mid] || {};
       const now = new Date();
@@ -265,7 +284,7 @@ export default class Uploader {
     this.displayedInitialized = true;
 
     //TODO generalize seasons
-    const matchResults = await Promise.all(matches.filter((m) => m.postResults).map(async (m) => {
+    const matchResults = await Promise.all(matches.filter((m: any) => m.postResults).map(async (m: any) => {
       let prefix;
       if(m.phase !== 'qual') {
         prefix = 'elim/' + (m.phase === 'final' ? 'finals' : ('sf/' + m.series));
@@ -277,10 +296,10 @@ export default class Uploader {
     }));
     await Promise.all(matchResults.map(async (val) => {
       const [mid, mr] = val;
-      const mapScoreToUploadScore = (s) => ({
-        auto_skystones: s.autoStones.filter((s) => s === 'SKYSTONE').length - (s.firstReturnedIsSkystone ? 1 : 0),
+      const mapScoreToUploadScore = (s: any) => ({
+        auto_skystones: s.autoStones.filter((s: any) => s === 'SKYSTONE').length - (s.firstReturnedIsSkystone ? 1 : 0),
         // Note we aren't counting skystones in this number
-        auto_delivered: s.autoDelivered - s.autoReturned - s.autoStones.filter((s) => s === 'SKYSTONE').length,
+        auto_delivered: s.autoDelivered - s.autoReturned - s.autoStones.filter((s: any) => s === 'SKYSTONE').length,
         auto_placed: s.autoPlaced,
         robots_navigated: (s.robot1.navigated ? 1 : 0) + (s.robot2.navigated ? 1 : 0),
         foundation_repositioned: s.foundationRepositioned ? 1 : 0,

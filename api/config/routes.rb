@@ -1,8 +1,7 @@
 require 'delayed/server'
 
 Rails.application.routes.draw do
-  mount Rswag::Ui::Engine => '/api-docs'
-  mount Rswag::Api::Engine => '/api-docs'
+  mount Rswag::Api::Engine => '/api/docs'
   # api
   # service
   # rails/active_storage
@@ -40,6 +39,7 @@ Rails.application.routes.draw do
           member do
             # Basic views
             get 'matches', action: 'view_matches'
+            get 'matches/:name', controller: 'matches', action: 'details'
             get 'rankings', action: 'view_rankings'
             get 'awards', action: 'view_awards'
             get 'alliances', action: 'view_alliances'
@@ -86,8 +86,6 @@ Rails.application.routes.draw do
           get 'approve_access/:token', action: 'approve_access', as: 'approve_access'
         end
       end
-
-      get 'matches/:id/details', to: 'matches#details'
 
       mount_devise_token_auth_for 'User', at: 'auth', controllers: {
         confirmations: 'auth/confirmations'

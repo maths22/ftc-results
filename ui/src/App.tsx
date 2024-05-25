@@ -1,22 +1,19 @@
-import React, { Component } from 'react';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import EventCards from './components/EventCards.js';
+import EventCards from './components/EventCards';
 import SeasonSelector from './components/SeasonSelector';
 import Button from '@mui/material/Button';
-import {Link, useParams} from '@tanstack/react-router';
-import router from './router.jsx';
-import {useSeason, useSeasons} from './api.js';
-import LoadingSpinner from './components/LoadingSpinner.js';
+import {Link, useParams, useRouter} from '@tanstack/react-router';
+import {useSeason, useSeasons} from './api';
+import LoadingSpinner from './components/LoadingSpinner';
+import {stringToDate} from "./components/util";
 
-function stringToDate(str) {
-  const parts = str.split('-');
-  return new Date(parts[0],parts[1]-1,parts[2]);
-}
-
-function App({selectedSeason}) {
+function App({selectedSeason}: {
+    selectedSeason: string
+}) {
+  const router = useRouter();
   const { data: season} = useSeason(selectedSeason);
 
   const today = new Date();
@@ -33,12 +30,12 @@ function App({selectedSeason}) {
           <div style={{padding: '1em 0'}}>
             <Typography variant={'h5'}>League results</Typography>
             <List component="nav">
-              <ListItem  component={Link} to={`/${selectedSeason}/teams/rankings`} button>
+              <ListItemButton component={Link} to={`/${selectedSeason}/teams/rankings`}>
                 <ListItemText primary="All Team Rankings" />
-              </ListItem>
-              <ListItem  component={Link} to={`/${selectedSeason}/leagues/summary`} button>
+              </ListItemButton>
+              <ListItemButton component={Link} to={`/${selectedSeason}/leagues/summary`}>
                 <ListItemText primary="Rankings By League" />
-              </ListItem>
+              </ListItemButton>
             </List>
           </div>
         }
@@ -61,6 +58,11 @@ function App({selectedSeason}) {
             See All Events
           </Button>
         </div>
+
+        <footer style={{marginTop: '3em', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+            <small style={{marginRight: '1em'}}>Illinois/Chicago Robotics Invitational <i>FIRST</i> Tech Challenge Event Results</small>
+            <small><a href={"/api-docs.html"} target={"_blank"}>API Documentation</a></small>
+        </footer>
       </div>
   );
 }
@@ -70,7 +72,7 @@ export function RoutableHome() {
   if(isLoading || !seasons) {
     return <LoadingSpinner />;
   }
-  const defaultSeason = seasons.find((s) => s.active).year;
+  const defaultSeason = (seasons.find((s) => s.active) || seasons[0]).year;
   return <App selectedSeason={defaultSeason} />;
 }
 export function RoutableSeasonHome() {

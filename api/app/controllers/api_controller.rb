@@ -14,7 +14,7 @@ class ApiController < ApplicationController
   end
 
   def request_cacheable?
-    Rails.env.production? && request.headers['HTTP_X_UID'].blank?
+    Rails.env.production? && (request.headers['HTTP_X_UID'].blank? && request.headers['HTTP_AUTHORIZATION'].blank?)
   end
 
   before_action :authenticate_user!

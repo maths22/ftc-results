@@ -1,6 +1,7 @@
 import ScoreTable from './ScoreTable.js';
+import type {components} from "../../api/v1";
 
-export default ScoreTable((match) => {
+export default ScoreTable<components['schemas']['PowerPlayScore']>((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
   return [

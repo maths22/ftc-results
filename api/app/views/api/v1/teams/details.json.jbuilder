@@ -7,21 +7,23 @@ json.team do
   json.country @team.country
   json.rookie_year @team.rookie_year
   json.consent_missing @team.consent_missing
-
-  json.events @team.events.pluck(:id)
-  json.league_ids @team.leagues.pluck(:id)
-
-  json.season_records(@team.events.group_by(&:season_id)
-                           .transform_values { |events| events.flat_map { |val| @matches.group_by(&:event_id)[val.id] }.compact }
-                           .transform_values { |matches| @team.record(matches) })
-  json.event_records @matches.group_by(&:event_id).map { |k, v| [k, @team.record(v)] }.to_h
-  json.rankings @team.rankings.map { |rk| [rk.context_id, rk.ranking] }.to_h
+  json.updated_at @team.updated_at
 end
 
-json.events do
-  json.array! @team.events.sort, partial: 'events/base_info', as: :event
-end
-
-json.matches do
-  json.array! @matches, partial: 'matches/base_info', as: :match
+json.seasons do
+  json.array! @team.seasons do |season|
+    json.season season.year
+    json.record @team.record(@team.events.where(season: season)
+                  .flat_map { |val| @matches.group_by(&:event_id)[val.id] }.compact)
+    json.league @team.leagues.where(season: season).leaf.first&.slug if @team.leagues.leaf.present?
+    json.events do
+      json.array! @team.events.where(season: season) do |event|
+        json.data event, partial: 'events/base_info', as: :event
+        json.ranking @team.rankings.find_by(context: event), partial: 'rankings/base_info', as: :ranking unless event.league_meet?
+        json.matches do
+          json.array! @matches.select { |m| m.event_id == event.id }, partial: 'matches/base_info', as: :match
+        end
+      end
+    end
+  end
 end

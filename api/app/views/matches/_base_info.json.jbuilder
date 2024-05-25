@@ -1,10 +1,11 @@
 json.id match.id
 json.event_id match.event_id
-json.division match.event_division&.slug
+json.division match.event_division.slug if match.event_division
 json.phase match.phase
-json.series match.series
+json.series match.series if match.series
 json.number match.number
-json.played match.played
+json.name match.name
+json.played !!match.played
 if match.event.remote
   json.team match.red_alliance.alliance.teams.map(&:id)
   json.score match.red_score_total if match.played

@@ -7,7 +7,7 @@ json.alliances @alliances do |alliance|
     json.array! alliance.teams.pluck(:number)
   end
 
-  json.division alliance.event_division&.slug
+  json.division alliance.event_division.slug if alliance.event_division
 end
 
 json.rankings @rankings, partial: 'rankings/base_info', as: :ranking

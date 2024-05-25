@@ -8,24 +8,18 @@ import ScoringServerPicker from './ScoringServerPicker.js';
 import {useParams} from "@tanstack/react-router";
 import {useEvent} from "../../api";
 import {useQuery} from "@tanstack/react-query";
-import ScoringUploader from "./uploader/index"
+import Uploader, {UploadStatus} from "./uploader"
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import {useConfirm} from "material-ui-confirm";
 
-type UploadStatus ={
-  success: true,
-  date: Date
-} | {
-  success: false,
-  date: Date,
-  error: Error
-}
-
-export default function Uploader() {
+export default function LocalUploader() {
+  const confirm = useConfirm();
   const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug/uploader' });
   const { data: event } = useEvent(seasonYear, slug);
 
-  const [localServerHost, setLocalServerHost] = useState('localhost');
-  const [localServerPort, setLocalServerPort] = useState(80);
-  const [localServerConfirmed, setLocalServerConfirmed] = useState(false);
+  const [localServer, setLocalServer] = useState({ hostname: 'localhost', port: 80 });
+  const [localServerConfirmed, setLocalServerConfirmed] = useState<boolean>();
   const [localEvent, setLocalEvent] = useState('');
 
 
@@ -36,23 +30,24 @@ export default function Uploader() {
     (async () => {
       setLocalServerConfirmed(false)
       setLocalEvent('')
-      const whoAmI = await fetch(`http://${localServerHost}:${localServerPort}/whoami/`)
+      const whoAmI = await fetch(`http://${localServer.hostname}:${localServer.port}/whoami/`)
       setLocalServerConfirmed(whoAmI.ok && await whoAmI.text() == 'FIRST_TECH_CHALLENGE_SCORING_SOFTWARE')
     })()
-  }, [localServerHost, localServerPort])
+  }, [localServer])
 
   useEffect(() => {
     if(!uploadRunning) {
       return
     }
 
-    const uploader = new ScoringUploader(
-        localServerHost,
-        localServerPort,
+    const uploader = new Uploader(
+        localServer.hostname,
+        localServer.port,
         localEvent,
         seasonYear,
         slug,
         "/api/v1",
+        (arg: any) => Promise.reject("Not implemented"),
         setUploadStatus
     )
     uploader.startUpload()
@@ -61,24 +56,33 @@ export default function Uploader() {
   }, [uploadRunning]);
 
   const { data: eventCodes } = useQuery({
-    queryKey: ['localEvents', localServerHost, localServerPort],
+    queryKey: ['localEvents', localServer.hostname, localServer.port],
     enabled: localServerConfirmed,
     queryFn: async () => {
-      const events = await fetch(`http://${localServerHost}:${localServerPort}/api/v1/events/`)
+      const events = await fetch(`http://${localServer.hostname}:${localServer.port}/api/v1/events/`)
       return (await events.json())['eventCodes'] as string[]
     }
   })
 
   async function resetEvent(){
-    if(event && window.confirm(`Are you sure you want to reset ${event.name}?\n(THIS WILL CLEAR ALL DATA FOR ALL DIVISIONS)`)) {
-      const wasRunning = uploadRunning;
-      if(wasRunning) {
-        setUploadRunning(false)
-      }
-      // TODO reset event here
-      if(wasRunning) {
-        setUploadRunning(true);
-      }
+    if(!event) {
+      return
+    }
+    await confirm({
+      title: `Reset ${event.name}`,
+      description: <p>
+        Are you sure you want to reset {event.name}?<br/>
+        THIS WILL CLEAR ALL DATA FOR ALL DIVISIONS
+      </p>
+    });
+
+    const wasRunning = uploadRunning;
+    if(wasRunning) {
+      setUploadRunning(false)
+    }
+    // TODO reset event here
+    if(wasRunning) {
+      setUploadRunning(true);
     }
   }
 
@@ -95,7 +99,12 @@ export default function Uploader() {
     }}>
       <ScoringServerPicker
           disabled={uploadRunning}
+          setLocalServer={(server) => setLocalServer(server)}
       />
+      {localServerConfirmed === false ? <Grid item xs={12}>
+        <Typography color="error">{'Could not connect to scoring system at ' +
+            `http://${localServer.hostname}:${localServer.port}`}</Typography>
+      </Grid> : null}
       {eventCodes ? <div>
         <Select
             value={localEvent}
