@@ -21,6 +21,7 @@ type CellOwnerState = {
 
 const ScoreCell = styled(TableCell)<{ownerState: CellOwnerState}>(({theme, ownerState}) => ({
   padding: theme.spacing(0.5),
+  width: '33%',
   whiteSpace: 'pre-line',
   textAlign: 'center',
   '&:last-child': {
@@ -63,28 +64,28 @@ type ScoreInterpretation<T extends ScoreType> = (match: SeasonScore<T>) => ({
   blue: number,
 } | {
   key?: false,
-  value: number,
+  value?: number,
   red: number,
   blue: number,
 } | {
   key?: false,
   red: string,
   blue: string,
-  red_pts: number,
-  blue_pts: number
+  red_pts?: number,
+  blue_pts?: number
 }))[]
 
 export default function ScoreTable<T extends ScoreType>(scoreInterpretation: ScoreInterpretation<T>) {
   return ({match}: {match: SeasonScore<T>}) => {
     const scores = scoreInterpretation(match);
     scores.forEach((val) => {
-      if ('value' in val) {
+      if ('value' in val && val.value) {
         val.red_pts = val.red * val.value + (val.bonus && val.bonus.redAccomplished ? val.bonus.value : 0);
         val.blue_pts = val.blue * val.value + (val.bonus && val.bonus.blueAccomplished ? val.bonus.value : 0);
       }
     });
 
-    return <Table sx={{minWidth: '20em'}}>
+    return <Table sx={{minWidth: '20em', tableLayout: 'fixed'}}>
       <TableBody>
         {scores.map((sc, i) => {
           const bonusLabel = sc.bonus && `${sc.bonus.label} (+${sc.bonus.value})`;

@@ -1,0 +1,43 @@
+json.init_team_prop1 score.init_team_prop1
+json.init_team_prop2 score.init_team_prop2
+json.init_team_prop3 score.init_team_prop3
+json.robot1_auto score.robot1_auto
+json.robot2_auto score.robot2_auto
+json.robot3_auto score.robot3_auto
+json.spike_mark_pixel1 score.spike_mark_pixel1
+json.spike_mark_pixel2 score.spike_mark_pixel2
+json.spike_mark_pixel3 score.spike_mark_pixel3
+json.target_backdrop_pixel1 score.target_backdrop_pixel1
+json.target_backdrop_pixel2 score.target_backdrop_pixel2
+json.target_backdrop_pixel3 score.target_backdrop_pixel3
+json.auto_backstage score.auto_backstage
+json.auto_own_backdrop score.auto_own_backdrop
+json.auto_own_mosaics score.auto_own_mosaics
+json.auto_own_max_set_line score.auto_own_max_set_line
+json.auto_shared_backdrop score.auto_shared_backdrop
+json.auto_shared_mosaics score.auto_shared_mosaics
+json.auto_shared_max_set_line score.auto_shared_max_set_line
+
+json.teleop_backstage score.teleop_backstage
+json.teleop_own_backdrop score.teleop_own_backdrop
+json.teleop_own_mosaics score.teleop_own_mosaics
+json.teleop_own_max_set_line score.teleop_own_max_set_line
+json.teleop_shared_backdrop score.teleop_shared_backdrop
+json.teleop_shared_mosaics score.teleop_shared_mosaics
+json.teleop_shared_max_set_line score.teleop_shared_max_set_line
+json.alliance_pixels score.alliance_pixels
+json.other_alliance_pixels score.other_alliance_pixels
+
+json.teleop_robot1 score.teleop_robot1
+json.teleop_robot2 score.teleop_robot2
+json.teleop_robot3 score.teleop_robot3
+json.drone1 score.drone1
+json.drone2 score.drone2
+json.drone3 score.drone3
+
+json.minor_penalties score.minor_penalties
+json.major_penalties score.major_penalties
+
+json.collage score.collage?
+json.mural score.mural?
+json.finale score.finale?

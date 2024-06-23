@@ -616,7 +616,7 @@ export interface components {
       number: number;
       event_id: number;
       /** @enum {string} */
-      season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore";
+      season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore" | "CenterstageCriScore";
       red_score_total: number;
       red_score: {
         auto: number;
@@ -624,7 +624,7 @@ export interface components {
         endgame: number;
         penalty: number;
       };
-      red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"];
+      red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"];
       blue_score_total: number;
       blue_score: {
         auto: number;
@@ -632,7 +632,7 @@ export interface components {
         endgame: number;
         penalty: number;
       };
-      blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"];
+      blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"];
     };
     remoteMatchDetails: {
       id: number;
@@ -912,7 +912,50 @@ export interface components {
       drone2: number;
       minor_penalties: number;
       major_penalties: number;
-      major_penalties3?: number;
+    };
+    CenterstageCriScore: {
+      init_team_prop1: boolean;
+      init_team_prop2: boolean;
+      init_team_prop3: boolean;
+      robot1_auto: boolean;
+      robot2_auto: boolean;
+      robot3_auto: boolean;
+      spike_mark_pixel1: boolean;
+      spike_mark_pixel2: boolean;
+      spike_mark_pixel3: boolean;
+      target_backdrop_pixel1: boolean;
+      target_backdrop_pixel2: boolean;
+      target_backdrop_pixel3: boolean;
+      auto_backstage: number;
+      auto_own_backdrop: number;
+      auto_own_mosaics: number;
+      auto_own_max_set_line: number;
+      auto_shared_backdrop: number;
+      auto_shared_mosaics: number;
+      auto_shared_max_set_line: number;
+      teleop_backstage: number;
+      teleop_own_backdrop: number;
+      teleop_own_mosaics: number;
+      teleop_own_max_set_line: number;
+      teleop_shared_backdrop: number;
+      teleop_shared_mosaics: number;
+      teleop_shared_max_set_line: number;
+      alliance_pixels: number;
+      other_alliance_pixels: number;
+      /** @enum {string} */
+      teleop_robot1: "NONE" | "BACKSTAGE" | "RIGGING";
+      /** @enum {string} */
+      teleop_robot2: "NONE" | "BACKSTAGE" | "RIGGING";
+      /** @enum {string} */
+      teleop_robot3: "NONE" | "BACKSTAGE" | "RIGGING";
+      drone1: number;
+      drone2: number;
+      drone3: number;
+      minor_penalties: number;
+      major_penalties: number;
+      collage: boolean;
+      mural: boolean;
+      finale: boolean;
     };
   };
   responses: never;

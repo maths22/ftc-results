@@ -5,7 +5,7 @@ require 'rails_helper'
 SAMPLE_SEASON = '2023-2024'
 SAMPLE_EVENT = 'USILCHS1'
 SAMPLE_LEAGUE = 'CHI'
-SCORE_TYPES = %i[RoverRuckusScore RoverRuckusCriScore SkystoneScore FreightFrenzyScore FreightFrenzyCriScore PowerPlayScore PowerPlayCriScore CenterstageScore]
+SCORE_TYPES = %i[RoverRuckusScore RoverRuckusCriScore SkystoneScore FreightFrenzyScore FreightFrenzyCriScore PowerPlayScore PowerPlayCriScore CenterstageScore CenterstageCriScore]
 REMOTE_SCORE_TYPES = %i[UltimateGoalScoreRemote FreightFrenzyScoreRemote]
 
 RSpec.configure do |config|
@@ -605,9 +605,53 @@ DESC
               drone2: { type: :integer },
               minor_penalties: { type: :integer },
               major_penalties: { type: :integer },
-              major_penalties3: { type: :integer },
             },
             required: %i[init_team_prop1 init_team_prop2 robot1_auto robot2_auto spike_mark_pixel1 spike_mark_pixel2 target_backdrop_pixel1 target_backdrop_pixel2 auto_backdrop auto_backstage teleop_backdrop teleop_backstage mosaics max_set_line teleop_robot1 teleop_robot2 drone1 drone2 minor_penalties major_penalties]
+          },
+          CenterstageCriScore: {
+            type: :object,
+            properties: {
+              init_team_prop1: { type: :boolean },
+              init_team_prop2: { type: :boolean },
+              init_team_prop3: { type: :boolean },
+              robot1_auto: { type: :boolean },
+              robot2_auto: { type: :boolean },
+              robot3_auto: { type: :boolean },
+              spike_mark_pixel1: { type: :boolean },
+              spike_mark_pixel2: { type: :boolean },
+              spike_mark_pixel3: { type: :boolean },
+              target_backdrop_pixel1: { type: :boolean },
+              target_backdrop_pixel2: { type: :boolean },
+              target_backdrop_pixel3: { type: :boolean },
+              auto_backstage: { type: :integer },
+              auto_own_backdrop: { type: :integer },
+              auto_own_mosaics: { type: :integer },
+              auto_own_max_set_line: { type: :integer },
+              auto_shared_backdrop: { type: :integer },
+              auto_shared_mosaics: { type: :integer },
+              auto_shared_max_set_line: { type: :integer },
+              teleop_backstage: { type: :integer },
+              teleop_own_backdrop: { type: :integer },
+              teleop_own_mosaics: { type: :integer },
+              teleop_own_max_set_line: { type: :integer },
+              teleop_shared_backdrop: { type: :integer },
+              teleop_shared_mosaics: { type: :integer },
+              teleop_shared_max_set_line: { type: :integer },
+              alliance_pixels: { type: :integer },
+              other_alliance_pixels: { type: :integer },
+              teleop_robot1: { type: :string, enum: %i[NONE BACKSTAGE RIGGING] },
+              teleop_robot2: { type: :string, enum: %i[NONE BACKSTAGE RIGGING] },
+              teleop_robot3: { type: :string, enum: %i[NONE BACKSTAGE RIGGING] },
+              drone1: { type: :integer },
+              drone2: { type: :integer },
+              drone3: { type: :integer },
+              minor_penalties: { type: :integer },
+              major_penalties: { type: :integer },
+              collage: { type: :boolean },
+              mural: { type: :boolean },
+              finale: { type: :boolean },
+            },
+            required: %i[init_team_prop1 init_team_prop2 init_team_prop3 robot1_auto robot2_auto robot3_auto spike_mark_pixel1 spike_mark_pixel2 spike_mark_pixel3 target_backdrop_pixel1 target_backdrop_pixel2 target_backdrop_pixel3 auto_backstage auto_own_backdrop auto_own_mosaics auto_own_max_set_line auto_shared_backdrop auto_shared_mosaics auto_shared_max_set_line teleop_backstage teleop_own_backdrop teleop_own_mosaics teleop_own_max_set_line teleop_shared_backdrop teleop_shared_mosaics teleop_shared_max_set_line alliance_pixels other_alliance_pixels teleop_robot1 teleop_robot2 teleop_robot3 drone1 drone2 drone3 minor_penalties major_penalties collage mural finale]
           },
         },
       },

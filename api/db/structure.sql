@@ -539,6 +539,72 @@ ALTER SEQUENCE public.awards_id_seq OWNED BY public.awards.id;
 
 
 --
+-- Name: centerstage_cri_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.centerstage_cri_scores (
+    id bigint NOT NULL,
+    init_team_prop1 boolean DEFAULT false,
+    init_team_prop2 boolean DEFAULT false,
+    init_team_prop3 boolean DEFAULT false,
+    robot1_auto boolean DEFAULT false,
+    robot2_auto boolean DEFAULT false,
+    robot3_auto boolean DEFAULT false,
+    spike_mark_pixel1 boolean DEFAULT false,
+    spike_mark_pixel2 boolean DEFAULT false,
+    spike_mark_pixel3 boolean DEFAULT false,
+    target_backdrop_pixel1 boolean DEFAULT false,
+    target_backdrop_pixel2 boolean DEFAULT false,
+    target_backdrop_pixel3 boolean DEFAULT false,
+    auto_backstage integer DEFAULT 0,
+    auto_own_backdrop integer DEFAULT 0,
+    auto_own_mosaics integer DEFAULT 0,
+    auto_own_max_set_line integer DEFAULT 0,
+    auto_shared_backdrop integer DEFAULT 0,
+    auto_shared_mosaics integer DEFAULT 0,
+    auto_shared_max_set_line integer DEFAULT 0,
+    teleop_backstage integer DEFAULT 0,
+    teleop_own_backdrop integer DEFAULT 0,
+    teleop_own_mosaics integer DEFAULT 0,
+    teleop_own_max_set_line integer DEFAULT 0,
+    teleop_shared_backdrop integer DEFAULT 0,
+    teleop_shared_mosaics integer DEFAULT 0,
+    teleop_shared_max_set_line integer DEFAULT 0,
+    alliance_pixels integer DEFAULT 0,
+    other_alliance_pixels integer DEFAULT 0,
+    teleop_robot1 public.cs_teleop_robot_status DEFAULT 'NONE'::public.cs_teleop_robot_status,
+    teleop_robot2 public.cs_teleop_robot_status DEFAULT 'NONE'::public.cs_teleop_robot_status,
+    teleop_robot3 public.cs_teleop_robot_status DEFAULT 'NONE'::public.cs_teleop_robot_status,
+    drone1 integer DEFAULT 0,
+    drone2 integer DEFAULT 0,
+    drone3 integer DEFAULT 0,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: centerstage_cri_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.centerstage_cri_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: centerstage_cri_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.centerstage_cri_scores_id_seq OWNED BY public.centerstage_cri_scores.id;
+
+
+--
 -- Name: centerstage_scores; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1862,6 +1928,13 @@ ALTER TABLE ONLY public.awards ALTER COLUMN id SET DEFAULT nextval('public.award
 
 
 --
+-- Name: centerstage_cri_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.centerstage_cri_scores ALTER COLUMN id SET DEFAULT nextval('public.centerstage_cri_scores_id_seq'::regclass);
+
+
+--
 -- Name: centerstage_scores id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2141,6 +2214,14 @@ ALTER TABLE ONLY public.award_finalists
 
 ALTER TABLE ONLY public.awards
     ADD CONSTRAINT awards_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: centerstage_cri_scores centerstage_cri_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.centerstage_cri_scores
+    ADD CONSTRAINT centerstage_cri_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -3068,6 +3149,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230625151524'),
 ('20230626163309'),
 ('20240520071107'),
-('20240521143711');
+('20240521143711'),
+('20240623032627');
 
 

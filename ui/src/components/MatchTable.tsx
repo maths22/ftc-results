@@ -10,6 +10,7 @@ import Hidden from '@mui/material/Hidden/Hidden';
 import {styled} from '@mui/material/styles';
 import {useNavigate, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/v1";
+import {Box} from "@mui/material";
 
 const plainColors = {
   red: '#fee',
@@ -76,13 +77,13 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
 
       const redOwnerState  = {
         color: 'red',
-        win: (m.red_score && m.blue_score) ? m.red_score > m.blue_score : false,
+        win: ('red_score' in m && 'blue_score' in m) ? m.red_score > m.blue_score : false,
         alliance: team != undefined && isRedTeam,
         surrogate: isSurrogate
       } as const;
       const blueOwnerState = {
         color: 'blue',
-        win: (m.red_score && m.blue_score) ? m.red_score < m.blue_score : false,
+        win: ('red_score' in m && 'blue_score' in m) ? m.red_score < m.blue_score : false,
         alliance: team != undefined && !isRedTeam,
         surrogate: isSurrogate
       } as const;
@@ -96,23 +97,23 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
             {team ? <MatchCell ownerState={{surrogate: isSurrogate}}>{m.played ? result : '-'}</MatchCell> : null}
           </Hidden>
           <MatchCell ownerState={redOwnerState}>
-            <div style={{display: 'flex'}}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.red_alliance.map((t, idx) => {
                 const Component = t === team ? 'span' : TextLink;
                 return <Component key={t} to={`/teams/${t}`} style={{flex: 1}}>{t}
                   {m.red_surrogate[idx] ? '*' : ''}</Component>;
               })}
-            </div>
+            </Box>
           </MatchCell>
           <MatchCell ownerState={blueOwnerState}>
-            <div style={{display: 'flex'}}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.blue_alliance.map((t, idx) => {
                 const Component = t === team ? 'span' : TextLink;
                 return <Component key={t} to={`/teams/${t}`} style={{flex: 1}}>{t}
                   {m.blue_surrogate[idx] ? '*' : ''}</Component>
                   ;
               })}
-            </div>
+            </Box>
           </MatchCell>
 
           <Hidden smDown>
@@ -145,7 +146,7 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
     })];
   }));
 
-  return <Table key={1} sx={{minWidth: '30em'}} size="small">
+  return <Table key={1} size="small">
     <TableHead>
       <TableRow style={rowStyle}>
         <MatchCell>Match</MatchCell>

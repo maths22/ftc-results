@@ -12,6 +12,7 @@ import {useMatchDetails} from '../api';
 import LoadingSpinner from './LoadingSpinner';
 import type {components} from "../api/v1";
 import ErrorBoundary from "./ErrorBoundary";
+import {useMediaQuery, useTheme} from "@mui/material";
 const scoreTables = {
   'RoverRuckusScore': lazy(() => import('./scoreTables/RoverRuckusScoreTable.ts')),
   'RoverRuckusCriScore': lazy(() => import('./scoreTables/RoverRuckusCriScoreTable.ts')),
@@ -22,7 +23,8 @@ const scoreTables = {
   'FreightFrenzyCriScore': lazy(() => import('./scoreTables/FreightFrenzyCriScoreTable.ts')),
   'PowerPlayScore': lazy(() => import('./scoreTables/PowerPlayScoreTable.ts')),
   'PowerPlayCriScore': lazy(() => import('./scoreTables/PowerPlayCriScoreTable.tsx')),
-  'CenterstageScore': lazy(() => import('./scoreTables/CenterstageScoreTable.ts'))
+  'CenterstageScore': lazy(() => import('./scoreTables/CenterstageScoreTable.ts')),
+  'CenterstageCriScore': lazy(() => import('./scoreTables/CenterstageCriScoreTable.ts'))
 }
 
 export default function MatchDetailsDialog({event, matchName, onClose}: {
@@ -30,6 +32,8 @@ export default function MatchDetailsDialog({event, matchName, onClose}: {
   matchName?: string,
   onClose: () => void
 }) {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const { isPending, isError, data: match } = useMatchDetails(event.season, event.slug, matchName);
   if(isError) {
     return;
@@ -42,13 +46,13 @@ export default function MatchDetailsDialog({event, matchName, onClose}: {
         onClose={onClose}
         open={!!matchName}
         aria-labelledby="form-dialog-title"
-        // maxWidth="xl" fullWidth
+        fullScreen={fullScreen}
     >
       <DialogTitle id="form-dialog-title" style={{display: 'flex', alignItems: 'center'}}>
         <Typography variant="h6" style={{flexGrow: 1}}>Results for {event.name} - Match {matchName}</Typography>
         <IconButton onClick={onClose} size="large"><CloseIcon/></IconButton>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{padding: '10px'}}>
         {isPending ? <LoadingSpinner /> : null}
         {isError ? <span>Error Loading match data</span> : null}
         {match ? <ErrorBoundary message={'Match details cannot be shown for this match'}>
