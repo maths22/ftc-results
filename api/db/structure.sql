@@ -1243,7 +1243,8 @@ CREATE TABLE public.match_alliances (
     updated_at timestamp without time zone NOT NULL,
     rp json,
     tbp json,
-    score json
+    score json,
+    teams_start json
 );
 
 
@@ -3150,6 +3151,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230626163309'),
 ('20240520071107'),
 ('20240521143711'),
-('20240623032627');
+('20240623032627'),
+('20240623201234');
 
 

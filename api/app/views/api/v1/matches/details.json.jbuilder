@@ -18,9 +18,13 @@ else
   json.red_score_details @match.red_score.season_score,
                         partial: "season_score/#{@match.red_score.season_score.class.table_name}/base_info",
                         as: :score
+  json.red_teams @match.red_alliance.alliance.teams.map(&:id)
+  json.red_starts @match.red_alliance.teams_start if @match.red_alliance.teams_start
   json.blue_score_total @match.blue_score_total
   json.blue_score @match.blue_score, partial: 'scores/base_info', as: :score
   json.blue_score_details @match.blue_score.season_score,
                           partial: "season_score/#{@match.blue_score.season_score.class.table_name}/base_info",
                           as: :score
+  json.blue_teams @match.blue_alliance.alliance.teams.map(&:id)
+  json.blue_starts @match.blue_alliance.teams_start if @match.blue_alliance.teams_start
 end

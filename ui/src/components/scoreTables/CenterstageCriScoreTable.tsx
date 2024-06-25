@@ -1,4 +1,4 @@
-import ScoreTable, {toTitleCase} from './ScoreTable';
+import ScoreTable, {SeasonScore, toTitleCase} from './ScoreTable';
 import type {components} from "../../api/v1";
 
 const endLocationPoints = {
@@ -7,9 +7,25 @@ const endLocationPoints = {
   RIGGING: 20
 };
 
-export default ScoreTable<components['schemas']['CenterstageCriScore']>((match) => {
+function allianceToRobots(starts: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[] | undefined, teams: number[]): [number | undefined, number | undefined, number | undefined] {
+  const robot1Pos = starts?.indexOf("FRONT")
+  const robot2Pos = starts?.indexOf("MIDDLE")
+  const robot3Pos = starts?.indexOf("BACK")
+
+  return [
+      robot1Pos != undefined ? teams[robot1Pos] : undefined,
+      robot2Pos != undefined ? teams[robot2Pos] : undefined,
+      robot3Pos != undefined ? teams[robot3Pos] : undefined,
+  ]
+}
+
+const BaseScoreTable = ScoreTable<components['schemas']['CenterstageCriScore']>((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
+
+  const redRobots = allianceToRobots(match.red_starts, match.red_teams)
+  const blueRobots = allianceToRobots(match.blue_starts, match.blue_teams)
+
   return [
     {
       desc: 'Auto Backdrop',
@@ -39,63 +55,63 @@ export default ScoreTable<components['schemas']['CenterstageCriScore']>((match) 
       blue_pts: 10 * (blue_det.auto_own_max_set_line + blue_det.auto_shared_max_set_line)
     },
     {
-      desc: 'Robot 1 Purple Spike Mark Pixel',
-      red: red_det.spike_mark_pixel1 ? (red_det.init_team_prop1 ? 'Yes - team prop' : 'Yes') : 'No',
-      blue: blue_det.spike_mark_pixel1 ? (blue_det.init_team_prop1 ? 'Yes - team prop' : 'Yes') : 'No',
+      desc: `${redRobots[0] || 'No Robot'} | ${blueRobots[0] || 'No Robot'}<br/> Purple Spike Mark Pixel`,
+      red: red_det.spike_mark_pixel1 ? (red_det.init_team_prop1 ? 'Team prop' : 'White pixel') : '-',
+      blue: blue_det.spike_mark_pixel1 ? (blue_det.init_team_prop1 ? 'Team prop' : 'White pixel') : '-',
       red_pts: red_det.spike_mark_pixel1 ? (red_det.init_team_prop1 ? 20 : 10) : 0,
       blue_pts: blue_det.spike_mark_pixel1 ? (blue_det.init_team_prop1 ? 20 : 10) : 0
     },
     {
-      desc: 'Robot 2 Purple Spike Mark Pixel',
-      red: red_det.spike_mark_pixel2 ? (red_det.init_team_prop2 ? 'Yes - team prop' : 'Yes') : 'No',
-      blue: blue_det.spike_mark_pixel2 ? (blue_det.init_team_prop2 ? 'Yes - team prop' : 'Yes') : 'No',
+      desc: `${redRobots[1] || 'No Robot'} | ${blueRobots[1] || 'No Robot'}<br/> Purple Spike Mark Pixel`,
+      red: red_det.spike_mark_pixel2 ? (red_det.init_team_prop2 ? 'Team prop' : 'White pixel') : '-',
+      blue: blue_det.spike_mark_pixel2 ? (blue_det.init_team_prop2 ? 'Team prop' : 'White pixel') : '-',
       red_pts: red_det.spike_mark_pixel2 ? (red_det.init_team_prop2 ? 20 : 10) : 0,
       blue_pts: blue_det.spike_mark_pixel2 ? (blue_det.init_team_prop2 ? 20 : 10) : 0
     },
     {
-      desc: 'Robot 3 Purple Spike Mark Pixel',
-      red: red_det.spike_mark_pixel3 ? (red_det.init_team_prop3 ? 'Yes - team prop' : 'Yes') : 'No',
-      blue: blue_det.spike_mark_pixel3 ? (blue_det.init_team_prop3 ? 'Yes - team prop' : 'Yes') : 'No',
+      desc: `${redRobots[2] || 'No Robot'} | ${blueRobots[2] || 'No Robot'}<br/> Purple Spike Mark Pixel`,
+      red: red_det.spike_mark_pixel3 ? (red_det.init_team_prop3 ? 'Team prop' : 'White pixel') : '-',
+      blue: blue_det.spike_mark_pixel3 ? (blue_det.init_team_prop3 ? 'Team prop' : 'White pixel') : '-',
       red_pts: red_det.spike_mark_pixel3 ? (red_det.init_team_prop3 ? 20 : 10) : 0,
       blue_pts: blue_det.spike_mark_pixel3 ? (blue_det.init_team_prop3 ? 20 : 10) : 0
     },
     {
-      desc: 'Robot 1 Yellow Backdrop Pixel',
-      red: red_det.target_backdrop_pixel1 ? (red_det.init_team_prop1 ? 'Yes - team prop' : 'Yes') : 'No',
-      blue: blue_det.target_backdrop_pixel1 ? (blue_det.init_team_prop1 ? 'Yes - team prop' : 'Yes') : 'No',
+      desc: `${redRobots[0] || 'No Robot'} | ${blueRobots[0] || 'No Robot'}<br/> Yellow Backdrop Pixel`,
+      red: red_det.target_backdrop_pixel1 ? (red_det.init_team_prop1 ? 'Team prop' : 'White pixel') : '-',
+      blue: blue_det.target_backdrop_pixel1 ? (blue_det.init_team_prop1 ? 'Team prop' : 'White pixel') : '-',
       red_pts: red_det.target_backdrop_pixel1 ? (red_det.init_team_prop1 ? 20 : 10) : 0,
       blue_pts: blue_det.target_backdrop_pixel1 ? (blue_det.init_team_prop1 ? 20 : 10) : 0
     },
     {
-      desc: 'Robot 2 Yellow Backdrop Pixel',
-      red: red_det.target_backdrop_pixel2 ? (red_det.init_team_prop2 ? 'Yes - team prop' : 'Yes') : 'No',
-      blue: blue_det.target_backdrop_pixel2 ? (blue_det.init_team_prop2 ? 'Yes - team prop' : 'Yes') : 'No',
+      desc: `${redRobots[1] || 'No Robot'} | ${blueRobots[1] || 'No Robot'}<br/> Yellow Backdrop Pixel`,
+      red: red_det.target_backdrop_pixel2 ? (red_det.init_team_prop2 ? 'Team prop' : 'White pixel') : '-',
+      blue: blue_det.target_backdrop_pixel2 ? (blue_det.init_team_prop2 ? 'Team prop' : 'White pixel') : '-',
       red_pts: red_det.target_backdrop_pixel2 ? (red_det.init_team_prop2 ? 20 : 10) : 0,
       blue_pts: blue_det.target_backdrop_pixel2 ? (blue_det.init_team_prop2 ? 20 : 10) : 0
     },
     {
-      desc: 'Robot 3 Yellow Backdrop Pixel',
-      red: red_det.target_backdrop_pixel3 ? (red_det.init_team_prop3 ? 'Yes - team prop' : 'Yes') : 'No',
-      blue: blue_det.target_backdrop_pixel3 ? (blue_det.init_team_prop3 ? 'Yes - team prop' : 'Yes') : 'No',
+      desc: `${redRobots[2] || 'No Robot'} | ${blueRobots[2] || 'No Robot'}<br/> Yellow Backdrop Pixel`,
+      red: red_det.target_backdrop_pixel3 ? (red_det.init_team_prop3 ? 'Team prop' : 'White pixel') : '-',
+      blue: blue_det.target_backdrop_pixel3 ? (blue_det.init_team_prop3 ? 'Team prop' : 'White pixel') : '-',
       red_pts: red_det.target_backdrop_pixel3 ? (red_det.init_team_prop3 ? 20 : 10) : 0,
       blue_pts: blue_det.target_backdrop_pixel3 ? (blue_det.init_team_prop3 ? 20 : 10) : 0
     },
     {
-      desc: 'Robot 1 Parking',
+      desc: `${redRobots[0] || 'No Robot'} | ${blueRobots[0] || 'No Robot'}<br/> Parking`,
       red: red_det.robot1_auto ? 'Backstage' : '-',
       blue: blue_det.robot1_auto ? 'Backstage' : '-',
       red_pts: red_det.robot1_auto ? 5 : 0,
       blue_pts: blue_det.robot1_auto ? 5 : 0,
     },
     {
-      desc: 'Robot 2 Parking',
+      desc: `${redRobots[1] || 'No Robot'} | ${blueRobots[1] || 'No Robot'}<br/> Parking`,
       red: red_det.robot2_auto ? 'Backstage' : '-',
       blue: blue_det.robot2_auto ? 'Backstage' : '-',
       red_pts: red_det.robot2_auto ? 5 : 0,
       blue_pts: blue_det.robot2_auto ? 5 : 0,
     },
     {
-      desc: 'Robot 3 Parking',
+      desc: `${redRobots[2] || 'No robot'} | ${blueRobots[2] || 'No robot'}<br/> Parking`,
       red: red_det.robot3_auto ? 'Backstage' : '-',
       blue: blue_det.robot3_auto ? 'Backstage' : '-',
       red_pts: red_det.robot3_auto ? 5 : 0,
@@ -146,21 +162,21 @@ export default ScoreTable<components['schemas']['CenterstageCriScore']>((match) 
       key: true
     },
     {
-      desc: 'Robot 1 Location',
+      desc: `${redRobots[0] || 'No robot'} | ${blueRobots[0] || 'No robot'}<br/> Location`,
       red: toTitleCase(red_det.teleop_robot1),
       blue: toTitleCase(blue_det.teleop_robot1),
       red_pts: endLocationPoints[red_det.teleop_robot1],
       blue_pts: endLocationPoints[blue_det.teleop_robot1],
     },
     {
-      desc: 'Robot 2 Location',
+      desc: `${redRobots[1] || 'No robot'} | ${blueRobots[1] || 'No robot'}<br/> Location`,
       red: toTitleCase(red_det.teleop_robot2),
       blue: toTitleCase(blue_det.teleop_robot2),
       red_pts: endLocationPoints[red_det.teleop_robot2],
       blue_pts: endLocationPoints[blue_det.teleop_robot2],
     },
     {
-      desc: 'Robot 3 Location',
+      desc: `${redRobots[2] || 'No robot'} | ${blueRobots[2] || 'No robot'}<br/> Location`,
       red: toTitleCase(red_det.teleop_robot3),
       blue: toTitleCase(blue_det.teleop_robot3),
       red_pts: endLocationPoints[red_det.teleop_robot3],
@@ -215,18 +231,31 @@ export default ScoreTable<components['schemas']['CenterstageCriScore']>((match) 
     },
     {
       desc: 'Collage',
-      red: red_det.collage ? 'Yes' : 'No',
-      blue: blue_det.collage ? 'Yes' : 'No',
+      red: red_det.collage ? '✓' : '-',
+      blue: blue_det.collage ? '✓' : '-',
     },
     {
       desc: 'Mural',
-      red: red_det.mural ? 'Yes' : 'No',
-      blue: blue_det.mural ? 'Yes' : 'No',
+      red: red_det.mural ? '✓' : '-',
+      blue: blue_det.mural ? '✓' : '-',
     },
     {
       desc: 'Finale',
-      red: red_det.finale ? 'Yes' : 'No',
-      blue: blue_det.finale ? 'Yes' : 'No',
+      red: red_det.finale ? '✓' : '-',
+      blue: blue_det.finale ? '✓' : '-',
     }
   ];
 });
+
+export default function CenterstageCriScoreTable({match}: {
+  match: SeasonScore<components['schemas']['CenterstageCriScore']>
+}) {
+  return <>
+    <BaseScoreTable match={match}/>
+    <small>
+      Team-specific achievements are in rows labeled with "[red] | [blue]" for the applicable teams.
+      Achievements that can be completed on both the alliance-specific backdrops and the shared backdrops are
+      shown with "[alliance]/[shared]", and the points for both regions are added together.
+    </small>
+  </>
+}

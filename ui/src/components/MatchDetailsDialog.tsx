@@ -24,7 +24,7 @@ const scoreTables = {
   'PowerPlayScore': lazy(() => import('./scoreTables/PowerPlayScoreTable.ts')),
   'PowerPlayCriScore': lazy(() => import('./scoreTables/PowerPlayCriScoreTable.tsx')),
   'CenterstageScore': lazy(() => import('./scoreTables/CenterstageScoreTable.ts')),
-  'CenterstageCriScore': lazy(() => import('./scoreTables/CenterstageCriScoreTable.ts'))
+  'CenterstageCriScore': lazy(() => import('./scoreTables/CenterstageCriScoreTable.tsx'))
 }
 
 export default function MatchDetailsDialog({event, matchName, onClose}: {

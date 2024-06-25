@@ -99,7 +99,7 @@ export default function ScoreTable<T extends ScoreType>(scoreInterpretation: Sco
               {redPrimary}
               {sc.bonus && !sc.bonus.first && sc.bonus.redAccomplished ? <><br/>{bonusLabel}</> : null}
             </ScoreCell>
-            <ScoreCell ownerState={{key: sc.key}}>{sc.desc}</ScoreCell>
+            <ScoreCell ownerState={{key: sc.key}} dangerouslySetInnerHTML={{__html: sc.desc}}></ScoreCell>
             <ScoreCell ownerState={{key: sc.key, color: 'blue'}}>
               {sc.bonus && sc.bonus.first && sc.bonus.blueAccomplished ? <>{bonusLabel}<br/></> : null}
               {bluePrimary}

@@ -134,25 +134,27 @@ class LiveSync
     match_list['matches'].each do |data|
       match = @event.matches.qual.find_or_initialize_by(number: data['number'])
       # TODO need to update the alliance if it already exists...
-      three_team = data['red3'] > 0
-      red_teams = three_team ? [data['red1'], data['red2'], data['red3']] : [data['red1'], data['red2']]
+      team_count = data['red3'] > 0 ? 3 : 2
+      red_teams = (1..team_count).map { |t| data["red#{t}"] }
       red_alliance = alliance_scope.having(having_clause, red_teams).create_with(team_ids: red_teams).first_or_create!
       match.red_alliance ||= MatchAlliance.new(alliance: red_alliance)
       match.red_alliance.alliance = red_alliance
-      match.red_alliance.surrogate = three_team ? [data['red1S'], data['red2S'], data['red3S']] : [data['red1S'], data['red2S']]
-      match.red_alliance.teams_present = three_team ? [!data['red1NS'], !data['red2NS'], !data['red3NS']] : [!data['red1NS'], !data['red2NS']]
-      match.red_alliance.red_card = three_team ? [(data['red1C'] & 2).positive?, (data['red2C'] & 2).positive?, (data['red3C'] & 2).positive?] : [(data['red1C'] & 2).positive?, (data['red2C'] & 2).positive?]
-      match.red_alliance.yellow_card = three_team ? [(data['red1C'] & 1).positive?, (data['red2C'] & 1).positive?, (data['red3C'] & 1).positive?] : [(data['red1C'] & 1).positive?, (data['red2C'] & 1).positive?]
+      match.red_alliance.surrogate = (1..team_count).map { |t| data["red#{t}S"] }
+      match.red_alliance.teams_present = (1..team_count).map { |t| !data["red#{t}NS"] }
+      match.red_alliance.teams_start = (1..team_count).map { |t| data["red#{t}Start"] }
+      match.red_alliance.red_card = (1..team_count).map { |t| (data["red#{t}C"] & 2).positive? }
+      match.red_alliance.yellow_card = (1..team_count).map { |t| (data["red#{t}C"] & 1).positive? }
       match.red_alliance.save!
 
-      blue_teams = three_team ? [data['blue1'], data['blue2'], data['blue3']] : [data['blue1'], data['blue2']]
+      blue_teams = (1..team_count).map { |t| data["blue#{t}"] }
       blue_alliance = alliance_scope.having(having_clause, blue_teams).create_with(team_ids: blue_teams).first_or_create!
       match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
       match.blue_alliance.alliance = blue_alliance
-      match.blue_alliance.surrogate = three_team ? [data['blue1S'], data['blue2S'], data['blue3S']] : [data['blue1S'], data['blue2S']]
-      match.blue_alliance.teams_present = three_team ? [!data['blue1NS'], !data['blue2NS'], !data['blue3NS']] : [!data['blue1NS'], !data['blue2NS']]
-      match.blue_alliance.red_card = three_team ? [(data['blue1C'] & 2).positive?, (data['blue2C'] & 2).positive?, (data['blue3C'] & 2).positive?] : [(data['blue1C'] & 2).positive?, (data['blue2C'] & 2).positive?]
-      match.blue_alliance.yellow_card = three_team ? [(data['blue1C'] & 1).positive?, (data['blue2C'] & 1).positive?, (data['blue3C'] & 1).positive?] : [(data['blue1C'] & 1).positive?, (data['blue2C'] & 1).positive?]
+      match.blue_alliance.surrogate = (1..team_count).map { |t| data["blue#{t}S"] }
+      match.blue_alliance.teams_present = (1..team_count).map { |t| !data["blue#{t}NS"] }
+      match.blue_alliance.teams_start = (1..team_count).map { |t| data["blue#{t}Start"] }
+      match.blue_alliance.red_card = (1..team_count).map { |t| (data["blue#{t}C"] & 2).positive? }
+      match.blue_alliance.yellow_card = (1..team_count).map { |t| (data["blue#{t}C"] & 1).positive? }
       match.blue_alliance.save!
 
       match.played = !!data['scorekeeperCommitTime']
@@ -222,17 +224,21 @@ class LiveSync
     match_list['matches'].each do |data|
       match = @event.matches.find_or_initialize_by(phase: LEVEL_TO_PHASE[data['level']], series: data['series'], number: data['number'])
       red_alliance = Alliance.find_by!(event: @event, is_elims: true, seed: data['redSeed'])
+      red_team_count = red_alliance.teams.count
       match.red_alliance ||= MatchAlliance.new(alliance: red_alliance)
-      match.red_alliance.teams_present = [!data['red1NS'], !data['red2NS'], !data['red3NS']]
-      match.red_alliance.red_card = [(data['red1C'] & 2).positive?, (data['red2C'] & 2).positive?, (data['red3C'] & 2).positive?]
-      match.red_alliance.yellow_card = [(data['red1C'] & 1).positive?, (data['red2C'] & 1).positive?, (data['red3C'] & 1).positive?]
+      match.red_alliance.teams_present = (1..red_team_count).map { |t| !data["red#{t}NS"] }
+      match.red_alliance.teams_start = (1..red_team_count).map { |t| data["red#{t}Start"] }
+      match.red_alliance.red_card = Array.new(red_team_count, (data['red1C'] & 2).positive?)
+      match.red_alliance.yellow_card = Array.new(red_team_count, (data['red1C'] & 1).positive?)
       match.red_alliance.save!
 
       blue_alliance = Alliance.find_by!(event: @event, is_elims: true, seed: data['blueSeed'])
+      blue_team_count = red_alliance.teams.count
       match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
-      match.blue_alliance.teams_present = [!data['blue1NS'], !data['blue2NS'], !data['blue3NS']]
-      match.blue_alliance.red_card = [(data['blue1C'] & 2).positive?, (data['blue2C'] & 2).positive?, (data['blue3C'] & 2).positive?]
-      match.blue_alliance.yellow_card = [(data['blue1C'] & 1).positive?, (data['blue2C'] & 1).positive?, (data['blue3C'] & 1).positive?]
+      match.blue_alliance.teams_present = (1..blue_team_count).map { |t| !data["blue#{t}NS"] }
+      match.blue_alliance.teams_start = (1..blue_team_count).map { |t| data["blue#{t}Start"] }
+      match.blue_alliance.red_card = Array.new(blue_team_count, (data['blue1C'] & 2).positive?)
+      match.blue_alliance.yellow_card = Array.new(blue_team_count, (data['blue1C'] & 1).positive?)
       match.blue_alliance.save!
 
       match.played = !!data['scorekeeperCommitTime']

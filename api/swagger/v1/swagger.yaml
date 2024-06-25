@@ -542,6 +542,20 @@ components:
           - "$ref": "#/components/schemas/PowerPlayCriScore"
           - "$ref": "#/components/schemas/CenterstageScore"
           - "$ref": "#/components/schemas/CenterstageCriScore"
+        red_teams:
+          type: array
+          items:
+            type: integer
+        red_starts:
+          type: array
+          items:
+            type: string
+            enum:
+            - NO_SHOW
+            - NO_ROBOT
+            - FRONT
+            - MIDDLE
+            - BACK
         blue_score_total:
           type: integer
         blue_score:
@@ -571,6 +585,20 @@ components:
           - "$ref": "#/components/schemas/PowerPlayCriScore"
           - "$ref": "#/components/schemas/CenterstageScore"
           - "$ref": "#/components/schemas/CenterstageCriScore"
+        blue_teams:
+          type: array
+          items:
+            type: integer
+        blue_starts:
+          type: array
+          items:
+            type: string
+            enum:
+            - NO_SHOW
+            - NO_ROBOT
+            - FRONT
+            - MIDDLE
+            - BACK
       required:
       - id
       - phase
@@ -580,9 +608,11 @@ components:
       - red_score_total
       - red_score
       - red_score_details
+      - red_teams
       - blue_score_total
       - blue_score
       - blue_score_details
+      - blue_teams
     remoteMatchDetails:
       type: object
       properties:
@@ -2425,6 +2455,9 @@ paths:
                   drone2: 0
                   minor_penalties: 0
                   major_penalties: 0
+                red_teams:
+                - 5037
+                - 8907
                 blue_score_total: 97
                 blue_score:
                   auto: 38
@@ -2452,6 +2485,9 @@ paths:
                   drone2: 3
                   minor_penalties: 2
                   major_penalties: 1
+                blue_teams:
+                - 5037
+                - 8907
               schema:
                 oneOf:
                 - "$ref": "#/components/schemas/matchDetails"
@@ -2502,7 +2538,7 @@ paths:
                 state: IL
                 country: USA
                 rookie_year: '2008'
-                updated_at: '2024-06-22T22:47:25.389-05:00'
+                updated_at: '2024-06-23T15:35:15.212-05:00'
                 consent_missing:
               - number: 5037
                 name: got robot?
@@ -2512,7 +2548,7 @@ paths:
                 state: IL
                 country: USA
                 rookie_year: '2011'
-                updated_at: '2024-06-22T22:47:25.390-05:00'
+                updated_at: '2024-06-23T15:35:15.214-05:00'
                 consent_missing:
               schema:
                 type: array
@@ -2542,7 +2578,7 @@ paths:
                 state: IL
                 country: USA
                 rookie_year: '2008'
-                updated_at: '2024-06-22T22:47:25.389-05:00'
+                updated_at: '2024-06-23T15:35:15.212-05:00'
                 consent_missing:
               schema:
                 "$ref": "#/components/schemas/team"
@@ -2572,7 +2608,7 @@ paths:
                   country: USA
                   rookie_year: '2008'
                   consent_missing:
-                  updated_at: '2024-06-22T22:47:25.389-05:00'
+                  updated_at: '2024-06-23T15:35:15.212-05:00'
                 seasons:
                 - season: 2023-2024
                   record:

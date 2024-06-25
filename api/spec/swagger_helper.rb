@@ -271,6 +271,14 @@ DESC
               red_score_details: {
                 oneOf: SCORE_TYPES.map { |st| { '$ref' => "#/components/schemas/#{st}" } }
               },
+              red_teams: {
+                type: :array,
+                items: { type: :integer },
+              },
+              red_starts: {
+                type: :array,
+                items: { type: :string, enum: %i[NO_SHOW NO_ROBOT FRONT MIDDLE BACK] },
+              },
               blue_score_total: { type: :integer },
               blue_score: {
                 type: :object,
@@ -285,8 +293,16 @@ DESC
               blue_score_details: {
                 oneOf: SCORE_TYPES.map { |st| { '$ref' => "#/components/schemas/#{st}" } }
               },
+              blue_teams: {
+                type: :array,
+                items: { type: :integer },
+              },
+              blue_starts: {
+                type: :array,
+                items: { type: :string, enum: %i[NO_SHOW NO_ROBOT FRONT MIDDLE BACK] },
+              },
             },
-            required: %i[id phase number event_id season_score_type red_score_total red_score red_score_details blue_score_total blue_score blue_score_details]
+            required: %i[id phase number event_id season_score_type red_score_total red_score red_score_details red_teams blue_score_total blue_score blue_score_details blue_teams]
           },
           remoteMatchDetails: {
             type: :object,

@@ -62,13 +62,14 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
   const groupedMatches = Object.fromEntries(Object.entries(Object.groupBy(matches, m => m.phase)).map(([key, matches]) => {
     return [key, matches.map((m) => {
       let isRedTeam, isSurrogate = false, idx = -1, result;
-      if (team && m.red_score && m.blue_score) {
+      const hasScores = 'red_score' in m && 'blue_score' in m && m.red_score != undefined && m.blue_score != undefined
+      if (team && hasScores) {
         isRedTeam = m.red_alliance.includes(team);
         idx = isRedTeam ? m.red_alliance.indexOf(team) : m.blue_alliance.indexOf(team);
         isSurrogate = isRedTeam ? m.red_surrogate[idx] : m.blue_surrogate[idx];
         if(m.red_score === m.blue_score) {
           result = 'T';
-        } else if((isRedTeam && m.red_score > m.blue_score) || (!isRedTeam && m.red_score < m.blue_score)) {
+        } else if((isRedTeam && m.red_score! > m.blue_score!) || (!isRedTeam && m.red_score! < m.blue_score!)) {
           result = 'W';
         } else {
           result = 'L';
@@ -77,13 +78,13 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
 
       const redOwnerState  = {
         color: 'red',
-        win: ('red_score' in m && 'blue_score' in m) ? m.red_score > m.blue_score : false,
+        win: ('red_score' in m && 'blue_score' in m) ? m.red_score! > m.blue_score! : false,
         alliance: team != undefined && isRedTeam,
         surrogate: isSurrogate
       } as const;
       const blueOwnerState = {
         color: 'blue',
-        win: ('red_score' in m && 'blue_score' in m) ? m.red_score < m.blue_score : false,
+        win: ('red_score' in m && 'blue_score' in m) ? m.red_score! < m.blue_score! : false,
         alliance: team != undefined && !isRedTeam,
         surrogate: isSurrogate
       } as const;

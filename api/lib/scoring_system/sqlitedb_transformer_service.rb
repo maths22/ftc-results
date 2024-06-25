@@ -26,7 +26,7 @@ module ScoringSystem
       set_field_count db
 
       set_config db, "code", event.slug.downcase
-      set_config db, "onlineResultsUrl", "#{root_url}#{event.season.year}/events/summary/#{event.slug}"
+      set_config db, "onlineResultsUrl", "#{root_url}#{event.season.year}/events/#{event.slug}"
       set_config db, "name", event.name
       set_config db, "start", event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000'
       set_config db, "end", event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000'
