@@ -5,6 +5,9 @@ server_name: >
   ftc-results-dev.maths22.com
   d10vnerie8x4db.cloudfront.net
 
+cri_redirect_server_name: results.cri.fyi
+cri_redirect_target: results.chicagoroboticsinvitational.com
+
 https_server_name: api.production.ftc-results.maths22.com
 letsencrypt_email: maths22@gmail.com
 

@@ -17,6 +17,16 @@
     src: /etc/nginx/sites-available/ftc_results.conf
     dest: /etc/nginx/sites-enabled/ftc_results.conf
     state: link
+- name: copy the cri nginx config file
+  template:
+    src: cri_redirect.conf.j2
+    dest: /etc/nginx/sites-available/cri_redirect.conf
+  register: update_nginx
+- name: create cri symlink
+  file:
+    src: /etc/nginx/sites-available/cri_redirect.conf
+    dest: /etc/nginx/sites-enabled/cri_redirect.conf
+    state: link
 - name: restart nginx
   service:
     name: nginx
