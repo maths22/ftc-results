@@ -1,7 +1,7 @@
 // Global styles
 
 import DefaultLayout from './components/layout/DefaultLayout';
-import {createRootRoute, createRoute, createRouter} from '@tanstack/react-router';
+import {createRootRoute, createRoute, createRouter, redirect} from '@tanstack/react-router';
 import {queryClient} from "./index";
 import {eventQueryOpts, leagueQueryOpts} from "./api";
 
@@ -107,7 +107,43 @@ const router = createRouter({
       eventIndex,
       eventMatches,
       eventRankings,
-      eventTeams
+      eventTeams,
+      createRoute({
+        path: '/playoffs',
+        getParentRoute: () => eventSummary,
+        loader: () => {
+          throw redirect({
+            to: '../matches'
+          })
+        }
+      }),
+      createRoute({
+        path: '/qualifications/$number',
+        getParentRoute: () => eventSummary,
+        loader: ({params}) => {
+          throw redirect({
+            to: `../../matches?match=Q-${params.number}`
+          })
+        }
+      }),
+      createRoute({
+        path: '/playoff/0/$number',
+        getParentRoute: () => eventSummary,
+        loader: ({params}) => {
+          throw redirect({
+            to: `../../../matches?match=P-${params.number}`
+          })
+        }
+      }),
+      createRoute({
+        path: '/finals/0/$number',
+        getParentRoute: () => eventSummary,
+        loader: ({params}) => {
+          throw redirect({
+            to: `../../../matches?match=F-${params.number}`
+          })
+        }
+      })
     ])
   ])
 });

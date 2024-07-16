@@ -1,4 +1,25 @@
+module Executable
+  module ClassMethods
+    def rails_executor_wrap(name)
+      alias_method "unwrapped_#{name}", name
+
+      class_eval <<~RUBY, __FILE__, __LINE__ + 1
+        def #{name}(...)
+          Rails.application.executor.wrap do
+            unwrapped_#{name}(...)
+          end
+        end
+      RUBY
+    end
+  end
+
+  def self.included(base)
+    base.extend ClassMethods
+  end
+end
+
 class LiveSync
+  include Executable
   LEVEL_TO_PHASE = {
     'FINAL' => :final,
     'SEMIFINAL' => :semi
@@ -37,6 +58,7 @@ class LiveSync
     @event = LiveSync.load_event(request)
     !@event.nil?
   end
+  rails_executor_wrap :pre_connect
 
   def on_message(data)
     msg = JSON.parse(data)
@@ -62,6 +84,7 @@ class LiveSync
 
     write JSON.dump({ id: SecureRandom.uuid, type: 'MESSAGE_RESPONSE', body: JSON.dump(res) } )
   end
+  rails_executor_wrap :on_message
 
   def _process_sync(body, res)
     msg = JSON.parse(body)
@@ -233,7 +256,7 @@ class LiveSync
       match.red_alliance.save!
 
       blue_alliance = Alliance.find_by!(event: @event, is_elims: true, seed: data['blueSeed'])
-      blue_team_count = red_alliance.teams.count
+      blue_team_count = blue_alliance.teams.count
       match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
       match.blue_alliance.teams_present = (1..blue_team_count).map { |t| !data["blue#{t}NS"] }
       match.blue_alliance.teams_start = (1..blue_team_count).map { |t| data["blue#{t}Start"] }

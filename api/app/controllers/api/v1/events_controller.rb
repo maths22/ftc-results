@@ -94,7 +94,7 @@ module Api
         expires_in(30.seconds, public: true) if request_cacheable?
 
         @matches = Match.includes([red_score: :season_score, blue_score: :season_score, red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).where(event: @event)
-        @rankings = @event.league_meet? ? Ranking.includes(:team).where(context: @event.context).order(:ranking) : @event.rankings.includes(:team, :event_division).order(:ranking)
+        @rankings = @event.league_meet? ? Ranking.includes(:team).where(context: @event.context).order('abs(ranking)') : @event.rankings.includes(:team, :event_division).order('abs(ranking)')
       end
 
       def view_alliances

@@ -19,6 +19,7 @@ function allianceToRobots(starts: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" |
   ]
 }
 
+// @ts-expect-error Not sure a trivial way to fix this right now but scoretable should be a component anyways...
 const BaseScoreTable = ScoreTable<components['schemas']['CenterstageCriScore']>((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
@@ -162,21 +163,21 @@ const BaseScoreTable = ScoreTable<components['schemas']['CenterstageCriScore']>(
       key: true
     },
     {
-      desc: `${redRobots[0] || 'No robot'} | ${blueRobots[0] || 'No robot'}<br/> Location`,
+      desc: `${redRobots[0] || 'No Robot'} | ${blueRobots[0] || 'No Robot'}<br/> Location`,
       red: toTitleCase(red_det.teleop_robot1),
       blue: toTitleCase(blue_det.teleop_robot1),
       red_pts: endLocationPoints[red_det.teleop_robot1],
       blue_pts: endLocationPoints[blue_det.teleop_robot1],
     },
     {
-      desc: `${redRobots[1] || 'No robot'} | ${blueRobots[1] || 'No robot'}<br/> Location`,
+      desc: `${redRobots[1] || 'No Robot'} | ${blueRobots[1] || 'No Robot'}<br/> Location`,
       red: toTitleCase(red_det.teleop_robot2),
       blue: toTitleCase(blue_det.teleop_robot2),
       red_pts: endLocationPoints[red_det.teleop_robot2],
       blue_pts: endLocationPoints[blue_det.teleop_robot2],
     },
     {
-      desc: `${redRobots[2] || 'No robot'} | ${blueRobots[2] || 'No robot'}<br/> Location`,
+      desc: `${redRobots[2] || 'No Robot'} | ${blueRobots[2] || 'No Robot'}<br/> Location`,
       red: toTitleCase(red_det.teleop_robot3),
       blue: toTitleCase(blue_det.teleop_robot3),
       red_pts: endLocationPoints[red_det.teleop_robot3],
@@ -229,22 +230,22 @@ const BaseScoreTable = ScoreTable<components['schemas']['CenterstageCriScore']>(
       blue: match.blue_score_total,
       key: true
     },
-    {
+    match.phase == 'qual' ? {
       desc: 'Collage',
       red: red_det.collage ? '✓' : '-',
       blue: blue_det.collage ? '✓' : '-',
-    },
-    {
+    } : null,
+    match.phase == 'qual' ? {
       desc: 'Mural',
       red: red_det.mural ? '✓' : '-',
       blue: blue_det.mural ? '✓' : '-',
-    },
-    {
+    } : null,
+    match.phase == 'qual' ? {
       desc: 'Finale',
       red: red_det.finale ? '✓' : '-',
       blue: blue_det.finale ? '✓' : '-',
-    }
-  ];
+    } : null,
+  ].filter(m => m != null);
 });
 
 export default function CenterstageCriScoreTable({match}: {
