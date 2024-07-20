@@ -20,7 +20,7 @@ module Api
 
         match_ids = @team.match_alliances.map(&:match).compact.map(&:id)
 
-        @matches = Match.includes([:event_division, red_score: [:season_score], blue_score: [:season_score], red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).find(match_ids)
+        @matches = Match.includes([:event_division, red_score: [:season_score], blue_score: [:season_score], red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).order(:phase, :series, :number).find(match_ids)
       end
     end
   end
