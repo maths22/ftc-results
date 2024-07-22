@@ -88,9 +88,9 @@ module ScoringSystem
         match_alliance.yellow_card[0] = s['card1'] >= 1
         match_alliance.yellow_card[1] = s['card2'] >= 1
         match_alliance.yellow_card[2] = s['card3'] >= 1 if has_team3
-        match_alliance.teams_start[0] = s['start1'] >= 1
-        match_alliance.teams_start[1] = s['start2'] >= 1
-        match_alliance.teams_start[2] = s['start3'] >= 1 if has_team3
+        match_alliance.teams_start[0] = s['start1']
+        match_alliance.teams_start[1] = s['start2']
+        match_alliance.teams_start[2] = s['start3'] if has_team3
         match_alliance.teams_present[0] = s['start1'] != 'NO_SHOW' && s['start1'] != 'NO_ROBOT'
         match_alliance.teams_present[1] = s['start2'] != 'NO_SHOW' && s['start2'] != 'NO_ROBOT'
         match_alliance.teams_present[2] = s['start3'] != 'NO_SHOW' && s['start3'] != 'NO_ROBOT' if has_team3
@@ -187,10 +187,14 @@ module ScoringSystem
         # rubocop:enable Style/NumericPredicate
         match_alliance.red_card.fill(s['card'] >= 2)
         match_alliance.yellow_card.fill(s['card'] >= 1)
+        match_alliance.teams_start[0] = s['start1']
+        match_alliance.teams_start[1] = s['start2']
+        match_alliance.teams_start[2] = s['start3']
+        match_alliance.teams_start[3] = s['start4'] if has_team4
         match_alliance.teams_present[0] = s['start1'] != 'NO_SHOW'
         match_alliance.teams_present[1] = s['start2'] != 'NO_SHOW'
         match_alliance.teams_present[2] = s['start3'] != 'NO_SHOW'
-        match_alliance.teams_present[4] = s['start4'] != 'NO_SHOW' if has_team4
+        match_alliance.teams_present[3] = s['start4'] != 'NO_SHOW' if has_team4
         match_alliance.save!
         season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
         score = Score.new season_score: season_score
