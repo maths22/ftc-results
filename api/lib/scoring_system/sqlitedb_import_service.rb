@@ -180,7 +180,7 @@ module ScoringSystem
         match.update(elim_match_map[e['match']])
         match.save!
       end
-      elims_score = @db.execute 'SELECT match, alliance, card, dq, start1, start2, start3#{has_team4 ? ", start4" : ""}, major, minor FROM elimsScores'
+      elims_score = @db.execute "SELECT match, alliance, card, dq, start1, start2, start3#{has_team4 ? ", start4" : ""}, major, minor FROM elimsScores"
       elims_score.each do |s|
         match = ss_match_to_results_match('elim', s['match'])
         # rubocop:disable Style/NumericPredicate
