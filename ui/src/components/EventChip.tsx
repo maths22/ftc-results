@@ -1,4 +1,4 @@
-import Chip from '@mui/material/Chip/Chip';
+import Chip from '@mui/material/Chip';
 import type {components} from "../api/v1";
 
 export default function ({event} : {

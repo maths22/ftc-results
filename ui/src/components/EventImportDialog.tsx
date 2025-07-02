@@ -8,7 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 
-import Grid from '@mui/material/Grid/Grid';
+import Grid from '@mui/material/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -53,7 +53,7 @@ export default function eventImportDialog({event, onClose}: {
       <DialogContentText>
         Upload the event DB here
 
-        {mutation.isError && <Grid item xs={12}>
+        {mutation.isError && <Grid size={{xs: 12}}>
           <Typography color="error">Error: {mutation.error.message}</Typography>
         </Grid> }
       </DialogContentText>

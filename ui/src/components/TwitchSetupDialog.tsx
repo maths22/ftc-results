@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 
-import Grid from '@mui/material/Grid/Grid';
+import Grid from '@mui/material/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextLink from './TextLink';
 import type {components} from "../api/v1";
@@ -64,7 +64,7 @@ export default function TwitchSetupDialog({event, onClose}: {
         </p>
       </div>}
 
-      {mutation.error && <Grid item xs={12}>
+      {mutation.error && <Grid size={{xs: 12}}>
         <Typography color="error">Error: {mutation.error.message}</Typography>
       </Grid>}
 

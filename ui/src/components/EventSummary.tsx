@@ -56,7 +56,7 @@ function EventVideo({event}: {
 export default function EventSummary() {
   const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
   const { division } = useSearch({ from: '/$season/events/$slug' });
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/$season/events/$slug' });
   const childMatches = useChildMatches();
   let tab = 'teams';
   if(childMatches.length > 0) {
@@ -92,7 +92,7 @@ export default function EventSummary() {
   }
 
   function selectDivision(div?: string) {
-    navigate({ search: {division: div } });
+    navigate({ search: { division: div } });
   }
 
   function refresh() {

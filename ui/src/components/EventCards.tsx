@@ -87,7 +87,7 @@ export default function EventCards({filter, selectedSeason, limit, heading, show
   return <div>
       <Typography variant="h5" gutterBottom>{heading}</Typography>
       <Grid container spacing={3}>
-        {vals.map(e => <Grid item md={4} key={e.id}>
+        {vals.map(e => <Grid size={{md: 4}} key={e.id}>
           <EventCard season={selectedSeason} event={e} />
         </Grid>)}
       </Grid>

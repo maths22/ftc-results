@@ -15,9 +15,9 @@ export default function DefaultLayout() {
 
   const matchWithTitle = [...router.state.matches]
     .reverse()
-    .find((d) => 'title' in d.routeContext);
+    .find((d) => d.__routeContext.title);
 
-  const title = matchWithTitle && 'title' in matchWithTitle.routeContext ? matchWithTitle.routeContext.title : 'FTC Results';
+  const title: string = matchWithTitle && matchWithTitle.__routeContext.title ? matchWithTitle.__routeContext.title as string : 'FTC Results';
   useEffect(() => {
     document.title = title;
   }, [title]);

@@ -60,33 +60,33 @@ export async function resetPassword(email: string) {
 }
 
 export async function changePassword(password: string, password_confirmation: string, reset_password_token: string) {
-    return await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+    return await fetchWithAuth(new Request(
         `/api/v1/auth/password`, {
             method: 'PUT',
             body: new URLSearchParams({
                 password, password_confirmation, reset_password_token
             })
-        }))))
+        }))
 }
 
 export async function activateAccount(name: string, password: string, password_confirmation: string, invitation_token: string) {
-    return await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+    return await fetchWithAuth(new Request(
         `/api/v1/auth/invitation`, {
             method: 'PUT',
             body: new URLSearchParams({
                 name, password, password_confirmation, invitation_token
             })
-        }))))
+        }))
 }
 
 export async function updateAccount(name: string, email: string, password: string, password_confirmation: string, current_password: string) {
-    return await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+    return await fetchWithAuth(new Request(
         `/api/v1/auth/invitation`, {
             method: 'PUT',
             body: new URLSearchParams({
                 name, email, password, password_confirmation, current_password
             })
-        }))))
+        }))
 }
 
 export async function login(email: string, password: string) {
@@ -140,44 +140,57 @@ export async function validateAuth() {
 
 // Middleware from here https://github.com/drwpow/openapi-typescript/blob/main/packages/openapi-fetch/examples/react-query/src/lib/api/index.ts
 const throwOnError: Middleware = {
-    async onResponse(res) {
-        if (res.status >= 400) {
-            const body = res.headers.get("content-type")?.includes("json")
-                ? await res.clone().json()
-                : await res.clone().text();
+    async onResponse({ response }) {
+        if (response.status >= 400) {
+            const body = response.headers.get("content-type")?.includes("json")
+                ? await response.clone().json()
+                : await response.clone().text();
             throw new Error(body);
         }
         return undefined;
     },
 };
-const authAdapter = {
-    async onRequest(req: Request) {
-        let adaptedRequest: Request = req;
-        // Cache busting
-        if(authorizationStore.state.uid) {
-            const url = new URL(req.url)
-            url.searchParams.append('_uid', authorizationStore.state.uid);
-            adaptedRequest = new Request(url, {
-                method: req.method,
-                headers: req.headers,
-                body: ['GET', 'HEAD'].includes(req.method) ? undefined : await req.blob(),
-                referrer: req.referrer,
-                referrerPolicy: req.referrerPolicy,
-                mode: req.mode,
-                credentials: req.credentials,
-                cache: req.cache,
-                redirect: req.redirect,
-                integrity: req.integrity,
-            });
-        }
-        if(authorizationStore.state.authorization) {
-            adaptedRequest.headers.set("Authorization", authorizationStore.state.authorization);
-        }
-        return adaptedRequest;
+
+async function authTransformRequest(request: Request): Promise<Request> {
+    let adaptedRequest = request;
+    // Cache busting
+    if(authorizationStore.state.uid) {
+        const url = new URL(request.url)
+        url.searchParams.append('_uid', authorizationStore.state.uid);
+        adaptedRequest = new Request(url, {
+            method: request.method,
+            headers: request.headers,
+            body: ['GET', 'HEAD'].includes(request.method) ? undefined : await request.blob(),
+            referrer: request.referrer,
+            referrerPolicy: request.referrerPolicy,
+            mode: request.mode,
+            credentials: request.credentials,
+            cache: request.cache,
+            redirect: request.redirect,
+            integrity: request.integrity,
+        });
+    }
+    if(authorizationStore.state.authorization) {
+        adaptedRequest.headers.set("Authorization", authorizationStore.state.authorization);
+    }
+    return adaptedRequest;
+}
+
+function authTransformResponse(response: Response): Response {
+    updateAuthorization(response.headers);
+    return response;
+}
+
+async function fetchWithAuth(request: Request) {
+    return authTransformResponse(await fetch(await authTransformRequest(request)))
+}
+
+const authAdapter: Middleware = {
+    async onRequest({ request }) {
+        return await authTransformRequest(request);
     },
-    async onResponse(res: Response) {
-        updateAuthorization(res.headers);
-        return res;
+    async onResponse({ response }) {
+        return authTransformResponse(response);
     }
 }
 const client = createClient<paths>({ baseUrl: "/" });
@@ -395,11 +408,11 @@ export function useLeagueRankings(season: string, slug: string) {
 export function useAddOwnerMutation(season?: string, slug?: string) {
     return useMutation({
         mutationFn: async (uid: string) => {
-            const res = await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+            const res = await fetchWithAuth(new Request(
                 `/api/v1/${season}/events/${slug}/add_owner`, {
                     method: 'POST',
                     body: new URLSearchParams({uid})
-                }))))
+                }))
             if(!res.ok) {
                 throw new Error((await res.json())['error'])
             }
@@ -413,11 +426,11 @@ export function useAddOwnerMutation(season?: string, slug?: string) {
 export function useRemoveOwnerMutation(season?: string, slug?: string) {
     return useMutation({
         mutationFn: async (uid: string) => {
-            const res = await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+            const res = await fetchWithAuth(new Request(
                 `/api/v1/${season}/events/${slug}/remove_owner`, {
                     method: 'POST',
                     body: new URLSearchParams({uid})
-                }))))
+                }))
             if(!res.ok) {
                 throw new Error((await res.json())['error'])
             }
@@ -431,11 +444,11 @@ export function useRemoveOwnerMutation(season?: string, slug?: string) {
 export function useRequestAccessMutation(season?: string, slug?: string) {
     return useMutation({
         mutationFn: async (message: string) => {
-            const res = await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+            const res = await fetchWithAuth(new Request(
                 `/api/v1/${season}/events/${slug}/request_access`, {
                     method: 'POST',
                     body: new URLSearchParams({message})
-            }))))
+            }))
             if(!res.ok) {
                 throw new Error((await res.json())['error'])
             }
@@ -446,10 +459,10 @@ export function useRequestAccessMutation(season?: string, slug?: string) {
 export function useTwitchMutation(season?: string, slug?: string) {
     return useMutation({
         mutationFn: async (enable: boolean) => {
-            const res = await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+            const res = await fetchWithAuth(new Request(
                 `/api/v1/${season}/events/${slug}/twitch`, {
                     method: enable ? 'POST' : 'DELETE'
-            }))))
+            }))
             if(!res.ok) {
                 throw new Error((await res.json())['error'])
             }
@@ -467,11 +480,11 @@ export function useImportDbMutation(season?: string, slug?: string) {
             const formData = new FormData();
             formData.append('db', file);
             formData.append('division', division);
-            const res = await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+            const res = await fetchWithAuth(new Request(
                 `/api/v1/${season}/events/${slug}/import_results`, {
                     method: 'POST',
                     body: formData
-                }))))
+                }))
             if(!res.ok) {
                 throw new Error((await res.json())['error'])
             }
@@ -487,11 +500,11 @@ export function useTransformDbMutation(season?: string, slug?: string) {
         mutationFn: async (file: File) => {
             const formData = new FormData();
             formData.append('db', file);
-            const res = await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
+            const res = await fetchWithAuth(new Request(
                 `/api/v1/${season}/events/${slug}/transform_db`, {
                     method: 'POST',
                     body: formData
-                }))))
+                }))
             if(!res.ok) {
                 throw new Error((await res.json())['error'])
             }
@@ -510,8 +523,8 @@ export function useUserSearch(query?: string) {
     return useQuery({
         queryKey: ['userSearch', query],
         queryFn: async () => {
-            const res = await authAdapter.onResponse(await fetch(await authAdapter.onRequest(new Request(
-                `/api/v1/users/search?query=${encodeURIComponent(query || '')}`))))
+            const res = await fetchWithAuth(new Request(
+                `/api/v1/users/search?query=${encodeURIComponent(query || '')}`))
             if(!res.ok) {
                 throw new Error((await res.json())['error'])
             }

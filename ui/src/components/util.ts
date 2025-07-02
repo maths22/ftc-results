@@ -1,5 +1,5 @@
 import {styled} from '@mui/material/styles';
-import TableCell from '@mui/material/TableCell/TableCell';
+import TableCell from '@mui/material/TableCell';
 
 export const PaddedCell = styled(TableCell)(({theme}) => ({
   paddingLeft: theme.spacing(1),

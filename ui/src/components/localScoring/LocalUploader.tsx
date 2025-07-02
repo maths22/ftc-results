@@ -101,7 +101,7 @@ export default function LocalUploader() {
           disabled={uploadRunning}
           setLocalServer={(server) => setLocalServer(server)}
       />
-      {localServerConfirmed === false ? <Grid item xs={12}>
+      {localServerConfirmed === false ? <Grid size={{xs: 12}}>
         <Typography color="error">{'Could not connect to scoring system at ' +
             `http://${localServer.hostname}:${localServer.port}`}</Typography>
       </Grid> : null}

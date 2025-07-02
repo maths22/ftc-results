@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid/Grid';
+import Grid from '@mui/material/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -125,7 +125,7 @@ export default function ManageOwnersDialog({event, onClose}: {
           </Button> }
 
 
-        {(addMutation.isError || removeMutation.isError) && <Grid item xs={12}>
+        {(addMutation.isError || removeMutation.isError) && <Grid size={{xs: 12}}>
           <Typography color="error">Error: {addMutation.error?.message} {removeMutation.error?.message}</Typography>
         </Grid> }
 

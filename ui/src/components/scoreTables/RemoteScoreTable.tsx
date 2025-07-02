@@ -1,7 +1,7 @@
-import TableRow from '@mui/material/TableRow/TableRow';
-import TableCell from '@mui/material/TableCell/TableCell';
-import Table from '@mui/material/Table/Table';
-import TableBody from '@mui/material/TableBody/TableBody';
+import TableRow from '@mui/material';
+import TableCell from '@mui/material/TableCell';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
 import {styled} from '@mui/material/styles';
 import {components} from "../../api/v1";
 

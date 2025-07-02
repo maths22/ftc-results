@@ -1,12 +1,11 @@
-import TableRow from '@mui/material/TableRow/TableRow';
-import TableCell from '@mui/material/TableCell/TableCell';
-import Table from '@mui/material/Table/Table';
-import TableHead from '@mui/material/TableHead/TableHead';
-import TableBody from '@mui/material/TableBody/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
-import Typography from '@mui/material/Typography/Typography';
+import Typography from '@mui/material/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
-import Hidden from '@mui/material/Hidden/Hidden';
 import {styled} from '@mui/material/styles';
 import {useNavigate, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/v1";
@@ -94,9 +93,7 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
           <MatchCell ownerState={{surrogate: isSurrogate}}>
             {m.played ? <TextLink onClick={() => showMatchDetail(m.name)}>{m.name}</TextLink> : m.name}
           </MatchCell>
-          <Hidden smDown>
-            {team ? <MatchCell ownerState={{surrogate: isSurrogate}}>{m.played ? result : '-'}</MatchCell> : null}
-          </Hidden>
+          {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.red_alliance.map((t, idx) => {
@@ -117,32 +114,28 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
             </Box>
           </MatchCell>
 
-          <Hidden smDown>
-            {m.played ? <MatchCell ownerState={redOwnerState}>
-              <span>{m.red_score}</span>
-            </MatchCell> : null}
-            {m.played ? <MatchCell ownerState={blueOwnerState} >
-              <span>{m.blue_score}</span>
-            </MatchCell>: null}
-            {!m.played ? <MatchCell colSpan={2}>
-              <span>Awaiting results</span>
-            </MatchCell>: null}
-          </Hidden>
+          {m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+            <span>{m.red_score}</span>
+          </MatchCell> : null}
+          {m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+            <span>{m.blue_score}</span>
+          </MatchCell>: null}
+          {!m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+            <span>Awaiting results</span>
+          </MatchCell>: null}
         </TableRow>,
-        <Hidden smUp key={m.id + '_results'}>
-          <TableRow style={rowStyle}>
-            <TableCell />
-            {m.played ? <MatchCell ownerState={redOwnerState}>
-              <span>{m.red_score}</span>
-            </MatchCell> : null}
-            {m.played ? <MatchCell ownerState={blueOwnerState}>
-              <span>{m.blue_score}</span>
-            </MatchCell>: null}
-            {!m.played ? <MatchCell colSpan={2}>
-              <span>Awaiting results</span>
-            </MatchCell>: null}
-          </TableRow>
-        </Hidden>
+        <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
+          <TableCell />
+          {m.played ? <MatchCell ownerState={redOwnerState}>
+            <span>{m.red_score}</span>
+          </MatchCell> : null}
+          {m.played ? <MatchCell ownerState={blueOwnerState}>
+            <span>{m.blue_score}</span>
+          </MatchCell>: null}
+          {!m.played ? <MatchCell colSpan={2}>
+            <span>Awaiting results</span>
+          </MatchCell>: null}
+        </TableRow>
       ];
     })];
   }));
@@ -151,14 +144,10 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
     <TableHead>
       <TableRow style={rowStyle}>
         <MatchCell>Match</MatchCell>
-        <Hidden smDown>
-          {team ? <MatchCell>Result</MatchCell> : null}
-        </Hidden>
+        {team ? <MatchCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Result</MatchCell> : null}
         <MatchCell>Red Alliance</MatchCell>
         <MatchCell>Blue Alliance</MatchCell>
-        <Hidden smDown>
-          <MatchCell colSpan={2} >Scores</MatchCell>
-        </Hidden>
+        <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>
       </TableRow>
     </TableHead>
     <TableBody>

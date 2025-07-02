@@ -9,7 +9,7 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
-import Grid from '@mui/material/Grid/Grid';
+import Grid from '@mui/material/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import type {components} from "../api/v1";
 import {useRequestAccessMutation} from "../api";
@@ -44,7 +44,7 @@ export default function RequestAccessDialog({event, onClose}: {
         <DialogContentText>
           Please only request access if you are the scorekeeper, FTA, or event coordinator for your event.
 
-          {mutation.error && <Grid item xs={12}>
+          {mutation.error && <Grid size={{xs: 12}}>
             <Typography color="error">Error: {mutation.error.message}</Typography>
           </Grid> }
         </DialogContentText>
