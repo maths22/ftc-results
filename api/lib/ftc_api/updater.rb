@@ -208,8 +208,8 @@ module FtcApi
 
           red_teams = e[:teams].select { |t| t[:station].start_with?('Red') }.map { |t| t[:teamNumber] }
           blue_teams = e[:teams].select { |t| t[:station].start_with?('Blue') }.map { |t| t[:teamNumber] }
-          match.red_alliance ||= MatchAlliance.new alliance: alliance_list.detect { |a| red_teams.each { |t| a.teams.map(&:number).include?(t) } }
-          match.blue_alliance ||= MatchAlliance.new alliance: alliance_list.detect { |a| blue_teams.each { |t| a.teams.map(&:number).include?(t) } }
+          match.red_alliance ||= MatchAlliance.new alliance: alliance_list.detect { |a| red_teams.all? { |t| a.teams.map(&:number).include?(t) } }
+          match.blue_alliance ||= MatchAlliance.new alliance: alliance_list.detect { |a| blue_teams.all? { |t| a.teams.map(&:number).include?(t) } }
           match.red_alliance.alliance.teams.each_with_index do |t, i|
             match.red_alliance.teams_present[i] = red_teams.include?(t.number) && !e[:teams].detect { |tt| tt[:teamNumber] == t.number }[:noShow]
           end
