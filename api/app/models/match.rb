@@ -124,16 +124,19 @@ class Match < ApplicationRecord
     blue_alliance.score[1] = blue_score_total unless blue_alliance.surrogate[1]
   end
 
-  NAME_PREFIXES = { qual: 'Q', semi: 'SF', final: 'F', interfinal: 'IF' }
+  NAME_PREFIXES = { qual: 'Q', semi: 'SF', final: 'F', interfinal: 'IF', playoff: 'P' }
   def name
-    [series == 0 && phase == 'semi' ? 'P' : NAME_PREFIXES[phase.to_sym], series == 0 ? nil : series, number].compact.join('-')
+    [series == 0 && phase == 'semi' ? 'P' : NAME_PREFIXES[phase.to_sym], series == 0 ? nil : series, phase == 'playoff' && number == 1 ? nil : number].compact.join('-')
   end
 
   def self.parse_name(name)
     parts = name.split('-')
-    ret = { phase: parts.first == 'P' ? :semi : NAME_PREFIXES.invert[parts.first], number: parts.last.to_i }
+    ret = { phase: parts.first == 'P' ? [:semi, :playoff] : NAME_PREFIXES.invert[parts.first], number: parts.last.to_i }
     if parts.length == 3
       ret[:series] = parts[1].to_i
+    elsif parts.length == 2 && parts.first == 'P'
+      ret[:series] = parts[1].to_i
+      ret[:number] = 1
     end
     ret
   end
@@ -142,6 +145,7 @@ class Match < ApplicationRecord
     qual: 0,
     semi: 1,
     final: 2,
-    interfinal: 3
+    interfinal: 3,
+    playoff: 4,
   }
 end

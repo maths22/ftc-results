@@ -1,5 +1,5 @@
 # config valid for current version and patch releases of Capistrano
-lock '~> 3.17.0'
+lock '~> 3.19.2'
 
 set :application, 'ftc_results'
 set :repo_url, 'https://github.com/maths22/ftc-results.git'

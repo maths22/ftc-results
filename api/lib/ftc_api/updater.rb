@@ -3,7 +3,8 @@ module FtcApi
     LEVEL_TO_PHASE = {
       'QUALIFICATION' => :qual,
       'FINAL' => :final,
-      'SEMIFINAL' => :semi
+      'SEMIFINAL' => :semi,
+      'PLAYOFF' => :playoff,
     }
     class << self
       def update_teams(season)
@@ -202,8 +203,8 @@ module FtcApi
 
         elims = schedule_api.v20_season_schedule_event_code_get(event.season.first_api_year, event.slug + (division ? division.slug : ''), { tournament_level: 'playoff' }).schedule
         elims.each do |e|
-          match = event_matches.detect { |m| m.phase == (e[:tournamentLevel] == 'SEMIFINAL' ? 'semi' : 'final') && m.number == e[:matchNumber] && (e[:tournamentLevel] != 'SEMIFINAL' || m.series == e[:series])} ||
-                    Match.new(event: event, event_division: division, phase: e[:tournamentLevel] == 'SEMIFINAL' ? 'semi' : 'final', number: e[:matchNumber], series: e[:series])
+          match = event_matches.detect { |m| m.phase == (LEVEL_TO_PHASE[e[:tournamentLevel]]) && m.number == e[:matchNumber] && (e[:tournamentLevel] != 'SEMIFINAL' || m.series == e[:series])} ||
+                    Match.new(event: event, event_division: division, phase: LEVEL_TO_PHASE[e[:tournamentLevel]], number: e[:matchNumber], series: e[:series])
 
           red_teams = e[:teams].select { |t| t[:station].start_with?('Red') }.map { |t| t[:teamNumber] }
           blue_teams = e[:teams].select { |t| t[:station].start_with?('Blue') }.map { |t| t[:teamNumber] }
@@ -432,6 +433,31 @@ module FtcApi
         score.teleop_robot2 = api_score[:egRobot2]
         score.drone1 = api_score[:drone1]
         score.drone2 = api_score[:drone2]
+
+        score.save!
+      end
+
+      def import_into_the_deep_scores(score, api_score)
+        puts api_score.to_json
+        score.auto_robot1 = api_score[:robot1Auto]
+        score.auto_robot2 = api_score[:robot2Auto]
+        score.auto_sample_net = api_score[:autoSampleNet]
+        score.auto_sample_low = api_score[:autoSampleLow]
+        score.auto_sample_high = api_score[:autoSampleHigh]
+        score.auto_specimen_low = api_score[:autoSpecimenLow]
+        score.auto_specimen_high = api_score[:autoSpecimenHigh]
+
+        score.teleop_sample_net = api_score[:teleopSampleNet]
+        score.teleop_sample_low = api_score[:teleopSampleLow]
+        score.teleop_sample_high = api_score[:teleopSampleHigh]
+        score.teleop_specimen_low = api_score[:teleopSpecimenLow]
+        score.teleop_specimen_high = api_score[:teleopSpecimenHigh]
+
+        score.teleop_robot1 = api_score[:robot1Teleop]
+        score.teleop_robot2 = api_score[:robot2Teleop]
+
+        score.minor_penalties = api_score[:minorFouls]
+        score.major_penalties = api_score[:majorFouls]
 
         score.save!
       end

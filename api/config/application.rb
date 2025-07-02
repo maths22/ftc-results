@@ -53,11 +53,7 @@ end
 
 module FtcResults
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.0
-
-
-    config.legacy_connection_handling = false
+    config.load_defaults 8.0
 
     # prevent segfault in sassc :sob:
     config.assets.configure do |env|

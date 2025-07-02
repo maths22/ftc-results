@@ -21,9 +21,5 @@ class League < ApplicationRecord
     list do
       scopes [:current_season, nil]
     end
-
-    import do
-      mapping_key %i[season_id slug]
-    end
   end
 end

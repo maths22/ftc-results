@@ -5,6 +5,7 @@ module ScoringSystem
   TYPE_LEAGUE_TOURNAMENT = 3
   TYPE_CHAMPIONSHIP = 4
   TYPE_OTHER = 5
+  TYPE_PREMIER = 17
 
   # rubocop:disable Naming/AccessorMethodName
   class SqlitedbTransformerService
@@ -38,6 +39,8 @@ module ScoringSystem
                      ScoringSystem::TYPE_LEAGUE_MEET
                    elsif event.league_tournament?
                      ScoringSystem::TYPE_LEAGUE_TOURNAMENT
+                   elsif event.premier?
+                     ScoringSystem::TYPE_PREMIER_EVENT
                    elsif event.season.offseason?
                      ScoringSystem::TYPE_OTHER
                    else

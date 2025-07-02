@@ -5,7 +5,7 @@ require 'rails_helper'
 SAMPLE_SEASON = '2023-2024'
 SAMPLE_EVENT = 'USILCHS1'
 SAMPLE_LEAGUE = 'CHI'
-SCORE_TYPES = %i[RoverRuckusScore RoverRuckusCriScore SkystoneScore FreightFrenzyScore FreightFrenzyCriScore PowerPlayScore PowerPlayCriScore CenterstageScore CenterstageCriScore]
+SCORE_TYPES = %i[RoverRuckusScore RoverRuckusCriScore SkystoneScore FreightFrenzyScore FreightFrenzyCriScore PowerPlayScore PowerPlayCriScore CenterstageScore CenterstageCriScore IntoTheDeepScore]
 REMOTE_SCORE_TYPES = %i[UltimateGoalScoreRemote FreightFrenzyScoreRemote]
 
 RSpec.configure do |config|
@@ -669,6 +669,28 @@ DESC
             },
             required: %i[init_team_prop1 init_team_prop2 init_team_prop3 robot1_auto robot2_auto robot3_auto spike_mark_pixel1 spike_mark_pixel2 spike_mark_pixel3 target_backdrop_pixel1 target_backdrop_pixel2 target_backdrop_pixel3 auto_backstage auto_own_backdrop auto_own_mosaics auto_own_max_set_line auto_shared_backdrop auto_shared_mosaics auto_shared_max_set_line teleop_backstage teleop_own_backdrop teleop_own_mosaics teleop_own_max_set_line teleop_shared_backdrop teleop_shared_mosaics teleop_shared_max_set_line alliance_pixels other_alliance_pixels teleop_robot1 teleop_robot2 teleop_robot3 drone1 drone2 drone3 minor_penalties major_penalties collage mural finale]
           },
+          IntoTheDeepScore: {
+            type: :object,
+            properties: {
+              auto_robot1: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT] },
+              auto_robot2: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT] },
+              auto_sample_net: { type: :integer },
+              auto_sample_low: { type: :integer },
+              auto_sample_high: { type: :integer },
+              auto_specimen_low: { type: :integer },
+              auto_specimen_high: { type: :integer },
+              teleop_sample_net: { type: :integer },
+              teleop_sample_low: { type: :integer },
+              teleop_sample_high: { type: :integer },
+              teleop_specimen_low: { type: :integer },
+              teleop_specimen_high: { type: :integer },
+              teleop_robot1: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT_1 ASCENT_2 ASCENT_3] },
+              teleop_robot2: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT_1 ASCENT_2 ASCENT_3] },
+              minor_penalties: { type: :integer },
+              major_penalties: { type: :integer },
+            },
+            required: %i[auto_robot1 auto_robot2 auto_sample_net auto_sample_low auto_sample_high auto_specimen_low auto_specimen_high teleop_sample_net teleop_sample_low teleop_sample_high teleop_specimen_low teleop_specimen_high teleop_robot1 teleop_robot2 minor_penalties major_penalties]
+          }
         },
       },
       paths: {},

@@ -513,6 +513,7 @@ components:
           - PowerPlayCriScore
           - CenterstageScore
           - CenterstageCriScore
+          - IntoTheDeepScore
         red_score_total:
           type: integer
         red_score:
@@ -542,6 +543,7 @@ components:
           - "$ref": "#/components/schemas/PowerPlayCriScore"
           - "$ref": "#/components/schemas/CenterstageScore"
           - "$ref": "#/components/schemas/CenterstageCriScore"
+          - "$ref": "#/components/schemas/IntoTheDeepScore"
         red_teams:
           type: array
           items:
@@ -585,6 +587,7 @@ components:
           - "$ref": "#/components/schemas/PowerPlayCriScore"
           - "$ref": "#/components/schemas/CenterstageScore"
           - "$ref": "#/components/schemas/CenterstageCriScore"
+          - "$ref": "#/components/schemas/IntoTheDeepScore"
         blue_teams:
           type: array
           items:
@@ -1584,6 +1587,78 @@ components:
       - collage
       - mural
       - finale
+    IntoTheDeepScore:
+      type: object
+      properties:
+        auto_robot1:
+          type: string
+          enum:
+          - NONE
+          - OBSERVATION_ZONE
+          - ASCENT
+        auto_robot2:
+          type: string
+          enum:
+          - NONE
+          - OBSERVATION_ZONE
+          - ASCENT
+        auto_sample_net:
+          type: integer
+        auto_sample_low:
+          type: integer
+        auto_sample_high:
+          type: integer
+        auto_specimen_low:
+          type: integer
+        auto_specimen_high:
+          type: integer
+        teleop_sample_net:
+          type: integer
+        teleop_sample_low:
+          type: integer
+        teleop_sample_high:
+          type: integer
+        teleop_specimen_low:
+          type: integer
+        teleop_specimen_high:
+          type: integer
+        teleop_robot1:
+          type: string
+          enum:
+          - NONE
+          - OBSERVATION_ZONE
+          - ASCENT_1
+          - ASCENT_2
+          - ASCENT_3
+        teleop_robot2:
+          type: string
+          enum:
+          - NONE
+          - OBSERVATION_ZONE
+          - ASCENT_1
+          - ASCENT_2
+          - ASCENT_3
+        minor_penalties:
+          type: integer
+        major_penalties:
+          type: integer
+      required:
+      - auto_robot1
+      - auto_robot2
+      - auto_sample_net
+      - auto_sample_low
+      - auto_sample_high
+      - auto_specimen_low
+      - auto_specimen_high
+      - teleop_sample_net
+      - teleop_sample_low
+      - teleop_sample_high
+      - teleop_specimen_low
+      - teleop_specimen_high
+      - teleop_robot1
+      - teleop_robot2
+      - minor_penalties
+      - major_penalties
 paths:
   "/api/v1/{season}/events":
     parameters:
@@ -1602,24 +1677,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - id: 1
-                aasm_state: finalized
-                season_id: 1
-                season: 2023-2024
-                type: scrimmage
-                remote: false
-                slug: USILCHS1
-                name: Illinois Test Scrimmage
-                start_date: '2024-01-18'
-                end_date: '2024-01-18'
-                location: Tall Building
-                address: 123 S Wacker Drive
-                city: Chicago
-                state: IL
-                country: USA
-                can_import: false
-                divisions: []
               schema:
                 type: array
                 items:
@@ -1646,24 +1703,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-                id: 1
-                aasm_state: finalized
-                season_id: 1
-                season: 2023-2024
-                type: scrimmage
-                remote: false
-                slug: USILCHS1
-                name: Illinois Test Scrimmage
-                start_date: '2024-01-18'
-                end_date: '2024-01-18'
-                location: Tall Building
-                address: 123 S Wacker Drive
-                city: Chicago
-                state: IL
-                country: USA
-                can_import: false
-                divisions: []
               schema:
                 "$ref": "#/components/schemas/event"
   "/api/v1/{season}/events/{slug}/matches":
@@ -1688,263 +1727,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - id: 1
-                event_id: 1
-                phase: qual
-                number: 1
-                name: Q-1
-                played: true
-                red_alliance:
-                - 5037
-                - 8907
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 8698
-                - 3216
-                blue_surrogate:
-                - false
-                - false
-                red_score: 167
-                blue_score: 97
-              - id: 2
-                event_id: 1
-                phase: qual
-                number: 2
-                name: Q-2
-                played: false
-                red_alliance:
-                - 9929
-                - 10303
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 10138
-                - 10635
-                blue_surrogate:
-                - false
-                - false
-              - id: 3
-                event_id: 1
-                phase: qual
-                number: 3
-                name: Q-3
-                played: false
-                red_alliance:
-                - 9929
-                - 10635
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 3216
-                - 5037
-                blue_surrogate:
-                - false
-                - false
-              - id: 4
-                event_id: 1
-                phase: qual
-                number: 4
-                name: Q-4
-                played: false
-                red_alliance:
-                - 8698
-                - 8907
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 10138
-                - 10303
-                blue_surrogate:
-                - false
-                - false
-              - id: 5
-                event_id: 1
-                phase: qual
-                number: 5
-                name: Q-5
-                played: false
-                red_alliance:
-                - 10303
-                - 3216
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 10635
-                - 8698
-                blue_surrogate:
-                - false
-                - false
-              - id: 6
-                event_id: 1
-                phase: qual
-                number: 6
-                name: Q-6
-                played: false
-                red_alliance:
-                - 10138
-                - 5037
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 8907
-                - 9929
-                blue_surrogate:
-                - false
-                - false
-              - id: 7
-                event_id: 1
-                phase: qual
-                number: 7
-                name: Q-7
-                played: false
-                red_alliance:
-                - 10303
-                - 8698
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 5037
-                - 9929
-                blue_surrogate:
-                - false
-                - false
-              - id: 8
-                event_id: 1
-                phase: qual
-                number: 8
-                name: Q-8
-                played: false
-                red_alliance:
-                - 8907
-                - 10138
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 3216
-                - 10635
-                blue_surrogate:
-                - false
-                - false
-              - id: 9
-                event_id: 1
-                phase: qual
-                number: 9
-                name: Q-9
-                played: false
-                red_alliance:
-                - 3216
-                - 9929
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 10303
-                - 8907
-                blue_surrogate:
-                - false
-                - false
-              - id: 10
-                event_id: 1
-                phase: qual
-                number: 10
-                name: Q-10
-                played: false
-                red_alliance:
-                - 10635
-                - 5037
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 8698
-                - 10138
-                blue_surrogate:
-                - false
-                - false
-              - id: 11
-                event_id: 1
-                phase: semi
-                number: 1
-                name: SF-1
-                played: true
-                red_alliance:
-                - 5037
-                - 10303
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 10138
-                - 10635
-                blue_surrogate:
-                - false
-                - false
-                red_score: 20
-                blue_score: 45
-              - id: 12
-                event_id: 1
-                phase: semi
-                number: 2
-                name: SF-2
-                played: false
-                red_alliance:
-                - 8907
-                - 8698
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 3216
-                - 9929
-                blue_surrogate:
-                - false
-                - false
-              - id: 13
-                event_id: 1
-                phase: semi
-                number: 3
-                name: SF-3
-                played: false
-                red_alliance:
-                - 5037
-                - 10303
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 10138
-                - 10635
-                blue_surrogate:
-                - false
-                - false
-              - id: 14
-                event_id: 1
-                phase: semi
-                number: 4
-                name: SF-4
-                played: false
-                red_alliance:
-                - 8907
-                - 8698
-                red_surrogate:
-                - false
-                - false
-                blue_alliance:
-                - 3216
-                - 9929
-                blue_surrogate:
-                - false
-                - false
               schema:
                 oneOf:
                 - type: array
@@ -1975,143 +1757,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - id: 8
-                team: 10635
-                context_type: Event
-                context_id: 1
-                ranking: -8
-                sort_order1: 0.0
-                sort_order2: 0.0
-                sort_order3: 0.0
-                sort_order4: 0.0
-                sort_order5: 765500.5307
-                sort_order6: 0.0
-                matches_played: 0
-                matches_counted: 0
-                record:
-                  win: 0
-                  loss: 0
-                  tie: 0
-              - id: 7
-                team: 10303
-                context_type: Event
-                context_id: 1
-                ranking: -7
-                sort_order1: 0.0
-                sort_order2: 0.0
-                sort_order3: 0.0
-                sort_order4: 0.0
-                sort_order5: 570751.9221
-                sort_order6: 0.0
-                matches_played: 0
-                matches_counted: 0
-                record:
-                  win: 0
-                  loss: 0
-                  tie: 0
-              - id: 6
-                team: 10138
-                context_type: Event
-                context_id: 1
-                ranking: -6
-                sort_order1: 0.0
-                sort_order2: 0.0
-                sort_order3: 0.0
-                sort_order4: 0.0
-                sort_order5: 519646.9834
-                sort_order6: 0.0
-                matches_played: 0
-                matches_counted: 0
-                record:
-                  win: 0
-                  loss: 0
-                  tie: 0
-              - id: 5
-                team: 9929
-                context_type: Event
-                context_id: 1
-                ranking: -5
-                sort_order1: 0.0
-                sort_order2: 0.0
-                sort_order3: 0.0
-                sort_order4: 0.0
-                sort_order5: 814271.5677
-                sort_order6: 0.0
-                matches_played: 0
-                matches_counted: 0
-                record:
-                  win: 0
-                  loss: 0
-                  tie: 0
-              - id: 1
-                team: 5037
-                context_type: Event
-                context_id: 1
-                ranking: 1
-                sort_order1: 2.0
-                sort_order2: 54.0
-                sort_order3: 5.0
-                sort_order4: 167.0
-                sort_order5: 480061.539
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                record:
-                  win: 1
-                  loss: 0
-                  tie: 0
-              - id: 2
-                team: 8907
-                context_type: Event
-                context_id: 1
-                ranking: 2
-                sort_order1: 2.0
-                sort_order2: 54.0
-                sort_order3: 5.0
-                sort_order4: 167.0
-                sort_order5: 63077.6838
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                record:
-                  win: 1
-                  loss: 0
-                  tie: 0
-              - id: 3
-                team: 3216
-                context_type: Event
-                context_id: 1
-                ranking: 3
-                sort_order1: 0.0
-                sort_order2: 38.0
-                sort_order3: 15.0
-                sort_order4: 97.0
-                sort_order5: 478741.5451
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                record:
-                  win: 0
-                  loss: 1
-                  tie: 0
-              - id: 4
-                team: 8698
-                context_type: Event
-                context_id: 1
-                ranking: 4
-                sort_order1: 0.0
-                sort_order2: 38.0
-                sort_order3: 15.0
-                sort_order4: 97.0
-                sort_order5: 105817.3573
-                sort_order6: 0.0
-                matches_played: 1
-                matches_counted: 1
-                record:
-                  win: 0
-                  loss: 1
-                  tie: 0
               schema:
                 type: array
                 items:
@@ -2138,38 +1783,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - id: 1
-                event_id: 1
-                name: Volunteer Award
-                description: ''
-                finalists:
-                - place: 1
-                  recipient: A Volunteer
-                  team_id: 8698
-                  description: ''
-              - id: 2
-                event_id: 1
-                name: Motivate Award
-                description: The team that receives the Motivate Award celebrates
-                  the culture of <i>FIRST</i> and clearly shows what it means to be
-                  a team. This award celebrates the team that represents the essence
-                  of the <i>FIRST</i> Tech Challenge competition through team building,
-                  team spirit, and displayed enthusiasm. This is a team who makes
-                  a collective effort to make <i>FIRST</i> known throughout their
-                  school and community and sparks others to embrace the culture of
-                  <i>FIRST</i>.
-                finalists:
-                - place: 1
-                  recipient: ''
-                  team_id: 5037
-                  description: ''
-                - place: 2
-                  recipient: ''
-                  team_id: 10303
-                - place: 3
-                  recipient: ''
-                  team_id: 10635
               schema:
                 type: array
                 items:
@@ -2196,33 +1809,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-                alliances:
-                - id: 21
-                  event_id: 1
-                  seed: 1
-                  teams:
-                  - 5037
-                  - 10303
-                - id: 22
-                  event_id: 1
-                  seed: 2
-                  teams:
-                  - 8907
-                  - 8698
-                - id: 23
-                  event_id: 1
-                  seed: 3
-                  teams:
-                  - 3216
-                  - 9929
-                - id: 24
-                  event_id: 1
-                  seed: 4
-                  teams:
-                  - 10138
-                  - 10635
-                rankings: []
               schema:
                 type: object
                 properties:
@@ -2256,23 +1842,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - division:
-                number: 3216
-              - division:
-                number: 5037
-              - division:
-                number: 8698
-              - division:
-                number: 8907
-              - division:
-                number: 9929
-              - division:
-                number: 10138
-              - division:
-                number: 10303
-              - division:
-                number: 10635
               schema:
                 type: array
                 items:
@@ -2304,7 +1873,6 @@ paths:
           description: successful
           content:
             application/json:
-              example: []
               schema:
                 type: array
                 items:
@@ -2332,7 +1900,6 @@ paths:
           description: successful
           content:
             application/json:
-              example: []
               schema:
                 type: array
                 items:
@@ -2354,12 +1921,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - id: 1
-                name: Chicago
-                slug: CHI
-                season_id: 1
-                team_count: 0
               schema:
                 type: array
                 items:
@@ -2386,12 +1947,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-                id: 1
-                name: Chicago
-                slug: CHI
-                season_id: 1
-                team_count: 0
               schema:
                 "$ref": "#/components/schemas/league"
   "/api/v1/{season}/events/{slug}/matches/{name}":
@@ -2422,72 +1977,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-                id: 1
-                phase: qual
-                number: 1
-                event_id: 1
-                season_score_type: CenterstageScore
-                red_score_total: 167
-                red_score:
-                  auto: 54
-                  teleop: 58
-                  endgame: 5
-                  penalty: 0
-                red_score_details:
-                  init_team_prop1: true
-                  init_team_prop2: false
-                  robot1_auto: true
-                  robot2_auto: true
-                  spike_mark_pixel1: true
-                  spike_mark_pixel2: false
-                  target_backdrop_pixel1: false
-                  target_backdrop_pixel2: true
-                  auto_backdrop: 1
-                  auto_backstage: 3
-                  teleop_backdrop: 12
-                  teleop_backstage: 2
-                  mosaics: 1
-                  max_set_line: 1
-                  teleop_robot1: BACKSTAGE
-                  teleop_robot2: NONE
-                  drone1: 0
-                  drone2: 0
-                  minor_penalties: 0
-                  major_penalties: 0
-                red_teams:
-                - 5037
-                - 8907
-                blue_score_total: 97
-                blue_score:
-                  auto: 38
-                  teleop: 44
-                  endgame: 15
-                  penalty: 50
-                blue_score_details:
-                  init_team_prop1: true
-                  init_team_prop2: false
-                  robot1_auto: false
-                  robot2_auto: true
-                  spike_mark_pixel1: true
-                  spike_mark_pixel2: false
-                  target_backdrop_pixel1: false
-                  target_backdrop_pixel2: false
-                  auto_backdrop: 2
-                  auto_backstage: 1
-                  teleop_backdrop: 4
-                  teleop_backstage: 2
-                  mosaics: 1
-                  max_set_line: 2
-                  teleop_robot1: NONE
-                  teleop_robot2: BACKSTAGE
-                  drone1: 0
-                  drone2: 3
-                  minor_penalties: 2
-                  major_penalties: 1
-                blue_teams:
-                - 5037
-                - 8907
               schema:
                 oneOf:
                 - "$ref": "#/components/schemas/matchDetails"
@@ -2502,12 +1991,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - id: 1
-                year: 2023-2024
-                name: CENTERSTAGE
-                active: true
-                offseason: false
               schema:
                 type: array
                 items:
@@ -2530,26 +2013,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-              - number: 3216
-                name: Robophins
-                organization: Whitney Young Magnet High Sch
-                city: Chicago
-                state: IL
-                country: USA
-                rookie_year: '2008'
-                updated_at: '2024-06-23T15:35:15.212-05:00'
-                consent_missing:
-              - number: 5037
-                name: got robot?
-                organization: Klapperich Tool, Inc./Angularis Technologies, Inc.&4-H
-                  Robotics Special Interest Club
-                city: Elgin
-                state: IL
-                country: USA
-                rookie_year: '2011'
-                updated_at: '2024-06-23T15:35:15.214-05:00'
-                consent_missing:
               schema:
                 type: array
                 items:
@@ -2570,16 +2033,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-                number: 3216
-                name: Robophins
-                organization: Whitney Young Magnet High Sch
-                city: Chicago
-                state: IL
-                country: USA
-                rookie_year: '2008'
-                updated_at: '2024-06-23T15:35:15.212-05:00'
-                consent_missing:
               schema:
                 "$ref": "#/components/schemas/team"
   "/api/v1/teams/{number}/details":
@@ -2598,189 +2051,6 @@ paths:
           description: successful
           content:
             application/json:
-              example:
-                team:
-                  number: 3216
-                  name: Robophins
-                  organization: Whitney Young Magnet High Sch
-                  city: Chicago
-                  state: IL
-                  country: USA
-                  rookie_year: '2008'
-                  consent_missing:
-                  updated_at: '2024-06-23T15:35:15.212-05:00'
-                seasons:
-                - season: 2023-2024
-                  record:
-                    win: 0
-                    loss: 1
-                    tie: 0
-                  events:
-                  - data:
-                      id: 1
-                      aasm_state: finalized
-                      season_id: 1
-                      season: 2023-2024
-                      type: scrimmage
-                      remote: false
-                      slug: USILCHS1
-                      name: Illinois Test Scrimmage
-                      start_date: '2024-01-18'
-                      end_date: '2024-01-18'
-                      location: Tall Building
-                      address: 123 S Wacker Drive
-                      city: Chicago
-                      state: IL
-                      country: USA
-                      can_import: false
-                      divisions: []
-                    ranking:
-                      id: 3
-                      team: 3216
-                      context_type: Event
-                      context_id: 1
-                      ranking: 3
-                      sort_order1: 0.0
-                      sort_order2: 38.0
-                      sort_order3: 15.0
-                      sort_order4: 97.0
-                      sort_order5: 478741.5451
-                      sort_order6: 0.0
-                      matches_played: 1
-                      matches_counted: 1
-                      record:
-                        win: 0
-                        loss: 1
-                        tie: 0
-                    matches:
-                    - id: 3
-                      event_id: 1
-                      phase: qual
-                      number: 3
-                      name: Q-3
-                      played: false
-                      red_alliance:
-                      - 9929
-                      - 10635
-                      red_surrogate:
-                      - false
-                      - false
-                      blue_alliance:
-                      - 3216
-                      - 5037
-                      blue_surrogate:
-                      - false
-                      - false
-                    - id: 8
-                      event_id: 1
-                      phase: qual
-                      number: 8
-                      name: Q-8
-                      played: false
-                      red_alliance:
-                      - 8907
-                      - 10138
-                      red_surrogate:
-                      - false
-                      - false
-                      blue_alliance:
-                      - 3216
-                      - 10635
-                      blue_surrogate:
-                      - false
-                      - false
-                    - id: 9
-                      event_id: 1
-                      phase: qual
-                      number: 9
-                      name: Q-9
-                      played: false
-                      red_alliance:
-                      - 3216
-                      - 9929
-                      red_surrogate:
-                      - false
-                      - false
-                      blue_alliance:
-                      - 10303
-                      - 8907
-                      blue_surrogate:
-                      - false
-                      - false
-                    - id: 12
-                      event_id: 1
-                      phase: semi
-                      number: 2
-                      name: SF-2
-                      played: false
-                      red_alliance:
-                      - 8907
-                      - 8698
-                      red_surrogate:
-                      - false
-                      - false
-                      blue_alliance:
-                      - 3216
-                      - 9929
-                      blue_surrogate:
-                      - false
-                      - false
-                    - id: 14
-                      event_id: 1
-                      phase: semi
-                      number: 4
-                      name: SF-4
-                      played: false
-                      red_alliance:
-                      - 8907
-                      - 8698
-                      red_surrogate:
-                      - false
-                      - false
-                      blue_alliance:
-                      - 3216
-                      - 9929
-                      blue_surrogate:
-                      - false
-                      - false
-                    - id: 1
-                      event_id: 1
-                      phase: qual
-                      number: 1
-                      name: Q-1
-                      played: true
-                      red_alliance:
-                      - 5037
-                      - 8907
-                      red_surrogate:
-                      - false
-                      - false
-                      blue_alliance:
-                      - 8698
-                      - 3216
-                      blue_surrogate:
-                      - false
-                      - false
-                      red_score: 167
-                      blue_score: 97
-                    - id: 5
-                      event_id: 1
-                      phase: qual
-                      number: 5
-                      name: Q-5
-                      played: false
-                      red_alliance:
-                      - 10303
-                      - 3216
-                      red_surrogate:
-                      - false
-                      - false
-                      blue_alliance:
-                      - 10635
-                      - 8698
-                      blue_surrogate:
-                      - false
-                      - false
               schema:
                 type: object
                 properties:

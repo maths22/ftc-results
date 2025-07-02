@@ -29,7 +29,8 @@ class Event < ApplicationRecord
     league_meet: 1,
     qualifier: 2,
     league_tournament: 3,
-    championship: 4
+    championship: 4,
+    premier: 5,
   }
 
   def to_param
@@ -83,10 +84,6 @@ class Event < ApplicationRecord
   rails_admin do
     list do
       scopes [:current_season, nil]
-    end
-
-    import do
-      mapping_key %i[season_id slug]
     end
   end
 

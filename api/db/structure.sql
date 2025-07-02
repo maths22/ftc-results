@@ -73,6 +73,30 @@ CREATE TYPE public.ff_endgame_parked_status AS ENUM (
 
 
 --
+-- Name: itd_auto_robot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.itd_auto_robot_status AS ENUM (
+    'NONE',
+    'OBSERVATION_ZONE',
+    'ASCENT'
+);
+
+
+--
+-- Name: itd_teleop_robot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.itd_teleop_robot_status AS ENUM (
+    'NONE',
+    'OBSERVATION_ZONE',
+    'ASCENT_1',
+    'ASCENT_2',
+    'ASCENT_3'
+);
+
+
+--
 -- Name: pp_auto_navigated_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -1164,6 +1188,52 @@ ALTER SEQUENCE public.freight_frenzy_scores_remote_id_seq OWNED BY public.freigh
 
 
 --
+-- Name: into_the_deep_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.into_the_deep_scores (
+    id bigint NOT NULL,
+    auto_robot1 public.itd_auto_robot_status DEFAULT 'NONE'::public.itd_auto_robot_status,
+    auto_robot2 public.itd_auto_robot_status DEFAULT 'NONE'::public.itd_auto_robot_status,
+    auto_sample_net integer DEFAULT 0,
+    auto_sample_low integer DEFAULT 0,
+    auto_sample_high integer DEFAULT 0,
+    auto_specimen_low integer DEFAULT 0,
+    auto_specimen_high integer DEFAULT 0,
+    teleop_sample_net integer DEFAULT 0,
+    teleop_sample_low integer DEFAULT 0,
+    teleop_sample_high integer DEFAULT 0,
+    teleop_specimen_low integer DEFAULT 0,
+    teleop_specimen_high integer DEFAULT 0,
+    teleop_robot1 public.itd_teleop_robot_status DEFAULT 'NONE'::public.itd_teleop_robot_status,
+    teleop_robot2 public.itd_teleop_robot_status DEFAULT 'NONE'::public.itd_teleop_robot_status,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: into_the_deep_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.into_the_deep_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: into_the_deep_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.into_the_deep_scores_id_seq OWNED BY public.into_the_deep_scores.id;
+
+
+--
 -- Name: leagues; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2027,6 +2097,13 @@ ALTER TABLE ONLY public.freight_frenzy_scores_remote ALTER COLUMN id SET DEFAULT
 
 
 --
+-- Name: into_the_deep_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.into_the_deep_scores ALTER COLUMN id SET DEFAULT nextval('public.into_the_deep_scores_id_seq'::regclass);
+
+
+--
 -- Name: leagues id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2327,6 +2404,14 @@ ALTER TABLE ONLY public.freight_frenzy_scores
 
 ALTER TABLE ONLY public.freight_frenzy_scores_remote
     ADD CONSTRAINT freight_frenzy_scores_remote_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: into_the_deep_scores into_the_deep_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.into_the_deep_scores
+    ADD CONSTRAINT into_the_deep_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -3035,6 +3120,7 @@ ALTER TABLE ONLY public.event_divisions
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250702150623'),
 ('20250701150801'),
 ('20240623201234'),
 ('20240623032627'),

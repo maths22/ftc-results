@@ -94,6 +94,7 @@
     <orderEntry type="library" scope="PROVIDED" name="execjs (v2.10.0, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday (v2.13.1, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday-net_http (v3.4.1, mise: 3.4.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="faraday-retry (v2.3.2, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi (v1.17.2, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ftc_events_client (v0.3.2, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="fugit (v1.11.1, mise: 3.4.4) [gem]" level="application" />
@@ -105,7 +106,6 @@
     <orderEntry type="library" scope="PROVIDED" name="http-cookie (v1.0.8, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="i18n (v1.14.7, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="inst-jobs (v3.1.18.1, mise: 3.4.4) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="instrumental_agent (v3.0.0, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="io-console (v0.8.0, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="iodine (v0.7.58, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="irb (v1.15.2, mise: 3.4.4) [gem]" level="application" />
@@ -131,7 +131,6 @@
     <orderEntry type="library" scope="PROVIDED" name="mechanize (v2.14.0, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="memory_profiler (v1.1.0, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="method_source (v1.1.0, mise: 3.4.4) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="metrician (v0.1.0, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mime-types (v3.7.0, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mime-types-data (v3.2025.0624, mise: 3.4.4) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mini_histogram (v0.3.1, mise: 3.4.4) [gem]" level="application" />

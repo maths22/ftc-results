@@ -1,0 +1,19 @@
+json.auto_robot1 score.auto_robot1
+json.auto_robot2 score.auto_robot2
+json.auto_sample_net score.auto_sample_net
+json.auto_sample_low score.auto_sample_low
+json.auto_sample_high score.auto_sample_high
+json.auto_specimen_low score.auto_specimen_low
+json.auto_specimen_high score.auto_specimen_high
+
+json.teleop_sample_net score.teleop_sample_net
+json.teleop_sample_low score.teleop_sample_low
+json.teleop_sample_high score.teleop_sample_high
+json.teleop_specimen_low score.teleop_specimen_low
+json.teleop_specimen_high score.teleop_specimen_high
+
+json.teleop_robot1 score.teleop_robot1
+json.teleop_robot2 score.teleop_robot2
+
+json.minor_penalties score.minor_penalties
+json.major_penalties score.major_penalties

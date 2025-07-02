@@ -27,6 +27,7 @@ gem 'rails_admin', '~> 3.0'
 gem 'mechanize'
 gem 'oauth2'
 gem 'octokit'
+  gem 'faraday-retry'
 gem 'random-port'
 gem 'rubyzip', '>= 1.0.0', require: 'zip'
 gem 'sqlite3'
@@ -43,8 +44,6 @@ gem 'materialize-sass'
 gem 'sentry-ruby'
 gem 'sentry-rails'
 gem 'sentry-inst_jobs'
-
-gem 'instrumental_agent'
 
 gem 'ftc_events_client', '0.3.2'
 
