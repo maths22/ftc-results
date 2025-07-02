@@ -41,4 +41,3 @@
     - sentry_dsn
     - aws_upload_bucket
     - aws_upload_region
-#      - instrumental_key

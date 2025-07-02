@@ -203,7 +203,7 @@ module FtcApi
 
         elims = schedule_api.v20_season_schedule_event_code_get(event.season.first_api_year, event.slug + (division ? division.slug : ''), { tournament_level: 'playoff' }).schedule
         elims.each do |e|
-          match = event_matches.detect { |m| m.phase == (LEVEL_TO_PHASE[e[:tournamentLevel]]) && m.number == e[:matchNumber] && (e[:tournamentLevel] != 'SEMIFINAL' || m.series == e[:series])} ||
+          match = event_matches.detect { |m| m.phase == (LEVEL_TO_PHASE[e[:tournamentLevel]]) && m.number == e[:matchNumber] && (e[:tournamentLevel] != 'SEMIFINAL' && e[:tournamentLevel] != 'PLAYOFF' || m.series == e[:series])} ||
                     Match.new(event: event, event_division: division, phase: LEVEL_TO_PHASE[e[:tournamentLevel]], number: e[:matchNumber], series: e[:series])
 
           red_teams = e[:teams].select { |t| t[:station].start_with?('Red') }.map { |t| t[:teamNumber] }

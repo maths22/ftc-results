@@ -1,4 +1,4 @@
-import TableRow from '@mui/material';
+import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';

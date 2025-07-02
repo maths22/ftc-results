@@ -1,5 +1,7 @@
 module SeasonScore
   class FreightFrenzyScore < ApplicationRecord
+    has_one :score, -> {includes(:red_match, :blue_match)}, as: :season_score
+
     AUTO_NAVIGATED_POINTS = {
       'NONE' => 0,
       'IN_STORAGE' => 3,
