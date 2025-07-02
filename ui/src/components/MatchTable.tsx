@@ -155,6 +155,10 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
         <MatchCell colSpan={5}>Inter-division Finals</MatchCell>
       </TableRow> : null}
       {groupedMatches['interfinal'] ? groupedMatches['interfinal'] : null}
+      {groupedMatches['playoff'] ? <TableRow style={rowStyle}>
+        <MatchCell colSpan={5}>Playoff</MatchCell>
+      </TableRow> : null}
+      {groupedMatches['playoff'] ? groupedMatches['playoff'] : null}
       {groupedMatches['final'] ? <TableRow style={rowStyle}>
         <MatchCell colSpan={5}>Finals</MatchCell>
       </TableRow> : null}

@@ -25,6 +25,7 @@ function AwardFinalist({finalist} : {
 
   return <PaddedCell>
     {finalist.recipient ? finalist.recipient : null}
+    {finalist.recipient && finalist.team_id ? <br/> : null}
     {finalist.team_id ? <TextLink
         to={`/teams/${finalist.team_id}`}>{finalist.team_id}{team ? ` (${team.name})` : ''}</TextLink> : null}
   </PaddedCell>
@@ -42,7 +43,7 @@ function CompactAwardFinalist({finalist, isAlliance} : {
 
   return <div>
     {isAlliance ? allianceTitles[finalist.place - 1] : ''}
-    {finalist.recipient ? finalist.recipient : null}
+    {finalist.recipient ? <>{finalist.recipient}&nbsp;</> : null}
     {finalist.team_id ? <><TextLink
         to={`/teams/${finalist.team_id}`}>{finalist.team_id}{team ? ` (${team.name})` : ''}</TextLink></> : null}
     <br/>

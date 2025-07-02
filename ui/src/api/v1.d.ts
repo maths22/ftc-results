@@ -3,974 +3,1267 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
-  "/api/v1/{season}/events": {
-    /** list events */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["event"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-      };
-    };
-  };
-  "/api/v1/{season}/events/{slug}": {
-    /** show event */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["event"];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/events/{slug}/matches": {
-    /** show event matches */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["match"][] | components["schemas"]["remoteMatch"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/events/{slug}/rankings": {
-    /** show event rankings */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["ranking"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/events/{slug}/awards": {
-    /** show event awards */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["award"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/events/{slug}/alliances": {
-    /** show event alliances */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": {
-              alliances?: components["schemas"]["alliance"][];
-              rankings?: components["schemas"]["elimRanking"][];
+    "/api/v1/{season}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
             };
-          };
+            cookie?: never;
         };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/events/{slug}/teams": {
-    /** show event teams */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
+        /** list events */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["event"][];
+                    };
+                };
+            };
         };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": ({
-                division: string | null;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/events/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** show event */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["event"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/events/{slug}/matches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** show event matches */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["match"][] | components["schemas"]["remoteMatch"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/events/{slug}/rankings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** show event rankings */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ranking"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/events/{slug}/awards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** show event awards */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["award"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/events/{slug}/alliances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** show event alliances */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            alliances?: components["schemas"]["alliance"][];
+                            rankings?: components["schemas"]["elimRanking"][];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/events/{slug}/teams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** show event teams */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            division: string | null;
+                            number: number;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/rankings/league": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+            };
+            cookie?: never;
+        };
+        /** list all league rankings */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ranking"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/rankings/league/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                /** @description slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** list league rankings for one league */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    /** @description slug */
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ranking"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/leagues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+            };
+            cookie?: never;
+        };
+        /** list leagues */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["league"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/leagues/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** show league */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["league"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{season}/events/{slug}/matches/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Full season year */
+                season: string;
+                slug: string;
+                /** @description Match name (e.g. Q-1) */
+                name: string;
+            };
+            cookie?: never;
+        };
+        /** show match score details */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Full season year */
+                    season: string;
+                    slug: string;
+                    /** @description Match name (e.g. Q-1) */
+                    name: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["matchDetails"] | components["schemas"]["remoteMatchDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seasons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** list seasons */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["season"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams": {
+        parameters: {
+            query: {
+                "numbers[]": number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** list teams */
+        get: {
+            parameters: {
+                query: {
+                    "numbers[]": number[];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["team"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
                 number: number;
-              })[];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/rankings/league": {
-    /** list all league rankings */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["ranking"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-      };
-    };
-  };
-  "/api/v1/{season}/rankings/league/{slug}": {
-    /** list league rankings for one league */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          /** @description slug */
-          slug: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["ranking"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        /** @description slug */
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/leagues": {
-    /** list leagues */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["league"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-      };
-    };
-  };
-  "/api/v1/{season}/leagues/{slug}": {
-    /** show league */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["league"];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-      };
-    };
-  };
-  "/api/v1/{season}/events/{slug}/matches/{name}": {
-    /** show match score details */
-    get: {
-      parameters: {
-        path: {
-          /** @description Full season year */
-          season: string;
-          slug: string;
-          /** @description Match name (e.g. Q-1) */
-          name: string;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["matchDetails"] | components["schemas"]["remoteMatchDetails"];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        /** @description Full season year */
-        season: string;
-        slug: string;
-        /** @description Match name (e.g. Q-1) */
-        name: string;
-      };
-    };
-  };
-  "/api/v1/seasons": {
-    /** list seasons */
-    get: {
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["season"][];
-          };
-        };
-      };
-    };
-  };
-  "/api/v1/teams": {
-    /** list teams */
-    get: {
-      parameters: {
-        query: {
-          "numbers[]": number[];
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["team"][];
-          };
-        };
-      };
-    };
-    parameters: {
-      query: {
-        "numbers[]": number[];
-      };
-    };
-  };
-  "/api/v1/teams/{number}": {
-    /** show team */
-    get: {
-      parameters: {
-        path: {
-          number: number;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": components["schemas"]["team"];
-          };
-        };
-      };
-    };
-    parameters: {
-      path: {
-        number: number;
-      };
-    };
-  };
-  "/api/v1/teams/{number}/details": {
-    /** show team details */
-    get: {
-      parameters: {
-        path: {
-          number: number;
-        };
-      };
-      responses: {
-        /** @description successful */
-        200: {
-          content: {
-            "application/json": {
-              team: components["schemas"]["team"];
-              seasons: {
-                  season: string;
-                  record: components["schemas"]["winRecord"];
-                  league?: string;
-                  events: {
-                      data: components["schemas"]["event"];
-                      ranking?: components["schemas"]["ranking"];
-                      matches: components["schemas"]["match"][];
-                    }[];
-                }[];
             };
-          };
+            cookie?: never;
         };
-      };
+        /** show team */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    number: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["team"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    parameters: {
-      path: {
-        number: number;
-      };
+    "/api/v1/teams/{number}/details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                number: number;
+            };
+            cookie?: never;
+        };
+        /** show team details */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    number: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description successful */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            team: components["schemas"]["team"];
+                            seasons: {
+                                season: string;
+                                record: components["schemas"]["winRecord"];
+                                league?: string;
+                                events: {
+                                    data: components["schemas"]["event"];
+                                    ranking?: components["schemas"]["ranking"];
+                                    matches: components["schemas"]["match"][];
+                                }[];
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
 }
-
 export type webhooks = Record<string, never>;
-
 export interface components {
-  schemas: {
-    season: {
-      id: number;
-      /** @description Full season year range (e.g. 2023-2024).  For offseasons, suffixed with `-off-<short_name>` */
-      year: string;
-      name: string;
-      /** @description Are events currently being played for this season? */
-      active: boolean;
-      /** @description Does this season have data with modified rules and scoring? */
-      offseason: boolean;
+    schemas: {
+        season: {
+            id: number;
+            /** @description Full season year range (e.g. 2023-2024).  For offseasons, suffixed with `-off-<short_name>` */
+            year: string;
+            name: string;
+            /** @description Are events currently being played for this season? */
+            active: boolean;
+            /** @description Does this season have data with modified rules and scoring? */
+            offseason: boolean;
+        };
+        winRecord: {
+            win: number;
+            loss: number;
+            tie: number;
+        };
+        event: {
+            id: number;
+            /** @enum {string} */
+            aasm_state: "not_started" | "in_progress" | "finalized" | "canceled";
+            context_id?: number;
+            /** @enum {string} */
+            context_type?: "League" | "Division";
+            /** @description Slug of league this event belongs to */
+            league?: string;
+            season_id: number;
+            /** @description Year string for season */
+            season: string;
+            /** @enum {string} */
+            type: "scrimmage" | "league_meet" | "qualifier" | "league_tournament" | "championship";
+            remote: boolean;
+            /** @description Short human-readable ID for event */
+            slug: string;
+            name: string;
+            /** Format: date */
+            start_date: string;
+            /** Format: date */
+            end_date: string;
+            /** @description Name/description of venue */
+            location: string;
+            address?: string;
+            city: string;
+            state: string;
+            country: string;
+            /** @description Twitch channel event is streaming on */
+            channel?: string;
+            /** @description Always false in public API */
+            can_import: boolean;
+            /** @description Link to download database (authenticated event owners only) */
+            import?: string;
+            /** @description List of event owners (authenticated event owners only) */
+            owners?: {
+                uid: string;
+                name?: string;
+            }[];
+            divisions: {
+                id: number;
+                /** @description ID of event containing this division */
+                event_id: number;
+                name: string;
+                /** @description Short human-readable ID for division */
+                slug: string;
+                /** @description Link to download database (authenticated event owners only) */
+                import?: string;
+            }[];
+        };
+        league: {
+            id: number;
+            name: string;
+            /** @description Short human-readable ID for league */
+            slug: string;
+            team_count: number;
+            season_id: number;
+            /** @description Parent league slug (only populated for child leagues) */
+            parent_league?: string;
+        };
+        team: {
+            number: number;
+            name: string;
+            organization: string;
+            city: string;
+            state: string;
+            country: string;
+            rookie_year: string;
+            updated_at: string;
+        };
+        alliance: {
+            id: number;
+            event_id: number;
+            seed: number;
+            teams: number[];
+            division?: string;
+        };
+        ranking: {
+            id: number;
+            team: number;
+            context_id: number;
+            /** @enum {string} */
+            context_type: "Event" | "League" | "Division";
+            league?: string;
+            ranking: number;
+            sort_order1: number;
+            sort_order2: number;
+            sort_order3: number;
+            sort_order4: number;
+            sort_order5: number;
+            sort_order6: number;
+            matches_played: number;
+            matches_counted: number;
+            division?: string;
+            record: components["schemas"]["winRecord"];
+        };
+        elimRanking: {
+            id: number;
+            alliance?: number;
+            context_id: number;
+            /** @enum {string} */
+            context_type: "Event" | "League" | "Division";
+            ranking: number;
+            sort_order1: number;
+            sort_order2: number;
+            sort_order3: number;
+            sort_order4: number;
+            sort_order5: number;
+            sort_order6: number;
+            matches_played: number;
+            matches_counted: number;
+            division?: string;
+            record: components["schemas"]["winRecord"];
+        };
+        award: {
+            id: number;
+            event_id: number;
+            name: string;
+            description?: string;
+            finalists: components["schemas"]["awardFinalist"][];
+        };
+        awardFinalist: {
+            place: number;
+            recipient?: string;
+            team_id?: number;
+            description?: string;
+        };
+        match: {
+            id: number;
+            event_id: number;
+            division?: string;
+            /** @enum {string} */
+            phase: "qual" | "semi" | "final" | "interfinal";
+            series?: number;
+            number: number;
+            name: string;
+            played: boolean;
+            red_alliance: number[];
+            red_surrogate: boolean[];
+            blue_alliance: number[];
+            blue_surrogate: boolean[];
+            red_score?: number;
+            blue_score?: number;
+        };
+        remoteMatch: {
+            id: number;
+            event_id: number;
+            division?: string;
+            /** @enum {string} */
+            phase: "qual" | "semi" | "final" | "interfinal";
+            series?: number;
+            number: number;
+            name: string;
+            played: boolean;
+            team: number;
+            score?: number;
+            no_show: boolean;
+        };
+        matchDetails: {
+            id: number;
+            /** @enum {string} */
+            phase: "qual" | "semi" | "final" | "interfinal";
+            series?: number;
+            number: number;
+            event_id: number;
+            /** @enum {string} */
+            season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore" | "CenterstageCriScore" | "IntoTheDeepScore";
+            red_score_total: number;
+            red_score: {
+                auto: number;
+                teleop: number;
+                endgame: number;
+                penalty: number;
+            };
+            red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"];
+            red_teams: number[];
+            red_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
+            blue_score_total: number;
+            blue_score: {
+                auto: number;
+                teleop: number;
+                endgame: number;
+                penalty: number;
+            };
+            blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"];
+            blue_teams: number[];
+            blue_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
+        };
+        remoteMatchDetails: {
+            id: number;
+            /** @enum {string} */
+            phase: "qual" | "semi" | "final" | "interfinal";
+            series?: number;
+            number: number;
+            event_id: number;
+            /** @enum {string} */
+            season_score_type: "UltimateGoalScoreRemote" | "FreightFrenzyScoreRemote";
+            score_total: number;
+            score: {
+                auto: number;
+                teleop: number;
+                endgame: number;
+                penalty: number;
+            };
+            score_details: components["schemas"]["UltimateGoalScoreRemote"] | components["schemas"]["FreightFrenzyScoreRemote"];
+        };
+        RoverRuckusScore: {
+            robots_landed: number;
+            depots_claimed: number;
+            robots_parked_auto: number;
+            fields_sampled: number;
+            depot_minerals: number;
+            gold_cargo: number;
+            silver_cargo: number;
+            latched_robots: number;
+            robots_in_crater: number;
+            robots_completely_in_crater: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        RoverRuckusCriScore: {
+            robots_landed: number;
+            depots_claimed: number;
+            robots_parked_auto: number;
+            fields_sampled: number;
+            depot_minerals: number;
+            depot_platinum_minerals: number;
+            gold_cargo: number;
+            silver_cargo: number;
+            any_cargo: number;
+            platinum_cargo: number;
+            latched_robots: number;
+            any_latched_robots: number;
+            robots_in_crater: number;
+            robots_completely_in_crater: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        SkystoneScore: {
+            auto_skystones: number;
+            auto_delivered: number;
+            auto_placed: number;
+            robots_navigated: number;
+            foundation_repositioned: number;
+            teleop_placed: number;
+            teleop_delivered: number;
+            tallest_height: number;
+            foundation_moved: number;
+            robots_parked: number;
+            capstone_1_level: number;
+            capstone_2_level: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        UltimateGoalScoreRemote: {
+            wobble_1_delivered: boolean;
+            wobble_2_delivered: boolean;
+            auto_tower_high: number;
+            auto_tower_mid: number;
+            auto_tower_low: number;
+            auto_power_shot_left: boolean;
+            auto_power_shot_center: boolean;
+            auto_power_shot_right: boolean;
+            navigated: boolean;
+            teleop_tower_high: number;
+            teleop_tower_mid: number;
+            teleop_tower_low: number;
+            teleop_power_shot_left: boolean;
+            teleop_power_shot_center: boolean;
+            teleop_power_shot_right: boolean;
+            wobble_1_rings: number;
+            wobble_2_rings: number;
+            wobble_1_end: number;
+            wobble_2_end: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        FreightFrenzyScore: {
+            /** @enum {string} */
+            barcode_element1: "DUCK" | "TEAM_SHIPPING_ELEMENT";
+            /** @enum {string} */
+            barcode_element2: "DUCK" | "TEAM_SHIPPING_ELEMENT";
+            carousel: boolean;
+            /** @enum {string} */
+            auto_navigated1: "NONE" | "IN_STORAGE" | "COMPLETELY_IN_STORAGE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            /** @enum {string} */
+            auto_navigated2: "NONE" | "IN_STORAGE" | "COMPLETELY_IN_STORAGE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            auto_bonus1: boolean;
+            auto_bonus2: boolean;
+            auto_storage_freight: number;
+            auto_freight1: number;
+            auto_freight2: number;
+            auto_freight3: number;
+            teleop_storage_freight: number;
+            teleop_freight1: number;
+            teleop_freight2: number;
+            teleop_freight3: number;
+            shared_freight: number;
+            end_delivered: number;
+            alliance_balanced: boolean;
+            shared_unbalanced: boolean;
+            /** @enum {string} */
+            end_parked1: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            /** @enum {string} */
+            end_parked2: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            capped: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        FreightFrenzyScoreRemote: {
+            /** @enum {string} */
+            barcode_element: "DUCK" | "TEAM_SHIPPING_ELEMENT";
+            carousel: boolean;
+            /** @enum {string} */
+            auto_navigated: "NONE" | "IN_STORAGE" | "COMPLETELY_IN_STORAGE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            auto_bonus: boolean;
+            auto_storage_freight: number;
+            auto_freight1: number;
+            auto_freight2: number;
+            auto_freight3: number;
+            teleop_storage_freight: number;
+            teleop_freight1: number;
+            teleop_freight2: number;
+            teleop_freight3: number;
+            end_delivered: number;
+            alliance_balanced: boolean;
+            /** @enum {string} */
+            end_parked: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            capped: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        FreightFrenzyCriScore: {
+            /** @enum {string} */
+            barcode_element1: "DUCK" | "TEAM_SHIPPING_ELEMENT";
+            /** @enum {integer} */
+            barcode_element2: "DUCK" | "TEAM_SHIPPING_ELEMENT";
+            /** @enum {integer} */
+            barcode_element3: "DUCK" | "TEAM_SHIPPING_ELEMENT";
+            carousel: boolean;
+            /** @enum {string} */
+            auto_navigated1: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            /** @enum {string} */
+            auto_navigated2: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            /** @enum {string} */
+            auto_navigated3: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            auto_bonus1: boolean;
+            auto_bonus2: boolean;
+            auto_bonus3: boolean;
+            auto_freight1: number;
+            auto_freight2: number;
+            auto_freight3: number;
+            auto_coop_freight: number;
+            teleop_freight1: number;
+            teleop_freight2: number;
+            teleop_freight3: number;
+            shared_freight: number;
+            teleop_coop_freight: number;
+            teleop_other_coop_freight: number;
+            end_delivered: number;
+            alliance_balanced: boolean;
+            shared_unbalanced: boolean;
+            coop_balanced: boolean;
+            /** @enum {string} */
+            end_parked1: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            /** @enum {string} */
+            end_parked2: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            /** @enum {string} */
+            end_parked3: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
+            capped: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        PowerPlayScore: {
+            init_signal_sleeve1: boolean;
+            init_signal_sleeve2: number;
+            /** @enum {string} */
+            auto_navigated1: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
+            /** @enum {string} */
+            auto_navigated2: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
+            auto_terminal: number;
+            auto_junctions: unknown[];
+            teleop_junctions: unknown[];
+            teleop_terminal_near: number;
+            teleop_terminal_far: number;
+            teleop_navigated1: boolean;
+            teleop_navigated2: boolean;
+            auto_cone_counts: {
+                HIGH: number;
+                MEDIUM: number;
+                LOW: number;
+                GROUND: number;
+            };
+            teleop_cone_counts: {
+                HIGH: number;
+                MEDIUM: number;
+                LOW: number;
+                GROUND: number;
+            };
+            cone_owned_junctions: number;
+            beacon_owned_junctions: number;
+            has_circuit: boolean;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        PowerPlayCriScore: {
+            init_signal_sleeve1: boolean;
+            init_signal_sleeve2: number;
+            init_signal_sleeve3: number;
+            /** @enum {string} */
+            auto_navigated1: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
+            /** @enum {string} */
+            auto_navigated2: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
+            /** @enum {string} */
+            auto_navigated3: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
+            auto_terminal: number;
+            auto_junctions: unknown[];
+            teleop_junctions: unknown[];
+            teleop_terminal_near: number;
+            teleop_terminal_far: number;
+            teleop_navigated1: boolean;
+            teleop_navigated2: boolean;
+            teleop_navigated3: boolean;
+            auto_cone_counts: {
+                HIGH: number;
+                MEDIUM: number;
+                LOW: number;
+                GROUND: number;
+            };
+            auto_transformed_cones: number;
+            teleop_cone_counts: {
+                HIGH: number;
+                MEDIUM: number;
+                LOW: number;
+                GROUND: number;
+            };
+            teleop_transformed_cones: number;
+            cone_owned_junctions: number;
+            beacon_owned_junctions: number;
+            has_circuit: boolean;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        CenterstageScore: {
+            init_team_prop1: boolean;
+            init_team_prop2: boolean;
+            robot1_auto: boolean;
+            robot2_auto: boolean;
+            spike_mark_pixel1: boolean;
+            spike_mark_pixel2: boolean;
+            target_backdrop_pixel1: boolean;
+            target_backdrop_pixel2: boolean;
+            auto_backdrop: number;
+            auto_backstage: number;
+            teleop_backdrop: number;
+            teleop_backstage: number;
+            mosaics: number;
+            max_set_line: number;
+            /** @enum {string} */
+            teleop_robot1: "NONE" | "BACKSTAGE" | "RIGGING";
+            /** @enum {string} */
+            teleop_robot2: "NONE" | "BACKSTAGE" | "RIGGING";
+            drone1: number;
+            drone2: number;
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        CenterstageCriScore: {
+            init_team_prop1: boolean;
+            init_team_prop2: boolean;
+            init_team_prop3: boolean;
+            robot1_auto: boolean;
+            robot2_auto: boolean;
+            robot3_auto: boolean;
+            spike_mark_pixel1: boolean;
+            spike_mark_pixel2: boolean;
+            spike_mark_pixel3: boolean;
+            target_backdrop_pixel1: boolean;
+            target_backdrop_pixel2: boolean;
+            target_backdrop_pixel3: boolean;
+            auto_backstage: number;
+            auto_own_backdrop: number;
+            auto_own_mosaics: number;
+            auto_own_max_set_line: number;
+            auto_shared_backdrop: number;
+            auto_shared_mosaics: number;
+            auto_shared_max_set_line: number;
+            teleop_backstage: number;
+            teleop_own_backdrop: number;
+            teleop_own_mosaics: number;
+            teleop_own_max_set_line: number;
+            teleop_shared_backdrop: number;
+            teleop_shared_mosaics: number;
+            teleop_shared_max_set_line: number;
+            alliance_pixels: number;
+            other_alliance_pixels: number;
+            /** @enum {string} */
+            teleop_robot1: "NONE" | "BACKSTAGE" | "RIGGING";
+            /** @enum {string} */
+            teleop_robot2: "NONE" | "BACKSTAGE" | "RIGGING";
+            /** @enum {string} */
+            teleop_robot3: "NONE" | "BACKSTAGE" | "RIGGING";
+            drone1: number;
+            drone2: number;
+            drone3: number;
+            minor_penalties: number;
+            major_penalties: number;
+            collage: boolean;
+            mural: boolean;
+            finale: boolean;
+        };
+        IntoTheDeepScore: {
+            /** @enum {string} */
+            auto_robot1: "NONE" | "OBSERVATION_ZONE" | "ASCENT";
+            /** @enum {string} */
+            auto_robot2: "NONE" | "OBSERVATION_ZONE" | "ASCENT";
+            auto_sample_net: number;
+            auto_sample_low: number;
+            auto_sample_high: number;
+            auto_specimen_low: number;
+            auto_specimen_high: number;
+            teleop_sample_net: number;
+            teleop_sample_low: number;
+            teleop_sample_high: number;
+            teleop_specimen_low: number;
+            teleop_specimen_high: number;
+            /** @enum {string} */
+            teleop_robot1: "NONE" | "OBSERVATION_ZONE" | "ASCENT_1" | "ASCENT_2" | "ASCENT_3";
+            /** @enum {string} */
+            teleop_robot2: "NONE" | "OBSERVATION_ZONE" | "ASCENT_1" | "ASCENT_2" | "ASCENT_3";
+            minor_penalties: number;
+            major_penalties: number;
+        };
     };
-    winRecord: {
-      win: number;
-      loss: number;
-      tie: number;
-    };
-    event: {
-      id: number;
-      /** @enum {string} */
-      aasm_state: "not_started" | "in_progress" | "finalized" | "canceled";
-      context_id?: number;
-      /** @enum {string} */
-      context_type?: "League" | "Division";
-      /** @description Slug of league this event belongs to */
-      league?: string;
-      season_id: number;
-      /** @description Year string for season */
-      season: string;
-      /** @enum {string} */
-      type: "scrimmage" | "league_meet" | "qualifier" | "league_tournament" | "championship";
-      remote: boolean;
-      /** @description Short human-readable ID for event */
-      slug: string;
-      name: string;
-      /** Format: date */
-      start_date: string;
-      /** Format: date */
-      end_date: string;
-      /** @description Name/description of venue */
-      location: string;
-      address?: string;
-      city: string;
-      state: string;
-      country: string;
-      /** @description Twitch channel event is streaming on */
-      channel?: string;
-      /** @description Always false in public API */
-      can_import: boolean;
-      /** @description Link to download database (authenticated event owners only) */
-      import?: string;
-      /** @description List of event owners (authenticated event owners only) */
-      owners?: {
-          uid: string;
-          name?: string;
-        }[];
-      divisions: {
-          id: number;
-          /** @description ID of event containing this division */
-          event_id: number;
-          name: string;
-          /** @description Short human-readable ID for division */
-          slug: string;
-          /** @description Link to download database (authenticated event owners only) */
-          import?: string;
-        }[];
-    };
-    league: {
-      id: number;
-      name: string;
-      /** @description Short human-readable ID for league */
-      slug: string;
-      team_count: number;
-      season_id: number;
-      /** @description Parent league slug (only populated for child leagues) */
-      parent_league?: string;
-    };
-    team: {
-      number: number;
-      name: string;
-      organization: string;
-      city: string;
-      state: string;
-      country: string;
-      rookie_year: string;
-      updated_at: string;
-    };
-    alliance: {
-      id: number;
-      event_id: number;
-      seed: number;
-      teams: number[];
-      division?: string;
-    };
-    ranking: {
-      id: number;
-      team: number;
-      context_id: number;
-      /** @enum {string} */
-      context_type: "Event" | "League" | "Division";
-      league?: string;
-      ranking: number;
-      sort_order1: number;
-      sort_order2: number;
-      sort_order3: number;
-      sort_order4: number;
-      sort_order5: number;
-      sort_order6: number;
-      matches_played: number;
-      matches_counted: number;
-      division?: string;
-      record: components["schemas"]["winRecord"];
-    };
-    elimRanking: {
-      id: number;
-      alliance?: number;
-      context_id: number;
-      /** @enum {string} */
-      context_type: "Event" | "League" | "Division";
-      ranking: number;
-      sort_order1: number;
-      sort_order2: number;
-      sort_order3: number;
-      sort_order4: number;
-      sort_order5: number;
-      sort_order6: number;
-      matches_played: number;
-      matches_counted: number;
-      division?: string;
-      record: components["schemas"]["winRecord"];
-    };
-    award: {
-      id: number;
-      event_id: number;
-      name: string;
-      description?: string;
-      finalists: components["schemas"]["awardFinalist"][];
-    };
-    awardFinalist: {
-      place: number;
-      recipient?: string;
-      team_id?: number;
-      description?: string;
-    };
-    match: {
-      id: number;
-      event_id: number;
-      division?: string;
-      /** @enum {string} */
-      phase: "qual" | "semi" | "final" | "interfinal";
-      series?: number;
-      number: number;
-      name: string;
-      played: boolean;
-      red_alliance: number[];
-      red_surrogate: boolean[];
-      blue_alliance: number[];
-      blue_surrogate: boolean[];
-      red_score?: number;
-      blue_score?: number;
-    };
-    remoteMatch: {
-      id: number;
-      event_id: number;
-      division?: string;
-      /** @enum {string} */
-      phase: "qual" | "semi" | "final" | "interfinal";
-      series?: number;
-      number: number;
-      name: string;
-      played: boolean;
-      team: number;
-      score?: number;
-      no_show: boolean;
-    };
-    matchDetails: {
-      id: number;
-      /** @enum {string} */
-      phase: "qual" | "semi" | "final" | "interfinal";
-      series?: number;
-      number: number;
-      event_id: number;
-      /** @enum {string} */
-      season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore" | "CenterstageCriScore";
-      red_score_total: number;
-      red_score: {
-        auto: number;
-        teleop: number;
-        endgame: number;
-        penalty: number;
-      };
-      red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"];
-      red_teams: number[];
-      red_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
-      blue_score_total: number;
-      blue_score: {
-        auto: number;
-        teleop: number;
-        endgame: number;
-        penalty: number;
-      };
-      blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"];
-      blue_teams: number[];
-      blue_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
-    };
-    remoteMatchDetails: {
-      id: number;
-      /** @enum {string} */
-      phase: "qual" | "semi" | "final" | "interfinal";
-      series?: number;
-      number: number;
-      event_id: number;
-      /** @enum {string} */
-      season_score_type: "UltimateGoalScoreRemote" | "FreightFrenzyScoreRemote";
-      score_total: number;
-      score: {
-        auto: number;
-        teleop: number;
-        endgame: number;
-        penalty: number;
-      };
-      score_details: components["schemas"]["UltimateGoalScoreRemote"] | components["schemas"]["FreightFrenzyScoreRemote"];
-    };
-    RoverRuckusScore: {
-      robots_landed: number;
-      depots_claimed: number;
-      robots_parked_auto: number;
-      fields_sampled: number;
-      depot_minerals: number;
-      gold_cargo: number;
-      silver_cargo: number;
-      latched_robots: number;
-      robots_in_crater: number;
-      robots_completely_in_crater: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    RoverRuckusCriScore: {
-      robots_landed: number;
-      depots_claimed: number;
-      robots_parked_auto: number;
-      fields_sampled: number;
-      depot_minerals: number;
-      depot_platinum_minerals: number;
-      gold_cargo: number;
-      silver_cargo: number;
-      any_cargo: number;
-      platinum_cargo: number;
-      latched_robots: number;
-      any_latched_robots: number;
-      robots_in_crater: number;
-      robots_completely_in_crater: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    SkystoneScore: {
-      auto_skystones: number;
-      auto_delivered: number;
-      auto_placed: number;
-      robots_navigated: number;
-      foundation_repositioned: number;
-      teleop_placed: number;
-      teleop_delivered: number;
-      tallest_height: number;
-      foundation_moved: number;
-      robots_parked: number;
-      capstone_1_level: number;
-      capstone_2_level: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    UltimateGoalScoreRemote: {
-      wobble_1_delivered: boolean;
-      wobble_2_delivered: boolean;
-      auto_tower_high: number;
-      auto_tower_mid: number;
-      auto_tower_low: number;
-      auto_power_shot_left: boolean;
-      auto_power_shot_center: boolean;
-      auto_power_shot_right: boolean;
-      navigated: boolean;
-      teleop_tower_high: number;
-      teleop_tower_mid: number;
-      teleop_tower_low: number;
-      teleop_power_shot_left: boolean;
-      teleop_power_shot_center: boolean;
-      teleop_power_shot_right: boolean;
-      wobble_1_rings: number;
-      wobble_2_rings: number;
-      wobble_1_end: number;
-      wobble_2_end: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    FreightFrenzyScore: {
-      /** @enum {string} */
-      barcode_element1: "DUCK" | "TEAM_SHIPPING_ELEMENT";
-      /** @enum {string} */
-      barcode_element2: "DUCK" | "TEAM_SHIPPING_ELEMENT";
-      carousel: boolean;
-      /** @enum {string} */
-      auto_navigated1: "NONE" | "IN_STORAGE" | "COMPLETELY_IN_STORAGE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      /** @enum {string} */
-      auto_navigated2: "NONE" | "IN_STORAGE" | "COMPLETELY_IN_STORAGE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      auto_bonus1: boolean;
-      auto_bonus2: boolean;
-      auto_storage_freight: number;
-      auto_freight1: number;
-      auto_freight2: number;
-      auto_freight3: number;
-      teleop_storage_freight: number;
-      teleop_freight1: number;
-      teleop_freight2: number;
-      teleop_freight3: number;
-      shared_freight: number;
-      end_delivered: number;
-      alliance_balanced: boolean;
-      shared_unbalanced: boolean;
-      /** @enum {string} */
-      end_parked1: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      /** @enum {string} */
-      end_parked2: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      capped: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    FreightFrenzyScoreRemote: {
-      /** @enum {string} */
-      barcode_element: "DUCK" | "TEAM_SHIPPING_ELEMENT";
-      carousel: boolean;
-      /** @enum {string} */
-      auto_navigated: "NONE" | "IN_STORAGE" | "COMPLETELY_IN_STORAGE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      auto_bonus: boolean;
-      auto_storage_freight: number;
-      auto_freight1: number;
-      auto_freight2: number;
-      auto_freight3: number;
-      teleop_storage_freight: number;
-      teleop_freight1: number;
-      teleop_freight2: number;
-      teleop_freight3: number;
-      end_delivered: number;
-      alliance_balanced: boolean;
-      /** @enum {string} */
-      end_parked: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      capped: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    FreightFrenzyCriScore: {
-      /** @enum {string} */
-      barcode_element1: "DUCK" | "TEAM_SHIPPING_ELEMENT";
-      /** @enum {integer} */
-      barcode_element2: DUCK | TEAM_SHIPPING_ELEMENT;
-      /** @enum {integer} */
-      barcode_element3: DUCK | TEAM_SHIPPING_ELEMENT;
-      carousel: boolean;
-      /** @enum {string} */
-      auto_navigated1: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      /** @enum {string} */
-      auto_navigated2: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      /** @enum {string} */
-      auto_navigated3: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      auto_bonus1: boolean;
-      auto_bonus2: boolean;
-      auto_bonus3: boolean;
-      auto_freight1: number;
-      auto_freight2: number;
-      auto_freight3: number;
-      auto_coop_freight: number;
-      teleop_freight1: number;
-      teleop_freight2: number;
-      teleop_freight3: number;
-      shared_freight: number;
-      teleop_coop_freight: number;
-      teleop_other_coop_freight: number;
-      end_delivered: number;
-      alliance_balanced: boolean;
-      shared_unbalanced: boolean;
-      coop_balanced: boolean;
-      /** @enum {string} */
-      end_parked1: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      /** @enum {string} */
-      end_parked2: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      /** @enum {string} */
-      end_parked3: "NONE" | "IN_WAREHOUSE" | "COMPLETELY_IN_WAREHOUSE";
-      capped: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    PowerPlayScore: {
-      init_signal_sleeve1: boolean;
-      init_signal_sleeve2: number;
-      /** @enum {string} */
-      auto_navigated1: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
-      /** @enum {string} */
-      auto_navigated2: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
-      auto_terminal: number;
-      auto_junctions: unknown[];
-      teleop_junctions: unknown[];
-      teleop_terminal_near: number;
-      teleop_terminal_far: number;
-      teleop_navigated1: boolean;
-      teleop_navigated2: boolean;
-      auto_cone_counts: {
-        HIGH: number;
-        MEDIUM: number;
-        LOW: number;
-        GROUND: number;
-      };
-      teleop_cone_counts: {
-        HIGH: number;
-        MEDIUM: number;
-        LOW: number;
-        GROUND: number;
-      };
-      cone_owned_junctions: number;
-      beacon_owned_junctions: number;
-      has_circuit: boolean;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    PowerPlayCriScore: {
-      init_signal_sleeve1: boolean;
-      init_signal_sleeve2: number;
-      init_signal_sleeve3: number;
-      /** @enum {string} */
-      auto_navigated1: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
-      /** @enum {string} */
-      auto_navigated2: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
-      /** @enum {string} */
-      auto_navigated3: "NONE" | "SUBSTATION_TERMINAL" | "SIGNAL_ZONE";
-      auto_terminal: number;
-      auto_junctions: unknown[];
-      teleop_junctions: unknown[];
-      teleop_terminal_near: number;
-      teleop_terminal_far: number;
-      teleop_navigated1: boolean;
-      teleop_navigated2: boolean;
-      teleop_navigated3: boolean;
-      auto_cone_counts: {
-        HIGH: number;
-        MEDIUM: number;
-        LOW: number;
-        GROUND: number;
-      };
-      auto_transformed_cones: number;
-      teleop_cone_counts: {
-        HIGH: number;
-        MEDIUM: number;
-        LOW: number;
-        GROUND: number;
-      };
-      teleop_transformed_cones: number;
-      cone_owned_junctions: number;
-      beacon_owned_junctions: number;
-      has_circuit: boolean;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    CenterstageScore: {
-      init_team_prop1: boolean;
-      init_team_prop2: boolean;
-      robot1_auto: boolean;
-      robot2_auto: boolean;
-      spike_mark_pixel1: boolean;
-      spike_mark_pixel2: boolean;
-      target_backdrop_pixel1: boolean;
-      target_backdrop_pixel2: boolean;
-      auto_backdrop: number;
-      auto_backstage: number;
-      teleop_backdrop: number;
-      teleop_backstage: number;
-      mosaics: number;
-      max_set_line: number;
-      /** @enum {string} */
-      teleop_robot1: "NONE" | "BACKSTAGE" | "RIGGING";
-      /** @enum {string} */
-      teleop_robot2: "NONE" | "BACKSTAGE" | "RIGGING";
-      drone1: number;
-      drone2: number;
-      minor_penalties: number;
-      major_penalties: number;
-    };
-    CenterstageCriScore: {
-      init_team_prop1: boolean;
-      init_team_prop2: boolean;
-      init_team_prop3: boolean;
-      robot1_auto: boolean;
-      robot2_auto: boolean;
-      robot3_auto: boolean;
-      spike_mark_pixel1: boolean;
-      spike_mark_pixel2: boolean;
-      spike_mark_pixel3: boolean;
-      target_backdrop_pixel1: boolean;
-      target_backdrop_pixel2: boolean;
-      target_backdrop_pixel3: boolean;
-      auto_backstage: number;
-      auto_own_backdrop: number;
-      auto_own_mosaics: number;
-      auto_own_max_set_line: number;
-      auto_shared_backdrop: number;
-      auto_shared_mosaics: number;
-      auto_shared_max_set_line: number;
-      teleop_backstage: number;
-      teleop_own_backdrop: number;
-      teleop_own_mosaics: number;
-      teleop_own_max_set_line: number;
-      teleop_shared_backdrop: number;
-      teleop_shared_mosaics: number;
-      teleop_shared_max_set_line: number;
-      alliance_pixels: number;
-      other_alliance_pixels: number;
-      /** @enum {string} */
-      teleop_robot1: "NONE" | "BACKSTAGE" | "RIGGING";
-      /** @enum {string} */
-      teleop_robot2: "NONE" | "BACKSTAGE" | "RIGGING";
-      /** @enum {string} */
-      teleop_robot3: "NONE" | "BACKSTAGE" | "RIGGING";
-      drone1: number;
-      drone2: number;
-      drone3: number;
-      minor_penalties: number;
-      major_penalties: number;
-      collage: boolean;
-      mural: boolean;
-      finale: boolean;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
-
 export type $defs = Record<string, never>;
-
-export type external = Record<string, never>;
-
 export type operations = Record<string, never>;

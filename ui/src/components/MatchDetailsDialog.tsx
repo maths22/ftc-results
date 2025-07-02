@@ -24,7 +24,8 @@ const scoreTables = {
   'PowerPlayScore': lazy(() => import('./scoreTables/PowerPlayScoreTable.ts')),
   'PowerPlayCriScore': lazy(() => import('./scoreTables/PowerPlayCriScoreTable.tsx')),
   'CenterstageScore': lazy(() => import('./scoreTables/CenterstageScoreTable.ts')),
-  'CenterstageCriScore': lazy(() => import('./scoreTables/CenterstageCriScoreTable.tsx'))
+  'CenterstageCriScore': lazy(() => import('./scoreTables/CenterstageCriScoreTable.tsx')),
+  'IntoTheDeepScore': lazy(() => import('./scoreTables/IntoTheDeepScoreTable.ts'))
 }
 
 export default function MatchDetailsDialog({event, matchName, onClose}: {
@@ -34,6 +35,7 @@ export default function MatchDetailsDialog({event, matchName, onClose}: {
 }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  // TODO fix division bug
   const { isPending, isError, data: match } = useMatchDetails(event.season, event.slug, matchName);
   if(isError) {
     return;
@@ -58,7 +60,9 @@ export default function MatchDetailsDialog({event, matchName, onClose}: {
         {match ? <ErrorBoundary message={'Match details cannot be shown for this match'}>
           <Suspense fallback={<div>Loading...</div>}>
             {/* @ts-expect-error I wish I could figure out how to make this happy */}
-            {ScoreTable ? <ScoreTable match={match}/> : null}
+            {ScoreTable ? <ScoreTable match={match}/> : <span>
+              Score table is not defined for {match.season_score_type}
+            </span>}
           </Suspense>
         </ErrorBoundary> : null}
       </DialogContent>

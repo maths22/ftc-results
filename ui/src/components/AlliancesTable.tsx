@@ -25,14 +25,14 @@ export default function AlliancesTable({alliances}: {
 
   const rowStyle = {height: '2rem'};
 
-  const colCount = Math.max(3, ...alliances.map((a) => a.teams.length));
+  const colCount = Math.max(2, ...alliances.map((a) => a.teams.length));
   return <Table sx={{minWidth: '20em'}} key={1}>
     <TableHead>
       <TableRow style={rowStyle}>
         <PaddedCell>Seed</PaddedCell>
         <PaddedCell>Captain</PaddedCell>
-        <PaddedCell>First Pick</PaddedCell>
-        <PaddedCell>Second Pick</PaddedCell>
+        <PaddedCell>{colCount == 2 ? 'Partner' : 'First Pick'}</PaddedCell>
+        {colCount > 2 ? <PaddedCell>Second Pick</PaddedCell> : null}
         {colCount > 3 ? <PaddedCell>Backup</PaddedCell> : null}
       </TableRow>
     </TableHead>
