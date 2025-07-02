@@ -13,6 +13,10 @@ require 'action_cable/engine'
 require 'sprockets/railtie'
 require 'rails/test_unit/railtie'
 
+require 'rack/handler/iodine'
+::Rackup::Handler.register(:iodine, Iodine::Rack) if defined?(::Rackup::Handler)
+ENV['RACKUP_HANDLER'] ||= 'iodine'
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -40,7 +44,7 @@ class Profiler
     # Stop profiling & save
     out = RubyProf.stop
     File.open("perflog/#{profiling_filename(env)}", 'w+') do |file|
-      RubyProf::FlameGraphPrinter.new(out).print(file)
+      RubyProf::FlatPrinter.new(out).print(file)
     end
 
     res
@@ -93,7 +97,5 @@ module FtcResults
                       expose: DeviseTokenAuth.headers_names.values
       end
     end
-
-    config.middleware.use Plezi
   end
 end

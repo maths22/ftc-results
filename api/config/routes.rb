@@ -6,7 +6,6 @@ Rails.application.routes.draw do
   # service
   # rails/active_storage
   # assets
-  root 'application#index'
 
   get 'oauth/admin', to: 'oauth#admin_token' if Rails.env.development?
 

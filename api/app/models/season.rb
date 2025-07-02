@@ -9,7 +9,7 @@ class Season < ApplicationRecord
     year.split('-').first
   end
 
-  enum ranking_algorithm: {
+  enum :ranking_algorithm, {
     traditional: 0,
     skystone: 1
   }

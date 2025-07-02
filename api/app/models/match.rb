@@ -138,7 +138,7 @@ class Match < ApplicationRecord
     ret
   end
 
-  enum phase: {
+  enum :phase, {
     qual: 0,
     semi: 1,
     final: 2,
