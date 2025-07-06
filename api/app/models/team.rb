@@ -7,6 +7,7 @@ class Team < ApplicationRecord
   has_many :alliances, through: :alliance_teams
   has_many :rankings, dependent: :destroy
   has_many :seasons, -> { distinct.order(year: :desc) }, through: :events
+  has_many :match_alliances, through: :alliances
 
   def assign_to_league(league)
     ActiveRecord::Base.transaction do
@@ -19,12 +20,6 @@ class Team < ApplicationRecord
     alliances.joins(:event)
              .includes(:match_alliances)
              .where(events: { season: season })
-             .flat_map(&:match_alliances)
-  end
-
-  def match_alliances
-    alliances.joins(:event)
-             .includes(:match_alliances)
              .flat_map(&:match_alliances)
   end
 

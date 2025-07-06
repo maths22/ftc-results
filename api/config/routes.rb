@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   # service
   # rails/active_storage
   # assets
+  root to: redirect("/rails/admin", status: 302)
 
   get 'oauth/admin', to: 'oauth#admin_token' if Rails.env.development?
 

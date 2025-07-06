@@ -147,5 +147,6 @@ class Match < ApplicationRecord
     final: 2,
     interfinal: 3,
     playoff: 4,
+    practice: 5,
   }
 end

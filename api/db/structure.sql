@@ -1188,6 +1188,75 @@ ALTER SEQUENCE public.freight_frenzy_scores_remote_id_seq OWNED BY public.freigh
 
 
 --
+-- Name: into_the_deep_cri_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.into_the_deep_cri_scores (
+    id bigint NOT NULL,
+    auto_robot1 public.itd_auto_robot_status DEFAULT 'NONE'::public.itd_auto_robot_status,
+    auto_robot2 public.itd_auto_robot_status DEFAULT 'NONE'::public.itd_auto_robot_status,
+    auto_robot3 public.itd_auto_robot_status DEFAULT 'NONE'::public.itd_auto_robot_status,
+    auto_sample_net_near integer DEFAULT 0,
+    auto_sample_low_near integer DEFAULT 0,
+    auto_sample_high_near integer DEFAULT 0,
+    auto_sample_net_far integer DEFAULT 0,
+    auto_sample_low_far integer DEFAULT 0,
+    auto_sample_high_far integer DEFAULT 0,
+    auto_specimen_low_1 integer DEFAULT 0,
+    auto_specimen_high_1 integer DEFAULT 0,
+    auto_specimen_low_2 integer DEFAULT 0,
+    auto_specimen_high_2 integer DEFAULT 0,
+    auto_specimen_low_3 integer DEFAULT 0,
+    auto_specimen_high_3 integer DEFAULT 0,
+    auto_specimen_low_4 integer DEFAULT 0,
+    auto_specimen_high_4 integer DEFAULT 0,
+    auto_owned_chambers integer DEFAULT 0,
+    teleop_sample_net_near integer DEFAULT 0,
+    teleop_sample_low_near integer DEFAULT 0,
+    teleop_sample_high_near integer DEFAULT 0,
+    teleop_sample_net_far integer DEFAULT 0,
+    teleop_sample_low_far integer DEFAULT 0,
+    teleop_sample_high_far integer DEFAULT 0,
+    teleop_specimen_low_1 integer DEFAULT 0,
+    teleop_specimen_high_1 integer DEFAULT 0,
+    teleop_specimen_low_2 integer DEFAULT 0,
+    teleop_specimen_high_2 integer DEFAULT 0,
+    teleop_specimen_low_3 integer DEFAULT 0,
+    teleop_specimen_high_3 integer DEFAULT 0,
+    teleop_specimen_low_4 integer DEFAULT 0,
+    teleop_specimen_high_4 integer DEFAULT 0,
+    teleop_owned_chambers integer DEFAULT 0,
+    teleop_robot1 public.itd_teleop_robot_status DEFAULT 'NONE'::public.itd_teleop_robot_status,
+    teleop_robot2 public.itd_teleop_robot_status DEFAULT 'NONE'::public.itd_teleop_robot_status,
+    teleop_robot3 public.itd_teleop_robot_status DEFAULT 'NONE'::public.itd_teleop_robot_status,
+    coop_achieved boolean DEFAULT false,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: into_the_deep_cri_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.into_the_deep_cri_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: into_the_deep_cri_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.into_the_deep_cri_scores_id_seq OWNED BY public.into_the_deep_cri_scores.id;
+
+
+--
 -- Name: into_the_deep_scores; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2097,6 +2166,13 @@ ALTER TABLE ONLY public.freight_frenzy_scores_remote ALTER COLUMN id SET DEFAULT
 
 
 --
+-- Name: into_the_deep_cri_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.into_the_deep_cri_scores ALTER COLUMN id SET DEFAULT nextval('public.into_the_deep_cri_scores_id_seq'::regclass);
+
+
+--
 -- Name: into_the_deep_scores id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2404,6 +2480,14 @@ ALTER TABLE ONLY public.freight_frenzy_scores
 
 ALTER TABLE ONLY public.freight_frenzy_scores_remote
     ADD CONSTRAINT freight_frenzy_scores_remote_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: into_the_deep_cri_scores into_the_deep_cri_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.into_the_deep_cri_scores
+    ADD CONSTRAINT into_the_deep_cri_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -3120,6 +3204,7 @@ ALTER TABLE ONLY public.event_divisions
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250706155006'),
 ('20250702150623'),
 ('20250701150801'),
 ('20240623201234'),

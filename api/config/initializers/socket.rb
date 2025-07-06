@@ -8,8 +8,14 @@ class SyncSocketMiddleware
     return @app.call(env) if env['PATH_INFO'] != '/api/v1/scoring/sync/socket'
 
     if env['rack.upgrade?'] == :websocket
-      env['rack.upgrade'] = LiveSync
-      WS_RESPONSE
+      sync = LiveSync.new
+      res = sync.pre_connect(Rack::Request.new(env))
+      if res
+        env['rack.upgrade'] = sync
+        WS_RESPONSE
+      else
+        [500, {'Content-Type' => 'text/plain'}, [ 'Connection error' ]]
+      end
     else
       [405, {'Content-Type' => 'text/plain'}, [ 'Only websockets are supported' ]]
     end

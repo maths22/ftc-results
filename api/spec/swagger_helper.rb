@@ -5,7 +5,7 @@ require 'rails_helper'
 SAMPLE_SEASON = '2023-2024'
 SAMPLE_EVENT = 'USILCHS1'
 SAMPLE_LEAGUE = 'CHI'
-SCORE_TYPES = %i[RoverRuckusScore RoverRuckusCriScore SkystoneScore FreightFrenzyScore FreightFrenzyCriScore PowerPlayScore PowerPlayCriScore CenterstageScore CenterstageCriScore IntoTheDeepScore]
+SCORE_TYPES = %i[RoverRuckusScore RoverRuckusCriScore SkystoneScore FreightFrenzyScore FreightFrenzyCriScore PowerPlayScore PowerPlayCriScore CenterstageScore CenterstageCriScore IntoTheDeepScore IntoTheDeepCriScore]
 REMOTE_SCORE_TYPES = %i[UltimateGoalScoreRemote FreightFrenzyScoreRemote]
 
 RSpec.configure do |config|
@@ -107,8 +107,9 @@ DESC
                 },
                 required: %i[id event_id name slug]
               } },
+              has_practice: { type: :boolean }
             },
-            required: %i[id aasm_state season_id season type remote slug name start_date end_date location city state country can_import divisions]
+            required: %i[id aasm_state season_id season type remote slug name start_date end_date location city state country can_import divisions has_practice]
           },
           league: {
             type: :object,
@@ -217,7 +218,7 @@ DESC
               id: { type: :integer },
               event_id: { type: :integer },
               division: { type: :string },
-              phase: { type: :string, enum: %i[qual semi final interfinal] },
+              phase: { type: :string, enum: %i[qual semi final interfinal playoff practice] },
               series: { type: :integer },
               number: { type: :integer },
               name: { type: :string },
@@ -690,6 +691,51 @@ DESC
               major_penalties: { type: :integer },
             },
             required: %i[auto_robot1 auto_robot2 auto_sample_net auto_sample_low auto_sample_high auto_specimen_low auto_specimen_high teleop_sample_net teleop_sample_low teleop_sample_high teleop_specimen_low teleop_specimen_high teleop_robot1 teleop_robot2 minor_penalties major_penalties]
+          },
+          IntoTheDeepCriScore: {
+            type: :object,
+            properties: {
+              auto_robot1: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT] },
+              auto_robot2: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT] },
+              auto_robot3: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT] },
+              auto_sample_net_near: { type: :integer },
+              auto_sample_low_near: { type: :integer },
+              auto_sample_high_near: { type: :integer },
+              auto_sample_net_far: { type: :integer },
+              auto_sample_low_far: { type: :integer },
+              auto_sample_high_far: { type: :integer },
+              auto_specimen_low_1: { type: :integer },
+              auto_specimen_high_1: { type: :integer },
+              auto_specimen_low_2: { type: :integer },
+              auto_specimen_high_2: { type: :integer },
+              auto_specimen_low_3: { type: :integer },
+              auto_specimen_high_3: { type: :integer },
+              auto_specimen_low_4: { type: :integer },
+              auto_specimen_high_4: { type: :integer },
+              auto_owned_chambers: { type: :integer },
+              teleop_sample_net_near: { type: :integer },
+              teleop_sample_low_near: { type: :integer },
+              teleop_sample_high_near: { type: :integer },
+              teleop_sample_net_far: { type: :integer },
+              teleop_sample_low_far: { type: :integer },
+              teleop_sample_high_far: { type: :integer },
+              teleop_specimen_low_1: { type: :integer },
+              teleop_specimen_high_1: { type: :integer },
+              teleop_specimen_low_2: { type: :integer },
+              teleop_specimen_high_2: { type: :integer },
+              teleop_specimen_low_3: { type: :integer },
+              teleop_specimen_high_3: { type: :integer },
+              teleop_specimen_low_4: { type: :integer },
+              teleop_specimen_high_4: { type: :integer },
+              teleop_owned_chambers: { type: :integer },
+              teleop_robot1: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT_1 ASCENT_2 ASCENT_3] },
+              teleop_robot2: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT_1 ASCENT_2 ASCENT_3] },
+              teleop_robot3: { type: :string, enum: %i[NONE OBSERVATION_ZONE ASCENT_1 ASCENT_2 ASCENT_3] },
+              coop_achieved: { type: :boolean },
+              minor_penalties: { type: :integer },
+              major_penalties: { type: :integer },
+            },
+            required: %i[auto_robot1 auto_robot2 auto_robot3 auto_sample_net_near auto_sample_low_near auto_sample_high_near auto_sample_net_far auto_sample_low_far auto_sample_high_far auto_specimen_low_1 auto_specimen_high_1 auto_specimen_low_2 auto_specimen_high_2 auto_specimen_low_3 auto_specimen_high_3 auto_specimen_low_4 auto_specimen_high_4 auto_owned_chambers teleop_sample_net_near teleop_sample_low_near teleop_sample_high_near teleop_sample_net_far teleop_sample_low_far teleop_sample_high_far teleop_specimen_low_1 teleop_specimen_high_1 teleop_specimen_low_2 teleop_specimen_high_2 teleop_specimen_low_3 teleop_specimen_high_3 teleop_specimen_low_4 teleop_specimen_high_4 teleop_owned_chambers teleop_robot1 teleop_robot2 teleop_robot3 coop_achieved minor_penalties major_penalties]
           }
         },
       },

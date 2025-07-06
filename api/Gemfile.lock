@@ -374,6 +374,8 @@ GEM
       date
       stringio
     public_suffix (6.0.2)
+    puma (6.6.0)
+      nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.1.16)
@@ -623,6 +625,7 @@ DEPENDENCIES
   pg
   pry
   pry-byebug
+  puma
   rack-cors
   rails (~> 8.0.0)
   rails_admin (~> 3.0)

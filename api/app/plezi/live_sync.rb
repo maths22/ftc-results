@@ -54,13 +54,13 @@ class LiveSync
     @event = Event.find(subj[1])
   end
 
-  def pre_connect
+  def pre_connect(request)
     @event = LiveSync.load_event(request)
     !@event.nil?
   end
   rails_executor_wrap :pre_connect
 
-  def on_message(data)
+  def on_message(client, data)
     msg = JSON.parse(data)
     res = { id: msg['id'], status: 500, description: "An unknown error occurred"}
     begin
@@ -82,7 +82,7 @@ class LiveSync
       Rails.logger.error "Error occurred processing message: #{data} #{e.full_message}"
     end
 
-    write JSON.dump({ id: SecureRandom.uuid, type: 'MESSAGE_RESPONSE', body: JSON.dump(res) } )
+    client.write JSON.dump({ id: SecureRandom.uuid, type: 'MESSAGE_RESPONSE', body: JSON.dump(res) } )
   end
   rails_executor_wrap :on_message
 
@@ -99,6 +99,8 @@ class LiveSync
     case msg['type']
     when 'TEAM_LIST'
       _sync_teams(msg['payload'])
+    when 'PRACTICE_LIST'
+      _sync_practice_matches(msg['payload'])
     when 'QUALS_LIST'
       _sync_quals_matches(msg['payload'], full: true)
     when 'QUALS_MATCH'
@@ -109,6 +111,7 @@ class LiveSync
       _sync_elims_matches(msg['payload'])
     when 'FULL'
        _sync_teams(msg['payload']['teamSync'])
+       _sync_practice_matches(msg['payload']['practiceSync'])
        _sync_quals_matches(msg['payload']['qualsSync'], full: true)
        _sync_alliances(msg['payload']['allianceSelectionSync'])
        _sync_elims_matches(msg['payload']['elimsSync'])
@@ -145,9 +148,40 @@ class LiveSync
     @event.save!
   end
 
+  def _sync_practice_matches(match_list)
+    _sync_phase_matches('practice', match_list, full: true)
+  end
+
   def _sync_quals_matches(match_list, full:)
-    unless match_list['qualsActive']
-      @event.matches.qual.destroy_all
+    _sync_phase_matches('qual', match_list, full: full)
+
+    match_list['ranks'].each do |rk|
+      @event.rankings.find_or_create_by(team: Team.find(rk['team'])).tap do |nr|
+        nr.sort_order1 = rk['tuple'][0]
+        nr.sort_order2 = rk['tuple'][1]
+        nr.sort_order3 = rk['tuple'][2]
+        nr.sort_order4 = rk['tuple'][3]
+        nr.sort_order5 = rk['tuple'][4]
+        nr.sort_order6 = rk['tuple'][5]
+
+        nr.matches_played = rk['played']
+        nr.matches_counted = rk['counted']
+        nr.wins = rk['wins']
+        nr.losses = rk['losses']
+        nr.ties = rk['ties']
+
+        nr.save!
+      end
+    end
+    @event.rankings.reject { |r| match_list['ranks'].pluck('team').include?(r.team.number) }.each(&:destroy)
+    @event.rankings.reload.sort_by { |rk| [rk.sort_order1, rk.sort_order2, rk.sort_order3, rk.matches_played.zero? ? -rk.team_id : rk.sort_order4, rk.sort_order5, rk.sort_order6] }.reverse.each_with_index do |rk, idx|
+      rk.update(ranking: (idx + 1) * (rk.matches_played.zero? ? -1 : 1))
+    end
+  end
+
+  def _sync_phase_matches(phase, match_list, full:)
+    unless match_list[phase == 'qual' ? 'qualsActive' : 'active']
+      @event.matches.where(phase:).destroy_all
       return
     end
 
@@ -155,7 +189,7 @@ class LiveSync
     alliance_scope = Alliance.joins(:alliance_teams).group('alliances.id').where(event: Event.last, is_elims: false)
     having_clause = 'ARRAY[?]::bigint[] = ARRAY_AGG(alliance_teams.team_id ORDER BY alliance_teams.position)'
     match_list['matches'].each do |data|
-      match = @event.matches.qual.find_or_initialize_by(number: data['number'])
+      match = @event.matches.where(phase:).find_or_initialize_by(number: data['number'])
       # TODO need to update the alliance if it already exists...
       team_count = data['red3'] > 0 ? 3 : 2
       red_teams = (1..team_count).map { |t| data["red#{t}"] }
@@ -206,30 +240,7 @@ class LiveSync
     end
 
     if full
-      @event.matches.qual.where.not(number: match_list['matches'].pluck('number')).destroy_all
-    end
-
-    match_list['ranks'].each do |rk|
-      @event.rankings.find_or_create_by(team: Team.find(rk['team'])).tap do |nr|
-        nr.sort_order1 = rk['tuple'][0]
-        nr.sort_order2 = rk['tuple'][1]
-        nr.sort_order3 = rk['tuple'][2]
-        nr.sort_order4 = rk['tuple'][3]
-        nr.sort_order5 = rk['tuple'][4]
-        nr.sort_order6 = rk['tuple'][5]
-
-        nr.matches_played = rk['played']
-        nr.matches_counted = rk['counted']
-        nr.wins = rk['wins']
-        nr.losses = rk['losses']
-        nr.ties = rk['ties']
-
-        nr.save!
-      end
-    end
-    @event.rankings.reject { |r| match_list['ranks'].pluck('team').include?(r.team.number) }.each(&:destroy)
-    @event.rankings.reload.sort_by { |rk| [rk.sort_order1, rk.sort_order2, rk.sort_order3, rk.matches_played.zero? ? -rk.team_id : rk.sort_order4, rk.sort_order5, rk.sort_order6] }.reverse.each_with_index do |rk, idx|
-      rk.update(ranking: (idx + 1) * (rk.matches_played.zero? ? -1 : 1))
+      @event.matches.where(phase:).where.not(number: match_list['matches'].pluck('number')).destroy_all
     end
   end
 
@@ -289,7 +300,7 @@ class LiveSync
       match.save!
     end
 
-    @event.matches.where.not(phase: 'qual').where.not(number: match_list['matches'].pluck('number')).destroy_all
+    @event.matches.where.not(phase: %w[qual practice]).where.not(number: match_list['matches'].pluck('number')).destroy_all
 
     if(match_list['ranks'])
       match_list['ranks'].each do |rk|

@@ -18,7 +18,7 @@ module Api
       def details
         @team = Team.includes(:rankings, :leagues, events: [{ event_divisions: [:import_attachment] }, :import_attachment, :season, { event_channel_assignment: [:twitch_channel] }]).find(params[:id])
 
-        match_ids = @team.match_alliances.map(&:match).compact.map(&:id)
+        match_ids = @team.match_alliances.map(&:match).compact.reject { |m| m.practice? }.map(&:id)
 
         @matches = Match.includes([:event_division, red_score: [:season_score], blue_score: [:season_score], red_alliance: { alliance: :teams }, blue_alliance: { alliance: :teams }]).order(:phase, :series, :number).find(match_ids)
       end

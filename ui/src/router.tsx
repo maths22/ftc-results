@@ -80,6 +80,10 @@ const eventMatches = createRoute({
   },
   getParentRoute: () => eventSummary
 }).lazy(() => import('./components/MatchTab.tsx').then((d) => d.Route))
+const eventPracticeMatches = createRoute({
+  path: '/practice',
+  getParentRoute: () => eventSummary
+}).lazy(() => import('./components/MatchTab.tsx').then((d) => d.PracticeRoute))
 const eventRankings = createRoute({
   path: '/rankings',
   getParentRoute: () => eventSummary
@@ -105,6 +109,7 @@ const router = createRouter({
       eventAlliances,
       eventAwards,
       eventIndex,
+      eventPracticeMatches,
       eventMatches,
       eventRankings,
       eventTeams,

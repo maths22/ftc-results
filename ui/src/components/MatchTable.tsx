@@ -51,10 +51,11 @@ const DisabledRow = styled(TableRow)(() => ({
   }
 }));
 
-function TraditionalMatchTable({matches, team, showMatchDetail}: {
+function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
   matches: components['schemas']['match'][],
   showMatchDetail: (name: string) => void,
-  team?: number
+  team?: number,
+  practice?: boolean
 }) {
   const rowStyle = {height: '2rem'};
 
@@ -114,17 +115,17 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
             </Box>
           </MatchCell>
 
-          {m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {!practice && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>{m.red_score}</span>
           </MatchCell> : null}
-          {m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {!practice && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>{m.blue_score}</span>
           </MatchCell>: null}
-          {!m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {!practice && !m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>Awaiting results</span>
           </MatchCell>: null}
         </TableRow>,
-        <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
+        practice ? null : <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
           <TableCell />
           {m.played ? <MatchCell ownerState={redOwnerState}>
             <span>{m.red_score}</span>
@@ -147,7 +148,7 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
         {team ? <MatchCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Result</MatchCell> : null}
         <MatchCell>Red Alliance</MatchCell>
         <MatchCell>Blue Alliance</MatchCell>
-        <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>
+        {practice ? null : <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>}
       </TableRow>
     </TableHead>
     <TableBody>
@@ -171,6 +172,7 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
         <MatchCell colSpan={5}>Qualifications</MatchCell>
       </TableRow> : null}
       {groupedMatches['qual'] ? groupedMatches['qual'] : null}
+      {groupedMatches['practice'] ? groupedMatches['practice'] : null}
     </TableBody>
   </Table>;
 }
@@ -210,10 +212,11 @@ function RemoteMatchTable({matches, team, showMatchDetail}: {
   </Table>;
 }
 
-export default function MatchTable({event, matches, team}: {
+export default function MatchTable({event, matches, team, practice}: {
   matches?: (components['schemas']['match'] | components['schemas']['remoteMatch'])[],
   event?: components['schemas']['event'],
-  team?: number
+  team?: number,
+  practice?: boolean
 }) {
   const navigate = useNavigate();
   const search = useSearch({strict: false});
@@ -226,7 +229,7 @@ export default function MatchTable({event, matches, team}: {
   return <>
     {event.remote ?
         <RemoteMatchTable matches={matches as components['schemas']['remoteMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
-        <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} />}
+        <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} practice={practice} />}
     <MatchDetailsDialog event={event} matchName={'match' in search && (!team || ('event_id' in search && search.event_id == event.id)) ? search.match : undefined} onClose={() => showMatchDetail()}/>
   </>;
 }

@@ -43,3 +43,4 @@ json.divisions do
     json.import rails_blob_path(division.import, disposition: 'attachment') if division.import.attached? && can?(:manage_results, event)
   end
 end
+json.has_practice event.matches.practice.present?

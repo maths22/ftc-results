@@ -1,5 +1,5 @@
 if defined?(Iodine)
-  Iodine.patch_rack
+  # Iodine.patch_rack
   if Rails.env.development?
     Iodine.workers = 1 # TODO why is this broken
     Iodine.threads = 8

@@ -47,6 +47,9 @@ gem 'sentry-inst_jobs'
 
 gem 'ftc_events_client', '0.3.2'
 
+# TODO remove
+gem 'puma'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]

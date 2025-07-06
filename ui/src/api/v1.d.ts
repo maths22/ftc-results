@@ -774,6 +774,7 @@ export interface components {
                 /** @description Link to download database (authenticated event owners only) */
                 import?: string;
             }[];
+            has_practice: boolean;
         };
         league: {
             id: number;
@@ -857,7 +858,7 @@ export interface components {
             event_id: number;
             division?: string;
             /** @enum {string} */
-            phase: "qual" | "semi" | "final" | "interfinal";
+            phase: "qual" | "semi" | "final" | "interfinal" | "playoff" | "practice";
             series?: number;
             number: number;
             name: string;
@@ -891,7 +892,7 @@ export interface components {
             number: number;
             event_id: number;
             /** @enum {string} */
-            season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore" | "CenterstageCriScore" | "IntoTheDeepScore";
+            season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore" | "CenterstageCriScore" | "IntoTheDeepScore" | "IntoTheDeepCriScore";
             red_score_total: number;
             red_score: {
                 auto: number;
@@ -899,7 +900,7 @@ export interface components {
                 endgame: number;
                 penalty: number;
             };
-            red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"];
+            red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"];
             red_teams: number[];
             red_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
             blue_score_total: number;
@@ -909,7 +910,7 @@ export interface components {
                 endgame: number;
                 penalty: number;
             };
-            blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"];
+            blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"];
             blue_teams: number[];
             blue_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
         };
@@ -1255,6 +1256,53 @@ export interface components {
             teleop_robot1: "NONE" | "OBSERVATION_ZONE" | "ASCENT_1" | "ASCENT_2" | "ASCENT_3";
             /** @enum {string} */
             teleop_robot2: "NONE" | "OBSERVATION_ZONE" | "ASCENT_1" | "ASCENT_2" | "ASCENT_3";
+            minor_penalties: number;
+            major_penalties: number;
+        };
+        IntoTheDeepCriScore: {
+            /** @enum {string} */
+            auto_robot1: "NONE" | "OBSERVATION_ZONE" | "ASCENT";
+            /** @enum {string} */
+            auto_robot2: "NONE" | "OBSERVATION_ZONE" | "ASCENT";
+            /** @enum {string} */
+            auto_robot3: "NONE" | "OBSERVATION_ZONE" | "ASCENT";
+            auto_sample_net_near: number;
+            auto_sample_low_near: number;
+            auto_sample_high_near: number;
+            auto_sample_net_far: number;
+            auto_sample_low_far: number;
+            auto_sample_high_far: number;
+            auto_specimen_low_1: number;
+            auto_specimen_high_1: number;
+            auto_specimen_low_2: number;
+            auto_specimen_high_2: number;
+            auto_specimen_low_3: number;
+            auto_specimen_high_3: number;
+            auto_specimen_low_4: number;
+            auto_specimen_high_4: number;
+            auto_owned_chambers: number;
+            teleop_sample_net_near: number;
+            teleop_sample_low_near: number;
+            teleop_sample_high_near: number;
+            teleop_sample_net_far: number;
+            teleop_sample_low_far: number;
+            teleop_sample_high_far: number;
+            teleop_specimen_low_1: number;
+            teleop_specimen_high_1: number;
+            teleop_specimen_low_2: number;
+            teleop_specimen_high_2: number;
+            teleop_specimen_low_3: number;
+            teleop_specimen_high_3: number;
+            teleop_specimen_low_4: number;
+            teleop_specimen_high_4: number;
+            teleop_owned_chambers: number;
+            /** @enum {string} */
+            teleop_robot1: "NONE" | "OBSERVATION_ZONE" | "ASCENT_1" | "ASCENT_2" | "ASCENT_3";
+            /** @enum {string} */
+            teleop_robot2: "NONE" | "OBSERVATION_ZONE" | "ASCENT_1" | "ASCENT_2" | "ASCENT_3";
+            /** @enum {string} */
+            teleop_robot3: "NONE" | "OBSERVATION_ZONE" | "ASCENT_1" | "ASCENT_2" | "ASCENT_3";
+            coop_achieved: boolean;
             minor_penalties: number;
             major_penalties: number;
         };

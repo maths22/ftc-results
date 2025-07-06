@@ -14,6 +14,14 @@ require 'sprockets/railtie'
 require 'rails/test_unit/railtie'
 
 require 'rack/handler/iodine'
+# Fix for surprising multipart behavior with iodine
+module RackMultipartParserFix
+  def initialize(...)
+    super
+    @sbuf = StringScanner.new("".b.dup)
+  end
+end
+Rack::Multipart::Parser.prepend(RackMultipartParserFix)
 ::Rackup::Handler.register(:iodine, Iodine::Rack) if defined?(::Rackup::Handler)
 ENV['RACKUP_HANDLER'] ||= 'iodine'
 

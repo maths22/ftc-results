@@ -40,7 +40,7 @@ module ScoringSystem
                    elsif event.league_tournament?
                      ScoringSystem::TYPE_LEAGUE_TOURNAMENT
                    elsif event.premier?
-                     ScoringSystem::TYPE_PREMIER_EVENT
+                     ScoringSystem::TYPE_PREMIER
                    elsif event.season.offseason?
                      ScoringSystem::TYPE_OTHER
                    else

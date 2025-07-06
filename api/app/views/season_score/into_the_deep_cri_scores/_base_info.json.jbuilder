@@ -1,0 +1,42 @@
+json.auto_robot1 score.auto_robot1
+json.auto_robot2 score.auto_robot2
+json.auto_robot3 score.auto_robot3
+json.auto_sample_net_near score.auto_sample_net_near
+json.auto_sample_low_near score.auto_sample_low_near
+json.auto_sample_high_near score.auto_sample_high_near
+json.auto_sample_net_far score.auto_sample_net_far
+json.auto_sample_low_far score.auto_sample_low_far
+json.auto_sample_high_far score.auto_sample_high_far
+json.auto_specimen_low_1 score.auto_specimen_low_1
+json.auto_specimen_high_1 score.auto_specimen_high_1
+json.auto_specimen_low_2 score.auto_specimen_low_2
+json.auto_specimen_high_2 score.auto_specimen_high_2
+json.auto_specimen_low_3 score.auto_specimen_low_3
+json.auto_specimen_high_3 score.auto_specimen_high_3
+json.auto_specimen_low_4 score.auto_specimen_low_4
+json.auto_specimen_high_4 score.auto_specimen_high_4
+json.auto_owned_chambers score.auto_owned_chambers
+
+json.teleop_sample_net_near score.teleop_sample_net_near
+json.teleop_sample_low_near score.teleop_sample_low_near
+json.teleop_sample_high_near score.teleop_sample_high_near
+json.teleop_sample_net_far score.teleop_sample_net_far
+json.teleop_sample_low_far score.teleop_sample_low_far
+json.teleop_sample_high_far score.teleop_sample_high_far
+json.teleop_specimen_low_1 score.teleop_specimen_low_1
+json.teleop_specimen_high_1 score.teleop_specimen_high_1
+json.teleop_specimen_low_2 score.teleop_specimen_low_2
+json.teleop_specimen_high_2 score.teleop_specimen_high_2
+json.teleop_specimen_low_3 score.teleop_specimen_low_3
+json.teleop_specimen_high_3 score.teleop_specimen_high_3
+json.teleop_specimen_low_4 score.teleop_specimen_low_4
+json.teleop_specimen_high_4 score.teleop_specimen_high_4
+json.teleop_owned_chambers score.teleop_owned_chambers
+
+json.teleop_robot1 score.teleop_robot1
+json.teleop_robot2 score.teleop_robot2
+json.teleop_robot3 score.teleop_robot3
+json.coop_achieved score.coop_achieved?
+
+json.minor_penalties score.minor_penalties
+json.major_penalties score.major_penalties
