@@ -58,5 +58,6 @@ Rails.application.configure do
   #   Bullet.enable = true
   #   Bullet.bullet_logger = true
   # end
+  config.hosts << /[a-z0-9]+\.ngrok-free\.app/
 end
 ActionMailer::Base.default from: 'noreply@localhost', reply_to: 'noreply@localhost'

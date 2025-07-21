@@ -78,7 +78,7 @@ module ScoringSystem
       end
 
       # TODO add team3 stuff for CRI this year
-      quals_scores = @db.execute "SELECT match, alliance, card1, card2#{has_team3 ? ', card3' : ''}, dq1, dq2#{has_team3 ? ', dq3' : ''}, start1, start2#{has_team3 ? ', start3' : ''}, major, minor FROM qualsScores"
+      quals_scores = @db.execute "SELECT match, alliance, card1, card2#{has_team3 ? ', card3' : ''}, dq1, dq2#{has_team3 ? ', dq3' : ''}, noshow1, noshow2#{has_team3 ? ', noshow3' : ''}, major, minor FROM qualsScores"
       quals_scores.each do |s|
         match = ss_match_to_results_match('qual', s['match'])
         match_alliance = s['alliance'].zero? ? match.red_alliance : match.blue_alliance
@@ -89,12 +89,9 @@ module ScoringSystem
         match_alliance.yellow_card[1] = s['card2'] >= 1
         match_alliance.yellow_card[2] = s['card3'] >= 1 if has_team3
         match_alliance.teams_start = []
-        match_alliance.teams_start << s['start1']
-        match_alliance.teams_start << s['start2']
-        match_alliance.teams_start << s['start3'] if has_team3
-        match_alliance.teams_present[0] = s['start1'] != 'NO_SHOW' && s['start1'] != 'NO_ROBOT'
-        match_alliance.teams_present[1] = s['start2'] != 'NO_SHOW' && s['start2'] != 'NO_ROBOT'
-        match_alliance.teams_present[2] = s['start3'] != 'NO_SHOW' && s['start3'] != 'NO_ROBOT' if has_team3
+        match_alliance.teams_present[0] = s['noshow1'].zero?
+        match_alliance.teams_present[1] = s['noshow2'].zero?
+        match_alliance.teams_present[2] = s['noshow3'].zero? if has_team3
         match_alliance.save!
         season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
         score = Score.new season_score: season_score
@@ -180,7 +177,7 @@ module ScoringSystem
         match.update(elim_match_map[e['match']])
         match.save!
       end
-      elims_score = @db.execute "SELECT match, alliance, card, dq, start1, start2, start3#{has_team4 ? ", start4" : ""}, major, minor FROM elimsScores"
+      elims_score = @db.execute "SELECT match, alliance, card, dq, noshow1, noshow2, noshow3#{has_team4 ? ", noshow4" : ""}, major, minor FROM elimsScores"
       elims_score.each do |s|
         match = ss_match_to_results_match('elim', s['match'])
         # rubocop:disable Style/NumericPredicate
@@ -189,14 +186,10 @@ module ScoringSystem
         match_alliance.red_card.fill(s['card'] >= 2)
         match_alliance.yellow_card.fill(s['card'] >= 1)
         match_alliance.teams_start = []
-        match_alliance.teams_start << s['start1']
-        match_alliance.teams_start << s['start2']
-        match_alliance.teams_start << s['start3']
-        match_alliance.teams_start << s['start4'] if has_team4
-        match_alliance.teams_present[0] = s['start1'] != 'NO_SHOW'
-        match_alliance.teams_present[1] = s['start2'] != 'NO_SHOW'
-        match_alliance.teams_present[2] = s['start3'] != 'NO_SHOW'
-        match_alliance.teams_present[3] = s['start4'] != 'NO_SHOW' if has_team4
+        match_alliance.teams_present[0] = s['noshow1'].zero?
+        match_alliance.teams_present[1] = s['noshow2'].zero?
+        match_alliance.teams_present[2] = s['noshow3'].zero?
+        match_alliance.teams_present[3] = s['noshow4'].zero? if has_team4
         match_alliance.save!
         season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
         score = Score.new season_score: season_score
