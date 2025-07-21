@@ -58,7 +58,7 @@ class ApiController < ApplicationController
   end
 
   def validate_jwt_or_authorize_resource
-    return validate_jwt if params[:token] || request.headers['Authorization']
+    return validate_jwt if params[:token] || (request.headers['Authorization'] && request.headers['Authorization'].include?('.'))
 
     subject = CanCan::ControllerResource.new(self).send(:resource_instance)
     authorize!(params[:action].to_sym, subject)
