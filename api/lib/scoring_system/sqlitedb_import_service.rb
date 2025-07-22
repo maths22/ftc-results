@@ -298,23 +298,24 @@ module ScoringSystem
         seriespos = {}
         seriespos.default = 0
         elims.each do |e|
-          if is_finals
-            map[e['match']] = { phase: 'interfinal', number: seriespos[:interfinal] += 1 }
-            next
-          end
-          # if e['red'] == 1 && e['blue'] == 4
-          #   map[e['match']] = { phase: 'semi', series: 1, number: seriespos[:sf1] += 1 }
+          # if is_finals
+          #   map[e['match']] = { phase: 'interfinal', number: seriespos[:interfinal] += 1 }
           #   next
           # end
-          # if e['red'] == 2 && e['blue'] == 3
-          #   map[e['match']] = { phase: 'semi', series: 2, number: seriespos[:sf2] += 1 }
-          #   next
+          # # if e['red'] == 1 && e['blue'] == 4
+          # #   map[e['match']] = { phase: 'semi', series: 1, number: seriespos[:sf1] += 1 }
+          # #   next
+          # # end
+          # # if e['red'] == 2 && e['blue'] == 3
+          # #   map[e['match']] = { phase: 'semi', series: 2, number: seriespos[:sf2] += 1 }
+          # #   next
+          # # end
+          # if e['match'] <= 13
+          #   map[e['match']] = { phase: 'semi', series: 0, number: seriespos[:sf] += 1 }
+          # else
+          #   map[e['match']] = { phase: 'final', number: seriespos[:final] += 1 }
           # end
-          if e['match'] <= 13
-            map[e['match']] = { phase: 'semi', series: 0, number: seriespos[:sf] += 1 }
-          else
-            map[e['match']] = { phase: 'final', number: seriespos[:final] += 1 }
-          end
+          map[e['match']] = { phase: 'playoff', series: seriespos[:playoff] += 1, number: 1 }
         end
         map
       end
