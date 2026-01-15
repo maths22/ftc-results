@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
 import {styled} from '@mui/material/styles';
 import {useNavigate, useSearch} from '@tanstack/react-router';
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 import {Box} from "@mui/material";
 
 const plainColors = {
@@ -51,22 +51,22 @@ const DisabledRow = styled(TableRow)(() => ({
   }
 }));
 
-function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
-  matches: components['schemas']['match'][],
-  showMatchDetail: (name: string) => void,
-  team?: number,
+function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, practice}: {
+  seasonYear: string,
+  matches: components['schemas']['ApiV3AllianceMatch'][],
+  showMatchDetail: (tournamentLevel: components["schemas"]["ApiV3TournamentLevel"], series: string, number: number) => void,
+  team?: string,
   practice?: boolean
 }) {
   const rowStyle = {height: '2rem'};
 
-  const groupedMatches = Object.fromEntries(Object.entries(Object.groupBy(matches, m => m.phase)).map(([key, matches]) => {
+  const groupedMatches = Object.fromEntries(Object.entries(Object.groupBy(matches, m => m.tournamentLevel)).map(([key, matches]) => {
     return [key, matches.map((m) => {
       let isRedTeam, isSurrogate = false, idx = -1, result;
       const hasScores = 'red_score' in m && 'blue_score' in m && m.red_score != undefined && m.blue_score != undefined
       if (team && hasScores) {
-        isRedTeam = m.red_alliance.includes(team);
-        idx = isRedTeam ? m.red_alliance.indexOf(team) : m.blue_alliance.indexOf(team);
-        isSurrogate = isRedTeam ? m.red_surrogate[idx] : m.blue_surrogate[idx];
+        isRedTeam = m.teams.redAlliance.teams.some(t => t.team.number == team);
+        isSurrogate = (isRedTeam ? m.teams.redAlliance.teams.find(t => t.team.number == team)?.surrogate : m.teams.blueAlliance.teams.find(t => t.team.number == team)?.surrogate) || false;
         if(m.red_score === m.blue_score) {
           result = 'T';
         } else if((isRedTeam && m.red_score! > m.blue_score!) || (!isRedTeam && m.red_score! < m.blue_score!)) {
@@ -78,62 +78,61 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
 
       const redOwnerState  = {
         color: 'red',
-        win: ('red_score' in m && 'blue_score' in m) ? m.red_score! > m.blue_score! : false,
+        win: m.matchResults?.winner == 'RED',
         alliance: team != undefined && isRedTeam,
         surrogate: isSurrogate
       } as const;
       const blueOwnerState = {
         color: 'blue',
-        win: ('red_score' in m && 'blue_score' in m) ? m.red_score! < m.blue_score! : false,
+        win: m.matchResults?.winner == 'BLUE',
         alliance: team != undefined && !isRedTeam,
         surrogate: isSurrogate
       } as const;
 
       return [
-        <TableRow key={m.id} style={rowStyle}>
+        <TableRow key={`${m.tournamentLevel}-${m.series}-${m.number}`} style={rowStyle}>
           <MatchCell ownerState={{surrogate: isSurrogate}}>
-            {m.played ? <TextLink onClick={() => showMatchDetail(m.name)}>{m.name}</TextLink> : m.name}
+            {m.matchResults ? <TextLink onClick={() => showMatchDetail(m.tournamentLevel, m.series.toString(), m.number)}>{m.shortName}</TextLink> : m.shortName}
           </MatchCell>
-          {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
+          {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.matchResults ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.red_alliance.map((t, idx) => {
-                const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/${t}`} style={{flex: 1}}>{t}
-                  {m.red_surrogate[idx] ? '*' : ''}</Component>;
+              {m.teams.redAlliance.teams.map(mp => {
+                const Component = mp.team.number === team ? 'span' : TextLink;
+                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1}}>{mp.team.displayNumber}
+                  {mp.surrogate ? '*' : ''}</Component>;
               })}
             </Box>
           </MatchCell>
           <MatchCell ownerState={blueOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.blue_alliance.map((t, idx) => {
-                const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/${t}`} style={{flex: 1}}>{t}
-                  {m.blue_surrogate[idx] ? '*' : ''}</Component>
-                  ;
+              {m.teams.blueAlliance.teams.map(mp => {
+                const Component = mp.team.number === team ? 'span' : TextLink;
+                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1}}>{mp.team.displayNumber}
+                  {mp.surrogate ? '*' : ''}</Component>;
               })}
             </Box>
           </MatchCell>
 
-          {!practice && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
-            <span>{m.red_score}</span>
+          {!practice && m.matchResults ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+            <span>{m.matchResults.redScore}</span>
           </MatchCell> : null}
-          {!practice && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
-            <span>{m.blue_score}</span>
+          {!practice && m.matchResults ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+            <span>{m.matchResults.blueScore}</span>
           </MatchCell>: null}
-          {!practice && !m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {!practice && !m.matchResults ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>Awaiting results</span>
           </MatchCell>: null}
         </TableRow>,
         practice ? null : <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
           <TableCell />
-          {m.played ? <MatchCell ownerState={redOwnerState}>
-            <span>{m.red_score}</span>
+          {m.matchResults ? <MatchCell ownerState={redOwnerState}>
+            <span>{m.matchResults.redScore}</span>
           </MatchCell> : null}
-          {m.played ? <MatchCell ownerState={blueOwnerState}>
-            <span>{m.blue_score}</span>
+          {m.matchResults ? <MatchCell ownerState={blueOwnerState}>
+            <span>{m.matchResults.blueScore}</span>
           </MatchCell>: null}
-          {!m.played ? <MatchCell colSpan={2}>
+          {!m.matchResults ? <MatchCell colSpan={2}>
             <span>Awaiting results</span>
           </MatchCell>: null}
         </TableRow>
@@ -152,35 +151,32 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
       </TableRow>
     </TableHead>
     <TableBody>
-      {groupedMatches['interfinal'] ? <TableRow style={rowStyle}>
-        <MatchCell colSpan={5}>Inter-division Finals</MatchCell>
-      </TableRow> : null}
-      {groupedMatches['interfinal'] ? groupedMatches['interfinal'] : null}
-      {groupedMatches['playoff'] ? <TableRow style={rowStyle}>
+      {groupedMatches['PLAYOFF'] ? <TableRow style={rowStyle}>
         <MatchCell colSpan={5}>Playoff</MatchCell>
       </TableRow> : null}
-      {groupedMatches['playoff'] ? groupedMatches['playoff'] : null}
-      {groupedMatches['final'] ? <TableRow style={rowStyle}>
+      {groupedMatches['PLAYOFF'] ? groupedMatches['PLAYOFF'] : null}
+      {groupedMatches['FINAL'] ? <TableRow style={rowStyle}>
         <MatchCell colSpan={5}>Finals</MatchCell>
       </TableRow> : null}
-      {groupedMatches['final'] ? groupedMatches['final'] : null}
-      {groupedMatches['semi'] ? <TableRow style={rowStyle}>
+      {groupedMatches['FINAL'] ? groupedMatches['FINAL'] : null}
+      {groupedMatches['SEMIFINAL'] ? <TableRow style={rowStyle}>
         <MatchCell colSpan={5}>Semi-Finals</MatchCell>
       </TableRow> : null}
-      {groupedMatches['semi'] ? groupedMatches['semi'] : null}
-      {groupedMatches['qual'] ? <TableRow style={rowStyle}>
+      {groupedMatches['SEMIFINAL'] ? groupedMatches['SEMIFINAL'] : null}
+      {groupedMatches['QUALIFICATION'] ? <TableRow style={rowStyle}>
         <MatchCell colSpan={5}>Qualifications</MatchCell>
       </TableRow> : null}
-      {groupedMatches['qual'] ? groupedMatches['qual'] : null}
-      {groupedMatches['practice'] ? groupedMatches['practice'] : null}
+      {groupedMatches['QUALIFICATION'] ? groupedMatches['QUALIFICATION'] : null}
+      {groupedMatches['PRACTICE'] ? groupedMatches['PRACTICE'] : null}
     </TableBody>
   </Table>;
 }
 
-function RemoteMatchTable({matches, team, showMatchDetail}: {
-  matches: components['schemas']['remoteMatch'][],
-  showMatchDetail: (name: string) => void,
-  team?: number
+function RemoteMatchTable({seasonYear, matches, team, showMatchDetail}: {
+  seasonYear: string,
+  matches: components['schemas']['ApiV3SingleTeamMatch'][],
+  showMatchDetail: (tournamentLevel: components["schemas"]["ApiV3TournamentLevel"], series: string, number: number) => void,
+  team?: string
 }) {
   const rowStyle = {height: '2rem'};
 
@@ -194,17 +190,17 @@ function RemoteMatchTable({matches, team, showMatchDetail}: {
     </TableHead>
     <TableBody>
       {matches.map((m) => {
-        const RowElement = m.no_show ? DisabledRow : TableRow;
-        return <RowElement key={m.id} style={rowStyle}>
+        const RowElement = (m.teams.team.disqualified || !m.teams.team.onField) ? DisabledRow : TableRow;
+        return <RowElement key={`${m.tournamentLevel}-${m.series}-${m.number}`} style={rowStyle}>
           {team ? null : <MatchCell>
-            <TextLink to={`/teams/${m.team}`}>{m.team}</TextLink>
+            <TextLink to={`/${seasonYear}/teams/${m.teams.team.team.number}`}>{m.teams.team.team.displayNumber}</TextLink>
           </MatchCell>
           }
           <MatchCell>
-            {m.played ? <TextLink onClick={() => showMatchDetail(m.name)}>#{m.number}</TextLink> : `#${m.number}`}
+            {m.matchResults ? <TextLink onClick={() => showMatchDetail(m.tournamentLevel, m.teams.team.team.number, m.number)}>#{m.number}</TextLink> : `#${m.number}`}
           </MatchCell>
           <MatchCell>
-            <span>{!m.played ? 'Awaiting results' : m.score}</span>
+            <span>{!m.matchResults ? 'Awaiting results' : m.matchResults.score}</span>
           </MatchCell>
         </RowElement>;
       })}
@@ -212,25 +208,27 @@ function RemoteMatchTable({matches, team, showMatchDetail}: {
   </Table>;
 }
 
-export default function MatchTable({event, matches, team, practice}: {
-  matches?: (components['schemas']['match'] | components['schemas']['remoteMatch'])[],
-  event?: components['schemas']['event'],
-  team?: number,
-  practice?: boolean
+export default function MatchTable({seasonYear, event, matches, team, practice, division}: {
+  seasonYear: string,
+  matches?: (components['schemas']['ApiV3Match'])[],
+  event?: components['schemas']['ApiV3Event'] | components['schemas']['ApiV3SimpleEvent'],
+  team?: string,
+  practice?: boolean,
+  division?: string
 }) {
   const navigate = useNavigate();
   const search = useSearch({strict: false});
-  const showMatchDetail = (match?: string) => navigate({ search: { ...search, match, event_id: team && match ? event?.id : undefined } });
+  const showMatchDetail = (tournamentLevel: components["schemas"]["ApiV3TournamentLevel"], series: string, number: number) =>
+    navigate({ search: { ...search, matchDetails: `${division || event?.code}-${tournamentLevel}-${series}-${number}` } });
 
   if (!event || !matches || matches.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
   }
 
   return <>
-    {event.remote ?
-        <RemoteMatchTable matches={matches as components['schemas']['remoteMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
-        <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} practice={practice} />}
-    <MatchDetailsDialog event={event} matchName={'match' in search && (!team || ('event_id' in search && search.event_id == event.id)) ? search.match : undefined} onClose={() => showMatchDetail()}/>
+    {event.format == 'REMOTE' ?
+        <RemoteMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3SingleTeamMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
+        <TraditionalMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3AllianceMatch'][]} team={team} showMatchDetail={showMatchDetail} practice={practice} />}
   </>;
 }
 

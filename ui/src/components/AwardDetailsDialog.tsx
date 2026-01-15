@@ -7,39 +7,46 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import IconButton from '@mui/material/IconButton';
 import TextLink from './TextLink';
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 import {useTeam} from "../api";
 import {PaddedCell} from "./util";
 
 const allianceTitles = ['Captain: ', 'First Pick: ', 'Second Pick: ', 'Backup: '];
 
-function AwardFinalist({finalist} : {
-  finalist:  components['schemas']['awardFinalist']
+function AwardFinalist({seasonYear, finalist} : {
+  seasonYear: string,
+  finalist:  components['schemas']['ApiV3AwardRecipient']
 }) {
-  const { data: team } = useTeam(finalist?.team_id)
+  const { data: team } = useTeam(seasonYear, finalist?.team?.number)
 
   if(!finalist) {
     return <PaddedCell>&nbsp;</PaddedCell>;
   }
 
-  return <b>{finalist.team_id ? <TextLink
-      to={`/teams/${finalist.team_id}`}>{finalist.team_id} {team ? ` (${team.name})` : ''}</TextLink> : null}
-    {finalist.recipient ? finalist.recipient : null}</b>
-}
+  return <>
+    <b>{finalist.team ? <TextLink
+        to={`/${seasonYear}/teams/${finalist.team.number}`}>{finalist.team.displayNumber} {team ? ` (${team.name})` : ''}</TextLink> : null}
+        {finalist.name ? finalist.name : null}</b>
+            { finalist.comment ? <p>
+        Judges' comments: <br/>
+        {finalist.comment}
+      </p> : null }
+    </>
+  }
 
-export default function AwardDetailsDialog({award, onClose}: {
-  award?: components['schemas']['award'],
+export default function AwardDetailsDialog({seasonYear, award, onClose}: {
+  seasonYear: string,
+  award?: components['schemas']['ApiV3Award'],
   onClose: () => void
 }) {
   if (!award) {
     return null;
   }
 
-  const lowestPlace = Math.min(...award.finalists.map((f) => f.place), 1);
-  const finalistCount = award.finalists.length;
-  const first = award.finalists.find((f) => f.place === lowestPlace);
-  const second = award.finalists.find((f) => f.place === (lowestPlace + 1));
-  const third = award.finalists.find((f) => f.place === (lowestPlace + 2));
+  const finalistCount = award.recipients.length;
+  const first = award.recipients.find((f) => f.place === 1);
+  const second = award.recipients.find((f) => f.place === 2);
+  const third = award.recipients.find((f) => f.place === 3);
   const isAlliance = award.name.includes('Alliance');
 
   return (
@@ -58,22 +65,18 @@ export default function AwardDetailsDialog({award, onClose}: {
             {award.description}
           </p> : null }
 
-          {finalistCount > 3 || isAlliance ? award.finalists.map((f) => <div>
-            <b>{isAlliance ? allianceTitles[f.place - 1]: ''}</b> <AwardFinalist finalist={f} /></div>) : <>
+          {finalistCount > 3 || isAlliance ? award.recipients.map((f) => <div>
+            <b>{isAlliance && f.place != undefined ? allianceTitles[f.place - 1]: ''}</b> <AwardFinalist seasonYear={seasonYear} finalist={f} /></div>) : <>
             { first ? <div>
-              <b>First place: </b><AwardFinalist finalist={first} />
-              { first.description ? <p>
-                Judges' comments: <br/>
-                {first.description}
-              </p> : null }
+              <b>First place: </b><AwardFinalist seasonYear={seasonYear} finalist={first} />
             </div> : null }
-            { first && second && !first.description ? <br/> : null}
+            { first && second && !first.comment ? <br/> : null}
             { second ? <div>
-            <b>Second place: </b><AwardFinalist finalist={second} />
+            <b>Second place: </b><AwardFinalist seasonYear={seasonYear} finalist={second} />
           </div> : null }
-            { second && third ? <br/> : null}
+            { second && third && !second.comment ? <br/> : null}
             { third ? <div>
-              <b>Third place: </b><AwardFinalist finalist={third} />
+              <b>Third place: </b><AwardFinalist seasonYear={seasonYear} finalist={third} />
             </div> : null }
           </> }
 

@@ -5,11 +5,11 @@ import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import {PaddedCell} from './util';
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 import {useTeam} from "../api";
 
-function TeamInfo({number}: {number: number}) {
-  const { data: team } = useTeam(number);
+function TeamInfo({seasonYear, number}: {seasonYear: string, number: string}) {
+  const { data: team } = useTeam(seasonYear, number);
 
   return <>
     <PaddedCell>
@@ -19,15 +19,12 @@ function TeamInfo({number}: {number: number}) {
   </>
 }
 
-export default function RankingsTable({rankings, showRecord, elims}: {
-  rankings: components['schemas']['ranking'][],
+export default function RankingsTable({seasonYear, rankings, showRecord, elims}: {
+  seasonYear: string,
+  rankings: components['schemas']['ApiV3Ranking'][],
   showRecord: boolean,
   elims: false
-} | {
-  rankings?: components['schemas']['elimRanking'][],
-  showRecord: boolean,
-  elims: true
-}) {
+} ) {
   if(!rankings || rankings.length === 0) {
     if(elims) {
       return null;
@@ -58,18 +55,18 @@ export default function RankingsTable({rankings, showRecord, elims}: {
       {rankings.map((r) => {
         let recordLine;
         if(showRecord){
-          recordLine = `${r.record.win}-${r.record.loss}-${r.record.tie}`;
+          recordLine = `${r.wins}-${r.losses}-${r.ties}`;
         }
-        return <TableRow key={r.id} style={rowStyle}>
-          <PaddedCell>{r.ranking < 0 ? 'NP' : r.ranking}</PaddedCell>
+        return <TableRow key={r.rank} style={rowStyle}>
+          <PaddedCell>{r.rank < 0 ? 'NP' : r.rank}</PaddedCell>
           {elims ? <>
-            <PaddedCell>{(r as components['schemas']['elimRanking']).alliance}</PaddedCell>
-          </> : <TeamInfo number={(r as components['schemas']['ranking']).team} />}
-          <PaddedCell>{r.ranking < 0 ? '-' : Number(r.sort_order1).toFixed(2)}</PaddedCell>
-          <PaddedCell>{r.ranking < 0 ? '-' : Number(r.sort_order2).toFixed(2)}</PaddedCell>
-          <PaddedCell>{r.ranking < 0 ? '-' : Number(r.sort_order3).toFixed(2)}</PaddedCell>
-          {showRecord ? <PaddedCell>{r.ranking < 0 ? '-' : recordLine}</PaddedCell> : null}
-          <PaddedCell>{r.ranking < 0 ? '-' : r.matches_played}</PaddedCell>
+            <PaddedCell>TODO IF EXISTS</PaddedCell>
+          </> : <TeamInfo seasonYear={seasonYear} number={r.team.number} />}
+          <PaddedCell>{r.rank < 0 ? '-' : Number(r.sortOrders[0]).toFixed(2)}</PaddedCell>
+          <PaddedCell>{r.rank < 0 ? '-' : Number(r.sortOrders[1]).toFixed(2)}</PaddedCell>
+          <PaddedCell>{r.rank < 0 ? '-' : Number(r.sortOrders[2]).toFixed(2)}</PaddedCell>
+          {showRecord ? <PaddedCell>{r.rank < 0 ? '-' : recordLine}</PaddedCell> : null}
+          <PaddedCell>{r.rank < 0 ? '-' : r.matchesPlayed}</PaddedCell>
         </TableRow>;
       })}
     </TableBody>

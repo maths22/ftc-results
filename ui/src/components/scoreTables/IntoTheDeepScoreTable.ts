@@ -1,5 +1,5 @@
 import ScoreTable, {toTitleCase} from './ScoreTable';
-import type {components} from "../../api/v1";
+import type {components} from "../../api/first-v3";
 
 const autoLocationPoints = {
   NONE: 0,
@@ -15,128 +15,128 @@ const endLocationPoints = {
   ASCENT_3: 30,
 };
 
-export default ScoreTable<components['schemas']['IntoTheDeepScore']>((match) => {
-  const red_det = match.red_score_details;
-  const blue_det = match.blue_score_details;
+export default ScoreTable<components['schemas']['ApiV3IntoTheDeepScoreDetail']>((match) => {
+  const red_det = match.matchResultsDetails.redDetails;
+  const blue_det = match.matchResultsDetails.blueDetails;
   return [
     {
       desc: 'Robot 1 Location',
-      red: toTitleCase(red_det.auto_robot1),
-      blue: toTitleCase(blue_det.auto_robot1),
-      red_pts: autoLocationPoints[red_det.auto_robot1],
-      blue_pts: autoLocationPoints[blue_det.auto_robot1],
+      red: toTitleCase(red_det.achievements.robot1Auto),
+      blue: toTitleCase(blue_det.achievements.robot1Auto),
+      red_pts: autoLocationPoints[red_det.achievements.robot1Auto],
+      blue_pts: autoLocationPoints[blue_det.achievements.robot1Auto],
     },
     {
       desc: 'Robot 2 Location',
-      red: toTitleCase(red_det.auto_robot2),
-      blue: toTitleCase(blue_det.auto_robot2),
-      red_pts: autoLocationPoints[red_det.auto_robot2],
-      blue_pts: autoLocationPoints[blue_det.auto_robot2],
+      red: toTitleCase(red_det.achievements.robot2Auto),
+      blue: toTitleCase(blue_det.achievements.robot2Auto),
+      red_pts: autoLocationPoints[red_det.achievements.robot2Auto],
+      blue_pts: autoLocationPoints[blue_det.achievements.robot2Auto],
     },
     {
       desc: 'Auto Net Samples',
-      red: red_det.auto_sample_net,
-      blue: blue_det.auto_sample_net,
+      red: red_det.achievements.autoSampleNet,
+      blue: blue_det.achievements.autoSampleNet,
       value: 2
     },
     {
       desc: 'Auto Low Basket Samples',
-      red: red_det.auto_sample_low,
-      blue: blue_det.auto_sample_low,
+      red: red_det.achievements.autoSampleLow,
+      blue: blue_det.achievements.autoSampleLow,
       value: 4
     },
     {
       desc: 'Auto High Basket Samples',
-      red: red_det.auto_sample_high,
-      blue: blue_det.auto_sample_high,
+      red: red_det.achievements.autoSampleHigh,
+      blue: blue_det.achievements.autoSampleHigh,
       value: 8
     },
     {
       desc: 'Auto Low Chamber Specimens',
-      red: red_det.auto_specimen_low,
-      blue: blue_det.auto_specimen_low,
+      red: red_det.achievements.autoSpecimenLow,
+      blue: blue_det.achievements.autoSpecimenLow,
       value: 6
     },
     {
       desc: 'Auto High Chamber Specimens',
-      red: red_det.auto_specimen_high,
-      blue: blue_det.auto_specimen_high,
+      red: red_det.achievements.autoSpecimenHigh,
+      blue: blue_det.achievements.autoSpecimenHigh,
       value: 10
     },
     {
       desc: 'Auto Total',
-      red: match.red_score.auto,
-      blue: match.blue_score.auto,
+      red: red_det.points.autoPoints,
+      blue: blue_det.points.autoPoints,
       key: true
     },
     {
       desc: 'Teleop Net Samples',
-      red: red_det.teleop_sample_net,
-      blue: blue_det.teleop_sample_net,
+      red: red_det.achievements.teleopSampleNet,
+      blue: blue_det.achievements.teleopSampleNet,
       value: 2
     },
     {
       desc: 'Teleop Low Basket Samples',
-      red: red_det.teleop_sample_low,
-      blue: blue_det.teleop_sample_low,
+      red: red_det.achievements.teleopSampleLow,
+      blue: blue_det.achievements.teleopSampleLow,
       value: 4
     },
     {
       desc: 'Teleop High Basket Samples',
-      red: red_det.teleop_sample_high,
-      blue: blue_det.teleop_sample_high,
+      red: red_det.achievements.teleopSampleHigh,
+      blue: blue_det.achievements.teleopSampleHigh,
       value: 8
     },
     {
       desc: 'Teleop Low Chamber Specimens',
-      red: red_det.teleop_specimen_low,
-      blue: blue_det.teleop_specimen_low,
+      red: red_det.achievements.teleopSpecimenLow,
+      blue: blue_det.achievements.teleopSpecimenLow,
       value: 6
     },
     {
       desc: 'Teleop High Chamber Specimens',
-      red: red_det.teleop_specimen_high,
-      blue: blue_det.teleop_specimen_high,
+      red: red_det.achievements.teleopSpecimenHigh,
+      blue: blue_det.achievements.teleopSpecimenHigh,
       value: 10
     },
     {
       desc: 'Robot 1 Location',
-      red: toTitleCase(red_det.teleop_robot1),
-      blue: toTitleCase(blue_det.teleop_robot1),
-      red_pts: endLocationPoints[red_det.teleop_robot1],
-      blue_pts: endLocationPoints[blue_det.teleop_robot1],
+      red: toTitleCase(red_det.achievements.robot1Teleop),
+      blue: toTitleCase(blue_det.achievements.robot1Teleop),
+      red_pts: endLocationPoints[red_det.achievements.robot1Teleop],
+      blue_pts: endLocationPoints[blue_det.achievements.robot1Teleop],
     },
     {
       desc: 'Robot 2 Location',
-      red: toTitleCase(red_det.teleop_robot2),
-      blue: toTitleCase(blue_det.teleop_robot2),
-      red_pts: endLocationPoints[red_det.teleop_robot2],
-      blue_pts: endLocationPoints[blue_det.teleop_robot2],
+      red: toTitleCase(red_det.achievements.robot2Teleop),
+      blue: toTitleCase(blue_det.achievements.robot2Teleop),
+      red_pts: endLocationPoints[red_det.achievements.robot2Teleop],
+      blue_pts: endLocationPoints[blue_det.achievements.robot2Teleop],
     },
     {
       desc: 'Driver-controlled Total',
-      red: match.red_score.teleop,
-      blue: match.blue_score.teleop,
+      red: red_det.points.teleopPoints,
+      blue: blue_det.points.teleopPoints,
       key: true
     },
     {
-      desc: 'Minor Penalties',
-      red: blue_det.minor_penalties,
-      blue: red_det.minor_penalties,
-      value: 10,
+      desc: 'Minor Fouls',
+      red: blue_det.achievements.minorFouls,
+      blue: red_det.achievements.minorFouls,
+      value: 5,
       penalty: true
     },
     {
-      desc: 'Major Penalties',
-      red: blue_det.major_penalties,
-      blue: red_det.major_penalties,
-      value: 30,
+      desc: 'Major Fouls',
+      red: blue_det.achievements.majorFouls,
+      blue: red_det.achievements.majorFouls,
+      value: 15,
       penalty: true
     },
     {
       desc: 'Total Score',
-      red: match.red_score_total,
-      blue: match.blue_score_total,
+      red: match.matchResults?.redScore || 0,
+      blue: match.matchResults?.blueScore || 0,
       key: true
     }
   ];

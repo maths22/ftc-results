@@ -9,66 +9,64 @@ import AwardDetailsDialog from './AwardDetailsDialog';
 import {PaddedCell} from './util';
 import {createLazyRoute, useParams} from "@tanstack/react-router";
 import {useEventAwards, useTeam} from "../api";
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 import LoadingSpinner from "./LoadingSpinner";
 
 const allianceTitles = ['Captain: ', 'First Pick: ', 'Second Pick: ', 'Backup: '];
 
-function AwardFinalist({finalist} : {
-  finalist?:  components['schemas']['awardFinalist']
+function AwardFinalist({seasonYear, finalist} : {
+  seasonYear: string,
+  finalist?:  components['schemas']['ApiV3AwardRecipient']
 }) {
-  const { data: team } = useTeam(finalist?.team_id)
+  const { data: team } = useTeam(seasonYear, finalist?.team?.number)
 
   if(!finalist) {
     return <PaddedCell>&nbsp;</PaddedCell>;
   }
 
   return <PaddedCell>
-    {finalist.recipient ? finalist.recipient : null}
-    {finalist.recipient && finalist.team_id ? <br/> : null}
-    {finalist.team_id ? <TextLink
-        to={`/teams/${finalist.team_id}`}>{finalist.team_id}{team ? ` (${team.name})` : ''}</TextLink> : null}
+    {finalist.name ? finalist.name : null}
+    {finalist.name && finalist.team ? <br/> : null}
+    {finalist.team ? <TextLink
+        to={`/${seasonYear}/teams/${finalist.team.number}`}>{finalist.team.displayNumber}{team ? ` (${team.name})` : ''}</TextLink> : null}
   </PaddedCell>
 }
 
-function CompactAwardFinalist({finalist, isAlliance} : {
-  finalist:  components['schemas']['awardFinalist'],
+function CompactAwardFinalist({seasonYear, finalist, isAlliance} : {
+  seasonYear: string,
+  finalist:  components['schemas']['ApiV3AwardRecipient'],
   isAlliance: boolean
 }) {
-  const { data: team } = useTeam(finalist.team_id)
+  const { data: team } = useTeam(seasonYear, finalist.team?.number)
 
   if(!finalist) {
     return <PaddedCell>&nbsp;</PaddedCell>;
   }
 
   return <div>
-    {isAlliance ? allianceTitles[finalist.place - 1] : ''}
-    {finalist.recipient ? <>{finalist.recipient}&nbsp;</> : null}
-    {finalist.team_id ? <><TextLink
-        to={`/teams/${finalist.team_id}`}>{finalist.team_id}{team ? ` (${team.name})` : ''}</TextLink></> : null}
+    {isAlliance && finalist.place != undefined ? allianceTitles[finalist.place - 1] : ''}
+    {finalist.name ? <>{finalist.name}&nbsp;</> : null}
+    {finalist.team ? <><TextLink
+        to={`/${seasonYear}/teams/${finalist.team.number}`}>{finalist.team.displayNumber}{team ? ` (${team.name})` : ''}</TextLink></> : null}
     <br/>
   </div>
 }
 
-function AwardRow({award, showDetails}: {
-  award: components['schemas']['award'],
-  showDetails: (award: components['schemas']['award']) => void
+function AwardRow({seasonYear, award, showDetails}: {
+  seasonYear: string,
+  award: components['schemas']['ApiV3Award'],
+  showDetails: (award: components['schemas']['ApiV3Award']) => void
 }) {
-
-  const lowestPlace = Math.min(...award.finalists.map((f) => f.place), 1);
-  const finalistCount = award.finalists.length;
-  const first = award.finalists.find((f) => f.place === lowestPlace);
-  const second = award.finalists.find((f) => f.place === (lowestPlace + 1));
-  const third = award.finalists.find((f) => f.place === (lowestPlace + 2));
-  const isNameLink = award.description || (first && first.description);
+  const finalistCount = award.recipients.length;
+  const isNameLink = award.description || award.recipients.some(r => r.comment);
   const isAlliance = award.name.includes('Alliance');
   const nameCell = <PaddedCell>{isNameLink ?
       <TextLink onClick={() => showDetails(award)}>{award.name}</TextLink> : award.name}</PaddedCell>;
-  if(finalistCount > 3 || isAlliance) {
+  if(finalistCount > 3 || isAlliance || !award.ordered) {
     return <TableRow style={{height: '2rem'}}>
       {nameCell}
       <PaddedCell>
-        {award.finalists.map((f) => <CompactAwardFinalist key={f.place} finalist={f} isAlliance={isAlliance} /> )}
+        {award.recipients.map((f, idx) => <CompactAwardFinalist key={idx} seasonYear={seasonYear} finalist={f} isAlliance={isAlliance} /> )}
       </PaddedCell>
       <PaddedCell/>
       <PaddedCell/>
@@ -77,14 +75,14 @@ function AwardRow({award, showDetails}: {
 
   return <TableRow style={{height: '2rem'}}>
     {nameCell}
-    <AwardFinalist finalist={first} />
-    <AwardFinalist finalist={second} />
-    <AwardFinalist finalist={third} />
+    <AwardFinalist seasonYear={seasonYear} finalist={award.recipients.find(r => r.place === 1)} />
+    <AwardFinalist seasonYear={seasonYear} finalist={award.recipients.find(r => r.place === 2)} />
+    <AwardFinalist seasonYear={seasonYear} finalist={award.recipients.find(r => r.place === 3)} />
   </TableRow>;
 }
 
 export default function AwardsTable() {
-  const [selectedAward, setSelectedAward] = useState<components['schemas']['award']>();
+  const [selectedAward, setSelectedAward] = useState<components['schemas']['ApiV3Award']>();
   const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
 
   const { data: awards, isLoading } = useEventAwards(seasonYear, slug);
@@ -96,6 +94,7 @@ export default function AwardsTable() {
   if (!awards || awards.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>Awards are not currently available</Typography>;
   }
+  console.log(awards)
 
   return <>
     <Table sx={{minWidth: '20em'}}>
@@ -108,10 +107,10 @@ export default function AwardsTable() {
         </TableRow>
       </TableHead>
       <TableBody>
-        {awards.map((a) => <AwardRow key={a.id} award={a} showDetails={(a) => setSelectedAward(a)}/>)}
+        {awards.map((a, idx) => <AwardRow key={idx} seasonYear={seasonYear} award={a} showDetails={(a) => setSelectedAward(a)}/>)}
       </TableBody>
     </Table>
-    <AwardDetailsDialog award={selectedAward} onClose={() => setSelectedAward(undefined)}/>
+    <AwardDetailsDialog seasonYear={seasonYear} award={selectedAward} onClose={() => setSelectedAward(undefined)}/>
   </>;
 }
 

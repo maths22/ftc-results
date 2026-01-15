@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import RemoteScoreTable from './RemoteScoreTable.js';
 import type {components} from "../../api/v1";
 import {toTitleCase} from "./ScoreTable";

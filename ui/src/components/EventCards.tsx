@@ -6,36 +6,27 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-import {useEvents, useLeague} from '../api';
+import {useEvents} from '../api';
 import {useRouter} from "@tanstack/react-router";
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 
-function EventCard({event, season}: { event: components['schemas']['event'], season: string }) {
+function EventCard({event, season}: { event: components['schemas']['ApiV3Event'], season: string }) {
   const router = useRouter();
-  const { data: league } = useLeague(season, event.league);
-  const { data: parentLeague} = useLeague(season, league?.parent_league);
 
   return <Card>
-    <CardActionArea onClick={() => router.navigate({ to: `/${season}/events/${event.slug}` })}>
+    <CardActionArea onClick={() => router.navigate({ to: `/${season}/events/${event.code}` })}>
       <CardContent>
         <Typography gutterBottom variant="h5" component="h2">
           {event.name} <EventChip event={event}/>
         </Typography>
         <Typography variant="subtitle1" component="h3">
-          { parentLeague ?
-              <><TextLink to={`/${season}/leagues/rankings/${parentLeague.slug}`}>{parentLeague.name}</TextLink> - </>
-              : null }
-          { league ?
-              <TextLink to={`/${season}/leagues/rankings/${league.slug}`}>{league.name}</TextLink>
-              : null }
-          { ' ' }
-          {event.start_date == event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}
+          {event.startDate == event.endDate ? event.startDate : (event.startDate + ' - ' + event.endDate)}
         </Typography>
         <Typography gutterBottom variant="subtitle2" component="h3">
 
         </Typography>
         <Typography component="p">
-          {event.location}<br/>{event.city}, {event.state}, {event.country}
+          {event.venue}<br/>{event.city}, {event.state}, {event.country}
         </Typography>
       </CardContent>
     </CardActionArea>
@@ -43,7 +34,7 @@ function EventCard({event, season}: { event: components['schemas']['event'], sea
 }
 
 export default function EventCards({filter, selectedSeason, limit, heading, showNone, reverse}: {
-  filter?: (event: components['schemas']['event']) => boolean,
+  filter?: (event: components['schemas']['ApiV3Event']) => boolean,
   selectedSeason: string,
   limit?: number,
   heading: string,
@@ -65,7 +56,7 @@ export default function EventCards({filter, selectedSeason, limit, heading, show
     vals = vals.filter(filter)
   }
   vals.sort((a, b) => {
-    const diff = a.start_date.localeCompare(b.start_date);
+    const diff = a.startDate.localeCompare(b.startDate);
     if(diff !== 0) return diff;
     return a.name.localeCompare(b.name);
   } );
@@ -87,7 +78,7 @@ export default function EventCards({filter, selectedSeason, limit, heading, show
   return <div>
       <Typography variant="h5" gutterBottom>{heading}</Typography>
       <Grid container spacing={3}>
-        {vals.map(e => <Grid size={{md: 4}} key={e.id}>
+        {vals.map(e => <Grid size={{md: 4}} key={e.code}>
           <EventCard season={selectedSeason} event={e} />
         </Grid>)}
       </Grid>

@@ -3,7 +3,7 @@
 import DefaultLayout from './components/layout/DefaultLayout';
 import {createRootRoute, createRoute, createRouter, redirect} from '@tanstack/react-router';
 import {queryClient} from "./index";
-import {eventQueryOpts, leagueQueryOpts} from "./api";
+import { eventQueryOpts } from './api.ts';
 
 function NotFoundComponent() {
   return <div>404 – Page Not Found</div>;
@@ -16,31 +16,11 @@ const rootRoute = createRootRoute({
 
 const home = createRoute({ path: '/', getParentRoute: () => rootRoute })
     .lazy(() => import('./App.tsx').then((d) => d.Route));
-const updateAccount = createRoute({ path: '/account',
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      reset_password_token: search.reset_password_token ? (search.reset_password_token as string) : undefined,
-      invitation_token: search.invitation_token ? (search.invitation_token as string) : undefined
-    };
-  }, beforeLoad: () => ({title: 'Update Account'}), getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/users/UpdateAccount.tsx').then((d) => d.Route));
-const confirmAccount = createRoute({ path: '/account/confirm', getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/users/ConfirmAccount.tsx').then((d) => d.Route));
 const seasonHome = createRoute({ path: '/$season', getParentRoute: () => rootRoute })
     .lazy(() => import('./App.tsx').then((d) => d.SeasonRoute));
-const leaguesSummary = createRoute({ path: '/$season/leagues/summary', beforeLoad: () => ({title: 'Leagues'}), getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/LeaguesSummary.tsx').then((d) => d.Route));
-const leagueRankings = createRoute({ path: '/$season/leagues/rankings/$slug', beforeLoad: async ({params}) => ({ title:
-        `${(await queryClient.fetchQuery(leagueQueryOpts(params.season, params.slug)))?.name} League Rankings` }), getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/LeagueRankings.tsx').then((d) => d.LeagueRoute));
-const allRankings = createRoute({ path: '/$season/teams/rankings', beforeLoad: () => ({title: 'Statewide Rankings'}), getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/LeagueRankings.tsx').then((d) => d.AllRoute));
 const eventsSummary = createRoute({ path: '/$season/events/all', beforeLoad: () => ({title: 'Events'}), getParentRoute: () => rootRoute })
     .lazy(() => import('./components/EventsSummary.tsx').then((d) => d.Route));
-const uploader = createRoute({ path: '/$season/events/$slug/uploader', beforeLoad: async ({params}) => ({ title:
-        (await queryClient.fetchQuery(eventQueryOpts(params.season, params.slug)))?.name + ' Local Uploader' || 'Event Local Uploader' }), getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/localScoring/LocalUploader.tsx').then((d) => d.Route));
-const teamSummary = createRoute({ path: '/teams/$number',
+const teamSummary = createRoute({ path: '/$season/teams/$number',
   validateSearch: (search: Record<string, unknown>) => {
     return {
       match: search.match ? (search.match as string) : undefined,
@@ -96,14 +76,8 @@ const eventTeams = createRoute({
 const router = createRouter({
   routeTree: rootRoute.addChildren([
     home,
-    updateAccount,
-    confirmAccount,
     seasonHome,
-    leaguesSummary,
-    leagueRankings,
-    allRankings,
     eventsSummary,
-    uploader,
     teamSummary,
     eventSummary.addChildren([
       eventAlliances,

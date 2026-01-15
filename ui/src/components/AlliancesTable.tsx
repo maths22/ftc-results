@@ -6,18 +6,19 @@ import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import {PaddedCell} from './util';
 import {useTeam} from "../api";
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 
-function AllianceTeam({number} : {number: number}) {
-  const { data: team } = useTeam(number);
+function AllianceTeam({seasonYear, number}: {seasonYear: string, number: string}) {
+  const { data: team } = useTeam(seasonYear, number);
 
   return <PaddedCell key={number}>
-    <TextLink to={`/teams/${number}`}>{number}{team ? ` (${team.name})` : ''}</TextLink>
+    <TextLink to={`/teams/${number}`}>{team?.displayNumber}{team ? ` (${team.name})` : ''}</TextLink>
   </PaddedCell>
 }
 
-export default function AlliancesTable({alliances}: {
-  alliances: components['schemas']['alliance'][]
+export default function AlliancesTable({seasonYear, alliances}: {
+  seasonYear: string,
+  alliances: components['schemas']['ApiV3PlayoffAlliance'][]
 }) {
   if (alliances.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>Alliances are not currently available</Typography>;
@@ -38,9 +39,9 @@ export default function AlliancesTable({alliances}: {
     </TableHead>
     <TableBody>
       {alliances.map((a) => {
-        return <TableRow key={a.id} style={rowStyle}>
+        return <TableRow key={a.seed} style={rowStyle}>
           <PaddedCell>{a.seed}</PaddedCell>
-          { a.teams.map((team) => <AllianceTeam key={team} number={team} /> )}
+          { a.teams.map((team) => <AllianceTeam key={team.number} seasonYear={seasonYear} number={team.number} /> )}
           {Array(colCount - a.teams.length).fill(1).map((id) => <PaddedCell key={id}>&nbsp;</PaddedCell>)}
         </TableRow>;
       })}

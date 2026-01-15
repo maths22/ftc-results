@@ -14,9 +14,9 @@ import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import {styled} from '@mui/material/styles';
 import {createLazyRoute, Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 import {stringToDate} from "./util";
-import {refreshEvent, useEvent, useEvents, useLeague, useSeason} from "../api";
+import {refreshEvent, useEvent, useEvents, useSeason} from "../api";
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -24,15 +24,16 @@ const Heading = styled('div')(({theme}) => ({
 
 
 function EventVideo({event}: {
-  event: components['schemas']['event']
+  event: components['schemas']['ApiV3Event']
 }) {
   const [showVideo, setShowVideo] = useState(true);
   const today = new Date();
   today.setHours(0,0,0,0);
-  const isHappening = stringToDate(event.start_date) <= today
-      && stringToDate(event.end_date) >= today;
-  if(!event.channel || !isHappening) return null;
+  const isHappening = stringToDate(event.startDate) <= today
+      && stringToDate(event.endDate) >= today;
+  if(!event.liveStreamUrl || !isHappening || true) return null;
 
+  // TODO parse twitch and youtube urls maybe
   return <div style={{maxWidth: '50em', margin: '0 auto'}}>
     <FormControlLabel
         control={
@@ -44,7 +45,7 @@ function EventVideo({event}: {
       <iframe
           title="Twitch Player"
           style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
-          src={`https://player.twitch.tv/?channel=${event.channel}&parent=${window.location.hostname}`}
+          src={`https://player.twitch.tv/?channel=${event.liveStreamUrl}&parent=${window.location.hostname}`}
           frameBorder="0"
           scrolling="no"
           allowFullScreen>
@@ -56,7 +57,7 @@ function EventVideo({event}: {
 export default function EventSummary() {
   const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
   const { division } = useSearch({ from: '/$season/events/$slug' });
-  const navigate = useNavigate({ from: '/$season/events/$slug' });
+  const navigate = useNavigate();
   const childMatches = useChildMatches();
   let tab = 'teams';
   if(childMatches.length > 0) {
@@ -66,18 +67,21 @@ export default function EventSummary() {
   }
 
   const { isLoading, isError, data: event } = useEvent(seasonYear, slug);
-  const { data: season } = useSeason(event?.season);
-  const { data: league } = useLeague(seasonYear, event?.league);
-  const { data: parentLeague } = useLeague(seasonYear, league?.parent_league);
+  const { data: season } = useSeason(seasonYear);
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const isHappening = event && stringToDate(event.startDate) <= today
+    && stringToDate(event.endDate) >= today && !event.published;
 
   useEffect(() => {
-    if(event?.aasm_state !== 'in_progress') {
+    if(!isHappening) {
       return
     }
 
     const interval = setInterval(() => refreshEvent(seasonYear, slug), 30 * 1000)
     return () => clearInterval(interval)
-  }, [seasonYear, slug, event?.aasm_state])
+  }, [seasonYear, slug, isHappening]);
 
   if(isLoading) {
     return <LoadingSpinner/>;
@@ -87,11 +91,12 @@ export default function EventSummary() {
     return <div>Error loading event</div>;
   }
 
-  function selectTab(selectedTab: string){
+  function selectTab(selectedTab: string) {
     navigate({ to: `/${seasonYear}/events/${slug}/${selectedTab}`, search: { division } });
   }
 
   function selectDivision(div?: string) {
+    // @ts-expect-error TODO maybe make this happy one day
     navigate({ search: { division: div } });
   }
 
@@ -105,12 +110,13 @@ export default function EventSummary() {
       return <LoadingSpinner/>;
     }
 
-    const showRankings = event.type !== 'league_meet' && (!hasDivisions || division);
-    const showAwards = !hasDivisions && event.type !== 'league_meet' || (hasDivisions && !division);
-    const showAlliances = event.type !== 'league_meet';
-    const showPractice = event.has_practice
+    const showRankings = event.type !== 'LEAGUE_MEET' && (!hasDivisions || division);
+    const showAwards = !hasDivisions && event.type !== 'LEAGUE_MEET' || (hasDivisions && !division);
+    const showAlliances = event.type !== 'LEAGUE_MEET';
+    // TODO can we derive this in a more useful way?
+    const showPractice = true // event.has_practice
 
-    const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
+    const google_location = event.venue + ', ' + event.streetAddress + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
 
     return <div style={{width: '100%', overflowX: 'auto'}}>
@@ -120,25 +126,19 @@ export default function EventSummary() {
             <Select value={division || 'parent'} onChange={(evt) => selectDivision(evt.target.value == 'parent' ? undefined : evt.target.value)}>
               <MenuItem value={'parent'}>Finals Division</MenuItem>
               {event.divisions.map((d) => {
-                return <MenuItem key={d.slug} value={d.slug}>{d.name} Division</MenuItem>;
+                return <MenuItem key={d.eventCode} value={d.eventCode}>{d.name} Division</MenuItem>;
               })}
             </Select>
           </div> : null}
-          {season ? <><b>Season:</b> <span>{season.name} ({season.year})</span><br/></> : null}
-          <b>Date:</b> {new Date(event.start_date).getUTCFullYear() === 9999 ? 'TBA' : event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
+          {season ? <><b>Season:</b> <span>{season.gameName} ({season.cmpYear - 1} - {season.cmpYear})</span><br/></> : null}
+          <b>Date:</b> {new Date(event.startDate).getUTCFullYear() === 9999 ? 'TBA' : event.startDate === event.endDate ? event.startDate : (event.startDate + ' - ' + event.endDate)}<br/>
           <b>Location:</b>
-          {event.location && event.location.trim() !== '-' ? <>
-            <TextLink href={maps_url} target="_blank"> {event.location}{event.location && ', '}
+          {event.venue && event.venue.trim() !== '-' ? <>
+            <TextLink href={maps_url} target="_blank"> {event.venue}{event.venue && ', '}
           {event.city}{event.city && ', '}
           {event.state}{event.state && ', '}
           {event.country}</TextLink>
           </> : ' TBA' }
-          <br/>
-          {parentLeague ?
-            <><span><b>League:</b> <TextLink to={`/${seasonYear}/leagues/rankings/${parentLeague.slug}`}>{parentLeague.name}</TextLink></span><br/></> : null }
-          {league ?
-            <span><b>{league ? 'Child ' : null} League:</b> <TextLink to={`/${seasonYear}/leagues/rankings/${league.slug}`}>{league.name}</TextLink></span> : null }<br/>
-
         </Heading>
 
         <EventVideo event={event} />
@@ -155,12 +155,12 @@ export default function EventSummary() {
           >
             <div style={{width: '48px'}}/>
             <Tab value="teams" label="Teams" style={{marginLeft: 'auto'}}/>
-            { showRankings ? <Tab value="rankings" label={event.type !== 'league_meet' ? 'Rankings' : 'League Rankings'} /> : null }
+            { showRankings ? <Tab value="rankings" label={'Rankings'} /> : null }
             { showPractice ? <Tab value="practice" label="Practice Matches" /> : null }
             <Tab value="matches" label="Matches" />
             { showAlliances ? <Tab value="alliances" label="Alliances" /> : null }
             { showAwards ? <Tab value="awards" label="Awards" /> : null }
-            {event.aasm_state === 'in_progress' ?
+            {isHappening ?
                 <IconButton
                   style={{marginLeft: 'auto', width: '48px'}}
                   onClick={refresh}

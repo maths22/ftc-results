@@ -1,26 +1,26 @@
 import {createLazyRoute, useParams, useSearch} from "@tanstack/react-router";
-import {useEvent, useEventAlliances, useEventMatches} from "../api";
-import AlliancesTable from "./AlliancesTable";
+import {useEvent, useEventMatches} from "../api";
 import LoadingSpinner from "./LoadingSpinner";
-import RankingsTable from "./RankingsTable";
 import MatchTable from "./MatchTable";
-import RankingsTab from "./RankingsTab.tsx";
+import MatchDetailsDialog from "./MatchDetailsDialog";
 
 export default function MatchTab({practice}: {practice?: boolean}) {
     const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
-    const { data: event, isLoading: isLoadingEvent } = useEvent(seasonYear, slug);
-    const { data: matches, isLoading } = useEventMatches(seasonYear, slug);
     const { division } = useSearch({ from: '/$season/events/$slug' });
+    const { data: event, isLoading: isLoadingEvent } = useEvent(seasonYear, slug);
+    const { data: matches, isLoading } = useEventMatches(seasonYear, division || slug);
 
     if(isLoading || isLoadingEvent) {
         return <LoadingSpinner />
     }
 
     const filteredMatches = (matches || [])
-        .filter(a => !division ? !a.division : a.division == division)
-        .filter(a => practice ? a.phase == 'practice' : a.phase != 'practice')
+        .filter(a => practice ? a.tournamentLevel == 'PRACTICE' : a.tournamentLevel != 'PRACTICE')
 
-    return <MatchTable practice={practice} matches={filteredMatches} event={event} />
+    return <>
+            <MatchTable practice={practice} seasonYear={seasonYear} matches={filteredMatches} event={event} division={division} />
+            <MatchDetailsDialog />
+        </>
 }
 
 export function PracticeMatchTab() {

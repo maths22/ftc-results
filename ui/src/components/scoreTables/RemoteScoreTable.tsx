@@ -3,7 +3,7 @@ import TableCell from '@mui/material/TableCell';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import {styled} from '@mui/material/styles';
-import {components} from "../../api/v1";
+import {components} from "../../api/first-v3";
 
 type CellOwnerState = {
   key?: boolean
@@ -21,10 +21,12 @@ const ScoreCell = styled(TableCell)<{ownerState: CellOwnerState}>(({theme, owner
 }));
 
 
-type ScoreType = components["schemas"]["remoteMatchDetails"]["score_details"]
+type ScoreType = components["schemas"]["ApiV3RemoteScoreDetail"]
 
-export type SeasonScore<T extends ScoreType> = components["schemas"]["remoteMatchDetails"] & {
-  score_details: T,
+export type SeasonScore<T extends ScoreType> = components["schemas"]["ApiV3SingleTeamMatchDetails"] & {
+  matchResultsDetails: {
+    details: T
+  }
 }
 
 type ScoreInterpretation<T extends ScoreType> = (match: SeasonScore<T>) => ({

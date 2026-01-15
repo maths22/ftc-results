@@ -17,9 +17,9 @@ export default function SeasonSelector({selectedSeason, onChange}: {
             value={selectedSeason}
             onChange={(evt) => onChange(evt.target.value)}
         >
-            {seasons.map((s) => {
-                return <MenuItem value={s.year} key={s.year}>
-                    {`${s.name} (${s.year})`}
+            {seasons.seasons.map((s) => {
+                return <MenuItem value={s.cmpYear} key={s.cmpYear}>
+                    {`${s.gameName} (${s.cmpYear - 1} - ${s.cmpYear})`}
                 </MenuItem>;}
             )}
         </Select>

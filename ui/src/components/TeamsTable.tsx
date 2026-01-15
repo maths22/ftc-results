@@ -7,31 +7,28 @@ import Typography from '@mui/material/Typography';
 import {PaddedCell} from './util';
 import {createLazyRoute, useNavigate, useParams, useSearch} from "@tanstack/react-router";
 import {useEvent, useEventTeams, useTeam} from "../api";
-import type {components} from "../api/v1";
+import type {components} from "../api/first-v3";
 import LoadingSpinner from "./LoadingSpinner";
 
-function TeamRow({event, team, showDivisionAssignments, selectDivision}: {
-  event: components['schemas']['event'],
-  team: { number: number, division: string | null},
+function TeamRow({seasonYear, event, participant, showDivisionAssignments, selectDivision}: {
+  seasonYear: string,
+  event: components['schemas']['ApiV3Event'],
+  participant: components['schemas']['ApiV3EventParticipant'],
   showDivisionAssignments: boolean,
   selectDivision: (div: string) => void
 }) {
-  const { data: teamData } = useTeam(team.number);
-
-  if(!teamData) {
-    return null;
-  }
-  const division = event.divisions.find((d) => d.slug === team.division);
+  const division = event.divisions.find((d) => d.eventCode === participant.divisionEventCode);
+  const team = participant.team;
   return <TableRow style={{ height: '2rem' }}>
     { showDivisionAssignments && division ? <PaddedCell>
-      <TextLink onClick={() => selectDivision(division.slug)}>{division.name}</TextLink>
+      <TextLink onClick={() => selectDivision(division.eventCode)}>{division.name}</TextLink>
     </PaddedCell> : ( showDivisionAssignments ? <PaddedCell/> : null) }
     <PaddedCell>
-      <TextLink to={`/teams/${team.number}`}>{team.number}</TextLink>
+      <TextLink to={`/${seasonYear}/teams/${team.number}`}>{team.number}</TextLink>
     </PaddedCell>
-    <PaddedCell>{teamData.name}</PaddedCell>
-    <PaddedCell>{[teamData.city, teamData.state, teamData.country].join(', ')}</PaddedCell>
-    <PaddedCell>{teamData.organization ? [...new Set(teamData.organization.split('&').map((s) => s.trim()))].join('\n') : null}</PaddedCell>
+    <PaddedCell>{team.name}</PaddedCell>
+    <PaddedCell>{[team.city, team.stateProv, team.country].join(', ')}</PaddedCell>
+    <PaddedCell>{team.affiliations ? [...new Set(team.affiliations.split('&').map((s) => s.trim()))].join('\n') : null}</PaddedCell>
   </TableRow>;
 }
 
@@ -41,7 +38,7 @@ export default function TeamsTable() {
   const navigate = useNavigate({ from: '/$season/events/$slug' });
 
   const { data: event, isLoading: eventIsLoading } = useEvent(seasonYear, slug);
-  const { data: eventTeams, isLoading } = useEventTeams(seasonYear, slug);
+  const { data: eventTeams, isLoading } = useEventTeams(seasonYear, division || slug);
 
   function selectDivision(div: string) {
     navigate({ search: {division: div } });
@@ -51,7 +48,7 @@ export default function TeamsTable() {
     return <LoadingSpinner />;
   }
 
-  if(!event || !eventTeams || eventTeams.length == 0) {
+  if(!event || !eventTeams || eventTeams.participants.length == 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>Team list is not currently available</Typography>;
   }
 
@@ -68,8 +65,8 @@ export default function TeamsTable() {
       </TableRow>
     </TableHead>
     <TableBody>
-      {eventTeams.sort((a, b) => a.number - b.number).map((td) =>
-          <TeamRow key={td.number} event={event} team={td} showDivisionAssignments={showDivisionAssignments} selectDivision={selectDivision} />)}
+      {eventTeams.participants.map((participant) =>
+          <TeamRow key={participant.team.number} seasonYear={seasonYear} event={event} participant={participant} showDivisionAssignments={showDivisionAssignments} selectDivision={selectDivision} />)}
     </TableBody>
   </Table>;
 }

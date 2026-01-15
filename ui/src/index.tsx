@@ -11,7 +11,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { orange, orange as blue } from '@mui/material/colors';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {RouterProvider} from '@tanstack/react-router';
-import {validateAuth} from "./api";
 import {ConfirmProvider} from "material-ui-confirm";
 
 const theme = createTheme({
@@ -23,8 +22,6 @@ const theme = createTheme({
 Sentry.init({
  dsn: import.meta.env.SENTRY_DSN
 });
-
-validateAuth();
 
 export const queryClient = new QueryClient({
     defaultOptions: {

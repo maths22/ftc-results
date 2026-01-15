@@ -3,7 +3,7 @@ import TableCell from '@mui/material/TableCell';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import {styled} from '@mui/material/styles';
-import {components} from "../../api/v1";
+import {components} from "../../api/first-v3";
 
 const colors = {
   red: '#fee',
@@ -39,11 +39,13 @@ export function toTitleCase(str: string) {
   );
 }
 
-type ScoreType = components["schemas"]["matchDetails"]["red_score_details"]
+type ScoreType = components["schemas"]["ApiV3ScoreDetail"]
 
-export type SeasonScore<T extends ScoreType> = components["schemas"]["matchDetails"] & {
-  red_score_details: T,
-  blue_score_details: T
+export type SeasonScore<T extends ScoreType> = components["schemas"]["ApiV3AllianceMatchDetails"] & {
+  matchResultsDetails: {
+    redDetails: T,
+    blueDetails: T
+  }
 }
 
 type ScoreInterpretation<T extends ScoreType> = (match: SeasonScore<T>) => ({

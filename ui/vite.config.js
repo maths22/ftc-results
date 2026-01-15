@@ -9,15 +9,7 @@ export default defineConfig(() => {
       sourcemap: true
     },
     server: {
-      proxy: {
-        '^/api(-docs)?/': {
-          target: 'http://127.0.0.1:3000'
-        },
-        '^/api/v1/scoring/sync/socket': {
-          target: 'http://127.0.0.1:3000',
-          ws: true
-        }
-      },
+      allowedHosts: ['.ngrok-free.app'],
       port: 5175
     },
     plugins: [react()],

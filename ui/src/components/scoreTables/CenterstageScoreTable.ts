@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import ScoreTable, {toTitleCase} from './ScoreTable';
 import type {components} from "../../api/v1";
 

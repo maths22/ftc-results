@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import ScoreTable from './ScoreTable.js';
 import type {components} from "../../api/v1";
 

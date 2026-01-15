@@ -26,31 +26,12 @@ function App({selectedSeason}: {
       <div>
         <SeasonSelector onChange={v => router.navigate({ to: `/${v}` })} selectedSeason={selectedSeason} />
 
-        {season && season.offseason ? null :
-          <div style={{padding: '1em 0'}}>
-            <Typography variant={'h5'}>League results</Typography>
-            <List component="nav">
-              <ListItemButton component={Link} to={`/${selectedSeason}/teams/rankings`}>
-                <ListItemText primary="All Team Rankings" />
-              </ListItemButton>
-              <ListItemButton component={Link} to={`/${selectedSeason}/leagues/summary`}>
-                <ListItemText primary="Rankings By League" />
-              </ListItemButton>
-            </List>
-          </div>
-        }
-
-
         <EventCards heading="This week's Events" selectedSeason={selectedSeason} filter={(e) => {
-          return stringToDate(e.end_date) >= today && stringToDate(e.start_date) < oneWeek;
+          return stringToDate(e.endDate) >= today && stringToDate(e.startDate) < oneWeek;
         }}/>
 
-        { season && season.offseason ? <EventCards heading="Upcoming Events" selectedSeason={selectedSeason} filter={(e) => {
-          return stringToDate(e.start_date) >= oneWeek;
-        }} limit={9} /> : null}
-
         <EventCards heading="Recent Events" selectedSeason={selectedSeason} filter={(e) => {
-          return stringToDate(e.end_date) < today;
+          return stringToDate(e.endDate) < today;
         }} reverse limit={9} showNone />
 
         <div style={{padding: '1em 0'}}>
@@ -72,7 +53,7 @@ export function RoutableHome() {
   if(isLoading || !seasons) {
     return <LoadingSpinner />;
   }
-  const defaultSeason = (seasons.find((s) => s.active) || seasons[0]).year;
+  const defaultSeason = (seasons.seasons.find((s) => s.cmpYear == seasons.currentSeasonCmpYear))?.cmpYear.toString() || '0';
   return <App selectedSeason={defaultSeason} />;
 }
 export function RoutableSeasonHome() {
