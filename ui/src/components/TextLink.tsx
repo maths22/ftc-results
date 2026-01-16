@@ -24,6 +24,7 @@ export default function TextLink(props: {
     href?: string,
     onClick?: MouseEventHandler<unknown>,
     target?: string,
+    style?: React.CSSProperties,
     children: HTMLProps<'a'>['children']
 }) {
   return props.to ? <StyledLink {...props} /> : <StyledA {...props} />

@@ -28,7 +28,10 @@ function AwardFinalist({seasonYear, finalist} : {
     {finalist.name ? finalist.name : null}
     {finalist.name && finalist.team ? <br/> : null}
     {finalist.team ? <TextLink
-        to={`/${seasonYear}/teams/${finalist.team.number}`}>{finalist.team.displayNumber}{team ? ` (${team.name})` : ''}</TextLink> : null}
+        to={`/${seasonYear}/teams/${finalist.team.number}`} style={{display: 'flex', alignItems: 'center'}}>
+          <div className={`team-avatar team-${finalist.team.number}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+          {finalist.team.displayNumber}{team ? ` (${team.name})` : ''}
+        </TextLink> : null}
   </PaddedCell>
 }
 
@@ -43,11 +46,14 @@ function CompactAwardFinalist({seasonYear, finalist, isAlliance} : {
     return <PaddedCell>&nbsp;</PaddedCell>;
   }
 
-  return <div>
-    {isAlliance && finalist.place != undefined ? allianceTitles[finalist.place - 1] : ''}
+  return <div style={{display: 'flex', alignItems: 'center'}}>
+    {isAlliance && finalist.place != undefined ? allianceTitles[finalist.place - 1] : ''}&nbsp;
     {finalist.name ? <>{finalist.name}&nbsp;</> : null}
     {finalist.team ? <><TextLink
-        to={`/${seasonYear}/teams/${finalist.team.number}`}>{finalist.team.displayNumber}{team ? ` (${team.name})` : ''}</TextLink></> : null}
+        to={`/${seasonYear}/teams/${finalist.team.number}`} style={{display: 'inline-flex', alignItems: 'center'}}>
+          <div className={`team-avatar team-${finalist.team.number}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+          {finalist.team.displayNumber}{team ? ` (${team.name})` : ''}
+        </TextLink></> : null}
     <br/>
   </div>
 }

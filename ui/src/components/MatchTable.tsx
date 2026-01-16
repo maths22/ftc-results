@@ -7,7 +7,7 @@ import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import MatchDetailsDialog from './MatchDetailsDialog';
 import {styled} from '@mui/material/styles';
-import {useNavigate, useSearch} from '@tanstack/react-router';
+import {Match, useNavigate, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/first-v3";
 import {Box} from "@mui/material";
 
@@ -51,12 +51,11 @@ const DisabledRow = styled(TableRow)(() => ({
   }
 }));
 
-function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, practice}: {
+function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail}: {
   seasonYear: string,
   matches: components['schemas']['ApiV3AllianceMatch'][],
   showMatchDetail: (tournamentLevel: components["schemas"]["ApiV3TournamentLevel"], series: string, number: number) => void,
-  team?: string,
-  practice?: boolean
+  team?: string
 }) {
   const rowStyle = {height: '2rem'};
 
@@ -92,14 +91,16 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, prac
       return [
         <TableRow key={`${m.tournamentLevel}-${m.series}-${m.number}`} style={rowStyle}>
           <MatchCell ownerState={{surrogate: isSurrogate}}>
-            {m.matchResults ? <TextLink onClick={() => showMatchDetail(m.tournamentLevel, m.series.toString(), m.number)}>{m.shortName}</TextLink> : m.shortName}
+            {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <TextLink onClick={() => showMatchDetail(m.tournamentLevel, m.series.toString(), m.number)}>{m.shortName}</TextLink> : m.shortName}
           </MatchCell>
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.matchResults ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.teams.redAlliance.teams.map(mp => {
                 const Component = mp.team.number === team ? 'span' : TextLink;
-                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1}}>{mp.team.displayNumber}
+                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <div className={`team-avatar team-${mp.team.number}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+                  {mp.team.displayNumber}
                   {mp.surrogate ? '*' : ''}</Component>;
               })}
             </Box>
@@ -108,23 +109,28 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, prac
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.teams.blueAlliance.teams.map(mp => {
                 const Component = mp.team.number === team ? 'span' : TextLink;
-                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1}}>{mp.team.displayNumber}
+                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <div className={`team-avatar team-${mp.team.number}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+                  {mp.team.displayNumber}
                   {mp.surrogate ? '*' : ''}</Component>;
               })}
             </Box>
           </MatchCell>
 
-          {!practice && m.matchResults ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>{m.matchResults.redScore}</span>
           </MatchCell> : null}
-          {!practice && m.matchResults ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>{m.matchResults.blueScore}</span>
           </MatchCell>: null}
-          {!practice && !m.matchResults ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.tournamentLevel != 'PRACTICE' && !m.matchResults ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>Awaiting results</span>
           </MatchCell>: null}
+          {m.tournamentLevel == 'PRACTICE' ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+            <span>N/A</span>
+          </MatchCell> : null}
         </TableRow>,
-        practice ? null : <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
+        m.tournamentLevel == 'PRACTICE' ? null : <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
           <TableCell />
           {m.matchResults ? <MatchCell ownerState={redOwnerState}>
             <span>{m.matchResults.redScore}</span>
@@ -147,7 +153,7 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, prac
         {team ? <MatchCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Result</MatchCell> : null}
         <MatchCell>Red Alliance</MatchCell>
         <MatchCell>Blue Alliance</MatchCell>
-        {practice ? null : <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>}
+        <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>
       </TableRow>
     </TableHead>
     <TableBody>
@@ -167,6 +173,9 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, prac
         <MatchCell colSpan={5}>Qualifications</MatchCell>
       </TableRow> : null}
       {groupedMatches['QUALIFICATION'] ? groupedMatches['QUALIFICATION'] : null}
+      {groupedMatches['PRACTICE'] ? <TableRow style={rowStyle}>
+        <MatchCell colSpan={5}>Practice</MatchCell>
+      </TableRow> : null}
       {groupedMatches['PRACTICE'] ? groupedMatches['PRACTICE'] : null}
     </TableBody>
   </Table>;

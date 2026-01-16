@@ -24,7 +24,10 @@ function TeamRow({seasonYear, event, participant, showDivisionAssignments, selec
       <TextLink onClick={() => selectDivision(division.eventCode)}>{division.name}</TextLink>
     </PaddedCell> : ( showDivisionAssignments ? <PaddedCell/> : null) }
     <PaddedCell>
-      <TextLink to={`/${seasonYear}/teams/${team.number}`}>{team.number}</TextLink>
+      <TextLink to={`/${seasonYear}/teams/${team.number}`} style={{display: 'flex', alignItems: 'center'}}>
+        <div className={`team-avatar team-${team.number}`} style={{marginRight: '0.5em', '--avatar-size': 40}}></div>
+        {team.number}
+      </TextLink>
     </PaddedCell>
     <PaddedCell>{team.name}</PaddedCell>
     <PaddedCell>{[team.city, team.stateProv, team.country].join(', ')}</PaddedCell>

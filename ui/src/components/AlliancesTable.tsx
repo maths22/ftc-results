@@ -12,7 +12,10 @@ function AllianceTeam({seasonYear, number}: {seasonYear: string, number: string}
   const { data: team } = useTeam(seasonYear, number);
 
   return <PaddedCell key={number}>
-    <TextLink to={`/teams/${number}`}>{team?.displayNumber}{team ? ` (${team.name})` : ''}</TextLink>
+    <TextLink to={`/${seasonYear}/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
+      <div className={`team-avatar team-${number}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+      {team?.displayNumber}{team ? ` (${team.name})` : ''}
+    </TextLink>
   </PaddedCell>
 }
 

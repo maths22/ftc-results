@@ -16,7 +16,7 @@ import {styled} from '@mui/material/styles';
 import {createLazyRoute, Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/first-v3";
 import {stringToDate} from "./util";
-import {refreshEvent, useEvent, useEvents, useSeason} from "../api";
+import {refreshEvent, useEvent, useEvents, useEventTeams, useSeason} from "../api";
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -68,6 +68,8 @@ export default function EventSummary() {
 
   const { isLoading, isError, data: event } = useEvent(seasonYear, slug);
   const { data: season } = useSeason(seasonYear);
+  // Ensure we load the team list for all tabs to reduce individual team fetches
+  useEventTeams(seasonYear, slug);
 
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -113,13 +115,12 @@ export default function EventSummary() {
     const showRankings = event.type !== 'LEAGUE_MEET' && (!hasDivisions || division);
     const showAwards = !hasDivisions && event.type !== 'LEAGUE_MEET' || (hasDivisions && !division);
     const showAlliances = event.type !== 'LEAGUE_MEET';
-    // TODO can we derive this in a more useful way?
-    const showPractice = true // event.has_practice
 
     const google_location = event.venue + ', ' + event.streetAddress + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
 
     return <div style={{width: '100%', overflowX: 'auto'}}>
+        <link rel="stylesheet" href={`https://ftc-api.firstinspires.org/avatars/composed/${seasonYear}.css`} />
         <Heading>
           <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
           {event.divisions.length > 0 ? <div>
@@ -156,7 +157,6 @@ export default function EventSummary() {
             <div style={{width: '48px'}}/>
             <Tab value="teams" label="Teams" style={{marginLeft: 'auto'}}/>
             { showRankings ? <Tab value="rankings" label={'Rankings'} /> : null }
-            { showPractice ? <Tab value="practice" label="Practice Matches" /> : null }
             <Tab value="matches" label="Matches" />
             { showAlliances ? <Tab value="alliances" label="Alliances" /> : null }
             { showAwards ? <Tab value="awards" label="Awards" /> : null }
