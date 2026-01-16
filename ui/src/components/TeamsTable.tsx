@@ -27,7 +27,10 @@ function TeamRow({event, team, showDivisionAssignments, selectDivision}: {
       <TextLink onClick={() => selectDivision(division.slug)}>{division.name}</TextLink>
     </PaddedCell> : ( showDivisionAssignments ? <PaddedCell/> : null) }
     <PaddedCell>
-      <TextLink to={`/teams/${team.number}`}>{team.number}</TextLink>
+      <TextLink to={`/teams/${team.number}`} style={{display: 'flex', alignItems: 'center'}}>
+        <div className={`team-avatar team-${team.number}`} style={{marginRight: '0.5em', '--avatar-size': 40}}></div>
+        {team.number}
+      </TextLink>
     </PaddedCell>
     <PaddedCell>{teamData.name}</PaddedCell>
     <PaddedCell>{[teamData.city, teamData.state, teamData.country].join(', ')}</PaddedCell>

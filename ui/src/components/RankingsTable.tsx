@@ -13,7 +13,10 @@ function TeamInfo({number}: {number: number}) {
 
   return <>
     <PaddedCell>
-      <TextLink to={`/teams/${number}`}>{number}</TextLink>
+      <TextLink to={`/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
+        <div className={`team-avatar team-${number}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+        {number}
+      </TextLink>
     </PaddedCell>
     <PaddedCell>{team?.name}</PaddedCell>
   </>

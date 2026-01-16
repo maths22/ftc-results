@@ -50,11 +50,10 @@ const DisabledRow = styled(TableRow)(() => ({
   }
 }));
 
-function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
+function TraditionalMatchTable({matches, team, showMatchDetail}: {
   matches: components['schemas']['match'][],
   showMatchDetail: (name: string) => void,
-  team?: number,
-  practice?: boolean
+  team?: number
 }) {
   const rowStyle = {height: '2rem'};
 
@@ -94,14 +93,16 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
       return [
         <TableRow key={m.id} style={rowStyle}>
           <MatchCell ownerState={{surrogate: isSurrogate}}>
-            {m.played ? <TextLink onClick={showDetail}>{m.name}</TextLink> : m.name}
+            {m.phase != 'practice' && m.played ? <TextLink onClick={showDetail}>{m.name}</TextLink> : m.name}
           </MatchCell>
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.red_alliance.map((t, idx) => {
                 const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/${t}`} style={{flex: 1}}>{t}
+                return <Component key={t} to={`/teams/${t}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <div className={`team-avatar team-${t}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+                  {t}
                   {m.red_surrogate[idx] ? '*' : ''}</Component>;
               })}
             </Box>
@@ -110,24 +111,28 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.blue_alliance.map((t, idx) => {
                 const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/${t}`} style={{flex: 1}}>{t}
-                  {m.blue_surrogate[idx] ? '*' : ''}</Component>
-                  ;
+                return <Component key={t} to={`/teams/${t}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <div className={`team-avatar team-${t}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+                  {t}
+                  {m.blue_surrogate[idx] ? '*' : ''}</Component>;
               })}
             </Box>
           </MatchCell>
 
-          {!practice && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.phase != 'practice' && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>{m.red_score}</span>
           </MatchCell> : null}
-          {!practice && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.phase != 'practice' && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>{m.blue_score}</span>
           </MatchCell>: null}
-          {!practice && !m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.phase != 'practice' && !m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
             <span>Awaiting results</span>
           </MatchCell>: null}
+          {m.phase == 'practice' ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+            <span>N/A</span>
+          </MatchCell> : null}
         </TableRow>,
-        practice ? null : <TableRow key={`${m.id}-results`} style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
+        m.phase == 'practice' ? null : <TableRow key={`${m.id}-results`} style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
           <TableCell />
           {m.played ? <MatchCell ownerState={redOwnerState}>
             <span>{m.red_score}</span>
@@ -150,7 +155,7 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
         {team ? <MatchCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Result</MatchCell> : null}
         <MatchCell>Red Alliance</MatchCell>
         <MatchCell>Blue Alliance</MatchCell>
-        {practice ? null : <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>}
+        <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>
       </TableRow>
     </TableHead>
     <TableBody>
@@ -171,9 +176,12 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
       </TableRow> : null}
       {groupedMatches['semi'] ? groupedMatches['semi'] : null}
       {groupedMatches['qual'] ? <TableRow style={rowStyle}>
-        <MatchCell colSpan={5}>Qualifications</MatchCell>
+        <MatchCell colSpan={5}>Qualification</MatchCell>
       </TableRow> : null}
       {groupedMatches['qual'] ? groupedMatches['qual'] : null}
+      {groupedMatches['practice'] ? <TableRow style={rowStyle}>
+        <MatchCell colSpan={5}>Practice</MatchCell>
+      </TableRow> : null}
       {groupedMatches['practice'] ? groupedMatches['practice'] : null}
     </TableBody>
   </Table>;
@@ -232,7 +240,7 @@ export default function MatchTable({event, matches, team, practice}: {
   return <>
     {event.remote ?
         <RemoteMatchTable matches={matches as components['schemas']['remoteMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
-        <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} practice={practice} />}
+        <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} />}
   </>;
 }
 

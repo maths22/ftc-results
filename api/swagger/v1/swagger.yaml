@@ -555,10 +555,16 @@ components:
           - "$ref": "#/components/schemas/IntoTheDeepScore"
           - "$ref": "#/components/schemas/IntoTheDeepCriScore"
           - "$ref": "#/components/schemas/DecodeScore"
+        red_seed:
+          type: integer
         red_teams:
           type: array
           items:
             type: integer
+        red_surrogate:
+          type: array
+          items:
+            type: boolean
         red_starts:
           type: array
           items:
@@ -601,10 +607,16 @@ components:
           - "$ref": "#/components/schemas/IntoTheDeepScore"
           - "$ref": "#/components/schemas/IntoTheDeepCriScore"
           - "$ref": "#/components/schemas/DecodeScore"
+        blue_seed:
+          type: integer
         blue_teams:
           type: array
           items:
             type: integer
+        blue_surrogate:
+          type: array
+          items:
+            type: boolean
         blue_starts:
           type: array
           items:
@@ -625,10 +637,12 @@ components:
       - red_score
       - red_score_details
       - red_teams
+      - red_surrogate
       - blue_score_total
       - blue_score
       - blue_score_details
       - blue_teams
+      - blue_surrogate
     remoteMatchDetails:
       type: object
       properties:

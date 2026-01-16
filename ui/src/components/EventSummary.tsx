@@ -16,7 +16,7 @@ import {styled} from '@mui/material/styles';
 import {createLazyRoute, Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/v1";
 import {stringToDate} from "./util";
-import {refreshEvent, useEvent, useEvents, useLeague, useSeason} from "../api";
+import {refreshEvent, useEvent, useLeague, useSeason} from "../api";
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -108,7 +108,6 @@ export default function EventSummary() {
     const showRankings = event.type !== 'league_meet' && (!hasDivisions || division);
     const showAwards = !hasDivisions && event.type !== 'league_meet' || (hasDivisions && !division);
     const showAlliances = event.type !== 'league_meet';
-    const showPractice = event.has_practice && (!hasDivisions || division)
 
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
@@ -155,8 +154,7 @@ export default function EventSummary() {
           >
             <div style={{width: '48px'}}/>
             <Tab value="teams" label="Teams" style={{marginLeft: 'auto'}}/>
-            { showRankings ? <Tab value="rankings" label={event.type !== 'league_meet' ? 'Rankings' : 'League Rankings'} /> : null }
-            { showPractice ? <Tab value="practice" label="Practice Matches" /> : null }
+            { showRankings ? <Tab value="rankings" label="Rankings" /> : null }
             <Tab value="matches" label="Matches" />
             { showAlliances ? <Tab value="alliances" label="Alliances" /> : null }
             { showAwards ? <Tab value="awards" label="Awards" /> : null }

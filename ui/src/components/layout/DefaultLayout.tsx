@@ -29,6 +29,7 @@ export default function DefaultLayout() {
   }
 
   useEffect(() => {
+    if(!season) return;
     const avatarCss = document.createElement('link')
     avatarCss.rel = 'stylesheet'
     avatarCss.href = `https://ftc-api.firstinspires.org/avatars/composed/${season.split('-')[1]}.css`

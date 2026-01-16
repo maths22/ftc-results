@@ -27,7 +27,10 @@ function AwardFinalist({finalist} : {
     {finalist.recipient ? finalist.recipient : null}
     {finalist.recipient && finalist.team_id ? <br/> : null}
     {finalist.team_id ? <TextLink
-        to={`/teams/${finalist.team_id}`}>{finalist.team_id}{team ? ` (${team.name})` : ''}</TextLink> : null}
+        to={`/teams/${finalist.team_id}`} style={{display: 'flex', alignItems: 'center'}}>
+          <div className={`team-avatar team-${finalist.team_id}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+          {finalist.team_id}{team ? ` (${team.name})` : ''}
+        </TextLink> : null}
   </PaddedCell>
 }
 
@@ -41,11 +44,14 @@ function CompactAwardFinalist({finalist, isAlliance} : {
     return <PaddedCell>&nbsp;</PaddedCell>;
   }
 
-  return <div>
-    {isAlliance ? allianceTitles[finalist.place - 1] : ''}
+  return <div style={{display: 'flex', alignItems: 'center'}}>
+    {isAlliance && finalist.place != undefined ? allianceTitles[finalist.place - 1] : ''}&nbsp;
     {finalist.recipient ? <>{finalist.recipient}&nbsp;</> : null}
     {finalist.team_id ? <><TextLink
-        to={`/teams/${finalist.team_id}`}>{finalist.team_id}{team ? ` (${team.name})` : ''}</TextLink></> : null}
+        to={`/teams/${finalist.team_id}`} style={{display: 'inline-flex', alignItems: 'center'}}>
+          <div className={`team-avatar team-${finalist.team_id}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+          {finalist.team_id}{team ? ` (${team.name})` : ''}
+        </TextLink></> : null}
     <br/>
   </div>
 }

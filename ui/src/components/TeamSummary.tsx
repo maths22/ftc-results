@@ -85,6 +85,8 @@ export default function TeamSummary() {
 
 
   return <div style={{width: '100%', overflowX: 'auto'}}>
+    {/*TODO pick a season somehow*/}
+    {/*<link rel="stylesheet" href={`https://ftc-api.firstinspires.org/avatars/composed/${season}.css`} />*/}
     <Heading>
       <Typography variant="h4">Team {team.number} – {team.name}</Typography>
       <p>

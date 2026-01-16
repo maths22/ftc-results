@@ -902,7 +902,9 @@ export interface components {
                 penalty: number;
             };
             red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"] | components["schemas"]["DecodeScore"];
+            red_seed?: number;
             red_teams: number[];
+            red_surrogate: boolean[];
             red_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
             blue_score_total: number;
             blue_score: {
@@ -912,7 +914,9 @@ export interface components {
                 penalty: number;
             };
             blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"] | components["schemas"]["DecodeScore"];
+            blue_seed?: number;
             blue_teams: number[];
+            blue_surrogate: boolean[];
             blue_starts?: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" | "BACK")[];
         };
         remoteMatchDetails: {
