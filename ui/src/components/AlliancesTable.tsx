@@ -4,7 +4,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
-import {PaddedCell} from './util';
+import {abbrevToState, PaddedCell} from './util';
 import {useTeam} from "../api";
 import type {components} from "../api/first-v3";
 
@@ -13,8 +13,8 @@ function AllianceTeam({seasonYear, number}: {seasonYear: string, number: string}
 
   return <PaddedCell key={number}>
     <TextLink to={`/${seasonYear}/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
-      <div className={`team-avatar team-${number}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
-      {team?.displayNumber}{team ? ` (${team.name})` : ''}
+      <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+      {abbrevToState(team?.stateProv)}
     </TextLink>
   </PaddedCell>
 }

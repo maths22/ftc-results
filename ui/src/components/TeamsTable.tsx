@@ -4,7 +4,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
-import {PaddedCell} from './util';
+import {abbrevToState, PaddedCell} from './util';
 import {createLazyRoute, useNavigate, useParams, useSearch} from "@tanstack/react-router";
 import {useEvent, useEventTeams, useTeam} from "../api";
 import type {components} from "../api/first-v3";
@@ -25,12 +25,14 @@ function TeamRow({seasonYear, event, participant, showDivisionAssignments, selec
     </PaddedCell> : ( showDivisionAssignments ? <PaddedCell/> : null) }
     <PaddedCell>
       <TextLink to={`/${seasonYear}/teams/${team.number}`} style={{display: 'flex', alignItems: 'center'}}>
-        <div className={`team-avatar team-${team.number}`} style={{marginRight: '0.5em', '--avatar-size': 40}}></div>
-        {team.number}
+        <div className={`team-avatar team-${team.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 40}}></div>
+        {abbrevToState(team.stateProv)}
       </TextLink>
+      <Typography sx={{ display: { sm: 'none', xs: 'block'}}}>
+        {[team.city, team.stateProv, team.country].join(', ')}
+      </Typography>
     </PaddedCell>
-    <PaddedCell>{team.name}</PaddedCell>
-    <PaddedCell>{[team.city, team.stateProv, team.country].join(', ')}</PaddedCell>
+    <PaddedCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{[team.city, team.stateProv, team.country].join(', ')}</PaddedCell>
     <PaddedCell>{team.affiliations ? [...new Set(team.affiliations.split('&').map((s) => s.trim()))].join('\n') : null}</PaddedCell>
   </TableRow>;
 }
@@ -61,9 +63,8 @@ export default function TeamsTable() {
     <TableHead>
       <TableRow style={{ height: '2rem' }}>
         { showDivisionAssignments ? <PaddedCell>Division</PaddedCell> : null }
-        <PaddedCell>Team Number</PaddedCell>
-        <PaddedCell>Team Name</PaddedCell>
-        <PaddedCell>Location</PaddedCell>
+        <PaddedCell>Team</PaddedCell>
+        <PaddedCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Location</PaddedCell>
         <PaddedCell>Organization</PaddedCell>
       </TableRow>
     </TableHead>

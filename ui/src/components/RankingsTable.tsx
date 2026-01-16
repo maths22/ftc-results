@@ -4,7 +4,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
-import {PaddedCell} from './util';
+import {abbrevToState, PaddedCell} from './util';
 import type {components} from "../api/first-v3";
 import {useTeam} from "../api";
 
@@ -14,11 +14,10 @@ function TeamInfo({seasonYear, number}: {seasonYear: string, number: string}) {
   return <>
     <PaddedCell>
       <TextLink to={`/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
-        <div className={`team-avatar team-${number}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-        {number}
+        <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+        {abbrevToState(team?.stateProv)}
       </TextLink>
     </PaddedCell>
-    <PaddedCell>{team?.name}</PaddedCell>
   </>
 }
 
@@ -44,8 +43,7 @@ export default function RankingsTable({seasonYear, rankings, showRecord, elims}:
         {elims ? <>
           <PaddedCell>Alliance</PaddedCell>
         </> : <>
-          <PaddedCell>Team Number</PaddedCell>
-          <PaddedCell>Team Name</PaddedCell>
+          <PaddedCell>Team</PaddedCell>
         </>}
         <PaddedCell>Ranking Points</PaddedCell>
         <PaddedCell>Tie Breaker Points 1</PaddedCell>

@@ -10,6 +10,8 @@ import {styled} from '@mui/material/styles';
 import {Match, useNavigate, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/first-v3";
 import {Box} from "@mui/material";
+import { useTeam } from '../api';
+import { abbrevToState } from './util';
 
 const plainColors = {
   red: '#fee',
@@ -50,6 +52,17 @@ const DisabledRow = styled(TableRow)(() => ({
     color: 'rgba(0, 0, 0, 0.4)'
   }
 }));
+
+function MatchTeam({seasonYear, teamNumber, surrogate, link}: {seasonYear: string, teamNumber: string, surrogate?: boolean, link?: boolean}) {
+    const { data: team } = useTeam(seasonYear, teamNumber);
+
+  const Component = link ? TextLink : 'span';
+  return <Component key={teamNumber} to={`/${seasonYear}/teams/${teamNumber}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+    <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+    {abbrevToState(team?.stateProv)}
+    {surrogate ? '*' : ''}
+  </Component>;
+}
 
 function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail}: {
   seasonYear: string,
@@ -96,24 +109,12 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail}: {
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.matchResults ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.teams.redAlliance.teams.map(mp => {
-                const Component = mp.team.number === team ? 'span' : TextLink;
-                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                  <div className={`team-avatar team-${mp.team.number}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-                  {mp.team.displayNumber}
-                  {mp.surrogate ? '*' : ''}</Component>;
-              })}
+              {m.teams.redAlliance.teams.map(mp => <MatchTeam key={mp.team.number} seasonYear={seasonYear} teamNumber={mp.team.number} surrogate={mp.surrogate} link={mp.team.number !== team} />)}
             </Box>
           </MatchCell>
           <MatchCell ownerState={blueOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.teams.blueAlliance.teams.map(mp => {
-                const Component = mp.team.number === team ? 'span' : TextLink;
-                return <Component key={mp.team.number} to={`/${seasonYear}/teams/${mp.team.number}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                  <div className={`team-avatar team-${mp.team.number}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-                  {mp.team.displayNumber}
-                  {mp.surrogate ? '*' : ''}</Component>;
-              })}
+              {m.teams.blueAlliance.teams.map(mp => <MatchTeam key={mp.team.number} seasonYear={seasonYear} teamNumber={mp.team.number} surrogate={mp.surrogate} link={mp.team.number !== team} />)}
             </Box>
           </MatchCell>
 

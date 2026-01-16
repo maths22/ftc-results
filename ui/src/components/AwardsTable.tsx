@@ -6,7 +6,7 @@ import {useState} from 'react';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import AwardDetailsDialog from './AwardDetailsDialog';
-import {PaddedCell} from './util';
+import {abbrevToState, PaddedCell} from './util';
 import {createLazyRoute, useParams} from "@tanstack/react-router";
 import {useEventAwards, useTeam} from "../api";
 import type {components} from "../api/first-v3";
@@ -29,8 +29,8 @@ function AwardFinalist({seasonYear, finalist} : {
     {finalist.name && finalist.team ? <br/> : null}
     {finalist.team ? <TextLink
         to={`/${seasonYear}/teams/${finalist.team.number}`} style={{display: 'flex', alignItems: 'center'}}>
-          <div className={`team-avatar team-${finalist.team.number}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
-          {finalist.team.displayNumber}{team ? ` (${team.name})` : ''}
+          <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+          {abbrevToState(team?.stateProv)}
         </TextLink> : null}
   </PaddedCell>
 }
@@ -51,8 +51,8 @@ function CompactAwardFinalist({seasonYear, finalist, isAlliance} : {
     {finalist.name ? <>{finalist.name}&nbsp;</> : null}
     {finalist.team ? <><TextLink
         to={`/${seasonYear}/teams/${finalist.team.number}`} style={{display: 'inline-flex', alignItems: 'center'}}>
-          <div className={`team-avatar team-${finalist.team.number}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
-          {finalist.team.displayNumber}{team ? ` (${team.name})` : ''}
+          <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
+          {abbrevToState(team?.stateProv)}
         </TextLink></> : null}
     <br/>
   </div>
