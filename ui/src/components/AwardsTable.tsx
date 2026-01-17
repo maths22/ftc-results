@@ -101,7 +101,6 @@ export default function AwardsTable() {
   if (!awards || awards.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>Awards are not currently available</Typography>;
   }
-  console.log(awards)
 
   return <>
     <Table sx={{minWidth: '20em'}}>

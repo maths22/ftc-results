@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
 
 import IconButton from '@mui/material/IconButton';
-import {useEvent, useMatchDetails, useSeason} from '../api';
+import {GOV_CUP_SEASON, useEvent, useMatchDetails, useSeason} from '../api';
 import LoadingSpinner from './LoadingSpinner';
 import type {components} from "../api/first-v3.d.ts";
 import ErrorBoundary from "./ErrorBoundary";
@@ -23,7 +23,7 @@ const traditionalScoreTables = {
   'ApiV3PowerPlayScoreDetail': lazy(() => import('./scoreTables/PowerPlayScoreTable.ts')),
   'ApiV3CenterStageScoreDetail': lazy(() => import('./scoreTables/CenterstageScoreTable.ts')),
   'ApiV3IntoTheDeepScoreDetail': lazy(() => import('./scoreTables/IntoTheDeepScoreTable.ts')),
-  'ApiV3DecodeScoreDetail': lazy(() => import('./scoreTables/DecodeScoreTable.ts')),
+  'ApiV3DecodeScoreDetail': lazy(() => import('./scoreTables/DecodeScoreTable.tsx')),
 }
 
 const remoteScoreTables = {
@@ -35,7 +35,7 @@ const remoteScoreTables = {
 
 export default function MatchDetailsDialog() {
   const navigate = useNavigate();
-  const { season: seasonYear } = useParams({ strict: false});
+  const seasonYear = GOV_CUP_SEASON;
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -58,9 +58,10 @@ export default function MatchDetailsDialog() {
         open={isOpen}
         aria-labelledby="form-dialog-title"
         fullScreen={fullScreen}
+        maxWidth="md"
     >
       <DialogTitle id="form-dialog-title" style={{display: 'flex', alignItems: 'center'}}>
-        <Typography variant="h6" style={{flexGrow: 1}}>Results for {event?.name} - Match {match?.shortName}</Typography>
+        <Typography variant="h6" component="span" style={{flexGrow: 1}}>Results for {event?.name} - Match {match?.shortName}</Typography>
         <IconButton onClick={hideMatchDetail} size="large"><CloseIcon/></IconButton>
       </DialogTitle>
       <DialogContent sx={{padding: '10px'}}>
@@ -69,7 +70,7 @@ export default function MatchDetailsDialog() {
         {match ? <ErrorBoundary message={'Match details cannot be shown for this match'}>
           <Suspense fallback={<div>Loading...</div>}>
             {/* @ts-expect-error I wish I could figure out how to make this happy */}
-            {ScoreTable ? <ScoreTable match={match}/> : <span>
+            {ScoreTable ? <ScoreTable match={match} seasonYear={seasonYear}/> : <span>
               Score table is not defined for {season?.gameName}
             </span>}
           </Suspense>

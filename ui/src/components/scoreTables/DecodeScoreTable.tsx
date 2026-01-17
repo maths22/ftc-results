@@ -1,11 +1,16 @@
 import ScoreTable, {toTitleCase} from './ScoreTable';
 import type {components} from "../../api/first-v3";
+import './DecodeScoreTable.css'
 
 const endLocationPoints = {
   NONE: 0,
   PARTIAL: 5,
   FULL: 10
 };
+
+function ClassifierElement({element}: {element: 'GREEN' | 'PURPLE' | 'NONE'}) {
+  return <span className={`artifact artifact-${element === 'GREEN' ? 'green' : (element === 'PURPLE' ? 'purple' : 'none')}`}>{element == 'NONE' ? '\u00A0' : element[0]}</span>
+}
 
 export default ScoreTable<components['schemas']['ApiV3DecodeScoreDetail']>((match) => {
   const red_det = match.matchResultsDetails.redDetails;
@@ -29,9 +34,9 @@ export default ScoreTable<components['schemas']['ApiV3DecodeScoreDetail']>((matc
       value: 1
     },
     {
-      desc: 'Auto Classifier STate',
-      red: red_det.achievements.autoClassifierState.map(s => s[0]).join(""),
-      blue: blue_det.achievements.autoClassifierState.map(s => s[0]).join(""),
+      desc: 'Auto Classifier State',
+      red: red_det.achievements.autoClassifierState.map((s, idx) => <ClassifierElement key={idx} element={s} />),
+      blue: blue_det.achievements.autoClassifierState.map((s, idx) => <ClassifierElement key={idx} element={s} />),
       red_pts: red_det.points.autoPatternPoints,
       blue_pts: blue_det.points.autoPatternPoints,
     },
@@ -69,8 +74,8 @@ export default ScoreTable<components['schemas']['ApiV3DecodeScoreDetail']>((matc
     },
     {
       desc: 'Teleop Classifier State',
-      red: red_det.achievements.teleopClassifierState.map(s => s[0]).join(""),
-      blue: blue_det.achievements.teleopClassifierState.map(s => s[0]).join(""),
+      red: red_det.achievements.teleopClassifierState.map((s, idx) => <ClassifierElement key={idx} element={s} />),
+      blue: blue_det.achievements.teleopClassifierState.map((s, idx) => <ClassifierElement key={idx} element={s} />),
       red_pts: red_det.points.teleopPatternPoints,
       blue_pts: blue_det.points.teleopPatternPoints,
     },
