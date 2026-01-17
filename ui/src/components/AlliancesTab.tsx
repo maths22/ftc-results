@@ -1,11 +1,12 @@
 import {createLazyRoute, useParams, useSearch} from "@tanstack/react-router";
-import {useEventAlliances} from "../api";
+import {GOV_CUP_CODE, GOV_CUP_SEASON, useEventAlliances} from "../api";
 import AlliancesTable from "./AlliancesTable";
 import LoadingSpinner from "./LoadingSpinner";
 
 export default function AlliancesTab() {
-    const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
-    const { division } = useSearch({ from: '/$season/events/$slug' });
+    const seasonYear = GOV_CUP_SEASON;
+    const slug = GOV_CUP_CODE;
+    const { division } = useSearch({ from: '/eventSummary' });
     const { data: allianceData, isLoading } = useEventAlliances(seasonYear, division || slug);
 
     if(isLoading) {
@@ -20,6 +21,6 @@ export default function AlliancesTab() {
     </>
 }
 
-export const Route = createLazyRoute("/$season/events/$slug/alliances")({
+export const Route = createLazyRoute("/alliances")({
     component: AlliancesTab
 })

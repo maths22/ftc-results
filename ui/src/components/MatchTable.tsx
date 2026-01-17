@@ -57,10 +57,12 @@ function MatchTeam({seasonYear, teamNumber, surrogate, link}: {seasonYear: strin
     const { data: team } = useTeam(seasonYear, teamNumber);
 
   const Component = link ? TextLink : 'span';
-  return <Component key={teamNumber} to={`/${seasonYear}/teams/${teamNumber}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-    <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-    {abbrevToState(team?.stateProv)}
-    {surrogate ? '*' : ''}
+  return <Component key={teamNumber} to={`/teams/${teamNumber}`} style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
+    <div style={{ display: 'flex', alignItems: 'center', width: '10em'}}>
+      <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+      {abbrevToState(team?.stateProv)}
+      {surrogate ? '*' : ''}
+    </div>
   </Component>;
 }
 
@@ -203,7 +205,7 @@ function RemoteMatchTable({seasonYear, matches, team, showMatchDetail}: {
         const RowElement = (m.teams.team.disqualified || !m.teams.team.onField) ? DisabledRow : TableRow;
         return <RowElement key={`${m.tournamentLevel}-${m.series}-${m.number}`} style={rowStyle}>
           {team ? null : <MatchCell>
-            <TextLink to={`/${seasonYear}/teams/${m.teams.team.team.number}`}>{m.teams.team.team.displayNumber}</TextLink>
+            <TextLink to={`/teams/${m.teams.team.team.number}`}>{m.teams.team.team.displayNumber}</TextLink>
           </MatchCell>
           }
           <MatchCell>
@@ -218,12 +220,11 @@ function RemoteMatchTable({seasonYear, matches, team, showMatchDetail}: {
   </Table>;
 }
 
-export default function MatchTable({seasonYear, event, matches, team, practice, division}: {
+export default function MatchTable({seasonYear, event, matches, team, division}: {
   seasonYear: string,
   matches?: (components['schemas']['ApiV3Match'])[],
   event?: components['schemas']['ApiV3Event'] | components['schemas']['ApiV3SimpleEvent'],
   team?: string,
-  practice?: boolean,
   division?: string
 }) {
   const navigate = useNavigate();
@@ -238,7 +239,7 @@ export default function MatchTable({seasonYear, event, matches, team, practice, 
   return <>
     {event.format == 'REMOTE' ?
         <RemoteMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3SingleTeamMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
-        <TraditionalMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3AllianceMatch'][]} team={team} showMatchDetail={showMatchDetail} practice={practice} />}
+        <TraditionalMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3AllianceMatch'][]} team={team} showMatchDetail={showMatchDetail} />}
   </>;
 }
 

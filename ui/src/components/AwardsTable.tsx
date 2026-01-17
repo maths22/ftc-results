@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import AwardDetailsDialog from './AwardDetailsDialog';
 import {abbrevToState, PaddedCell} from './util';
 import {createLazyRoute, useParams} from "@tanstack/react-router";
-import {useEventAwards, useTeam} from "../api";
+import {GOV_CUP_CODE, GOV_CUP_SEASON, useEventAwards, useTeam} from "../api";
 import type {components} from "../api/first-v3";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -28,7 +28,7 @@ function AwardFinalist({seasonYear, finalist} : {
     {finalist.name ? finalist.name : null}
     {finalist.name && finalist.team ? <br/> : null}
     {finalist.team ? <TextLink
-        to={`/${seasonYear}/teams/${finalist.team.number}`} style={{display: 'flex', alignItems: 'center'}}>
+        to={`/teams/${finalist.team.number}`} style={{display: 'flex', alignItems: 'center'}}>
           <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
           {abbrevToState(team?.stateProv)}
         </TextLink> : null}
@@ -50,7 +50,7 @@ function CompactAwardFinalist({seasonYear, finalist, isAlliance} : {
     {isAlliance && finalist.place != undefined ? allianceTitles[finalist.place - 1] : ''}&nbsp;
     {finalist.name ? <>{finalist.name}&nbsp;</> : null}
     {finalist.team ? <><TextLink
-        to={`/${seasonYear}/teams/${finalist.team.number}`} style={{display: 'inline-flex', alignItems: 'center'}}>
+        to={`/teams/${finalist.team.number}`} style={{display: 'inline-flex', alignItems: 'center'}}>
           <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
           {abbrevToState(team?.stateProv)}
         </TextLink></> : null}
@@ -89,7 +89,8 @@ function AwardRow({seasonYear, award, showDetails}: {
 
 export default function AwardsTable() {
   const [selectedAward, setSelectedAward] = useState<components['schemas']['ApiV3Award']>();
-  const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
+  const seasonYear = GOV_CUP_SEASON;
+  const slug = GOV_CUP_CODE;
 
   const { data: awards, isLoading } = useEventAwards(seasonYear, slug);
 
@@ -120,6 +121,6 @@ export default function AwardsTable() {
   </>;
 }
 
-export const Route = createLazyRoute("/$season/events/$slug/alliances")({
+export const Route = createLazyRoute("/awards")({
   component: AwardsTable
 })

@@ -16,7 +16,12 @@ import {ConfirmProvider} from "material-ui-confirm";
 
 const theme = createTheme({
   palette: {
-    primary: import.meta.env.PROD ? orange : blue,
+    primary: {
+      main: '#264370'
+    },
+    secondary: {
+      main: '#deb56a'
+    }
   },
 });
 

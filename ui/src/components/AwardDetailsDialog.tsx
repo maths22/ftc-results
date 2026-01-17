@@ -25,7 +25,7 @@ function AwardFinalist({seasonYear, finalist} : {
 
   return <>
     <b>{finalist.team ? <TextLink
-        to={`/${seasonYear}/teams/${finalist.team.number}`}>{finalist.team.displayNumber} {team ? ` (${team.name})` : ''}</TextLink> : null}
+        to={`/teams/${finalist.team.number}`}>{finalist.team.displayNumber} {team ? ` (${team.name})` : ''}</TextLink> : null}
         {finalist.name ? finalist.name : null}</b>
             { finalist.comment ? <p>
         Judges' comments: <br/>

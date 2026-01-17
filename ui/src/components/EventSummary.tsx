@@ -16,7 +16,12 @@ import {styled} from '@mui/material/styles';
 import {createLazyRoute, Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/first-v3";
 import {stringToDate} from "./util";
-import {refreshEvent, useEvent, useEvents, useEventTeams, useSeason} from "../api";
+import {GOV_CUP_CODE, GOV_CUP_SEASON, refreshEvent, useEvent, useEvents, useEventTeams, useSeason} from "../api";
+import Grid from '@mui/material/Grid';
+
+import govCupLogo from '../logos/gov-cup.svg'
+import Stack from '@mui/material/Stack';
+import { Box } from '@mui/material';
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -55,8 +60,9 @@ function EventVideo({event}: {
 }
 
 export default function EventSummary() {
-  const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
-  const { division } = useSearch({ from: '/$season/events/$slug' });
+  const seasonYear = GOV_CUP_SEASON;
+  const slug = GOV_CUP_CODE;
+  const { division } = useSearch({ from: '/eventSummary' });
   const navigate = useNavigate();
   const childMatches = useChildMatches();
   let tab = 'teams';
@@ -94,7 +100,7 @@ export default function EventSummary() {
   }
 
   function selectTab(selectedTab: string) {
-    navigate({ to: `/${seasonYear}/events/${slug}/${selectedTab}`, search: { division } });
+    navigate({ to: `/${selectedTab}`, search: { division } });
   }
 
   function selectDivision(div?: string) {
@@ -121,26 +127,30 @@ export default function EventSummary() {
 
     return <div style={{width: '100%', overflowX: 'auto'}}>
         <link rel="stylesheet" href={`https://ftc-api.firstinspires.org/avatars/composed/${seasonYear}.css`} />
-        <Heading>
-          <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></div>
-          {event.divisions.length > 0 ? <div>
-            <Select value={division || 'parent'} onChange={(evt) => selectDivision(evt.target.value == 'parent' ? undefined : evt.target.value)}>
-              <MenuItem value={'parent'}>Finals Division</MenuItem>
-              {event.divisions.map((d) => {
-                return <MenuItem key={d.eventCode} value={d.eventCode}>{d.name} Division</MenuItem>;
-              })}
-            </Select>
-          </div> : null}
-          {season ? <><b>Season:</b> <span>{season.gameName} ({season.cmpYear - 1} - {season.cmpYear})</span><br/></> : null}
-          <b>Date:</b> {new Date(event.startDate).getUTCFullYear() === 9999 ? 'TBA' : event.startDate === event.endDate ? event.startDate : (event.startDate + ' - ' + event.endDate)}<br/>
-          <b>Location:</b>
-          {event.venue && event.venue.trim() !== '-' ? <>
-            <TextLink href={maps_url} target="_blank"> {event.venue}{event.venue && ', '}
-          {event.city}{event.city && ', '}
-          {event.state}{event.state && ', '}
-          {event.country}</TextLink>
-          </> : ' TBA' }
-        </Heading>
+        <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{alignItems: 'center'}}>
+          <div style={{maxWidth: '120px'}}>
+            <img src={govCupLogo} style={{maxHeight: '100%', maxWidth: '100%'}} />
+          </div>
+          <Heading style={{flex: 1}}>
+            <Box sx={{display: { xs: 'none', sm: 'flex' }, alignItems: 'center', marginBottom: '0.35em'}}><Typography variant="h4">{event.name}</Typography> <EventChip event={event}/></Box>
+            {event.divisions.length > 0 ? <div>
+              <Select value={division || 'parent'} onChange={(evt) => selectDivision(evt.target.value == 'parent' ? undefined : evt.target.value)}>
+                <MenuItem value={'parent'}>Finals Division</MenuItem>
+                {event.divisions.map((d) => {
+                  return <MenuItem key={d.eventCode} value={d.eventCode}>{d.name} Division</MenuItem>;
+                })}
+              </Select>
+            </div> : null}
+            <b>Date:</b> {new Date(event.startDate).getUTCFullYear() === 9999 ? 'TBA' : event.startDate === event.endDate ? event.startDate : (event.startDate + ' - ' + event.endDate)}<br/>
+            <b>Location:</b>
+            {event.venue && event.venue.trim() !== '-' ? <>
+              <TextLink href={maps_url} target="_blank"> {event.venue}{event.venue && ', '}
+            {event.city}{event.city && ', '}
+            {event.state}{event.state && ', '}
+            {event.country}</TextLink>
+            </> : ' TBA' }
+          </Heading>
+        </Stack>
 
         <EventVideo event={event} />
 
@@ -173,6 +183,6 @@ export default function EventSummary() {
       </div>
 }
 
-export const Route = createLazyRoute("/$season/events/$slug")({
+export const Route = createLazyRoute("/")({
   component: EventSummary
 })

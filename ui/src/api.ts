@@ -6,7 +6,10 @@ import {keyResolver, windowScheduler, create} from "@yornaath/batshit";
 import {queryClient} from "./index";
 
 // TODO at least use an env variable for this
-const API_KEY = "3J7kagQvWphyWtrvHUP9YJkpjMLdjNL6";
+const API_KEY = import.meta.env.VITE_API_KEY;
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
+export const GOV_CUP_SEASON = import.meta.env.VITE_GOV_CUP_SEASON;
+export const GOV_CUP_CODE = import.meta.env.VITE_GOV_CUP_CODE;
 
 export type TournamentLevel = components["schemas"]["ApiV3TournamentLevel"];
 
@@ -45,7 +48,7 @@ const authAdapter: Middleware = {
         return await authTransformRequest(request);
     }
 }
-const client = createClient<paths>({ baseUrl: "https://ftc-api.firstinspires.org/" });
+const client = createClient<paths>({ baseUrl: API_ENDPOINT });
 client.use(throwOnError)
 client.use(authAdapter)
 
@@ -84,19 +87,21 @@ export function useEvents(season: string) {
               cmpYear: season
           }
       }});
-      return data?.events;
+      return data?.events.filter(e => e.code == GOV_CUP_CODE);
     }});
 }
 
-export function eventQueryOpts(season: string, slug: string) {
+export function eventQueryOpts(season?: string, slug?: string) {
     return { queryKey: ['event', season, slug], queryFn: async ({}) => {
             const { data } = await client.GET("/api/v3/seasons/{cmpYear}/events/{eventCode}", {params: {
                     path: {
-                        cmpYear: season, eventCode: slug
+                        cmpYear: season!, eventCode: slug!
                     }
                 }});
             return data;
-        }}
+        },
+        enabled: !!season && !!slug
+    }
 }
 
 export function useEvent(season: string, slug: string) {
@@ -162,9 +167,8 @@ export function useEventTeams(season: string, slug: string) {
         }});
 }
 
-// TODO this fetches very aggressively if it is loaded before useEventTeams has populated the cache
-export function useTeam(season: string, number?: string) {
-    return useQuery({
+export function teamQueryOpts(season: string, number?: string) {
+    return {
         queryKey: ['team', season, number],
         queryFn: async ({signal}) => {
             const { data } = await client.GET("/api/v3/seasons/{cmpYear}/teams/{number}", {signal, params: {
@@ -176,7 +180,12 @@ export function useTeam(season: string, number?: string) {
         },
         staleTime: 1000 * 60 * 60,
         enabled: !!number
-    });
+    }
+}
+
+// TODO this fetches very aggressively if it is loaded before useEventTeams has populated the cache
+export function useTeam(season: string, number?: string) {
+    return useQuery(teamQueryOpts(season, number));
 }
 
 export function useTeamDetails(season: string, number?: string) {
@@ -186,7 +195,10 @@ export function useTeamDetails(season: string, number?: string) {
                         cmpYear: season, number: number || ""
                     }
                 }});
-            return data;
+            if(!data) {
+                return undefined
+            }
+            return { ...data, events: data.events.filter(e => e.event.code == GOV_CUP_CODE) };
         }, enabled: !!number
     });
 }

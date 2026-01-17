@@ -7,9 +7,9 @@ import EventChip from './EventChip';
 import Card from '@mui/material/Card';
 import {styled} from '@mui/material/styles';
 import {createLazyRoute, useParams} from '@tanstack/react-router';
-import {useSeason, useTeamDetails} from "../api";
+import {GOV_CUP_SEASON, useSeason, useTeamDetails} from "../api";
 import {components} from "../api/first-v3";
-import { stringToDate } from './util';
+import { abbrevToState, stringToDate } from './util';
 import MatchDetailsDialog from './MatchDetailsDialog';
 
 const Heading = styled('div')(({theme}) => ({
@@ -23,8 +23,6 @@ function TeamSeason({team, events, season} : {
 }) {
   // TODO do we want a season record?
   return <div style={{paddingBottom: '2em'}}>
-    <Typography variant="h5">{season.gameName} ({season.cmpYear - 1} - {season.cmpYear}) Season</Typography>
-
     {/* {season.record.win + season.record.tie + season.record.loss > 0 ?
         <><b>Season Record:</b> {`${season.record.win}-${season.record.loss}-${season.record.tie}`}</> : null } */}
 
@@ -55,7 +53,8 @@ function TeamSeason({team, events, season} : {
 }
 
 export default function TeamSummary() {
-  const {season, number} = useParams({ from: '/$season/teams/$number' });
+  const season = GOV_CUP_SEASON;
+  const {number} = useParams({ from: '/teams/$number' });
   const {data, isLoading, isError} = useTeamDetails(season, number)
   const {data: seasonData} = useSeason(season);
 
@@ -73,8 +72,9 @@ export default function TeamSummary() {
   return <div style={{width: '100%', overflowX: 'auto'}}>
     <link rel="stylesheet" href={`https://ftc-api.firstinspires.org/avatars/composed/${season}.css`} />
     <Heading>
-      <Typography variant="h4">Team {team.number} – {team.name}</Typography>
+      <Typography variant="h4">Team {abbrevToState(team.stateProv)}</Typography>
       <p>
+        <b>Also known as:</b> FTC Team {team.displayNumber} - {team.name}<br/>
         <b>Organization:</b> {team.affiliations}<br/>
         <b>Location:</b> {team.city}, {team.stateProv}, {team.country}<br/>
       </p>

@@ -12,7 +12,7 @@ function AllianceTeam({seasonYear, number}: {seasonYear: string, number: string}
   const { data: team } = useTeam(seasonYear, number);
 
   return <PaddedCell key={number}>
-    <TextLink to={`/${seasonYear}/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
+    <TextLink to={`/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
       <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
       {abbrevToState(team?.stateProv)}
     </TextLink>

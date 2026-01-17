@@ -6,7 +6,7 @@ import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import {abbrevToState, PaddedCell} from './util';
 import {createLazyRoute, useNavigate, useParams, useSearch} from "@tanstack/react-router";
-import {useEvent, useEventTeams, useTeam} from "../api";
+import {GOV_CUP_CODE, GOV_CUP_SEASON, useEvent, useEventTeams, useTeam} from "../api";
 import type {components} from "../api/first-v3";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -24,7 +24,7 @@ function TeamRow({seasonYear, event, participant, showDivisionAssignments, selec
       <TextLink onClick={() => selectDivision(division.eventCode)}>{division.name}</TextLink>
     </PaddedCell> : ( showDivisionAssignments ? <PaddedCell/> : null) }
     <PaddedCell>
-      <TextLink to={`/${seasonYear}/teams/${team.number}`} style={{display: 'flex', alignItems: 'center'}}>
+      <TextLink to={`/teams/${team.number}`} style={{display: 'flex', alignItems: 'center'}}>
         <div className={`team-avatar team-${team.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 40}}></div>
         {abbrevToState(team.stateProv)}
       </TextLink>
@@ -38,9 +38,10 @@ function TeamRow({seasonYear, event, participant, showDivisionAssignments, selec
 }
 
 export default function TeamsTable() {
-  const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
-  const { division } = useSearch({ from: '/$season/events/$slug' });
-  const navigate = useNavigate({ from: '/$season/events/$slug' });
+  const seasonYear = GOV_CUP_SEASON;
+  const slug = GOV_CUP_CODE;
+  const { division } = useSearch({ from: '/eventSummary' });
+  const navigate = useNavigate({ from: '/eventSummary' });
 
   const { data: event, isLoading: eventIsLoading } = useEvent(seasonYear, slug);
   const { data: eventTeams, isLoading } = useEventTeams(seasonYear, division || slug);
@@ -75,11 +76,11 @@ export default function TeamsTable() {
   </Table>;
 }
 
-export const IndexRoute = createLazyRoute("/$season/events/$slug/")({
+export const IndexRoute = createLazyRoute("/")({
   component: TeamsTable
 })
 
-export const Route = createLazyRoute("/$season/events/$slug/teams")({
+export const Route = createLazyRoute("/teams")({
   component: TeamsTable
 })
 

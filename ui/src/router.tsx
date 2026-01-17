@@ -3,7 +3,9 @@
 import DefaultLayout from './components/layout/DefaultLayout';
 import {createRootRoute, createRoute, createRouter, redirect} from '@tanstack/react-router';
 import {queryClient} from "./index";
-import { eventQueryOpts } from './api.ts';
+import { eventQueryOpts, GOV_CUP_CODE, GOV_CUP_SEASON, teamQueryOpts } from './api.ts';
+import { abbrevToState } from './components/util.ts';
+
 
 function NotFoundComponent() {
   return <div>404 – Page Not Found</div>;
@@ -14,29 +16,26 @@ const rootRoute = createRootRoute({
   notFoundComponent: NotFoundComponent
 });
 
-const home = createRoute({ path: '/', getParentRoute: () => rootRoute })
-    .lazy(() => import('./App.tsx').then((d) => d.Route));
-const seasonHome = createRoute({ path: '/$season', getParentRoute: () => rootRoute })
-    .lazy(() => import('./App.tsx').then((d) => d.SeasonRoute));
-const eventsSummary = createRoute({ path: '/$season/events/all', beforeLoad: () => ({title: 'Events'}), getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/EventsSummary.tsx').then((d) => d.Route));
-const teamSummary = createRoute({ path: '/$season/teams/$number',
+const teamSummary = createRoute({ path: '/teams/$number',
   validateSearch: (search: Record<string, unknown>) => {
     return {
       match: search.match ? (search.match as string) : undefined,
       event_id: search.event_id ? parseInt(search.event_id as string) : undefined
     };
-  }, beforeLoad: ({params}) => ({title: `Team ${params.number}`}), getParentRoute: () => rootRoute })
+  }, beforeLoad: async({params}) => {
+      const teamInfo = await queryClient.fetchQuery(teamQueryOpts(GOV_CUP_SEASON, params.number))
+      return {title: `Team ${abbrevToState(teamInfo?.stateProv)}`}
+    }, getParentRoute: () => rootRoute })
     .lazy(() => import('./components/TeamSummary.tsx').then((d) => d.Route));
 
 const eventSummary = createRoute({
-          path: '/$season/events/$slug',
+          id: 'eventSummary',
           validateSearch: (search: Record<string, unknown>) => {
             return {
               division: search.division ? (search.division as string) : undefined
             };
           }, beforeLoad: async ({params}) => ({ title:
-              (await queryClient.fetchQuery(eventQueryOpts(params.season, params.slug)))?.name || 'Event Summary' }), getParentRoute: () => rootRoute
+              (await queryClient.fetchQuery(eventQueryOpts(GOV_CUP_SEASON, GOV_CUP_CODE)))?.name || 'Event Summary' }), getParentRoute: () => rootRoute
         })
     .lazy(() => import('./components/EventSummary.tsx').then((d) => d.Route));
 const eventIndex = createRoute({
@@ -71,9 +70,6 @@ const eventTeams = createRoute({
 
 const router = createRouter({
   routeTree: rootRoute.addChildren([
-    home,
-    seasonHome,
-    eventsSummary,
     teamSummary,
     eventSummary.addChildren([
       eventAlliances,
