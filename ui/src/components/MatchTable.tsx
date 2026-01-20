@@ -12,6 +12,7 @@ import type {components} from "../api/first-v3";
 import {Box} from "@mui/material";
 import { useTeam } from '../api';
 import { abbrevToState } from './util';
+import { Temporal } from 'temporal-polyfill';
 
 const plainColors = {
   red: '#fee',
@@ -58,7 +59,7 @@ function MatchTeam({seasonYear, teamNumber, surrogate, link}: {seasonYear: strin
 
   const Component = link ? TextLink : 'span';
   return <Component key={teamNumber} to={`/teams/${teamNumber}`} style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
-    <div style={{ display: 'flex', alignItems: 'center', width: '10em'}}>
+    <div style={{ display: 'flex', alignItems: 'center', width: '10em', textAlign: 'left'}}>
       <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
       {abbrevToState(team?.stateProv)}
       {surrogate ? '*' : ''}
@@ -66,11 +67,12 @@ function MatchTeam({seasonYear, teamNumber, surrogate, link}: {seasonYear: strin
   </Component>;
 }
 
-function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail}: {
+function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, timezone}: {
   seasonYear: string,
   matches: components['schemas']['ApiV3AllianceMatch'][],
   showMatchDetail: (tournamentLevel: components["schemas"]["ApiV3TournamentLevel"], series: string, number: number) => void,
-  team?: string
+  team?: string,
+  timezone: string
 }) {
   const rowStyle = {height: '2rem'};
 
@@ -103,10 +105,23 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail}: {
         surrogate: isSurrogate
       } as const;
 
+      const effectiveStartTime = m.startTime || m.scheduledStartTime
+      const startTime = effectiveStartTime ? Temporal.ZonedDateTime.from(`${effectiveStartTime}[${timezone}]` ) : undefined;
+
+      const matchTime = <span style={{fontStyle: m.startTime ? 'normal' : 'italic'}}>{startTime?.toLocaleString(undefined, {
+              weekday: 'short',
+              month: 'numeric',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+              timeZoneName: 'shortGeneric'
+            })}</span>
+
       return [
         <TableRow key={`${m.tournamentLevel}-${m.series}-${m.number}`} style={rowStyle}>
           <MatchCell ownerState={{surrogate: isSurrogate}}>
             {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <TextLink onClick={() => showMatchDetail(m.tournamentLevel, m.series.toString(), m.number)}>{m.shortName}</TextLink> : m.shortName}
+            <Box sx={{ display: { xs: 'none', sm: 'block'}}}>{matchTime}</Box>
           </MatchCell>
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.matchResults ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
@@ -136,7 +151,7 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail}: {
           </MatchCell> : null}
         </TableRow>,
         m.tournamentLevel == 'PRACTICE' ? null : <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
-          <TableCell />
+          <TableCell>{matchTime}</TableCell>
           {m.matchResults ? <MatchCell ownerState={redOwnerState}>
             <span>{m.matchResults.redScore}</span>
           </MatchCell> : null}
@@ -241,7 +256,7 @@ export default function MatchTable({seasonYear, event, matches, team, division}:
   return <>
     {event.format == 'REMOTE' ?
         <RemoteMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3SingleTeamMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
-        <TraditionalMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3AllianceMatch'][]} team={team} showMatchDetail={showMatchDetail} />}
+        <TraditionalMatchTable seasonYear={seasonYear} matches={matches as components['schemas']['ApiV3AllianceMatch'][]} team={team} showMatchDetail={showMatchDetail} timezone={event.timezone}/>}
   </>;
 }
 

@@ -33,7 +33,7 @@ function TeamRow({seasonYear, event, participant, showDivisionAssignments, selec
       </Typography>
     </PaddedCell>
     <PaddedCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{[team.city, team.stateProv, team.country].join(', ')}</PaddedCell>
-    <PaddedCell>{team.affiliations ? [...new Set(team.affiliations.split('&').map((s) => s.trim()))].join('\n') : null}</PaddedCell>
+    <PaddedCell>{team.affiliations}</PaddedCell>
   </TableRow>;
 }
 
@@ -45,6 +45,7 @@ export default function TeamsTable() {
 
   const { data: event, isLoading: eventIsLoading } = useEvent(seasonYear, slug);
   const { data: eventTeams, isLoading } = useEventTeams(seasonYear, division || slug);
+
 
   function selectDivision(div: string) {
     navigate({ search: {division: div } });
@@ -59,6 +60,7 @@ export default function TeamsTable() {
   }
 
   const showDivisionAssignments = event.divisions.length > 0 && !division
+  const sortedTeams = [...eventTeams.participants].sort((a, b) => abbrevToState(a.team.stateProv)!.localeCompare(abbrevToState(b.team.stateProv)!));
 
   return <Table sx={{minWidth: '20em'}} size="small">
     <TableHead>
@@ -66,11 +68,11 @@ export default function TeamsTable() {
         { showDivisionAssignments ? <PaddedCell>Division</PaddedCell> : null }
         <PaddedCell>Team</PaddedCell>
         <PaddedCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Location</PaddedCell>
-        <PaddedCell>Organization</PaddedCell>
+        <PaddedCell>Affiliations</PaddedCell>
       </TableRow>
     </TableHead>
     <TableBody>
-      {eventTeams.participants.map((participant) =>
+      {sortedTeams.map((participant) =>
           <TeamRow key={participant.team.number} seasonYear={seasonYear} event={event} participant={participant} showDivisionAssignments={showDivisionAssignments} selectDivision={selectDivision} />)}
     </TableBody>
   </Table>;

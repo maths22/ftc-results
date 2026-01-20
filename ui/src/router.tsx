@@ -42,23 +42,22 @@ const eventIndex = createRoute({
   path: '/',
   getParentRoute: () => eventSummary
 }).lazy(() => import('./components/TeamsTable.tsx').then((d) => d.IndexRoute))
-const eventAlliances = createRoute({
-  path: '/alliances',
+const eventPlayoffs = createRoute({
+  path: '/playoffs',
   getParentRoute: () => eventSummary
-}).lazy(() => import('./components/AlliancesTab.tsx').then((d) => d.Route))
+}).lazy(() => import('./components/PlayoffsTab.tsx').then((d) => d.Route))
 const eventAwards = createRoute({
   path: '/awards',
   getParentRoute: () => eventSummary
 }).lazy(() => import('./components/AwardsTable.tsx').then((d) => d.Route))
-const eventMatches = createRoute({
-  path: '/matches',
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      match: search.match ? (search.match as string) : undefined
-    };
-  },
+const eventPractice = createRoute({
+  path: '/practice',
   getParentRoute: () => eventSummary
-}).lazy(() => import('./components/MatchTab.tsx').then((d) => d.Route))
+}).lazy(() => import('./components/MatchTab.tsx').then((d) => d.PracticeRoute))
+const eventQuals = createRoute({
+  path: '/quals',
+  getParentRoute: () => eventSummary
+}).lazy(() => import('./components/MatchTab.tsx').then((d) => d.QualsRoute))
 const eventRankings = createRoute({
   path: '/rankings',
   getParentRoute: () => eventSummary
@@ -72,21 +71,13 @@ const router = createRouter({
   routeTree: rootRoute.addChildren([
     teamSummary,
     eventSummary.addChildren([
-      eventAlliances,
       eventAwards,
       eventIndex,
-      eventMatches,
+      eventQuals,
+      eventPractice,
+      eventPlayoffs,
       eventRankings,
       eventTeams,
-      createRoute({
-        path: '/playoffs',
-        getParentRoute: () => eventSummary,
-        loader: () => {
-          throw redirect({
-            to: '../matches'
-          })
-        }
-      }),
       createRoute({
         path: '/qualifications/$number',
         getParentRoute: () => eventSummary,

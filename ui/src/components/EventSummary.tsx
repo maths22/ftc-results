@@ -15,13 +15,14 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import {styled} from '@mui/material/styles';
 import {createLazyRoute, Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/first-v3";
-import {stringToDate} from "./util";
-import {GOV_CUP_CODE, GOV_CUP_SEASON, refreshEvent, useEvent, useEvents, useEventTeams, useSeason} from "../api";
+import {GOV_CUP_CODE, GOV_CUP_SEASON, refreshEvent, useEvent, useEventMatches, useEvents, useEventTeams, useSeason} from "../api";
 import Grid from '@mui/material/Grid';
 
 import govCupLogo from '../logos/gov-cup.svg'
 import Stack from '@mui/material/Stack';
 import { Box } from '@mui/material';
+import { isEventHappening } from './util';
+import { Temporal } from 'temporal-polyfill';
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -32,10 +33,7 @@ function EventVideo({event}: {
   event: components['schemas']['ApiV3Event']
 }) {
   const [showVideo, setShowVideo] = useState(true);
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const isHappening = stringToDate(event.startDate) <= today
-      && stringToDate(event.endDate) >= today;
+  const isHappening = isEventHappening(event.startDate, event.endDate);
   if(!event.liveStreamUrl || !isHappening || true) return null;
 
   // TODO parse twitch and youtube urls maybe
@@ -76,11 +74,9 @@ export default function EventSummary() {
   const { data: season } = useSeason(seasonYear);
   // Ensure we load the team list for all tabs to reduce individual team fetches
   useEventTeams(seasonYear, slug);
+  const { data: matches } = useEventMatches(seasonYear, division || slug);
 
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const isHappening = event && stringToDate(event.startDate) <= today
-    && stringToDate(event.endDate) >= today && !event.published;
+  const isHappening = event && isEventHappening(event.startDate, event.endDate) && !event.published;
 
   useEffect(() => {
     if(!isHappening) {
@@ -113,17 +109,22 @@ export default function EventSummary() {
   }
 
   const hasDivisions = !(!event.divisions || event.divisions.length === 0);
+  const hasPracticeMatches = matches?.some((m) => m.tournamentLevel === 'PRACTICE');
 
     if(!event) {
       return <LoadingSpinner/>;
     }
 
     const showRankings = event.type !== 'LEAGUE_MEET' && (!hasDivisions || division);
-    const showAwards = !hasDivisions && event.type !== 'LEAGUE_MEET' || (hasDivisions && !division);
-    const showAlliances = event.type !== 'LEAGUE_MEET';
+    const showAwards = false;//!hasDivisions && event.type !== 'LEAGUE_MEET' || (hasDivisions && !division);
+    const showQuals = !hasDivisions || division;
+    const showPlayoffs = event.type !== 'LEAGUE_MEET';
 
     const google_location = event.venue + ', ' + event.streetAddress + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
+
+    const startDate = Temporal.PlainDate.from(event.startDate);
+    const endDate = Temporal.PlainDate.from(event.endDate);
 
     return <div style={{width: '100%', overflowX: 'auto'}}>
         <link rel="stylesheet" href={`https://ftc-api.firstinspires.org/avatars/composed/${seasonYear}.css`} />
@@ -141,12 +142,12 @@ export default function EventSummary() {
                 })}
               </Select>
             </div> : null}
-            <b>Date:</b> {new Date(event.startDate).getUTCFullYear() === 9999 ? 'TBA' : event.startDate === event.endDate ? event.startDate : (event.startDate + ' - ' + event.endDate)}<br/>
+            <b>Date:</b> {startDate.year == 9999 ? 'TBA' : startDate === endDate ? startDate.toLocaleString() : (startDate.toLocaleString() + ' - ' + endDate.toLocaleString())}<br/>
             <b>Location:</b>
             {event.venue && event.venue.trim() !== '-' ? <>
               <TextLink href={maps_url} target="_blank"> {event.venue}{event.venue && ', '}
             {event.city}{event.city && ', '}
-            {event.state}{event.state && ', '}
+            {event.state && !event.city?.endsWith(event.state) ? `${event.state}, ` : ''}
             {event.country}</TextLink>
             </> : ' TBA' }
           </Heading>
@@ -165,10 +166,11 @@ export default function EventSummary() {
               allowScrollButtonsMobile
           >
             <div style={{width: '48px'}}/>
-            <Tab value="teams" label="Teams" style={{marginLeft: 'auto'}}/>
-            { showRankings ? <Tab value="rankings" label={'Rankings'} /> : null }
-            <Tab value="matches" label="Matches" />
-            { showAlliances ? <Tab value="alliances" label="Alliances" /> : null }
+            <Tab value="teams" label="Participants" style={{marginLeft: 'auto'}}/>
+            { showRankings ? <Tab value="rankings" label="Rankings" /> : null }
+            { hasPracticeMatches ? <Tab value="practice" label="Practice" /> : null }
+            { showQuals ? <Tab value="quals" label="Qualification" /> : null }
+            { showPlayoffs ? <Tab value="playoffs" label="Playoffs" /> : null }
             { showAwards ? <Tab value="awards" label="Awards" /> : null }
             {isHappening ?
                 <IconButton

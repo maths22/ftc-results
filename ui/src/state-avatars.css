@@ -19,6 +19,9 @@
 .team-avatar.team-CT {
   background-image: url('./state-flags/CT.svg');
 }
+.team-avatar.team-DC {
+  background-image: url('./state-flags/DC.svg');
+}
 .team-avatar.team-DE {
   background-image: url('./state-flags/DE.svg');
 }

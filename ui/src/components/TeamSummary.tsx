@@ -9,8 +9,9 @@ import {styled} from '@mui/material/styles';
 import {createLazyRoute, useParams} from '@tanstack/react-router';
 import {GOV_CUP_SEASON, useSeason, useTeamDetails} from "../api";
 import {components} from "../api/first-v3";
-import { abbrevToState, stringToDate } from './util';
+import { abbrevToState, isEventHappening } from './util';
 import MatchDetailsDialog from './MatchDetailsDialog';
+import { Temporal } from 'temporal-polyfill';
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -27,10 +28,9 @@ function TeamSeason({team, events, season} : {
         <><b>Season Record:</b> {`${season.record.win}-${season.record.loss}-${season.record.tie}`}</> : null } */}
 
     {events.map((evt) => {
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const isHappening = stringToDate(evt.event.startDate) <= today
-            && stringToDate(evt.event.endDate) >= today && !evt.event.published;
+          const startDate = Temporal.PlainDate.from(evt.event.startDate);
+          const endDate = Temporal.PlainDate.from(evt.event.endDate);
+          const isHappening = isEventHappening(evt.event.startDate, evt.event.endDate) && !evt.event.published;
           return <Card key={evt.event.code} style={{margin: '1em 0'}}>
             <Heading>
               <div style={{display: 'flex'}}>
@@ -38,7 +38,7 @@ function TeamSeason({team, events, season} : {
                 <EventChip event={evt.event}/>
               </div>
               <p>
-                {evt.event.startDate == evt.event.endDate ? evt.event.startDate : (evt.event.startDate + ' - ' + evt.event.endDate)}
+                {startDate.year == 9999 ? 'TBA' : startDate === endDate ? startDate.toLocaleString() : (startDate.toLocaleString() + ' - ' + endDate.toLocaleString())}<br/>
               </p>
 
               {evt.matches.filter((m) => m.matchResults).length > 0 && !(evt.event.format == 'REMOTE' && evt.event.type === 'LEAGUE_MEET' || !evt.ranking) ? <p style={{marginBottom: 0, marginTop: 0}}>
@@ -72,10 +72,13 @@ export default function TeamSummary() {
   return <div style={{width: '100%', overflowX: 'auto'}}>
     <link rel="stylesheet" href={`https://ftc-api.firstinspires.org/avatars/composed/${season}.css`} />
     <Heading>
-      <Typography variant="h4">Team {abbrevToState(team.stateProv)}</Typography>
+      <Typography variant="h4" sx={{display: 'flex', alignItems: 'center'}}>
+        <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 50}}></div>
+        Team {abbrevToState(team.stateProv)}
+      </Typography>
       <p>
         <b>Also known as:</b> FTC Team {team.displayNumber} - {team.name}<br/>
-        <b>Organization:</b> {team.affiliations}<br/>
+        <b>Affiliations:</b> {team.affiliations}<br/>
         <b>Location:</b> {team.city}, {team.stateProv}, {team.country}<br/>
       </p>
 

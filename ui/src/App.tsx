@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import {createLazyRoute, Link, useParams, useRouter} from '@tanstack/react-router';
 import {useSeason, useSeasons} from './api';
 import LoadingSpinner from './components/LoadingSpinner';
-import {stringToDate} from "./components/util";
+import { Temporal } from 'temporal-polyfill';
 
 function App({selectedSeason}: {
     selectedSeason: string
@@ -16,22 +16,19 @@ function App({selectedSeason}: {
   const router = useRouter();
   const { data: season} = useSeason(selectedSeason);
 
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const oneWeek = new Date(today);
-  oneWeek.setDate(oneWeek.getDate() + 7);
-  const twoWeeksOld = new Date(today);
-  twoWeeksOld.setDate(twoWeeksOld.getDate() - 14);
+  const today = Temporal.Now.plainDateISO();
+  const oneWeek = today.add({ days: 7 });
+  const twoWeeksOld = today.subtract({ days: 14 });
   return (
       <div>
         <SeasonSelector onChange={v => router.navigate({ to: `/${v}` })} selectedSeason={selectedSeason} />
 
         <EventCards heading="This week's Events" selectedSeason={selectedSeason} filter={(e) => {
-          return stringToDate(e.endDate) >= today && stringToDate(e.startDate) < oneWeek;
+          return Temporal.PlainDate.compare(Temporal.PlainDate.from(e.endDate), today) >= 0 && Temporal.PlainDate.compare(Temporal.PlainDate.from(e.startDate), oneWeek) < 0;
         }}/>
 
         <EventCards heading="Recent Events" selectedSeason={selectedSeason} filter={(e) => {
-          return stringToDate(e.endDate) < today;
+          return Temporal.PlainDate.compare(Temporal.PlainDate.from(e.endDate), today) < 0;
         }} reverse limit={9} showNone />
 
         <div style={{padding: '1em 0'}}>

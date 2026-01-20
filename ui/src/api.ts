@@ -17,9 +17,7 @@ export type TournamentLevel = components["schemas"]["ApiV3TournamentLevel"];
 const throwOnError: Middleware = {
     async onResponse({ response }) {
         if (response.status >= 400) {
-            const body = response.headers.get("content-type")?.includes("json")
-                ? await response.clone().json()
-                : await response.clone().text();
+            const body = await response.clone().text();
             throw new Error(body);
         }
         return undefined;
@@ -170,8 +168,8 @@ export function useEventTeams(season: string, slug: string) {
 export function teamQueryOpts(season: string, number?: string) {
     return {
         queryKey: ['team', season, number],
-        queryFn: async ({signal}) => {
-            const { data } = await client.GET("/api/v3/seasons/{cmpYear}/teams/{number}", {signal, params: {
+        queryFn: async () => {
+            const { data } = await client.GET("/api/v3/seasons/{cmpYear}/teams/{number}", { params: {
                     path: {
                         cmpYear: season, number: number || ""
                     }

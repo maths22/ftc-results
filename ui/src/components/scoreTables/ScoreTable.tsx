@@ -136,7 +136,6 @@ export default function ScoreTable<T extends ScoreType>(scoreInterpretation: Sco
         })}
         {scores.map((sc, i) => {
           const bonusLabel = sc.bonus && `${sc.bonus.label} (+${sc.bonus.value})`;
-          console.log(sc.red, sc.blue)
           const redPrimary = <>{sc.red} {sc.red_pts ? `(${sc.red_pts > 0 ? '+' : ''}${sc.red_pts}${sc.penalty ? ' from blue' : ''})` : ''}</>;
           const bluePrimary = <>{sc.blue} {sc.blue_pts ? `(${sc.blue_pts > 0 ? '+' : ''}${sc.blue_pts}${sc.penalty ? ' from red' : ''})` : ''}</>;
 

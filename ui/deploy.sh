@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
-declare -A distributions
-distributions[production]=E1R0HHSCO3SOZ9
-distributions[dev]=E71P27UJAJ08N
 
-environment=$1
+export AWS_PROFILE=ftc-prod
 
 yarn build
-aws s3 sync build/ "s3://ftc-results-assets-${environment}"
-aws cloudfront create-invalidation --distribution-id ${distributions[$environment]} --paths /index.html
+aws s3 sync build/ "s3://govcup-results-cdn"
+aws cloudfront create-invalidation --distribution-id E7LXQK2FIUU54 --paths /index.html

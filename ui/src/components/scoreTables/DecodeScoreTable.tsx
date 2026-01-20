@@ -12,14 +12,26 @@ function ClassifierElement({element}: {element: 'GREEN' | 'PURPLE' | 'NONE'}) {
   return <span className={`artifact artifact-${element === 'GREEN' ? 'green' : (element === 'PURPLE' ? 'purple' : 'none')}`}>{element == 'NONE' ? '\u00A0' : element[0]}</span>
 }
 
+const motifs = {
+  [1]: ['GREEN', 'PURPLE', 'PURPLE'] as const,
+  [2]: ['PURPLE', 'GREEN', 'PURPLE'] as const,
+  [3]: ['PURPLE', 'PURPLE', 'GREEN'] as const
+}
+
+function Motif({motif}: {motif: number}) {
+  if(!(motif in motifs)) return null;
+  const elements = motifs[motif as 1 | 2 | 3];
+  return <>{elements.map((el, idx) => <ClassifierElement key={idx} element={el} />)}</>
+}
+
 export default ScoreTable<components['schemas']['ApiV3DecodeScoreDetail']>((match) => {
   const red_det = match.matchResultsDetails.redDetails;
   const blue_det = match.matchResultsDetails.blueDetails;
   return [
     {
       desc: 'Motif',
-      red: `ID 2${match.random}`,
-      blue: `ID 2${match.random}`
+      red: match.random ? <>ID 2{match.random}<br/><Motif motif={match.random} /></> : '',
+      blue: match.random ? <>ID 2{match.random}<br/><Motif motif={match.random} /></> : ''
     },
     {
       desc: 'Auto Classified Artifacts',
@@ -130,6 +142,21 @@ export default ScoreTable<components['schemas']['ApiV3DecodeScoreDetail']>((matc
       red: match.matchResults?.redScore || 0,
       blue: match.matchResults?.blueScore || 0,
       key: true
+    },
+    {
+      desc: 'Movement RP',
+      red: red_det.points.movementRP ? '\u2713' : '-',
+      blue: blue_det.points.movementRP ? '\u2713' : '-'
+    },
+    {
+      desc: 'Goal RP',
+      red: red_det.points.goalRP ? '\u2713' : '-',
+      blue: blue_det.points.goalRP ? '\u2713' : '-'
+    },
+    {
+      desc: 'Pattern RP',
+      red: red_det.points.patternRP ? '\u2713' : '-',
+      blue: blue_det.points.patternRP ? '\u2713' : '-'
     }
   ];
 });

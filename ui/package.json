@@ -21,6 +21,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-full-screen": "^1.1.1",
+    "temporal-polyfill": "^0.3.0",
     "three": "^0.182.0"
   },
   "devDependencies": {
