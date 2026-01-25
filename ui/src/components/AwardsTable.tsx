@@ -6,7 +6,7 @@ import {useState} from 'react';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
 import AwardDetailsDialog from './AwardDetailsDialog';
-import {abbrevToState, PaddedCell} from './util';
+import {teamToStateName, PaddedCell} from './util';
 import {createLazyRoute, useParams} from "@tanstack/react-router";
 import {GOV_CUP_CODE, GOV_CUP_SEASON, useEventAwards, useTeam} from "../api";
 import type {components} from "../api/first-v3";
@@ -30,7 +30,7 @@ function AwardFinalist({seasonYear, finalist} : {
     {finalist.team ? <TextLink
         to={`/teams/${finalist.team.number}`} style={{display: 'flex', alignItems: 'center'}}>
           <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
-          {abbrevToState(team?.stateProv)}
+          {teamToStateName(team)}
         </TextLink> : null}
   </PaddedCell>
 }
@@ -52,7 +52,7 @@ function CompactAwardFinalist({seasonYear, finalist, isAlliance} : {
     {finalist.team ? <><TextLink
         to={`/teams/${finalist.team.number}`} style={{display: 'inline-flex', alignItems: 'center'}}>
           <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
-          {abbrevToState(team?.stateProv)}
+          {teamToStateName(team)}
         </TextLink></> : null}
     <br/>
   </div>

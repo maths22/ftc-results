@@ -6,7 +6,7 @@ import {styled} from '@mui/material/styles';
 import {components} from "../../api/first-v3";
 import { Score } from '@mui/icons-material';
 import { useTeam } from '../../api';
-import { abbrevToState } from '../util';
+import { teamToStateName } from '../util';
 import TextLink from '../TextLink';
 import { ReactNode } from 'react';
 
@@ -88,7 +88,7 @@ function MatchTeam({seasonYear, teamNumber, surrogate}: {seasonYear: string, tea
   return <TextLink key={teamNumber} to={`/teams/${teamNumber}`} style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-      {abbrevToState(team?.stateProv)}
+      {teamToStateName(team)}
       {surrogate ? '*' : ''}
     </div>
   </TextLink>;

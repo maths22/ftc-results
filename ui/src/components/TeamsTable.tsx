@@ -4,7 +4,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
-import {abbrevToState, PaddedCell} from './util';
+import {teamToStateName, PaddedCell} from './util';
 import {createLazyRoute, useNavigate, useParams, useSearch} from "@tanstack/react-router";
 import {GOV_CUP_CODE, GOV_CUP_SEASON, useEvent, useEventTeams, useTeam} from "../api";
 import type {components} from "../api/first-v3";
@@ -26,7 +26,7 @@ function TeamRow({seasonYear, event, participant, showDivisionAssignments, selec
     <PaddedCell>
       <TextLink to={`/teams/${team.number}`} style={{display: 'flex', alignItems: 'center'}}>
         <div className={`team-avatar team-${team.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 40}}></div>
-        {abbrevToState(team.stateProv)}
+        {teamToStateName(team)}
       </TextLink>
       <Typography sx={{ display: { sm: 'none', xs: 'block'}}}>
         {[team.city, team.stateProv, team.country].join(', ')}
@@ -60,7 +60,7 @@ export default function TeamsTable() {
   }
 
   const showDivisionAssignments = event.divisions.length > 0 && !division
-  const sortedTeams = [...eventTeams.participants].sort((a, b) => abbrevToState(a.team.stateProv)!.localeCompare(abbrevToState(b.team.stateProv)!));
+  const sortedTeams = [...eventTeams.participants].sort((a, b) => teamToStateName(a.team)!.localeCompare(teamToStateName(b.team)!));
 
   return <Table sx={{minWidth: '20em'}} size="small">
     <TableHead>

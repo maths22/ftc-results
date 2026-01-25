@@ -1,3 +1,7 @@
+.team-avatar {
+  filter: drop-shadow(1px 1px #eaecf0) drop-shadow(1px -1px #eaecf0) drop-shadow(-1px -1px #eaecf0) drop-shadow(-1px 1px #eaecf0);
+}
+
 .team-avatar.team-AL {
   background-image: url('./state-flags/AL.svg');
 }

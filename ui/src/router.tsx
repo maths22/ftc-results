@@ -4,7 +4,7 @@ import DefaultLayout from './components/layout/DefaultLayout';
 import {createRootRoute, createRoute, createRouter, redirect} from '@tanstack/react-router';
 import {queryClient} from "./index";
 import { eventQueryOpts, GOV_CUP_CODE, GOV_CUP_SEASON, teamQueryOpts } from './api.ts';
-import { abbrevToState } from './components/util.ts';
+import { teamToStateName } from './components/util.ts';
 
 
 function NotFoundComponent() {
@@ -24,7 +24,7 @@ const teamSummary = createRoute({ path: '/teams/$number',
     };
   }, beforeLoad: async({params}) => {
       const teamInfo = await queryClient.fetchQuery(teamQueryOpts(GOV_CUP_SEASON, params.number))
-      return {title: `Team ${abbrevToState(teamInfo?.stateProv)}`}
+      return {title: `Team ${teamToStateName(teamInfo)}`}
     }, getParentRoute: () => rootRoute })
     .lazy(() => import('./components/TeamSummary.tsx').then((d) => d.Route));
 

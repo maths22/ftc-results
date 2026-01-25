@@ -11,7 +11,7 @@ import {Match, useNavigate, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/first-v3";
 import {Box} from "@mui/material";
 import { useTeam } from '../api';
-import { abbrevToState } from './util';
+import { teamToStateName } from './util';
 import { Temporal } from 'temporal-polyfill';
 
 const plainColors = {
@@ -61,7 +61,7 @@ function MatchTeam({seasonYear, teamNumber, surrogate, link}: {seasonYear: strin
   return <Component key={teamNumber} to={`/teams/${teamNumber}`} style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
     <div style={{ display: 'flex', alignItems: 'center', width: '10em', textAlign: 'left'}}>
       <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-      {abbrevToState(team?.stateProv)}
+      {teamToStateName(team)}
       {surrogate ? '*' : ''}
     </div>
   </Component>;

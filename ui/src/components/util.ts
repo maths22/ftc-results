@@ -31,8 +31,14 @@ export function isEventHappening(startDate: string, endDate: string) {
     return isHappening;
 }
 
-export function abbrevToState(abbrev?: string) : string | undefined {
-  if(!abbrev) return undefined;
+export function teamToStateName(team?: {stateProv?: string, number: string}) : string | undefined {
+  if(!team) return undefined;
+
+  if(import.meta.env[`VITE_TEAM_${team.number}_STATE`]) {
+    return import.meta.env[`VITE_TEAM_${team.number}_STATE`];
+  }
+  
+  if(!team.stateProv) return undefined;
 
   const states: Record<string, string> = {
     'AL': 'Alabama',
@@ -87,5 +93,5 @@ export function abbrevToState(abbrev?: string) : string | undefined {
     'WI': 'Wisconsin',
     'WY': 'Wyoming'
   }
-  return states[abbrev] || abbrev;
+  return states[team.stateProv] || team.stateProv;
 }

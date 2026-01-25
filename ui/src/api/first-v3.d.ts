@@ -153,7 +153,11 @@ export interface paths {
         };
         /**
          * Get event alliance selections
-         * @description Gets alliance selection operations for the given event, including accepts and declines
+         * @description Gets alliance selection operations for the given event, including accepts and declines. These
+         *             are presented in the order in which they occurred. Refer to the season's competition manual to
+         *             confirm the order of alliance selections that year. If you are looking for the final alliances
+         *             and are not interested in analyzing the selection process itself, we recommend using the
+         *             GetEventAlliances endpoint instead.
          */
         get: operations["GetEventAllianceSelections"];
         put?: never;
@@ -1559,12 +1563,12 @@ export interface components {
         };
         ApiV3SimpleTeam: {
             number: string;
-            displayNumber: string;
             name: string;
+            /** @description Use this for presentation purposes; it may include a shorter representation of the official team number for some teams in some seasons. */
+            displayNumber: string;
         };
         ApiV3Team: {
             number: string;
-            displayNumber: string;
             name: string;
             affiliations: string;
             city?: string;
@@ -1574,6 +1578,8 @@ export interface components {
             rookieCmpYear: number;
             website?: string;
             homeRegionCode?: string;
+            /** @description Use this for presentation purposes; it may include a shorter representation of the official team number for some teams in some seasons. */
+            displayNumber: string;
             /** @description Coordinates are for the team's city */
             coordinates?: components["schemas"]["ApiV3Coordinates"];
         };
@@ -1604,7 +1610,6 @@ export interface components {
         };
         ApiV3TeamHistory: {
             number: string;
-            displayNumber: string;
             name: string;
             affiliations: string;
             city?: string;
@@ -1613,6 +1618,8 @@ export interface components {
             /** Format: int32 */
             rookieCmpYear: number;
             seasons: components["schemas"]["ApiV3TeamSeasonHistory"][];
+            /** @description Use this for presentation purposes; it may include a shorter representation of the official team number for some teams in some seasons. */
+            displayNumber: string;
             /** @description Coordinates are for the team's city */
             coordinates?: components["schemas"]["ApiV3Coordinates"];
         };

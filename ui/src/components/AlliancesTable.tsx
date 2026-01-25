@@ -4,7 +4,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
-import {abbrevToState, CompactCell, PaddedCell} from './util';
+import {teamToStateName, CompactCell, PaddedCell} from './util';
 import {useTeam} from "../api";
 import type {components} from "../api/first-v3";
 import TableCell from '@mui/material/TableCell';
@@ -15,7 +15,7 @@ function AllianceTeam({seasonYear, number}: {seasonYear: string, number: string}
   return <CompactCell key={number}>
     <TextLink to={`/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
       <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
-      {abbrevToState(team?.stateProv)}
+      {teamToStateName(team)}
     </TextLink>
   </CompactCell>
 }

@@ -9,7 +9,7 @@ import {styled} from '@mui/material/styles';
 import {createLazyRoute, useParams} from '@tanstack/react-router';
 import {GOV_CUP_SEASON, useSeason, useTeamDetails} from "../api";
 import {components} from "../api/first-v3";
-import { abbrevToState, isEventHappening } from './util';
+import { teamToStateName, isEventHappening } from './util';
 import MatchDetailsDialog from './MatchDetailsDialog';
 import { Temporal } from 'temporal-polyfill';
 
@@ -74,7 +74,7 @@ export default function TeamSummary() {
     <Heading>
       <Typography variant="h4" sx={{display: 'flex', alignItems: 'center'}}>
         <div className={`team-avatar team-${team?.stateProv}`} style={{marginRight: '0.25em', '--avatar-size': 50}}></div>
-        Team {abbrevToState(team.stateProv)}
+        Team {teamToStateName(team)}
       </Typography>
       <p>
         <b>Also known as:</b> FTC Team {team.displayNumber} - {team.name}<br/>
