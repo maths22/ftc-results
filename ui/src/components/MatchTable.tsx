@@ -80,8 +80,11 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, time
     return [key, matches.map((m) => {
       let isRedTeam, isSurrogate = false, idx = -1, result;
       const hasScores = 'red_score' in m && 'blue_score' in m && m.red_score != undefined && m.blue_score != undefined
-      if (team && hasScores) {
+      if(team) {
         isRedTeam = m.teams.redAlliance.teams.some(t => t.team.number == team);
+      }
+
+      if (team && hasScores) {
         isSurrogate = (isRedTeam ? m.teams.redAlliance.teams.find(t => t.team.number == team)?.surrogate : m.teams.blueAlliance.teams.find(t => t.team.number == team)?.surrogate) || false;
         if(m.red_score === m.blue_score) {
           result = 'T';

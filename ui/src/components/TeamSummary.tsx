@@ -42,7 +42,7 @@ function TeamSeason({team, events, season} : {
               </p>
 
               {evt.matches.filter((m) => m.matchResults).length > 0 && !(evt.event.format == 'REMOTE' && evt.event.type === 'LEAGUE_MEET' || !evt.ranking) ? <p style={{marginBottom: 0, marginTop: 0}}>
-                Team {team.number} {evt.event.type === 'LEAGUE_MEET' ? null : <>{isHappening ? 'is' : 'was'} <b>Rank {evt.ranking.rank}</b></>}
+                Team {teamToStateName(team)} {evt.event.type === 'LEAGUE_MEET' ? null : <>{isHappening ? 'is' : 'was'} <b>Rank {evt.ranking.rank}</b></>}
                 {evt.event.format == 'REMOTE' ? null : <>{evt.event.type === 'LEAGUE_MEET' ? ' ' + (isHappening ? 'has' : 'had') + ' a record of ' : ' with a record of '}
                 <b style={{whiteSpace: 'nowrap'}}>{`${evt.ranking.wins}-${evt.ranking.losses}-${evt.ranking.ties}`}</b></>}
               </p> : null}
