@@ -131,13 +131,13 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, time
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.matchResults ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.teams.type == 'ApiV3AlliancePlayoffMatchParticipants' ? <span style={{display: 'flex', alignItems: 'center'}}>A{m.teams.redAlliance.seed}</span> : ''}
+              {m.teams.type == 'ApiV3AlliancePlayoffMatchParticipants' ? <span style={{display: 'flex', alignItems: 'center', minWidth: '3ch'}}>A{m.teams.redAlliance.seed}</span> : ''}
               {m.teams.redAlliance.teams.map(mp => <MatchTeam key={mp.team.number} seasonYear={seasonYear} teamNumber={mp.team.number} surrogate={mp.surrogate} link={mp.team.number !== team} />)}
             </Box>
           </MatchCell>
           <MatchCell ownerState={blueOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.teams.type == 'ApiV3AlliancePlayoffMatchParticipants' ? <span style={{display: 'flex', alignItems: 'center'}}>A{m.teams.blueAlliance.seed}</span> : ''}
+              {m.teams.type == 'ApiV3AlliancePlayoffMatchParticipants' ? <span style={{display: 'flex', alignItems: 'center', minWidth: '3ch'}}>A{m.teams.blueAlliance.seed}</span> : ''}
               {m.teams.blueAlliance.teams.map(mp => <MatchTeam key={mp.team.number} seasonYear={seasonYear} teamNumber={mp.team.number} surrogate={mp.surrogate} link={mp.team.number !== team} />)}
             </Box>
           </MatchCell>
