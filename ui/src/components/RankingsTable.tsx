@@ -45,9 +45,9 @@ export default function RankingsTable({seasonYear, rankings, showRecord, elims}:
         </> : <>
           <PaddedCell>Team</PaddedCell>
         </>}
-        <PaddedCell>Ranking Points</PaddedCell>
-        <PaddedCell>Tie Breaker Points 1</PaddedCell>
-        <PaddedCell>Tie Breaker Points 2</PaddedCell>
+        <PaddedCell>RS</PaddedCell>
+        <PaddedCell>POINTS</PaddedCell>
+        <PaddedCell>BASE</PaddedCell>
         {showRecord ? <PaddedCell>Record (W-L-T)</PaddedCell> : null}
         <PaddedCell>Matches Played</PaddedCell>
       </TableRow>
