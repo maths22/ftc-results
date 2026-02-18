@@ -120,10 +120,12 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, time
               timeZoneName: 'shortGeneric'
             })}</span>
 
+      const showDetail = () => showMatchDetail(m.tournamentLevel, m.series.toString(), m.number);
+
       return [
         <TableRow key={`${m.tournamentLevel}-${m.series}-${m.number}`} style={rowStyle}>
           <MatchCell ownerState={{surrogate: isSurrogate}}>
-            {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <TextLink onClick={() => showMatchDetail(m.tournamentLevel, m.series.toString(), m.number)}>{m.shortName}</TextLink> : m.shortName}
+            {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <TextLink onClick={showDetail}>{m.shortName}</TextLink> : m.shortName}
             <Box sx={{ display: { xs: 'none', sm: 'block'}}}>{matchTime}</Box>
           </MatchCell>
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.matchResults ? result : '-'}</MatchCell> : null}
@@ -140,10 +142,10 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, time
             </Box>
           </MatchCell>
 
-          {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}} onClick={showDetail}>
             <span>{m.matchResults.redScore}</span>
           </MatchCell> : null}
-          {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.tournamentLevel != 'PRACTICE' && m.matchResults ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}} onClick={showDetail}>
             <span>{m.matchResults.blueScore}</span>
           </MatchCell>: null}
           {m.tournamentLevel != 'PRACTICE' && !m.matchResults ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
@@ -155,10 +157,10 @@ function TraditionalMatchTable({seasonYear, matches, team, showMatchDetail, time
         </TableRow>,
         m.tournamentLevel == 'PRACTICE' ? null : <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
           <TableCell>{matchTime}</TableCell>
-          {m.matchResults ? <MatchCell ownerState={redOwnerState}>
+          {m.matchResults ? <MatchCell ownerState={redOwnerState} onClick={showDetail}>
             <span>{m.matchResults.redScore}</span>
           </MatchCell> : null}
-          {m.matchResults ? <MatchCell ownerState={blueOwnerState}>
+          {m.matchResults ? <MatchCell ownerState={blueOwnerState} onClick={showDetail}>
             <span>{m.matchResults.blueScore}</span>
           </MatchCell>: null}
           {!m.matchResults ? <MatchCell colSpan={2}>
