@@ -9,6 +9,7 @@ import {styled} from '@mui/material/styles';
 import {createLazyRoute, useParams} from '@tanstack/react-router';
 import {useLeague, useSeason, useTeamDetails} from "../api";
 import {components} from "../api/v1";
+import MatchDetailsDialog from "./MatchDetailsDialog.tsx";
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -93,6 +94,7 @@ export default function TeamSummary() {
 
       { seasons.map((season) => <TeamSeason team={team} season={season} key={season.season} />) }
     </Heading>
+    <MatchDetailsDialog />
   </div>;
 }
 

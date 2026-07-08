@@ -4,6 +4,7 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import {styled} from '@mui/material/styles';
 import {components} from "../../api/v1";
+import {ReactNode} from "react";
 
 const colors = {
   red: '#fee',
@@ -69,8 +70,8 @@ type ScoreInterpretation<T extends ScoreType> = (match: SeasonScore<T>) => ({
   blue: number,
 } | {
   key?: false,
-  red: string,
-  blue: string,
+  red: ReactNode,
+  blue: ReactNode,
   red_pts?: number,
   blue_pts?: number
 }))[]
@@ -89,9 +90,9 @@ export default function ScoreTable<T extends ScoreType>(scoreInterpretation: Sco
       <TableBody>
         {scores.map((sc, i) => {
           const bonusLabel = sc.bonus && `${sc.bonus.label} (+${sc.bonus.value})`;
-          const redPrimary = `${sc.red} ${sc.red_pts ? `(${sc.red_pts > 0 ? '+' : ''}${sc.red_pts}${sc.penalty ? ' from blue' : ''})` : ''}`;
+          const redPrimary = <>{sc.red} {sc.red_pts ? `(${sc.red_pts > 0 ? '+' : ''}${sc.red_pts}${sc.penalty ? ' from blue' : ''})` : ''}</>;
 
-          const bluePrimary = `${sc.blue} ${sc.blue_pts ? `(${sc.blue_pts > 0 ? '+' : ''}${sc.blue_pts}${sc.penalty ? ' from red' : ''})` : ''}`;
+          const bluePrimary = <>{sc.blue} {sc.blue_pts ? `(${sc.blue_pts > 0 ? '+' : ''}${sc.blue_pts}${sc.penalty ? ' from red' : ''})` : ''}</>;
 
           return <TableRow sx={{height: 1}} key={i}>
             <ScoreCell ownerState={{key: sc.key, color: 'red'}}>

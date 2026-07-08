@@ -19,7 +19,6 @@ function allianceToRobots(starts: ("NO_SHOW" | "NO_ROBOT" | "FRONT" | "MIDDLE" |
   ]
 }
 
-// @ts-expect-error Not sure a trivial way to fix this right now but scoretable should be a component anyways...
 const BaseScoreTable = ScoreTable<components['schemas']['CenterstageCriScore']>((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;

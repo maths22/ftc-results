@@ -68,7 +68,7 @@ export default function TeamsTable() {
       </TableRow>
     </TableHead>
     <TableBody>
-      {eventTeams.sort((a, b) => a.number - b.number).map((td) =>
+      {eventTeams.sort((a, b) => a.number - b.number).filter(x => division ? x.division == division : true).map((td) =>
           <TeamRow key={td.number} event={event} team={td} showDivisionAssignments={showDivisionAssignments} selectDivision={selectDivision} />)}
     </TableBody>
   </Table>;

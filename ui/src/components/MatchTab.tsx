@@ -5,6 +5,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import RankingsTable from "./RankingsTable";
 import MatchTable from "./MatchTable";
 import RankingsTab from "./RankingsTab.tsx";
+import MatchDetailsDialog from "./MatchDetailsDialog.tsx";
 
 export default function MatchTab({practice}: {practice?: boolean}) {
     const { season: seasonYear, slug} = useParams({ from: '/$season/events/$slug' });
@@ -20,7 +21,10 @@ export default function MatchTab({practice}: {practice?: boolean}) {
         .filter(a => !division ? !a.division : a.division == division)
         .filter(a => practice ? a.phase == 'practice' : a.phase != 'practice')
 
-    return <MatchTable practice={practice} matches={filteredMatches} event={event} />
+    return <>
+        <MatchTable practice={practice} matches={filteredMatches} event={event} />
+        <MatchDetailsDialog />
+    </>
 }
 
 export function PracticeMatchTab() {

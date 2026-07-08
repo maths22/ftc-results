@@ -108,7 +108,7 @@ export default function EventSummary() {
     const showRankings = event.type !== 'league_meet' && (!hasDivisions || division);
     const showAwards = !hasDivisions && event.type !== 'league_meet' || (hasDivisions && !division);
     const showAlliances = event.type !== 'league_meet';
-    const showPractice = event.has_practice
+    const showPractice = event.has_practice && (!hasDivisions || division)
 
     const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);

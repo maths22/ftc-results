@@ -5,7 +5,6 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
-import MatchDetailsDialog from './MatchDetailsDialog';
 import {styled} from '@mui/material/styles';
 import {useNavigate, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/v1";
@@ -59,6 +58,7 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
 }) {
   const rowStyle = {height: '2rem'};
 
+
   const groupedMatches = Object.fromEntries(Object.entries(Object.groupBy(matches, m => m.phase)).map(([key, matches]) => {
     return [key, matches.map((m) => {
       let isRedTeam, isSurrogate = false, idx = -1, result;
@@ -89,10 +89,12 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
         surrogate: isSurrogate
       } as const;
 
+      const showDetail = () => showMatchDetail(m.name);
+
       return [
         <TableRow key={m.id} style={rowStyle}>
           <MatchCell ownerState={{surrogate: isSurrogate}}>
-            {m.played ? <TextLink onClick={() => showMatchDetail(m.name)}>{m.name}</TextLink> : m.name}
+            {m.played ? <TextLink onClick={showDetail}>{m.name}</TextLink> : m.name}
           </MatchCell>
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
@@ -220,7 +222,8 @@ export default function MatchTable({event, matches, team, practice}: {
 }) {
   const navigate = useNavigate();
   const search = useSearch({strict: false});
-  const showMatchDetail = (match?: string) => navigate({ search: { ...search, match, event_id: team && match ? event?.id : undefined } });
+  const showMatchDetail = (matchName: string) =>
+      navigate({ search: { ...search, matchDetails: `${event?.season}_${event?.slug}_${matchName}` } });
 
   if (!event || !matches || matches.length === 0) {
     return <Typography variant="body1" style={{textAlign: 'center'}}>No matches are currently available</Typography>;
@@ -230,7 +233,6 @@ export default function MatchTable({event, matches, team, practice}: {
     {event.remote ?
         <RemoteMatchTable matches={matches as components['schemas']['remoteMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
         <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} practice={practice} />}
-    <MatchDetailsDialog event={event} matchName={'match' in search && (!team || ('event_id' in search && search.event_id == event.id)) ? search.match : undefined} onClose={() => showMatchDetail()}/>
   </>;
 }
 

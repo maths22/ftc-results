@@ -45,7 +45,7 @@ gem 'sentry-ruby'
 gem 'sentry-rails'
 gem 'sentry-inst_jobs'
 
-gem 'ftc_events_client', '0.3.2'
+gem 'ftc_api_v3_client', '0.1.2'
 
 # TODO remove
 gem 'puma'

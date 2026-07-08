@@ -6,7 +6,7 @@ class Season < ApplicationRecord
   end
 
   def first_api_year
-    year.split('-').first
+    year.split('-').last
   end
 
   enum :ranking_algorithm, {

@@ -520,6 +520,9 @@ components:
           - CenterstageCriScore
           - IntoTheDeepScore
           - IntoTheDeepCriScore
+          - DecodeScore
+        random:
+          type: integer
         red_score_total:
           type: integer
         red_score:
@@ -551,6 +554,7 @@ components:
           - "$ref": "#/components/schemas/CenterstageCriScore"
           - "$ref": "#/components/schemas/IntoTheDeepScore"
           - "$ref": "#/components/schemas/IntoTheDeepCriScore"
+          - "$ref": "#/components/schemas/DecodeScore"
         red_teams:
           type: array
           items:
@@ -596,6 +600,7 @@ components:
           - "$ref": "#/components/schemas/CenterstageCriScore"
           - "$ref": "#/components/schemas/IntoTheDeepScore"
           - "$ref": "#/components/schemas/IntoTheDeepCriScore"
+          - "$ref": "#/components/schemas/DecodeScore"
         blue_teams:
           type: array
           items:
@@ -1818,6 +1823,79 @@ components:
       - coop_achieved
       - minor_penalties
       - major_penalties
+    DecodeScore:
+      type: object
+      properties:
+        auto_classified_artifacts:
+          type: integer
+        auto_overflow_artifacts:
+          type: integer
+        auto_classifier_state:
+          type: array
+          items:
+            type: string
+            enum:
+              - NONE
+              - GREEN
+              - PURPLE
+        auto_robot1:
+          type: boolean
+        auto_robot2:
+          type: boolean
+        teleop_classified_artifacts:
+          type: integer
+        teleop_overflow_artifacts:
+          type: integer
+        teleop_depot_artifacts:
+          type: integer
+        teleop_classifier_state:
+          type: array
+          items:
+            type: string
+            enum:
+              - NONE
+              - GREEN
+              - PURPLE
+        teleop_robot1:
+          type: string
+          enum:
+            - NONE
+            - PARTIAL
+            - FULL
+        teleop_robot2:
+          type: string
+          enum:
+            - NONE
+            - PARTIAL
+            - FULL
+        movement_rp:
+          type: boolean
+        goal_rp:
+          type: boolean
+        pattern_rp:
+          type: boolean
+        minor_fouls:
+          type: integer
+        major_fouls:
+          type: integer
+      required:
+        - auto_classified_artifacts
+        - auto_overflow_artifacts
+        - auto_classifier_state
+        - auto_robot1
+        - auto_robot2
+        - teleop_classified_artifacts
+        - teleop_overflow_artifacts
+        - teleop_depot_artifacts
+        - teleop_classifier_state
+        - teleop_robot1
+        - teleop_robot2
+        - movement_rp
+        - goal_rp
+        - pattern_rp
+        - minor_fouls
+        - major_fouls
+
 paths:
   "/api/v1/{season}/events":
     parameters:

@@ -3,6 +3,7 @@ json.phase @match.phase
 json.series @match.series if @match.series
 json.number @match.number
 json.event_id @match.event_id
+json.random @match.random
 
 json.season_score_type @match.red_score.season_score_type.sub('SeasonScore::', '')
 

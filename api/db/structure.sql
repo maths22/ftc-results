@@ -1,6 +1,12 @@
+\restrict smHv2TYCBBjxsTemMCnrp38tiNe4pUgfW9cll6WHC6Mizg9p14EE34u4k2BORp2
+
+-- Dumped from database version 18.2 (Postgres.app)
+-- Dumped by pg_dump version 18.2 (Postgres.app)
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -24,6 +30,28 @@ CREATE TYPE public.cs_teleop_robot_status AS ENUM (
     'NONE',
     'BACKSTAGE',
     'RIGGING'
+);
+
+
+--
+-- Name: decode_artifact; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.decode_artifact AS ENUM (
+    'NONE',
+    'PURPLE',
+    'GREEN'
+);
+
+
+--
+-- Name: decode_teleop_robot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.decode_teleop_robot_status AS ENUM (
+    'NONE',
+    'PARTIAL',
+    'FULL'
 );
 
 
@@ -676,6 +704,52 @@ CREATE SEQUENCE public.centerstage_scores_id_seq
 --
 
 ALTER SEQUENCE public.centerstage_scores_id_seq OWNED BY public.centerstage_scores.id;
+
+
+--
+-- Name: decode_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.decode_scores (
+    id bigint NOT NULL,
+    auto_classified_artifacts integer DEFAULT 0,
+    auto_overflow_artifacts integer DEFAULT 0,
+    auto_classifier_state public.decode_artifact[] DEFAULT '{NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE}'::public.decode_artifact[],
+    auto_robot1 boolean DEFAULT false,
+    auto_robot2 boolean DEFAULT false,
+    teleop_classified_artifacts integer DEFAULT 0,
+    teleop_overflow_artifacts integer DEFAULT 0,
+    teleop_depot_artifacts integer DEFAULT 0,
+    teleop_classifier_state public.decode_artifact[] DEFAULT '{NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE}'::public.decode_artifact[],
+    teleop_robot1 public.decode_teleop_robot_status DEFAULT 'NONE'::public.decode_teleop_robot_status,
+    teleop_robot2 public.decode_teleop_robot_status DEFAULT 'NONE'::public.decode_teleop_robot_status,
+    movement_rp boolean DEFAULT false,
+    goal_rp boolean DEFAULT false,
+    pattern_rp boolean DEFAULT false,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: decode_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.decode_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: decode_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.decode_scores_id_seq OWNED BY public.decode_scores.id;
 
 
 --
@@ -1423,7 +1497,8 @@ CREATE TABLE public.matches (
     updated_at timestamp without time zone NOT NULL,
     event_id bigint,
     played boolean,
-    event_division_id bigint
+    event_division_id bigint,
+    random integer
 );
 
 
@@ -2082,6 +2157,13 @@ ALTER TABLE ONLY public.centerstage_scores ALTER COLUMN id SET DEFAULT nextval('
 
 
 --
+-- Name: decode_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.decode_scores ALTER COLUMN id SET DEFAULT nextval('public.decode_scores_id_seq'::regclass);
+
+
+--
 -- Name: delayed_jobs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2384,6 +2466,14 @@ ALTER TABLE ONLY public.centerstage_cri_scores
 
 ALTER TABLE ONLY public.centerstage_scores
     ADD CONSTRAINT centerstage_scores_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: decode_scores decode_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.decode_scores
+    ADD CONSTRAINT decode_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -3201,9 +3291,13 @@ ALTER TABLE ONLY public.event_divisions
 -- PostgreSQL database dump complete
 --
 
+\unrestrict smHv2TYCBBjxsTemMCnrp38tiNe4pUgfW9cll6WHC6Mizg9p14EE34u4k2BORp2
+
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260708155232'),
+('20260708154945'),
 ('20250706155006'),
 ('20250702150623'),
 ('20250701150801'),

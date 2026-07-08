@@ -8,11 +8,12 @@ import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
 
 import IconButton from '@mui/material/IconButton';
-import {useMatchDetails} from '../api';
+import {useEvent, useMatchDetails} from '../api';
 import LoadingSpinner from './LoadingSpinner';
 import type {components} from "../api/v1";
 import ErrorBoundary from "./ErrorBoundary";
 import {useMediaQuery, useTheme} from "@mui/material";
+import {useNavigate, useSearch} from "@tanstack/react-router";
 const scoreTables = {
   'RoverRuckusScore': lazy(() => import('./scoreTables/RoverRuckusScoreTable.ts')),
   'RoverRuckusCriScore': lazy(() => import('./scoreTables/RoverRuckusCriScoreTable.ts')),
@@ -26,18 +27,23 @@ const scoreTables = {
   'CenterstageScore': lazy(() => import('./scoreTables/CenterstageScoreTable.ts')),
   'CenterstageCriScore': lazy(() => import('./scoreTables/CenterstageCriScoreTable.tsx')),
   'IntoTheDeepScore': lazy(() => import('./scoreTables/IntoTheDeepScoreTable.ts')),
-  'IntoTheDeepCriScore': lazy(() => import('./scoreTables/IntoTheDeepCriScoreTable.ts'))
+  'IntoTheDeepCriScore': lazy(() => import('./scoreTables/IntoTheDeepCriScoreTable.ts')),
+  'DecodeScore': lazy(() => import('./scoreTables/DecodeScoreTable.tsx'))
 }
 
-export default function MatchDetailsDialog({event, matchName, onClose}: {
-  event: components['schemas']['event'],
-  matchName?: string,
-  onClose: () => void
-}) {
+export default function MatchDetailsDialog() {
+  const navigate = useNavigate();
+
+  const search = useSearch({strict: false});
+  const isOpen = 'matchDetails' in search
+  const [season, eventCode, matchName] = isOpen ? search['matchDetails'].split('_') : [undefined, undefined, undefined];
+
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const hideMatchDetail = () => navigate({ search: { ...search, matchDetails: undefined } });
   // TODO fix division bug
-  const { isPending, isError, data: match } = useMatchDetails(event.season, event.slug, matchName);
+  const { isPending, isError, data: match } = useMatchDetails(season, eventCode, matchName);
+  const { data: event } = useEvent(season, eventCode || '');
   if(isError) {
     return;
   }
@@ -46,14 +52,15 @@ export default function MatchDetailsDialog({event, matchName, onClose}: {
 
   return (
     <Dialog
-        onClose={onClose}
-        open={!!matchName}
+        onClose={hideMatchDetail}
+        open={isOpen}
         aria-labelledby="form-dialog-title"
         fullScreen={fullScreen}
+        maxWidth="md"
     >
       <DialogTitle id="form-dialog-title" style={{display: 'flex', alignItems: 'center'}}>
-        <Typography variant="h6" style={{flexGrow: 1}}>Results for {event.name} - Match {matchName}</Typography>
-        <IconButton onClick={onClose} size="large"><CloseIcon/></IconButton>
+        <Typography variant="h6" component="span" style={{flexGrow: 1}}>Results for {event?.name} - Match {matchName}</Typography>
+        <IconButton onClick={hideMatchDetail} size="large"><CloseIcon/></IconButton>
       </DialogTitle>
       <DialogContent sx={{padding: '10px'}}>
         {isPending ? <LoadingSpinner /> : null}

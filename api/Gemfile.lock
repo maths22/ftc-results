@@ -192,8 +192,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
-    ethon (0.16.0)
+    ethon (0.18.0)
       ffi (>= 1.15.0)
+      logger
     execjs (2.10.0)
     faraday (2.13.1)
       faraday-net_http (>= 2.0, < 3.5)
@@ -205,8 +206,7 @@ GEM
       faraday (~> 2.0)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-arm64-darwin)
-    ftc_events_client (0.3.2)
-      json (~> 2.1, >= 2.1.0)
+    ftc_api_v3_client (0.1.2)
       typhoeus (~> 1.0, >= 1.0.1)
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
@@ -563,8 +563,8 @@ GEM
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
-    typhoeus (1.4.1)
-      ethon (>= 0.9.0)
+    typhoeus (1.6.0)
+      ethon (>= 0.18.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
@@ -609,7 +609,7 @@ DEPENDENCIES
   devise_invitable
   devise_token_auth (~> 1.1)
   faraday-retry
-  ftc_events_client (= 0.3.2)
+  ftc_api_v3_client (= 0.1.2)
   health_check
   inst-jobs
   iodine

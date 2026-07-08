@@ -1,6 +1,6 @@
 import {Link} from '@tanstack/react-router';
 import {styled} from "@mui/material/styles";
-import {HTMLProps, MouseEventHandler} from "react";
+import {CSSProperties, HTMLProps, MouseEventHandler} from "react";
 
 const StyledA = styled('a')(() => ({
     textDecoration: 'none',
@@ -24,6 +24,7 @@ export default function TextLink(props: {
     href?: string,
     onClick?: MouseEventHandler<unknown>,
     target?: string,
+    style?: CSSProperties,
     children: HTMLProps<'a'>['children']
 }) {
   return props.to ? <StyledLink {...props} /> : <StyledA {...props} />
