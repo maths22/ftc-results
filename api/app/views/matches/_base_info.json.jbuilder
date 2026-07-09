@@ -6,6 +6,8 @@ json.series match.series if match.series
 json.number match.number
 json.name match.name
 json.played !!match.played
+json.scheduled_start match.scheduled_start
+json.start match.start
 if match.event.remote
   json.team match.red_alliance.alliance.teams.map(&:id)
   json.score match.red_score_total if match.played

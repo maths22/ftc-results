@@ -1,4 +1,4 @@
-\restrict smHv2TYCBBjxsTemMCnrp38tiNe4pUgfW9cll6WHC6Mizg9p14EE34u4k2BORp2
+\restrict 7NjlCgZahqKhKjUFTJQLsQerd7u0v3LQSoWb2PtEk9pC1YeYiBL4b1AHNXczZdq
 
 -- Dumped from database version 18.2 (Postgres.app)
 -- Dumped by pg_dump version 18.2 (Postgres.app)
@@ -956,7 +956,8 @@ CREATE TABLE public.events (
     slug character varying,
     address character varying,
     remote boolean DEFAULT false NOT NULL,
-    type integer
+    type integer,
+    timezone character varying
 );
 
 
@@ -1498,7 +1499,9 @@ CREATE TABLE public.matches (
     event_id bigint,
     played boolean,
     event_division_id bigint,
-    random integer
+    random integer,
+    scheduled_start timestamp(6) without time zone,
+    start timestamp(6) without time zone
 );
 
 
@@ -3291,11 +3294,12 @@ ALTER TABLE ONLY public.event_divisions
 -- PostgreSQL database dump complete
 --
 
-\unrestrict smHv2TYCBBjxsTemMCnrp38tiNe4pUgfW9cll6WHC6Mizg9p14EE34u4k2BORp2
+\unrestrict 7NjlCgZahqKhKjUFTJQLsQerd7u0v3LQSoWb2PtEk9pC1YeYiBL4b1AHNXczZdq
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260709155654'),
 ('20260708155232'),
 ('20260708154945'),
 ('20250706155006'),

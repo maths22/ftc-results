@@ -747,6 +747,7 @@ export interface components {
             start_date: string;
             /** Format: date */
             end_date: string;
+            timezone?: string;
             /** @description Name/description of venue */
             location: string;
             address?: string;
@@ -863,6 +864,8 @@ export interface components {
             number: number;
             name: string;
             played: boolean;
+            scheduled_start?: string;
+            start?: string;
             red_seed?: number;
             red_alliance: number[];
             red_surrogate: boolean[];

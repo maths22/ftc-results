@@ -53,7 +53,7 @@ const DisabledRow = styled(TableRow)(() => ({
 function MatchTeam({teamNumber, surrogate, link}: {teamNumber: number, surrogate?: boolean, link?: boolean}) {
   const Component = link ? TextLink : 'span';
   return <Component key={teamNumber} to={`/teams/${teamNumber}`} style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
-    <div style={{ display: 'flex', alignItems: 'center', width: '10em', textAlign: 'left'}}>
+    <div style={{ display: 'flex', alignItems: 'center', width: '5em', textAlign: 'left'}}>
       <div className={`team-avatar team-${teamNumber}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
       {teamNumber}
       {surrogate ? '*' : ''}
@@ -62,10 +62,11 @@ function MatchTeam({teamNumber, surrogate, link}: {teamNumber: number, surrogate
 }
 
 
-function TraditionalMatchTable({matches, team, showMatchDetail}: {
+function TraditionalMatchTable({matches, team, showMatchDetail, timezone}: {
   matches: components['schemas']['match'][],
   showMatchDetail: (name: string) => void,
-  team?: number
+  team?: number,
+  timezone?: string
 }) {
   const rowStyle = {height: '2rem'};
 
@@ -100,14 +101,28 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
         surrogate: isSurrogate
       } as const;
 
+      const effectiveStartTime = m.start || m.scheduled_start
+      const startTime = effectiveStartTime ? Temporal.ZonedDateTime.from(timezone ? `${effectiveStartTime}[${timezone}]` : effectiveStartTime) : undefined;
+
+      const matchTime = <span style={{fontStyle: m.start ? 'normal' : 'italic'}}>{startTime?.toLocaleString(undefined, {
+        weekday: 'short',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        timeZoneName: 'shortGeneric'
+      })}</span>
+
       const showDetail = () => showMatchDetail(m.name);
 
       return [
         <TableRow key={m.id} style={rowStyle}>
           <MatchCell ownerState={{surrogate: isSurrogate}}>
             {m.phase != 'practice' && m.played ? <TextLink onClick={showDetail}>{m.name}</TextLink> : m.name}
+
+            <Box sx={{ display: { sm: 'none', md: 'block'}}}>{matchTime}</Box>
           </MatchCell>
-          {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
+          {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', md: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
               {m.red_seed ? <span style={{display: 'flex', alignItems: 'center', minWidth: '3ch'}}>A{m.red_seed}</span> : ''}
@@ -123,21 +138,21 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
             </Box>
           </MatchCell>
 
-          {m.phase != 'practice' && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}} onClick={showDetail}>
+          {m.phase != 'practice' && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', md: 'table-cell'}}} onClick={showDetail}>
             <span>{m.red_score}</span>
           </MatchCell> : null}
-          {m.phase != 'practice' && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}} onClick={showDetail}>
+          {m.phase != 'practice' && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', md: 'table-cell'}}} onClick={showDetail}>
             <span>{m.blue_score}</span>
           </MatchCell>: null}
-          {m.phase != 'practice' && !m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.phase != 'practice' && !m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', md: 'table-cell'}}}>
             <span>Awaiting results</span>
           </MatchCell>: null}
-          {m.phase == 'practice' ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.phase == 'practice' ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', md: 'table-cell'}}}>
             <span>N/A</span>
           </MatchCell> : null}
         </TableRow>,
-        m.phase == 'practice' ? null : <TableRow key={`${m.id}-results`} style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
-          <TableCell />
+        m.phase == 'practice' ? null : <TableRow key={`${m.id}-results`} style={rowStyle} sx={{ display: { md: 'none', xs: 'table-row'}}}>
+          <TableCell>{matchTime}</TableCell>
           {m.played ? <MatchCell ownerState={redOwnerState} onClick={showDetail}>
             <span>{m.red_score}</span>
           </MatchCell> : null}
@@ -156,10 +171,10 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
     <TableHead>
       <TableRow style={rowStyle}>
         <MatchCell>Match</MatchCell>
-        {team ? <MatchCell sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Result</MatchCell> : null}
+        {team ? <MatchCell sx={{ display: { xs: 'none', md: 'table-cell'}}}>Result</MatchCell> : null}
         <MatchCell>Red Alliance</MatchCell>
         <MatchCell>Blue Alliance</MatchCell>
-        <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>Scores</MatchCell>
+        <MatchCell colSpan={2} sx={{ display: { xs: 'none', md: 'table-cell'}}}>Scores</MatchCell>
       </TableRow>
     </TableHead>
     <TableBody>
@@ -244,7 +259,7 @@ export default function MatchTable({event, matches, team, practice}: {
   return <>
     {event.remote ?
         <RemoteMatchTable matches={matches as components['schemas']['remoteMatch'][]} team={team} showMatchDetail={showMatchDetail} /> :
-        <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} />}
+        <TraditionalMatchTable matches={matches as components['schemas']['match'][]} team={team} showMatchDetail={showMatchDetail} timezone={event.timezone}/>}
   </>;
 }
 

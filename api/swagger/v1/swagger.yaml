@@ -104,6 +104,8 @@ components:
         end_date:
           type: string
           format: date
+        timezone:
+          type: string
         location:
           type: string
           description: Name/description of venue
@@ -418,6 +420,10 @@ components:
           type: string
         played:
           type: boolean
+        scheduled_start:
+          type: string
+        start:
+          type: string
         red_seed:
           type: integer
         red_alliance:

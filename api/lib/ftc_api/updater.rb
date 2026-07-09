@@ -79,6 +79,7 @@ module FtcApi
           event.start_date = event_data.start_date
           event.end_date = event_data.end_date
           event.aasm_state = 'finalized' if event_data.published
+          event.timezone = event_data.timezone
           event.type = {
             FtcApiV3Client::ApiV3EventType::SCRIMMAGE => 0,
             FtcApiV3Client::ApiV3EventType::LEAGUE_MEET => 1,
@@ -179,6 +180,8 @@ module FtcApi
           event_matches << match if match.new_record?
           match.red_score ||= Score.new
           match.blue_score ||= Score.new
+          match.scheduled_start = q.scheduled_start_time
+          match.start = q.start_time
           match.save!
         end
 
@@ -210,6 +213,8 @@ module FtcApi
           end
           match.red_score ||= Score.new
           match.blue_score ||= Score.new
+          match.scheduled_start = e.scheduled_start_time
+          match.start = e.start_time
 
           event_matches << match if match.new_record?
           match.save!

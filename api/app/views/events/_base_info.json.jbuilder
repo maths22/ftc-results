@@ -13,6 +13,7 @@ json.slug event.slug
 json.name event.name
 json.start_date event.start_date
 json.end_date event.end_date
+json.timezone event.timezone
 
 json.location event.location
 json.address event.address
