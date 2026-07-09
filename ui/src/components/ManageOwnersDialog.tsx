@@ -105,14 +105,16 @@ export default function ManageOwnersDialog({event, onClose}: {
               <TextField
                   {...params}
                   label="Owner"
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                        <React.Fragment>
-                          {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                          {params.InputProps.endAdornment}
-                        </React.Fragment>
-                    ),
+                  slotProps={{
+                    input: {
+                      ...params.slotProps.input,
+                      endAdornment: (
+                          <React.Fragment>
+                            {isLoading ? <CircularProgress color="inherit" size={20}/> : null}
+                            {params.slotProps.input.endAdornment}
+                          </React.Fragment>
+                      ),
+                    }
                   }}
               />
           )}

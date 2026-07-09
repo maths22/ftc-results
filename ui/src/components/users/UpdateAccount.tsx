@@ -72,7 +72,7 @@ export default function UpdateAccount() {
       e.stopPropagation();
       form.handleSubmit();
     }}>
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3} sx={{justifyContent: "center"}}>
         <Grid size={{xs: 12}}>
           <Typography variant='h5'>{ headings[type] }</Typography>
         </Grid>

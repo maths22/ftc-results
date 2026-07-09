@@ -26,7 +26,7 @@ export default function ScoringServerPicker({disabled, setLocalServer} : {
       e.stopPropagation();
       form.handleSubmit();
     }} style={{width: '50em'}}>
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3} sx={{justifyContent: "center"}}>
         <Grid size={{xs: 4}}>
           <form.Field name="hostname"
                       validators={{

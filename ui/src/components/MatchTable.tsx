@@ -127,7 +127,7 @@ function TraditionalMatchTable({matches, team, showMatchDetail, practice}: {
             <span>Awaiting results</span>
           </MatchCell>: null}
         </TableRow>,
-        practice ? null : <TableRow style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
+        practice ? null : <TableRow key={`${m.id}-results`} style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
           <TableCell />
           {m.played ? <MatchCell ownerState={redOwnerState}>
             <span>{m.red_score}</span>

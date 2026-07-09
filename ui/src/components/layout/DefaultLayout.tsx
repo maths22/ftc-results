@@ -15,9 +15,9 @@ export default function DefaultLayout() {
 
   const matchWithTitle = [...router.state.matches]
     .reverse()
-    .find((d) => d.__routeContext.title);
+    .find((d) => d.context.title);
 
-  const title: string = matchWithTitle && matchWithTitle.__routeContext.title ? matchWithTitle.__routeContext.title as string : 'FTC Results';
+  const title: string = matchWithTitle && matchWithTitle.context.title ? matchWithTitle.context.title as string : 'FTC Results';
   useEffect(() => {
     document.title = title;
   }, [title]);
@@ -27,6 +27,17 @@ export default function DefaultLayout() {
   if('season' in params) {
     season = params.season;
   }
+
+  useEffect(() => {
+    const avatarCss = document.createElement('link')
+    avatarCss.rel = 'stylesheet'
+    avatarCss.href = `https://ftc-api.firstinspires.org/avatars/composed/${season.split('-')[1]}.css`
+    document.head.appendChild(avatarCss)
+    return () => {
+      document.head.removeChild(avatarCss)
+    }
+  }, [season]);
+
     return (
       <ErrorBoundary>
         <div>

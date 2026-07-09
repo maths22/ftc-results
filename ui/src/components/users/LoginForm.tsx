@@ -33,7 +33,7 @@ export default function LoginForm({onSubmitSuccess}: {
       e.stopPropagation();
       form.handleSubmit();
     }}>
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3} sx={{justifyContent: "center"}}>
         <Grid size={{xs: 12}}>
           <form.Field name="email"
                       children={(field) => (
