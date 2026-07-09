@@ -90,7 +90,6 @@ function EventRow({isLoggedIn, event, importEvent, requestAccess, manageOwners, 
                 {event.can_import && event.aasm_state !== 'finalized' ? <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
                   <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => manageOwners(event.id)}>Owners ({event.owners?.length || 0})</Button>
                   <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => transformEvent(event.id)}>Configure DB</Button>
-                  <Button component={Link} target="_blank" style={{margin: '0.5em 0'}} variant="contained" size="small" to={`/${event.season}/events/${event.slug}/uploader`}>Live Upload</Button>
                   <Button style={{margin: '0.5em 0'}} variant="contained" size="small" onClick={() => setupStream(event.id)}>{event.channel ? 'Configure Stream' : 'Enable Stream'}</Button>
                 </div>: null}
                 {!event.can_import && event.aasm_state !== 'finalized' ? <Button variant="contained" size="small" onClick={() => requestAccess(event.id)}>Request Access</Button> : null}

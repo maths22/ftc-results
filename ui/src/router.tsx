@@ -37,9 +37,6 @@ const allRankings = createRoute({ path: '/$season/teams/rankings', beforeLoad: (
     .lazy(() => import('./components/LeagueRankings.tsx').then((d) => d.AllRoute));
 const eventsSummary = createRoute({ path: '/$season/events/all', beforeLoad: () => ({title: 'Events'}), getParentRoute: () => rootRoute })
     .lazy(() => import('./components/EventsSummary.tsx').then((d) => d.Route));
-const uploader = createRoute({ path: '/$season/events/$slug/uploader', beforeLoad: async ({params}) => ({ title:
-        (await queryClient.fetchQuery(eventQueryOpts(params.season, params.slug)))?.name + ' Local Uploader' || 'Event Local Uploader' }), getParentRoute: () => rootRoute })
-    .lazy(() => import('./components/localScoring/LocalUploader.tsx').then((d) => d.Route));
 const teamSummary = createRoute({ path: '/teams/$number',
   validateSearch: (search: Record<string, unknown>) => {
     return {
@@ -98,7 +95,6 @@ const router = createRouter({
     leagueRankings,
     allRankings,
     eventsSummary,
-    uploader,
     teamSummary,
     eventSummary.addChildren([
       eventPlayoffs,
