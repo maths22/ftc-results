@@ -107,9 +107,11 @@ export default function EventSummary() {
 
     const showRankings = event.type !== 'league_meet' && (!hasDivisions || division);
     const showAwards = !hasDivisions && event.type !== 'league_meet' || (hasDivisions && !division);
-    const showAlliances = event.type !== 'league_meet';
+    const showPractice = event.has_practice && (!hasDivisions || division)
+    const showQuals = !hasDivisions || division;
+    const showPlayoffs = event.type !== 'league_meet';
 
-    const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
+  const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
 
     return <div style={{width: '100%', overflowX: 'auto'}}>
@@ -155,8 +157,9 @@ export default function EventSummary() {
             <div style={{width: '48px'}}/>
             <Tab value="teams" label="Teams" style={{marginLeft: 'auto'}}/>
             { showRankings ? <Tab value="rankings" label="Rankings" /> : null }
-            <Tab value="matches" label="Matches" />
-            { showAlliances ? <Tab value="alliances" label="Alliances" /> : null }
+            { showPractice ? <Tab value="practice" label="Practice" /> : null }
+            { showQuals ? <Tab value="quals" label="Qualification" /> : null }
+            { showPlayoffs ? <Tab value="playoffs" label="Playoffs" /> : null }
             { showAwards ? <Tab value="awards" label="Awards" /> : null }
             {event.aasm_state === 'in_progress' ?
                 <IconButton

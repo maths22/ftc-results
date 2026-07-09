@@ -11,6 +11,18 @@ export const PaddedCell = styled(TableCell)(({theme}) => ({
   whiteSpace: 'pre-line'
 }));
 
+export const CompactCell = styled(TableCell)(({theme}) => ({
+  paddingTop: theme.spacing(0.5),
+  paddingBottom: theme.spacing(0.5),
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(1),
+  textAlign: 'left',
+  '&:last-child': {
+    paddingRight: theme.spacing(1),
+  },
+  whiteSpace: 'pre-line'
+}));
+
 export function stringToDate(str: string) {
   const parts = str.split('-');
   return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));

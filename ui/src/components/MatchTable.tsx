@@ -50,6 +50,18 @@ const DisabledRow = styled(TableRow)(() => ({
   }
 }));
 
+function MatchTeam({teamNumber, surrogate, link}: {teamNumber: number, surrogate?: boolean, link?: boolean}) {
+  const Component = link ? TextLink : 'span';
+  return <Component key={teamNumber} to={`/teams/${teamNumber}`} style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
+    <div style={{ display: 'flex', alignItems: 'center', width: '10em', textAlign: 'left'}}>
+      <div className={`team-avatar team-${teamNumber}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
+      {teamNumber}
+      {surrogate ? '*' : ''}
+    </div>
+  </Component>;
+}
+
+
 function TraditionalMatchTable({matches, team, showMatchDetail}: {
   matches: components['schemas']['match'][],
   showMatchDetail: (name: string) => void,
@@ -98,24 +110,14 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.red_alliance.map((t, idx) => {
-                const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/${t}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                  <div className={`team-avatar team-${t}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-                  {t}
-                  {m.red_surrogate[idx] ? '*' : ''}</Component>;
-              })}
+              {m.red_alliance.map((t, idx) =>
+                  <MatchTeam key={t} teamNumber={t} surrogate={m.red_surrogate[idx]} link={t !== team} />)}
             </Box>
           </MatchCell>
           <MatchCell ownerState={blueOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-              {m.blue_alliance.map((t, idx) => {
-                const Component = t === team ? 'span' : TextLink;
-                return <Component key={t} to={`/teams/${t}`} style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                  <div className={`team-avatar team-${t}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>
-                  {t}
-                  {m.blue_surrogate[idx] ? '*' : ''}</Component>;
-              })}
+              {m.blue_alliance.map((t, idx) =>
+                  <MatchTeam key={t} teamNumber={t} surrogate={m.blue_surrogate[idx]} link={t !== team} />)}
             </Box>
           </MatchCell>
 

@@ -63,23 +63,22 @@ const eventIndex = createRoute({
   path: '/',
   getParentRoute: () => eventSummary
 }).lazy(() => import('./components/TeamsTable.tsx').then((d) => d.IndexRoute))
-const eventAlliances = createRoute({
-  path: '/alliances',
+const eventPlayoffs = createRoute({
+  path: '/playoffs',
   getParentRoute: () => eventSummary
-}).lazy(() => import('./components/AlliancesTab.tsx').then((d) => d.Route))
+}).lazy(() => import('./components/PlayoffsTab.tsx').then((d) => d.Route))
 const eventAwards = createRoute({
   path: '/awards',
   getParentRoute: () => eventSummary
 }).lazy(() => import('./components/AwardsTable.tsx').then((d) => d.Route))
-const eventMatches = createRoute({
-  path: '/matches',
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      match: search.match ? (search.match as string) : undefined
-    };
-  },
+const eventPractice = createRoute({
+  path: '/practice',
   getParentRoute: () => eventSummary
-}).lazy(() => import('./components/MatchTab.tsx').then((d) => d.Route))
+}).lazy(() => import('./components/MatchTab.tsx').then((d) => d.PracticeRoute))
+const eventQuals = createRoute({
+  path: '/quals',
+  getParentRoute: () => eventSummary
+}).lazy(() => import('./components/MatchTab.tsx').then((d) => d.QualsRoute))
 const eventRankings = createRoute({
   path: '/rankings',
   getParentRoute: () => eventSummary
@@ -102,45 +101,32 @@ const router = createRouter({
     uploader,
     teamSummary,
     eventSummary.addChildren([
-      eventAlliances,
+      eventPlayoffs,
       eventAwards,
       eventIndex,
-      eventMatches,
+      eventQuals,
+      eventPractice,
       eventRankings,
       eventTeams,
-      createRoute({
-        path: '/playoffs',
-        getParentRoute: () => eventSummary,
-        loader: () => {
-          throw redirect({
-            to: '../matches'
-          })
-        }
-      }),
       createRoute({
         path: '/qualifications/$number',
         getParentRoute: () => eventSummary,
         loader: ({params}) => {
           throw redirect({
-            to: `../../matches?match=Q-${params.number}`
+            to: `../../quals?matchDetails=${params.season}_${params.slug}_Q-${params.number}`
           })
         }
       }),
       createRoute({
-        path: '/playoff/0/$number',
+        path: '/playoff/$series/$number',
         getParentRoute: () => eventSummary,
         loader: ({params}) => {
+          let target = `../../../playoffs?matchDetails=${params.season}_${params.slug}_P-${params.series}`
+          if(params.number != 1) {
+            target += `-${params.number}`
+          }
           throw redirect({
-            to: `../../../matches?match=P-${params.number}`
-          })
-        }
-      }),
-      createRoute({
-        path: '/finals/0/$number',
-        getParentRoute: () => eventSummary,
-        loader: ({params}) => {
-          throw redirect({
-            to: `../../../matches?match=F-${params.number}`
+            to: target
           })
         }
       })

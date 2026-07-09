@@ -4,19 +4,19 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TextLink from './TextLink';
 import Typography from '@mui/material/Typography';
-import {PaddedCell} from './util';
+import {CompactCell} from './util';
 import {useTeam} from "../api";
 import type {components} from "../api/v1";
 
 function AllianceTeam({number} : {number: number}) {
   const { data: team } = useTeam(number);
 
-  return <PaddedCell key={number}>
+  return <CompactCell key={number}>
     <TextLink to={`/teams/${number}`} style={{display: 'flex', alignItems: 'center'}}>
       <div className={`team-avatar team-${number}`} style={{marginRight: '0.5em', '--avatar-size': 30}}></div>
       {number}{team ? ` (${team.name})` : ''}
     </TextLink>
-  </PaddedCell>
+  </CompactCell>
 }
 
 export default function AlliancesTable({alliances}: {
@@ -32,19 +32,19 @@ export default function AlliancesTable({alliances}: {
   return <Table sx={{minWidth: '20em'}} key={1}>
     <TableHead>
       <TableRow style={rowStyle}>
-        <PaddedCell>Seed</PaddedCell>
-        <PaddedCell>Captain</PaddedCell>
-        <PaddedCell>{colCount == 2 ? 'Partner' : 'First Pick'}</PaddedCell>
-        {colCount > 2 ? <PaddedCell>Second Pick</PaddedCell> : null}
-        {colCount > 3 ? <PaddedCell>Backup</PaddedCell> : null}
+        <CompactCell>Seed</CompactCell>
+        <CompactCell>Captain</CompactCell>
+        <CompactCell>{colCount == 2 ? 'Partner' : 'First Pick'}</CompactCell>
+        {colCount > 2 ? <CompactCell>Second Pick</CompactCell> : null}
+        {colCount > 3 ? <CompactCell>Backup</CompactCell> : null}
       </TableRow>
     </TableHead>
     <TableBody>
       {alliances.map((a) => {
         return <TableRow key={a.id} style={rowStyle}>
-          <PaddedCell>{a.seed}</PaddedCell>
+          <CompactCell>{a.seed}</CompactCell>
           { a.teams.map((team) => <AllianceTeam key={team} number={team} /> )}
-          {Array(colCount - a.teams.length).fill(1).map((id) => <PaddedCell key={id}>&nbsp;</PaddedCell>)}
+          {Array(colCount - a.teams.length).fill(1).map((id) => <CompactCell key={id}>&nbsp;</CompactCell>)}
         </TableRow>;
       })}
     </TableBody>
