@@ -15,8 +15,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import {styled} from '@mui/material/styles';
 import {createLazyRoute, Outlet, useChildMatches, useNavigate, useParams, useSearch} from '@tanstack/react-router';
 import type {components} from "../api/v1";
-import {stringToDate} from "./util";
 import {refreshEvent, useEvent, useLeague, useSeason} from "../api";
+import {isEventHappening} from "./util.ts";
 
 const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
@@ -29,8 +29,7 @@ function EventVideo({event}: {
   const [showVideo, setShowVideo] = useState(true);
   const today = new Date();
   today.setHours(0,0,0,0);
-  const isHappening = stringToDate(event.start_date) <= today
-      && stringToDate(event.end_date) >= today;
+  const isHappening = isEventHappening(event.start_date, event.end_date);
   if(!event.channel || !isHappening) return null;
 
   return <div style={{maxWidth: '50em', margin: '0 auto'}}>
@@ -111,8 +110,11 @@ export default function EventSummary() {
     const showQuals = !hasDivisions || division;
     const showPlayoffs = event.type !== 'league_meet';
 
-  const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
+    const google_location = event.location + ', ' + event.address + ', ' + event.city + ', ' + event.state + ', ' + event.country;
     const maps_url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(google_location);
+
+    const startDate = Temporal.PlainDate.from(event.start_date);
+    const endDate = Temporal.PlainDate.from(event.end_date);
 
     return <div style={{width: '100%', overflowX: 'auto'}}>
         <Heading>
@@ -126,7 +128,7 @@ export default function EventSummary() {
             </Select>
           </div> : null}
           {season ? <><b>Season:</b> <span>{season.name} ({season.year})</span><br/></> : null}
-          <b>Date:</b> {new Date(event.start_date).getUTCFullYear() === 9999 ? 'TBA' : event.start_date === event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}<br/>
+          <b>Date:</b> {startDate.year == 9999 ? 'TBA' : Temporal.PlainDate.compare(startDate, endDate) == 0 ? startDate.toLocaleString() : (startDate.toLocaleString() + ' - ' + endDate.toLocaleString())}<br/>
           <b>Location:</b>
           {event.location && event.location.trim() !== '-' ? <>
             <TextLink href={maps_url} target="_blank"> {event.location}{event.location && ', '}

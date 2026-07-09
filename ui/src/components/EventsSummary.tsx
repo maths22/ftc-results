@@ -69,6 +69,8 @@ function EventRow({isLoggedIn, event, importEvent, requestAccess, manageOwners, 
   const { data: parentLeague} = useLeague(event.season, league?.parent_league);
   const divFinalsLeft = event.divisions.some((d) => !d.import);
   const RowElement = event.aasm_state === 'canceled' ? CanceledRow : TableRow;
+  const startDate = Temporal.PlainDate.from(event.start_date);
+  const endDate = Temporal.PlainDate.from(event.end_date);
   return <RowElement style={{height: '2rem'}}>
         <PaddedCell><TextLink to={`/${event.season}/events/${event.slug}`}>{event.name}</TextLink></PaddedCell>
         <PaddedCell>
@@ -80,7 +82,7 @@ function EventRow({isLoggedIn, event, importEvent, requestAccess, manageOwners, 
               : null }
         </PaddedCell>
         <PaddedCell>{event.location && event.location.trim() !== '-' ? <>{event.location}<br/>{event.city}, {event.state}, {event.country}</> : 'TBA' }</PaddedCell>
-        <PaddedCell>{new Date(event.start_date).getUTCFullYear() === 9999 ? 'TBA' : event.start_date === event.end_date ? event.start_date : <>{event.start_date}<wbr/>{' - ' + event.end_date}</>}</PaddedCell>
+        <PaddedCell>{startDate.year == 9999 ? 'TBA' : Temporal.PlainDate.compare(startDate, endDate) == 0 ? startDate.toLocaleString() : (startDate.toLocaleString() + ' - ' + endDate.toLocaleString())}</PaddedCell>
         <PaddedCell>{event.aasm_state === 'finalized' && !divFinalsLeft ? <CheckIcon/> :
             (event.can_import ? <Button variant="contained" size="small" onClick={() => importEvent(event.id)}>Import</Button>: null)}</PaddedCell>
         {event.aasm_state === 'finalized'
@@ -120,7 +122,7 @@ function EventsSummary({selectedSeason}: {
   }
 
     const vals = [...events].sort((a, b) => {
-      const diff = a.start_date.localeCompare(b.start_date);
+      const diff = Temporal.PlainDate.compare(a.start_date, b.start_date);
       if(diff !== 0) return diff;
       return a.name.localeCompare(b.name);
     } );

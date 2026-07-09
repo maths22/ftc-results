@@ -23,7 +23,9 @@ export const CompactCell = styled(TableCell)(({theme}) => ({
   whiteSpace: 'pre-line'
 }));
 
-export function stringToDate(str: string) {
-  const parts = str.split('-');
-  return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+export function isEventHappening(startDate: string, endDate: string) {
+  const today = Temporal.Now.plainDateISO();
+  const isHappening = Temporal.PlainDate.compare(Temporal.PlainDate.from(startDate), today) <= 0
+      && Temporal.PlainDate.compare(Temporal.PlainDate.from(endDate), today) >= 0;
+  return isHappening;
 }

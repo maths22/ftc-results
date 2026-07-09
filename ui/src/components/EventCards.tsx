@@ -14,6 +14,8 @@ function EventCard({event, season}: { event: components['schemas']['event'], sea
   const router = useRouter();
   const { data: league } = useLeague(season, event.league);
   const { data: parentLeague} = useLeague(season, league?.parent_league);
+  const startDate = Temporal.PlainDate.from(event.start_date);
+  const endDate = Temporal.PlainDate.from(event.end_date);
 
   return <Card>
     <CardActionArea onClick={() => router.navigate({ to: `/${season}/events/${event.slug}` })}>
@@ -29,7 +31,7 @@ function EventCard({event, season}: { event: components['schemas']['event'], sea
               <TextLink to={`/${season}/leagues/rankings/${league.slug}`}>{league.name}</TextLink>
               : null }
           { ' ' }
-          {event.start_date == event.end_date ? event.start_date : (event.start_date + ' - ' + event.end_date)}
+          {startDate.year == 9999 ? 'TBA' : Temporal.PlainDate.compare(startDate, endDate) == 0 ? startDate.toLocaleString() : (startDate.toLocaleString() + ' - ' + endDate.toLocaleString())}
         </Typography>
         <Typography gutterBottom variant="subtitle2" component="h3">
 
@@ -65,7 +67,7 @@ export default function EventCards({filter, selectedSeason, limit, heading, show
     vals = vals.filter(filter)
   }
   vals.sort((a, b) => {
-    const diff = a.start_date.localeCompare(b.start_date);
+    const diff = Temporal.PlainDate.compare(a.start_date, b.start_date);
     if(diff !== 0) return diff;
     return a.name.localeCompare(b.name);
   } );

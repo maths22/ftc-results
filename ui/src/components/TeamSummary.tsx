@@ -47,16 +47,22 @@ function TeamSeason({team, season} : {
 
     {season.events.sort((a, b) => {
           let diff;
-          diff = a.data.start_date.localeCompare(b.data.start_date);
+          diff = Temporal.PlainDate.compare(a.data.start_date, b.data.start_date);
           if(diff !== 0) return diff;
           return a.data.name.localeCompare(b.data.name);
         } ).map((evt) => {
+          const startDate = Temporal.PlainDate.from(evt.data.start_date);
+          const endDate = Temporal.PlainDate.from(evt.data.end_date);
           return <Card key={evt.data.id} style={{margin: '1em 0'}}>
             <Heading>
               <div style={{display: 'flex'}}>
                 <Typography variant="h6" gutterBottom><TextLink to={`/${seasonData.year}/events/${evt.data.slug}`}>{evt.data.name}</TextLink></Typography>
                 <EventChip event={evt.data}/>
               </div>
+
+              <span>
+                {startDate.year == 9999 ? 'TBA' : Temporal.PlainDate.compare(startDate, endDate) == 0 ? startDate.toLocaleString() : (startDate.toLocaleString() + ' - ' + endDate.toLocaleString())}<br/>
+              </span>
 
               {evt.matches.filter((m) => m.played).length > 0 && !(evt.data.remote && evt.data.type === 'league_meet' || !evt.ranking) ? <p style={{marginBottom: 0, marginTop: 0}}>
                 Team {team.number} {evt.data.type === 'league_meet' ? null : <>{evt.data.aasm_state === 'in_progress' ? 'is' : 'was'} <b>Rank {evt.ranking.ranking}</b></>}

@@ -1,4 +1,4 @@
-import 'temporal-polyfill'
+import 'temporal-polyfill/global'
 import {StrictMode} from 'react';
 import { createRoot } from 'react-dom/client';
 
