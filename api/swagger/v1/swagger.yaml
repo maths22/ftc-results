@@ -418,6 +418,8 @@ components:
           type: string
         played:
           type: boolean
+        red_seed:
+          type: integer
         red_alliance:
           type: array
           items:
@@ -426,6 +428,8 @@ components:
           type: array
           items:
             type: boolean
+        blue_seed:
+          type: integer
         blue_alliance:
           type: array
           items:

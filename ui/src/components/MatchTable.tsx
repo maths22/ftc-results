@@ -110,21 +110,23 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
           {team ? <MatchCell ownerState={{surrogate: isSurrogate}} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>{m.played ? result : '-'}</MatchCell> : null}
           <MatchCell ownerState={redOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
+              {m.red_seed ? <span style={{display: 'flex', alignItems: 'center', minWidth: '3ch'}}>A{m.red_seed}</span> : ''}
               {m.red_alliance.map((t, idx) =>
                   <MatchTeam key={t} teamNumber={t} surrogate={m.red_surrogate[idx]} link={t !== team} />)}
             </Box>
           </MatchCell>
           <MatchCell ownerState={blueOwnerState}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
+              {m.blue_seed ? <span style={{display: 'flex', alignItems: 'center', minWidth: '3ch'}}>A{m.blue_seed}</span> : ''}
               {m.blue_alliance.map((t, idx) =>
                   <MatchTeam key={t} teamNumber={t} surrogate={m.blue_surrogate[idx]} link={t !== team} />)}
             </Box>
           </MatchCell>
 
-          {m.phase != 'practice' && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.phase != 'practice' && m.played ? <MatchCell ownerState={redOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}} onClick={showDetail}>
             <span>{m.red_score}</span>
           </MatchCell> : null}
-          {m.phase != 'practice' && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
+          {m.phase != 'practice' && m.played ? <MatchCell ownerState={blueOwnerState} sx={{ display: { xs: 'none', sm: 'table-cell'}}} onClick={showDetail}>
             <span>{m.blue_score}</span>
           </MatchCell>: null}
           {m.phase != 'practice' && !m.played ? <MatchCell colSpan={2} sx={{ display: { xs: 'none', sm: 'table-cell'}}}>
@@ -136,10 +138,10 @@ function TraditionalMatchTable({matches, team, showMatchDetail}: {
         </TableRow>,
         m.phase == 'practice' ? null : <TableRow key={`${m.id}-results`} style={rowStyle} sx={{ display: { sm: 'none', xs: 'table-row'}}}>
           <TableCell />
-          {m.played ? <MatchCell ownerState={redOwnerState}>
+          {m.played ? <MatchCell ownerState={redOwnerState} onClick={showDetail}>
             <span>{m.red_score}</span>
           </MatchCell> : null}
-          {m.played ? <MatchCell ownerState={blueOwnerState}>
+          {m.played ? <MatchCell ownerState={blueOwnerState} onClick={showDetail}>
             <span>{m.blue_score}</span>
           </MatchCell>: null}
           {!m.played ? <MatchCell colSpan={2}>

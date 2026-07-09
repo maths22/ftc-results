@@ -113,7 +113,7 @@ const router = createRouter({
         getParentRoute: () => eventSummary,
         loader: ({params}) => {
           throw redirect({
-            to: `../../quals?matchDetails=${params.season}_${params.slug}_Q-${params.number}`
+            to: `../../quals?matchDetails=${params.season}_${params.slug}_Q${params.number}`
           })
         }
       }),
@@ -121,7 +121,7 @@ const router = createRouter({
         path: '/playoff/$series/$number',
         getParentRoute: () => eventSummary,
         loader: ({params}) => {
-          let target = `../../../playoffs?matchDetails=${params.season}_${params.slug}_P-${params.series}`
+          let target = `../../../playoffs?matchDetails=${params.season}_${params.slug}_M${params.series}`
           if(params.number != 1) {
             target += `-${params.number}`
           }

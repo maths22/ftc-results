@@ -863,8 +863,10 @@ export interface components {
             number: number;
             name: string;
             played: boolean;
+            red_seed?: number;
             red_alliance: number[];
             red_surrogate: boolean[];
+            blue_seed?: number;
             blue_alliance: number[];
             blue_surrogate: boolean[];
             red_score?: number;

@@ -124,17 +124,20 @@ class Match < ApplicationRecord
     blue_alliance.score[1] = blue_score_total unless blue_alliance.surrogate[1]
   end
 
-  NAME_PREFIXES = { qual: 'Q', semi: 'SF', final: 'F', interfinal: 'IF', playoff: 'P' }
+  NAME_PREFIXES = { qual: 'Q', semi: 'SF', final: 'F', interfinal: 'IF', playoff: 'M', practice: 'P' }
   def name
-    [series == 0 && phase == 'semi' ? 'P' : NAME_PREFIXES[phase.to_sym], series == 0 ? nil : series, phase == 'playoff' && number == 1 ? nil : number].compact.join('-')
+    (series == 0 && phase == 'semi' ? 'M' : NAME_PREFIXES[phase.to_sym]) + [series == 0 ? nil : series, phase == 'playoff' && number == 1 ? nil : number].compact.join('-')
   end
 
   def self.parse_name(name)
     parts = name.split('-')
-    ret = { phase: parts.first == 'P' ? [:semi, :playoff] : NAME_PREFIXES.invert[parts.first], number: parts.last.to_i }
+    first_str = parts.first.scan(/\D+/)
+    first_num = parts.first.scan(/\d+/)
+    parts = [first_str.first, first_num.first, *parts[1..-1]].compact
+    ret = { phase: parts.first == 'M' ? [:semi, :playoff] : NAME_PREFIXES.invert[parts.first], number: parts.last.to_i }
     if parts.length == 3
       ret[:series] = parts[1].to_i
-    elsif parts.length == 2 && parts.first == 'P'
+    elsif parts.length == 2 && parts.first == 'M'
       ret[:series] = parts[1].to_i
       ret[:number] = 1
     end
