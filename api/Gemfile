@@ -32,7 +32,7 @@ gem 'random-port'
 gem 'rubyzip', '>= 1.0.0', require: 'zip'
 gem 'sqlite3'
 
-gem 'iodine'
+gem 'iodine', github: 'boazsegev/iodine', ref: '13031f88cd838faeae6e3e6028dad8d524e7b5a2'
 gem 'rswag-api'
 
 gem 'inst-jobs'
