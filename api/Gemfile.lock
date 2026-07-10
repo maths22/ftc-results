@@ -234,7 +234,7 @@ GEM
       fugit (~> 1.3)
       railties (>= 6.0)
     io-console (0.8.0)
-    iodine (0.7.58)
+    iodine (0.7.59)
     irb (1.15.2)
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
