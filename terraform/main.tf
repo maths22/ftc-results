@@ -8,15 +8,54 @@ locals {
   }
 }
 
+resource "aws_cloudfront_origin_access_control" "oac" {
+  name                              = "ftc-results-${local.workspace}-assets"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_s3_bucket" "asset_bucket" {
   bucket = "ftc-results-assets-${local.workspace}"
-  acl    = "public-read"
-
-  website {
-    index_document = "index.html"
-  }
 
   tags = local.tags
+}
+
+resource "aws_s3_bucket_acl" "asset_bucket" {
+  bucket = aws_s3_bucket.asset_bucket.id
+
+  acl = "private"
+}
+
+data "aws_iam_policy_document" "s3_policy" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.asset_bucket.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringLike"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.distribution.arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "policy" {
+  bucket = aws_s3_bucket.asset_bucket.id
+  policy = data.aws_iam_policy_document.s3_policy.json
+}
+
+data "aws_cloudfront_cache_policy" "caching_optimized" {
+  name = "Managed-CachingOptimized"
+}
+
+data "aws_cloudfront_response_headers_policy" "simple_cors" {
+  name = "Managed-CORS-With-Preflight"
 }
 
 resource "aws_cloudfront_distribution" "distribution" {
@@ -46,6 +85,21 @@ resource "aws_cloudfront_distribution" "distribution" {
   origin {
     origin_id   = "asset-bucket"
     domain_name = aws_s3_bucket.asset_bucket.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
+  }
+
+  # Redirect to our SPA
+  custom_error_response {
+    error_code         = 403
+    response_code      = 200
+    response_page_path = "/index.html"
+  }
+
+  # Redirect to our SPA
+  custom_error_response {
+    error_code         = 404
+    response_code      = 200
+    response_page_path = "/index.html"
   }
 
   origin {
@@ -66,13 +120,9 @@ resource "aws_cloudfront_distribution" "distribution" {
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     compress         = true
 
-    forwarded_values {
-      query_string = false
+    cache_policy_id  = data.aws_cloudfront_cache_policy.caching_optimized.id
 
-      cookies {
-        forward = "none"
-      }
-    }
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.simple_cors.id
 
     viewer_protocol_policy = "redirect-to-https"
   }

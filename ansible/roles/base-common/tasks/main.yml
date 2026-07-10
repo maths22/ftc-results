@@ -1,11 +1,18 @@
 ---
 - name: Instructure ruby availible
-  apt_repository:
-    repo: ppa:instructure/ruby
+  deb822_repository:
+    name: instructure-ruby
+    types: deb
+    uris: http://ppa.launchpad.net/instructure/ruby/ubuntu
+    suites: "{{ ansible_distribution_release }}"
+    components: main
+    signed_by: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2fd00411f543995c03ad21149cd72eb52048a870
+    enabled: true
+    state: present
 - name: Latest version of Ruby and some version of node is installed
   apt:
     update_cache: true
-    pkg: ["ruby3.2", "ruby3.2-dev", "libjemalloc-dev", "nodejs"]
+    pkg: ["ruby3.3", "ruby3.3-dev", "libjemalloc-dev", "nodejs"]
     state: latest
 - name: Set LD_PRELOAD
   lineinfile:

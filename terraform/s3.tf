@@ -1,6 +1,16 @@
 resource "aws_s3_bucket" "upload" {
   bucket = "ftc-results-upload-${local.workspace}"
-  acl    = "private"
+
+  tags = local.tags
+}
+
+resource "aws_s3_bucket_acl" "upload" {
+  bucket = aws_s3_bucket.upload.id
+  acl = "private"
+}
+
+resource "aws_s3_bucket_cors_configuration" "upload" {
+  bucket = aws_s3_bucket.upload.id
 
   cors_rule {
     allowed_headers = ["*"]
@@ -12,6 +22,4 @@ resource "aws_s3_bucket" "upload" {
     allowed_methods = ["GET"]
     allowed_origins = ["*"]
   }
-
-  tags = local.tags
 }
