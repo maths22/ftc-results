@@ -1,11 +1,11 @@
 module ScoringSystem
-  TYPE_SCRIMMAGE = 0
-  TYPE_LEAGUE_MEET = 1
-  TYPE_QUALIFIER = 2
-  TYPE_LEAGUE_TOURNAMENT = 3
-  TYPE_CHAMPIONSHIP = 4
-  TYPE_OTHER = 5
-  TYPE_PREMIER = 17
+  TYPE_SCRIMMAGE = "SCRIMMAGE"
+  TYPE_LEAGUE_MEET = "LEAGUE_MEET"
+  TYPE_QUALIFIER = "QUALIFIER"
+  TYPE_LEAGUE_TOURNAMENT = "LEAGUE_TOURNAMENT"
+  TYPE_CHAMPIONSHIP = "CHAMPIONSHIP"
+  TYPE_OTHER = "OTHER"
+  TYPE_PREMIER = "PREMIER"
 
   # rubocop:disable Naming/AccessorMethodName
   class SqlitedbTransformerService
@@ -29,10 +29,10 @@ module ScoringSystem
       set_config db, "code", event.slug.downcase
       set_config db, "onlineResultsUrl", "#{root_url}#{event.season.year}/events/#{event.slug}"
       set_config db, "name", event.name
-      set_config db, "start", event.start_date.in_time_zone.change(hour: 8).to_i.to_s + '000'
-      set_config db, "end", event.end_date.in_time_zone.change(hour: 17).to_i.to_s + '000'
+      set_config db, "start", event.start_date.iso8601
+      set_config db, "end", event.end_date.iso8601
       set_config db, "division", 0
-      set_config db, "status", 1
+      set_config db, "status", "SETUP"
       set_config db, "finals", "false"
 
       type = if event.league_meet?
@@ -57,6 +57,7 @@ module ScoringSystem
       set_config db, "ek", token
       set_config db, "cloudBaseUrl", "#{root_url}api/v1/scoring"
       set_config db, "advancement.enabled", "false"
+      set_config db, "timeZone", event.timezone
     end
 
     def set_field_count(db)

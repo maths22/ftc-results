@@ -1,0 +1,65 @@
+$artifact-red: #EA3323;
+$artifact-orange: #E99034;
+$artifact-yellow: #F7D148;
+$artifact-green: #5CC54A;
+$artifact-blue: #459BE1;
+$artifact-purple: #891FE6;
+
+.criArtifact {
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    display: inline-block;
+    text-align: center;
+    color: white;
+    line-height: calc(1.5em - 7px);
+    margin: 0.1em;
+    border: 3px solid transparent;
+}
+
+.criArtifact.artifact-red {
+    background: $artifact-red;
+    color: white;
+}
+
+.criArtifact.artifact-orange {
+    background: $artifact-orange;
+}
+
+.criArtifact.artifact-yellow {
+    background: $artifact-yellow;
+}
+
+.criArtifact.artifact-green {
+    background: $artifact-green;
+}
+
+.criArtifact.artifact-blue {
+    background: $artifact-blue;
+}
+
+.criArtifact.artifact-purple {
+    background: $artifact-purple;
+    color: white;
+}
+
+.criArtifact.artifact-gem {
+    border: 0px;
+    line-height: calc(1.5em - 1px);
+    background-image: conic-gradient(
+            from 0deg at 50% 50%,
+            $artifact-red 0deg,
+            #EA3323 90deg,
+            #E99034 90deg,
+            #E99034 180deg,
+            #F7D148 180deg,
+            #F7D148 270deg,
+            $artifact-blue 270deg,
+            $artifact-blue 360deg
+    );
+}
+
+.criArtifact.artifact-none {
+    background: white;
+    border: 1px solid black;
+}

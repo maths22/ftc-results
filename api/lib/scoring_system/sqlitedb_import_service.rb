@@ -16,14 +16,13 @@ module ScoringSystem
         ActiveRecord::Base.transaction do
           verify_event
           import_teams
-          import_quals
-          import_elims
+          import_phase('PRACTICE')
+          import_phase('QUALS')
+          import_alliances
+          import_phase('ELIMS')
           import_rankings
           # import_league_results
           import_awards
-          # generate_rankings unless event.context_type == :league_meet
-          # create_rankings
-          # TODO: import rankings
 
           event.finalize! unless event.finalized?
           event.save!
@@ -39,7 +38,7 @@ module ScoringSystem
     end
 
     def import_teams
-      team_list = @db.execute('SELECT number FROM teams').map { |t| t['number'] }
+      team_list = @db.execute('SELECT number FROM teams t JOIN teamData td ON td.teamId = t.teamId').map { |t| t['number'] }
       new_team_nums = team_list - event.teams.pluck(:number)
       teams = new_team_nums.map { |t| Team.find_or_create_by(number: t) }
 
@@ -54,155 +53,120 @@ module ScoringSystem
       event.save!
     end
 
-    def import_quals
-      has_team3 = @db.execute("SELECT 1 FROM PRAGMA_TABLE_INFO('quals') WHERE name='red3'").size > 0
-      quals = @db.execute("SELECT match, red1, red2#{has_team3 ? ', red3' : ''}, blue1, blue2#{has_team3 ? ', blue3' : ''}, red1s, red2s#{has_team3 ? ', red3s' : ''}, blue1s, blue2s#{has_team3 ? ', blue3s' : ''} FROM quals")
+    def import_phase(phase)
+      results_phase = {
+        'PRACTICE' => :practice,
+        'QUALS' => :qual,
+        'ELIMS' => :playoff
+      }[phase]
+      matches = @db.execute("SELECT m.matchId, series, number, scheduleStart, start FROM matches m JOIN matchData md ON m.matchId = md.matchId WHERE phase = ?", phase)
 
-      quals.each do |q|
-        red_alliance = Alliance.new event: event, is_elims: false, teams: (has_team3 ? [Team.find(q['red1']), Team.find(q['red2']), Team.find(q['red3'])] : [Team.find(q['red1']), Team.find(q['red2'])]), event_division: event_division
-        blue_alliance = Alliance.new event: event, is_elims: false, teams: (has_team3 ? [Team.find(q['blue1']), Team.find(q['blue2']), Team.find(q['blue3'])] : [Team.find(q['blue1']), Team.find(q['blue2'])]), event_division: event_division
+      matches.each do |m|
+        if results_phase == :playoff
+          alliances = @db.execute("SELECT matchId, alliance, seed FROM matchAlliances WHERE matchId = ?", m['matchId'])
+          red_alliance = event.alliances.find_by(is_elims: true, seed: alliances.find { |a| a['alliance'] == 'RED' }['seed'])
+          blue_alliance = event.alliances.find_by(is_elims: true, seed: alliances.find { |a| a['alliance'] == 'BLUE' }['seed'])
+        else
+          stations = @db.execute("SELECT matchId, alliance, station, surrogate, td.number as teamNumber FROM matchStations ms JOIN teamData td ON ms.teamId = td.teamId WHERE matchId = ? ORDER by alliance, station", m['matchId'])
+          grouped_stations = stations.group_by { |x| x['alliance'] }
+          red_alliance = Alliance.new event: event, is_elims: false, teams: Team.find(grouped_stations['RED'].map { |x| x['teamNumber'] }), event_division: event_division
+          blue_alliance = Alliance.new event: event, is_elims: false, teams: Team.find(grouped_stations['BLUE'].map { |x| x['teamNumber'] }), event_division: event_division
+        end
         red_alliance.save!
         blue_alliance.save!
         red_match_alliance = MatchAlliance.new alliance: red_alliance
         blue_match_alliance = MatchAlliance.new alliance: blue_alliance
-        red_match_alliance.surrogate[0] = q['red1S'].positive?
-        red_match_alliance.surrogate[1] = q['red2S'].positive?
-        red_match_alliance.surrogate[2] = q['red3S'].positive? if has_team3
-        blue_match_alliance.surrogate[0] = q['blue1S'].positive?
-        blue_match_alliance.surrogate[1] = q['blue2S'].positive?
-        blue_match_alliance.surrogate[2] = q['blue3S'].positive? if has_team3
-        match = Match.new event: event, phase: 'qual', number: q['match'], red_alliance: red_match_alliance, blue_alliance: blue_match_alliance, event_division: event_division
+        if grouped_stations
+          red_match_alliance.surrogate = grouped_stations['RED'].map { |x| x['surrogate'] }
+          blue_match_alliance.surrogate = grouped_stations['RED'].map { |x| x['surrogate'] }
+        end
+        match = Match.new event: event, phase: results_phase, series: results_phase == :playoff ? m['number'] : 0, number: results_phase == :playoff ? 1 : m['number'], red_alliance: red_match_alliance, blue_alliance: blue_match_alliance, event_division: event_division
+        match.start = Time.at(m['start'] / 1000.0) if m['start']
+        match.scheduled_start = ActiveSupport::TimeZone[event.timezone].parse(m['scheduleStart']) if m['scheduleStart']
         match.red_score = Score.new
         match.blue_score = Score.new
         match.save!
       end
 
-      # TODO add team3 stuff for CRI this year
-      quals_scores = @db.execute "SELECT match, alliance, card1, card2#{has_team3 ? ', card3' : ''}, dq1, dq2#{has_team3 ? ', dq3' : ''}, noshow1, noshow2#{has_team3 ? ', noshow3' : ''}, major, minor FROM qualsScores"
-      quals_scores.each do |s|
-        match = ss_match_to_results_match('qual', s['match'])
-        match_alliance = s['alliance'].zero? ? match.red_alliance : match.blue_alliance
-        match_alliance.red_card[0] = s['card1'] >= 2
-        match_alliance.red_card[1] = s['card2'] >= 2
-        match_alliance.red_card[2] = s['card3'] >= 2 if has_team3
-        match_alliance.yellow_card[0] = s['card1'] >= 1
-        match_alliance.yellow_card[1] = s['card2'] >= 1
-        match_alliance.yellow_card[2] = s['card3'] >= 1 if has_team3
-        match_alliance.teams_start = []
-        match_alliance.teams_present[0] = s['noshow1'].zero?
-        match_alliance.teams_present[1] = s['noshow2'].zero?
-        match_alliance.teams_present[2] = s['noshow3'].zero? if has_team3
-        match_alliance.save!
-        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
-        score = Score.new season_score: season_score
-        # rubocop:disable Style/NumericPredicate
-        match.red_score = score if s['alliance'] == 0
-        match.blue_score = score if s['alliance'] == 1
-        # rubocop:enable Style/NumericPredicate
+      matches.each do |m|
+        match = event.matches.find_by(phase: results_phase, series: results_phase == :playoff ? m['number'] : 0, number: results_phase == :playoff ? 1 : m['number'])
+
+        participants = @db.execute("SELECT matchId, alliance, station, card, dq, noShow FROM matchParticipants WHERE matchId = ? ORDER by alliance, station", m['matchId'])
+        grouped_participants = participants.group_by { |x| x['alliance'] }
+
+        [:red, :blue].each do |alliance|
+          match_alliance = match.send("#{alliance}_alliance")
+          match_alliance.red_card = grouped_participants[alliance.to_s.upcase].map { |x| x['card'] == 'RED' || x['card'] == 'SECOND_YELLOW' }
+          match_alliance.yellow_card = grouped_participants[alliance.to_s.upcase].map { |x| x['card'] == 'YELLOW' || x['card'] == 'SECOND_YELLOW' }
+          match_alliance.teams_start = []
+          match_alliance.teams_present = grouped_participants[alliance.to_s.upcase].map { |x| x['noShow'].zero? }
+          match_alliance.save!
+          score = Score.new(red_match: match)
+          score.season_score = event.season.score_model.new(score: match.red_score)
+          match.send("#{alliance}_score=", score)
+        end
         match.played = true
         match.save!
       end
 
       specific_name = "import_#{event.season.score_model_name.tableize}"
-      send(respond_to?(specific_name) ? specific_name : "import_modern_scores", phase: 'qual', table: 'qualsGameSpecific')
+      send(respond_to?(specific_name) ? specific_name : "import_modern_scores", phase: phase, results_phase: results_phase)
     end
 
     def import_rankings
-      rankings = @db.execute('SELECT TeamRanking.*,Team.TeamNumber AS TeamNumber FROM TeamRanking INNER JOIN Team ON TeamRanking.FMSTeamId=Team.FMSTeamId')
+      rankings = @db.execute('SELECT td.number as teamNumber, sortTuple, wins, losses, ties, matchesPlayed, matchesCounted FROM qualsRankings qr JOIN teamData td ON qr.teamId = td.teamId')
+      rankings.each { |r| r['sortTuple'] = JSON.load(r['sortTuple']) }
+      rankings = rankings.sort_by { |r| r['sortTuple'] }
 
-      rankings.each do |r|
+      rankings.each_with_index do |r, idx|
         @event.rankings.create!(
-          team_id: r['TeamNumber'],
-          ranking: r['Ranking'],
-          sort_order1: r['SortOrder1'],
-          sort_order2: r['SortOrder2'],
-          sort_order3: r['SortOrder3'],
-          sort_order4: r['SortOrder4'],
-          sort_order5: r['SortOrder5'],
-          sort_order6: r['SortOrder6'],
-          matches_played: r['MatchesPlayed'],
-          wins: r['Wins'],
-          losses: r['Losses'],
-          ties: r['Ties'],
-          # Sadness
-          matches_counted: r['MatchesPlayed']
+          team_id: r['teamNumber'],
+          ranking: idx + 1,
+          sort_order1: r['sortTuple'][0],
+          sort_order2: r['sortTuple'][1],
+          sort_order3: r['sortTuple'][2],
+          sort_order4: r['sortTuple'][3],
+          sort_order5: r['sortTuple'][4],
+          sort_order6: r['sortTuple'][5],
+          matches_played: r['matchesPlayed'],
+          wins: r['wins'],
+          losses: r['losses'],
+          ties: r['ties'],
+          matches_counted: r['matchesCounted']
         )
       end
 
-      has_elims_rankings = @db.execute("SELECT 1 FROM PRAGMA_TABLE_INFO('ElimsRanking')").size > 0
-      if has_elims_rankings
-        rankings = @db.execute('SELECT * FROM ElimsRanking')
+      rankings = @db.execute('SELECT seed, sortTuple, wins, losses, ties, matchesPlayed FROM playoffRankings pr')
+      rankings.each { |r| r['sortTuple'] = JSON.load(r['sortTuple']) }
+      rankings = rankings.sort_by { |r| r['sortTuple'] }
 
-        rankings.each do |r|
-          @event.rankings.create!(
-            alliance: Alliance.find_by(event: @event, is_elims: true, seed: r['Seed']),
-            ranking: r['Ranking'],
-            sort_order1: r['SortOrder1'],
-            sort_order2: r['SortOrder2'],
-            sort_order3: r['SortOrder3'],
-            sort_order4: r['SortOrder4'],
-            sort_order5: r['SortOrder5'],
-            sort_order6: r['SortOrder6'],
-            matches_played: r['MatchesPlayed'],
-            wins: r['Wins'],
-            losses: r['Losses'],
-            ties: r['Ties'],
-            # Sadness
-            matches_counted: r['MatchesPlayed']
-          )
-        end
+      rankings.each do |r|
+        @event.rankings.create!(
+          alliance: Alliance.find_by(event: @event, is_elims: true, seed: r['seed']),
+          ranking: idx + 1,
+          sort_order1: r['sortTuple'][0],
+          sort_order2: r['sortTuple'][1],
+          sort_order3: r['sortTuple'][2],
+          sort_order4: r['sortTuple'][3],
+          sort_order5: r['sortTuple'][4],
+          sort_order6: r['sortTuple'][5],
+          matches_played: r['matchesPlayed'],
+          wins: r['wins'],
+          losses: r['losses'],
+          ties: r['ties'],
+          # Playoffs always count all played matches
+          matches_counted: r['matchesPlayed']
+        )
       end
     end
 
-    def import_elims
-      has_team4 = @db.execute("SELECT 1 FROM PRAGMA_TABLE_INFO('alliances') WHERE name='red3'").size > 0
-      alliances = @db.execute ("SELECT rank, team1, team2, team3#{has_team4 ? ", team4" : ""} FROM alliances")
-      alliance_map = {}
-      alliances.each do |a|
-        next unless a['team1'].positive?
-
-        teams = [Team.find(a['team1']), Team.find(a['team2'])]
-        teams.append(Team.find(a['team3'])) if a['team3'].positive?
-        teams.append(Team.find(a['team4'])) if has_team4 && a['team4'].positive?
-        alliance = Alliance.new event: event, is_elims: true, seed: a['rank'], teams: teams, event_division: event_division
-        alliance.save!
-        alliance_map[alliance.seed] = alliance
+    def import_alliances
+      all_members = @db.execute("SELECT seed, position, td.number as teamNumber FROM allianceMembers am JOIN teamData td ON am.teamId = td.teamId ORDER BY seed, position")
+      alliances = all_members.group_by { |a| a['seed'] }
+      alliances.each do |seed, members|
+        teams = Team.find(members.map { |x| x['teamNumber'] })
+        event.alliances.create!(is_elims: true, seed:, teams:, event_division:)
       end
-
-      elims = @db.execute 'SELECT match, red, blue FROM elims'
-      elims.each do |e|
-        red_match_alliance = MatchAlliance.new alliance: alliance_map[e['red']]
-        blue_match_alliance = MatchAlliance.new alliance: alliance_map[e['blue']]
-        match = Match.new event: event, red_alliance: red_match_alliance, blue_alliance: blue_match_alliance, event_division: event_division
-        match.update(elim_match_map[e['match']])
-        match.save!
-      end
-      elims_score = @db.execute "SELECT match, alliance, card, dq, noshow1, noshow2, noshow3#{has_team4 ? ", noshow4" : ""}, major, minor FROM elimsScores"
-      elims_score.each do |s|
-        match = ss_match_to_results_match('elim', s['match'])
-        # rubocop:disable Style/NumericPredicate
-        match_alliance = s['alliance'] == 0 ? match.red_alliance : match.blue_alliance
-        # rubocop:enable Style/NumericPredicate
-        match_alliance.red_card.fill(s['card'] >= 2)
-        match_alliance.yellow_card.fill(s['card'] >= 1)
-        match_alliance.teams_start = []
-        match_alliance.teams_present[0] = s['noshow1'].zero?
-        match_alliance.teams_present[1] = s['noshow2'].zero?
-        match_alliance.teams_present[2] = s['noshow3'].zero?
-        match_alliance.teams_present[3] = s['noshow4'].zero? if has_team4
-        match_alliance.save!
-        season_score = event.season.score_model.new major_penalties: s['major'], minor_penalties: s['minor']
-        score = Score.new season_score: season_score
-        # rubocop:disable Style/NumericPredicate
-        match.red_score = score if s['alliance'] == 0
-        match.blue_score = score if s['alliance'] == 1
-        # rubocop:enable Style/NumericPredicate
-        match.played = true
-        match.save!
-      end
-
-      specific_name = "import_#{event.season.score_model_name.tableize}"
-      send(respond_to?(specific_name) ? specific_name : "import_modern_scores", phase: 'elim', table: 'elimsGameSpecific')
     end
 
     def import_rover_ruckus_scores(phase:, table:)
@@ -267,24 +231,25 @@ module ScoringSystem
       end
     end
 
-    def import_modern_scores(phase:, table:)
-      stmt = 'SELECT match, Match.ScoreDetails FROM ' + (table.gsub 'GameSpecific', 'Data') + " JOIN Match on Match.FMSMatchId = #{table.gsub('GameSpecific', 'Data')}.FMSMatchId"
+    def import_modern_scores(phase:, results_phase:)
+      stmt = "SELECT matchId, series, number, (SELECT scoreData FROM matchScores ms WHERE ms.matchId = m.matchId AND ms.alliance = 'RED') as redScore, (SELECT scoreData FROM matchScores ms WHERE ms.matchId = m.matchId AND ms.alliance = 'BLUE') as blueScore FROM matches m WHERE phase = ?"
 
-      season_results = @db.execute stmt
+      season_results = @db.execute stmt, phase
 
       season_results.each do |r|
-        match = ss_match_to_results_match(phase, r['match'])
-        fms_scores = JSON.parse(Zlib.gunzip(r['ScoreDetails']))
-        match.red_score.season_score.update_from_fms_score!(fms_scores['RedAllianceScore'], fms_scores['BlueAllianceScore'])
-        match.red_score.update(auto: fms_scores['RedAllianceScore']['AutoPoints'],
-                               teleop: fms_scores['RedAllianceScore']['DcPoints'],
-                               endgame: fms_scores['RedAllianceScore']['EndgamePoints'],
-                               penalty: fms_scores['RedAllianceScore']['PenaltyPoints'])
-        match.blue_score.season_score.update_from_fms_score!(fms_scores['BlueAllianceScore'], fms_scores['RedAllianceScore'])
-        match.blue_score.update(auto: fms_scores['BlueAllianceScore']['AutoPoints'],
-                                teleop: fms_scores['BlueAllianceScore']['DcPoints'],
-                                endgame: fms_scores['BlueAllianceScore']['EndgamePoints'],
-                                penalty: fms_scores['BlueAllianceScore']['PenaltyPoints'])
+        match = event.matches.find_by(phase: results_phase, series: results_phase == :playoff ? r['number'] : 0, number: results_phase == :playoff ? 1 : r['number'])
+        red_scores = JSON.load(r['redScore'])
+        blue_scores = JSON.load(r['blueScore'])
+        match.red_score.season_score.update_from_fms_score!(red_scores, blue_scores)
+        match.red_score.update(auto: red_scores['autoPoints'],
+                                teleop: red_scores['teleopPoints'],
+                                endgame: 0,
+                                penalty: red_scores['foulPointsCommitted'])
+        match.blue_score.season_score.update_from_fms_score!(blue_scores, red_scores)
+        match.blue_score.update(auto: blue_scores['autoPoints'],
+                                teleop: blue_scores['teleopPoints'],
+                                endgame: 0,
+                                penalty: blue_scores['foulPointsCommitted'])
       end
     end
 
@@ -343,45 +308,22 @@ module ScoringSystem
       end
     end
 
-    def generate_rankings
-      event.matches.where(event_division: event_division).each do |m|
-        m.update_ranking_data
-        m.save!
-      end
-    end
-
-    def create_rankings
-      base_rankings = Rankings::EventRankingsService.new(event).compute.values.select do |tr|
-        event_division.nil? || event_division.team_numbers.include?(tr.team.number)
-      end
-      base_rankings.sort.reverse.map.with_index do |tr, idx|
-        rank = Ranking.new team: tr.team,
-                           context: event,
-                           event_division: event_division,
-                           ranking: idx + 1,
-                           ranking_points: tr.rp,
-                           tie_breaker_points: tr.tbp,
-                           matches_played: tr.matches_played
-        rank.save!
-      end
-    end
-
     def import_awards
       # TODO: consider awardOrder
-      awards_given = @db.execute 'SELECT Award.Description, Award.Script, Team.TeamNumber, AwardAssignment.FirstName, AwardAssignment.LastName, AwardAssignment.Series as Place, AwardAssignment.Comment FROM AwardAssignment
-                        LEFT JOIN Team ON Team.FMSTeamId = AwardAssignment.FMSTeamId
-                        JOIN Award ON Award.FMSAwardId = AwardAssignment.FMSAwardId
-                        AND NOT (TeamNumber IS NULL AND FirstName IS NULL AND LastName IS NULL)'
+      awards_given = @db.execute 'SELECT a.name as awardName, a.script, td.number as teamNumber, aa.series as place, aa.name, aa.comment FROM awardAssignments aa
+                        LEFT JOIN teamData td ON td.teamId = aa.teamId
+                        JOIN awards a ON a.awardId = aa.awardId
+                        AND NOT (aa.teamId IS NULL AND aa.name IS NULL)'
       awards_given.each do |ag|
-        award = Award.find_or_create_by(name: ag['Description'], event: event) do |new_award|
-          new_award.description = ag['Script']
+        award = Award.find_or_create_by(name: ag['awardName'], event: event) do |new_award|
+          new_award.description = ag['script']
         end
 
         AwardFinalist.new(
-          team_id: ag['TeamNumber'],
-          recipient: "#{ag['FirstName']} #{ag['LastName']}".strip,
-          place: ag['Place'],
-          description: ag['Comment'],
+          team_id: ag['teamNumber'],
+          recipient: ag['name'],
+          place: ag['place'],
+          description: ag['comment'],
           award: award
         ).save!
       end

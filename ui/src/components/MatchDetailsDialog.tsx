@@ -28,7 +28,8 @@ const scoreTables = {
   'CenterstageCriScore': lazy(() => import('./scoreTables/CenterstageCriScoreTable.tsx')),
   'IntoTheDeepScore': lazy(() => import('./scoreTables/IntoTheDeepScoreTable.ts')),
   'IntoTheDeepCriScore': lazy(() => import('./scoreTables/IntoTheDeepCriScoreTable.ts')),
-  'DecodeScore': lazy(() => import('./scoreTables/DecodeScoreTable.tsx'))
+  'DecodeScore': lazy(() => import('./scoreTables/DecodeScoreTable.tsx')),
+  'DecodeCriScore': lazy(() => import('./scoreTables/DecodeCriScoreTable.tsx'))
 }
 
 export default function MatchDetailsDialog() {

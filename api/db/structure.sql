@@ -1,4 +1,4 @@
-\restrict 7NjlCgZahqKhKjUFTJQLsQerd7u0v3LQSoWb2PtEk9pC1YeYiBL4b1AHNXczZdq
+\restrict 22RcnF9FO8elqSjUBNZa9yd7CyYoYgYJ08BQZA2epTc3NfG0NlJ0HzNqqC1CaLM
 
 -- Dumped from database version 18.2 (Postgres.app)
 -- Dumped by pg_dump version 18.2 (Postgres.app)
@@ -41,6 +41,22 @@ CREATE TYPE public.decode_artifact AS ENUM (
     'NONE',
     'PURPLE',
     'GREEN'
+);
+
+
+--
+-- Name: decode_cri_artifact; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.decode_cri_artifact AS ENUM (
+    'NONE',
+    'PURPLE',
+    'GREEN',
+    'RED',
+    'ORANGE',
+    'YELLOW',
+    'BLUE',
+    'GEM'
 );
 
 
@@ -704,6 +720,55 @@ CREATE SEQUENCE public.centerstage_scores_id_seq
 --
 
 ALTER SEQUENCE public.centerstage_scores_id_seq OWNED BY public.centerstage_scores.id;
+
+
+--
+-- Name: decode_cri_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.decode_cri_scores (
+    id bigint NOT NULL,
+    auto_classified_artifacts integer DEFAULT 0,
+    auto_overflow_artifacts integer DEFAULT 0,
+    auto_classifier_state public.decode_cri_artifact[] DEFAULT '{NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE}'::public.decode_cri_artifact[],
+    auto_robot1 boolean DEFAULT false,
+    auto_robot2 boolean DEFAULT false,
+    auto_robot3 boolean DEFAULT false,
+    teleop_classified_artifacts integer DEFAULT 0,
+    teleop_overflow_artifacts integer DEFAULT 0,
+    teleop_depot_artifacts integer DEFAULT 0,
+    teleop_classifier_state public.decode_cri_artifact[] DEFAULT '{NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE,NONE}'::public.decode_cri_artifact[],
+    prism_state public.decode_cri_artifact[] DEFAULT '{NONE,NONE,NONE,NONE,NONE,NONE}'::public.decode_cri_artifact[],
+    teleop_robot1 public.decode_teleop_robot_status DEFAULT 'NONE'::public.decode_teleop_robot_status,
+    teleop_robot2 public.decode_teleop_robot_status DEFAULT 'NONE'::public.decode_teleop_robot_status,
+    teleop_robot3 public.decode_teleop_robot_status DEFAULT 'NONE'::public.decode_teleop_robot_status,
+    movement_rp boolean DEFAULT false,
+    goal_rp boolean DEFAULT false,
+    pattern_rp boolean DEFAULT false,
+    minor_penalties integer DEFAULT 0,
+    major_penalties integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: decode_cri_scores_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.decode_cri_scores_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: decode_cri_scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.decode_cri_scores_id_seq OWNED BY public.decode_cri_scores.id;
 
 
 --
@@ -2160,6 +2225,13 @@ ALTER TABLE ONLY public.centerstage_scores ALTER COLUMN id SET DEFAULT nextval('
 
 
 --
+-- Name: decode_cri_scores id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.decode_cri_scores ALTER COLUMN id SET DEFAULT nextval('public.decode_cri_scores_id_seq'::regclass);
+
+
+--
 -- Name: decode_scores id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2469,6 +2541,14 @@ ALTER TABLE ONLY public.centerstage_cri_scores
 
 ALTER TABLE ONLY public.centerstage_scores
     ADD CONSTRAINT centerstage_scores_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: decode_cri_scores decode_cri_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.decode_cri_scores
+    ADD CONSTRAINT decode_cri_scores_pkey PRIMARY KEY (id);
 
 
 --
@@ -3294,11 +3374,12 @@ ALTER TABLE ONLY public.event_divisions
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7NjlCgZahqKhKjUFTJQLsQerd7u0v3LQSoWb2PtEk9pC1YeYiBL4b1AHNXczZdq
+\unrestrict 22RcnF9FO8elqSjUBNZa9yd7CyYoYgYJ08BQZA2epTc3NfG0NlJ0HzNqqC1CaLM
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260709173058'),
 ('20260709155654'),
 ('20260708155232'),
 ('20260708154945'),

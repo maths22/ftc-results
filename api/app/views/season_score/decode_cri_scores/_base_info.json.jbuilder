@@ -1,0 +1,22 @@
+json.auto_classified_artifacts score.auto_classified_artifacts
+json.auto_overflow_artifacts score.auto_overflow_artifacts
+json.auto_classifier_state score.auto_classifier_state
+json.auto_robot1 score.auto_robot1
+json.auto_robot2 score.auto_robot2
+json.auto_robot3 score.auto_robot3
+
+json.teleop_classified_artifacts score.teleop_classified_artifacts
+json.teleop_overflow_artifacts score.teleop_overflow_artifacts
+json.teleop_depot_artifacts score.teleop_depot_artifacts
+json.teleop_classifier_state score.teleop_classifier_state
+json.prism_state score.prism_state
+json.teleop_robot1 score.teleop_robot1
+json.teleop_robot2 score.teleop_robot2
+json.teleop_robot3 score.teleop_robot3
+
+json.movement_rp score.movement_rp
+json.goal_rp score.goal_rp
+json.pattern_rp score.pattern_rp
+
+json.minor_fouls score.minor_penalties
+json.major_fouls score.major_penalties

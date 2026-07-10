@@ -180,60 +180,72 @@ class LiveSync
   end
 
   def _sync_phase_matches(phase, match_list, full:)
-    unless match_list[phase == 'qual' ? 'qualsActive' : 'active']
+    active = true
+    active = match_list['qualsActive'] if phase == 'qual'
+    active = match_list['active'] if phase == 'practice'
+    unless active
       @event.matches.where(phase:).destroy_all
       return
     end
 
     @event.start! unless @event.in_progress?
-    alliance_scope = Alliance.joins(:alliance_teams).group('alliances.id').where(event: Event.last, is_elims: false)
+    alliance_scope = Alliance.joins(:alliance_teams).group('alliances.id').where(event: @event, is_elims: false)
     having_clause = 'ARRAY[?]::bigint[] = ARRAY_AGG(alliance_teams.team_id ORDER BY alliance_teams.position)'
     match_list['matches'].each do |data|
-      match = @event.matches.where(phase:).find_or_initialize_by(number: data['number'])
+      match = @event.matches.where(phase:).find_or_initialize_by(series: data['series'], number: data['number'])
       # TODO need to update the alliance if it already exists...
-      team_count = data['red3'] > 0 ? 3 : 2
-      red_teams = (1..team_count).map { |t| data["red#{t}"] }
-      red_alliance = alliance_scope.having(having_clause, red_teams).create_with(team_ids: red_teams).first_or_create!
+      red_teams = data["red"].map { |t| t["team"] }
+      red_alliance = if data["redSeed"].positive?
+                       Alliance.find_by!(event: @event, is_elims: true, seed: data['redSeed'])
+                     else
+                       alliance_scope.having(having_clause, red_teams).create_with(team_ids: red_teams).first_or_create!
+                     end
       match.red_alliance ||= MatchAlliance.new(alliance: red_alliance)
       match.red_alliance.alliance = red_alliance
-      match.red_alliance.surrogate = (1..team_count).map { |t| data["red#{t}S"] }
-      match.red_alliance.teams_present = (1..team_count).map { |t| !data["red#{t}NS"] }
-      match.red_alliance.teams_start = (1..team_count).map { |t| data["red#{t}Start"] }
-      match.red_alliance.red_card = (1..team_count).map { |t| (data["red#{t}C"] & 2).positive? }
-      match.red_alliance.yellow_card = (1..team_count).map { |t| (data["red#{t}C"] & 1).positive? }
+      match.red_alliance.surrogate = data["red"].map { |t| t["surrogate"] }
+      match.red_alliance.teams_present = data["red"].map { |t| t["onField"] }
+      match.red_alliance.teams_start = data["red"].map { |t| t["onField"] }
+      match.red_alliance.red_card = data["red"].map { |t| t["card"] == "RED" || t["card"] == "SECOND_YELLOW" }
+      match.red_alliance.yellow_card = data["red"].map { |t| t["card"] == "YELLOW" || t["card"] == "SECOND_YELLOW" }
       match.red_alliance.save!
 
-      blue_teams = (1..team_count).map { |t| data["blue#{t}"] }
-      blue_alliance = alliance_scope.having(having_clause, blue_teams).create_with(team_ids: blue_teams).first_or_create!
+      blue_teams = data["blue"].map { |t| t["team"] }
+      blue_alliance = if data["blueSeed"].positive?
+                        Alliance.find_by!(event: @event, is_elims: true, seed: data['blueSeed'])
+                      else
+                        alliance_scope.having(having_clause, blue_teams).create_with(team_ids: blue_teams).first_or_create!
+                      end
       match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
       match.blue_alliance.alliance = blue_alliance
-      match.blue_alliance.surrogate = (1..team_count).map { |t| data["blue#{t}S"] }
-      match.blue_alliance.teams_present = (1..team_count).map { |t| !data["blue#{t}NS"] }
-      match.blue_alliance.teams_start = (1..team_count).map { |t| data["blue#{t}Start"] }
-      match.blue_alliance.red_card = (1..team_count).map { |t| (data["blue#{t}C"] & 2).positive? }
-      match.blue_alliance.yellow_card = (1..team_count).map { |t| (data["blue#{t}C"] & 1).positive? }
+      match.blue_alliance.surrogate = data["blue"].map { |t| t["surrogate"] }
+      match.blue_alliance.teams_present = data["blue"].map { |t| t["onField"] }
+      match.blue_alliance.teams_start = data["blue"].map { |t| t["onField"] }
+      match.blue_alliance.red_card = data["blue"].map { |t| t["card"] == "RED" || t["card"] == "SECOND_YELLOW" }
+      match.blue_alliance.yellow_card = data["blue"].map { |t| t["card"] == "YELLOW" || t["card"] == "SECOND_YELLOW" }
       match.blue_alliance.save!
 
       match.played = !!data['scorekeeperCommitTime']
+      match.random = data['random']
+      match.scheduled_start = data['scheduleStart']&.positive? ? Time.at(data['scheduleStart'] / 1000.0) : nil
+      match.start = data['start']&.positive? ? Time.at(data['start'] / 1000.0) : nil
 
       if match.played
-        fms_scores = JSON.parse(Zlib.gunzip(Base64.decode64(data['fmsScores'])))
-        match.red_score ||= Score.new
-        match.red_score.season_score ||= @event.season.score_model.new
+        match.red_score ||= Score.new(red_match: match)
+        match.red_score.season_score ||= @event.season.score_model.new(score: match.red_score)
         match.red_score.save!
-        match.red_score.season_score.update_from_fms_score!(fms_scores['RedAllianceScore'], fms_scores['BlueAllianceScore'])
-        match.red_score.update(auto: fms_scores['RedAllianceScore']['AutoPoints'],
-                               teleop: fms_scores['RedAllianceScore']['DcPoints'],
-                               endgame: fms_scores['RedAllianceScore']['EndgamePoints'],
-                               penalty: fms_scores['RedAllianceScore']['PenaltyPoints'])
-        match.blue_score ||= Score.new
-        match.blue_score.season_score ||= @event.season.score_model.new
+        match.red_score.season_score.update_from_fms_score!(data['redScores'], data['blueScores'])
+        match.red_score.update(auto: data['redScores']['autoPoints'],
+                                teleop: data['redScores']['teleopPoints'],
+                                endgame: 0,
+                                penalty: data['redScores']['foulPointsCommitted'])
+        match.blue_score ||= Score.new(blue_match: match)
+        match.blue_score.season_score ||= @event.season.score_model.new(score: match.blue_score)
         match.blue_score.save!
-        match.blue_score.season_score.update_from_fms_score!(fms_scores['BlueAllianceScore'], fms_scores['RedAllianceScore'])
-        match.blue_score.update(auto: fms_scores['BlueAllianceScore']['AutoPoints'],
-                                teleop: fms_scores['BlueAllianceScore']['DcPoints'],
-                                endgame: fms_scores['BlueAllianceScore']['EndgamePoints'],
-                                penalty: fms_scores['BlueAllianceScore']['PenaltyPoints'])
+        match.blue_score.season_score.update_from_fms_score!(data['blueScores'], data['redScores'])
+        match.blue_score.update(auto: data['blueScores']['autoPoints'],
+                                teleop: data['blueScores']['teleopPoints'],
+                                endgame: 0,
+                                penalty: data['blueScores']['foulPointsCommitted'])
       end
 
       match.save!
@@ -255,52 +267,7 @@ class LiveSync
 
   def _sync_elims_matches(match_list)
     @event.start! unless @event.in_progress?
-    match_list['matches'].each do |data|
-      match = @event.matches.find_or_initialize_by(phase: LEVEL_TO_PHASE[data['level']], series: data['series'], number: data['number'])
-      red_alliance = Alliance.find_by!(event: @event, is_elims: true, seed: data['redSeed'])
-      red_team_count = red_alliance.teams.count
-      match.red_alliance ||= MatchAlliance.new(alliance: red_alliance)
-      match.red_alliance.teams_present = (1..red_team_count).map { |t| !data["red#{t}NS"] }
-      match.red_alliance.teams_start = (1..red_team_count).map { |t| data["red#{t}Start"] }
-      match.red_alliance.red_card = Array.new(red_team_count, (data['red1C'] & 2).positive?)
-      match.red_alliance.yellow_card = Array.new(red_team_count, (data['red1C'] & 1).positive?)
-      match.red_alliance.save!
-
-      blue_alliance = Alliance.find_by!(event: @event, is_elims: true, seed: data['blueSeed'])
-      blue_team_count = blue_alliance.teams.count
-      match.blue_alliance ||= MatchAlliance.new(alliance: blue_alliance)
-      match.blue_alliance.teams_present = (1..blue_team_count).map { |t| !data["blue#{t}NS"] }
-      match.blue_alliance.teams_start = (1..blue_team_count).map { |t| data["blue#{t}Start"] }
-      match.blue_alliance.red_card = Array.new(blue_team_count, (data['blue1C'] & 2).positive?)
-      match.blue_alliance.yellow_card = Array.new(blue_team_count, (data['blue1C'] & 1).positive?)
-      match.blue_alliance.save!
-
-      match.played = !!data['scorekeeperCommitTime']
-
-      if match.played
-        fms_scores = JSON.parse(Zlib.gunzip(Base64.decode64(data['fmsScores'])))
-        match.red_score ||= Score.new
-        match.red_score.season_score ||= @event.season.score_model.new
-        match.red_score.save!
-        match.red_score.season_score.update_from_fms_score!(fms_scores['RedAllianceScore'], fms_scores['BlueAllianceScore'])
-        match.red_score.update(auto: fms_scores['RedAllianceScore']['AutoPoints'],
-                               teleop: fms_scores['RedAllianceScore']['DcPoints'],
-                               endgame: fms_scores['RedAllianceScore']['EndgamePoints'],
-                               penalty: fms_scores['RedAllianceScore']['PenaltyPoints'])
-        match.blue_score ||= Score.new
-        match.blue_score.season_score ||= @event.season.score_model.new
-        match.blue_score.save!
-        match.blue_score.season_score.update_from_fms_score!(fms_scores['BlueAllianceScore'], fms_scores['RedAllianceScore'])
-        match.blue_score.update(auto: fms_scores['BlueAllianceScore']['AutoPoints'],
-                                teleop: fms_scores['BlueAllianceScore']['DcPoints'],
-                                endgame: fms_scores['BlueAllianceScore']['EndgamePoints'],
-                                penalty: fms_scores['BlueAllianceScore']['PenaltyPoints'])
-      end
-
-      match.save!
-    end
-
-    @event.matches.where.not(phase: %w[qual practice]).where.not(number: match_list['matches'].pluck('number')).destroy_all
+    _sync_phase_matches(:playoff, match_list, full: true)
 
     if(match_list['ranks'])
       match_list['ranks'].each do |rk|

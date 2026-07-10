@@ -1,6 +1,6 @@
 import ScoreTable, {toTitleCase} from './ScoreTable';
 import type {components} from "../../api/v1";
-import './DecodeScoreTable.css';
+import './DecodeCriScoreTable.scss';
 import {useTeam} from "../../api.ts";
 import TextLink from "../TextLink.tsx";
 
@@ -10,10 +10,10 @@ const endLocationPoints = {
   FULL: 10,
 };
 
-type Artifact = 'GREEN' | 'PURPLE' | 'NONE';
+type Artifact = 'GREEN' | 'PURPLE' | 'RED' | 'ORANGE' | 'BLUE' | 'YELLOW' | 'GEM' | 'NONE';
 
 function ClassifierElement({element}: {element: Artifact}) {
-  return <span className={`artifact artifact-${element === 'GREEN' ? 'green' : (element === 'PURPLE' ? 'purple' : 'none')}`}>{element == 'NONE' ? '\u00A0' : element[0]}</span>
+  return <span className={`criArtifact artifact-${element.toLowerCase()}`}>{element == 'NONE' ? '\u00A0' : element[0]}</span>
 }
 
 const motifs = {
@@ -33,10 +33,94 @@ function motifScore(random: number | undefined, classifierState: Artifact[]) {
   if(!motif) return 0;
   return classifierState.map((el, idx) => el == motif[idx % motif.length] ? 2 : 0)
       .reduce<number>((acc, val) => acc + val, 0)
-
 }
 
-export default ScoreTable<components['schemas']['DecodeScore']>((match) => {
+function isSpectrumNext(self: Artifact, other: Artifact) {
+    if(self == 'RED') {
+      return other == 'ORANGE';
+    } else if(self == 'ORANGE') {
+      return other == 'YELLOW';
+    } else if(self == 'YELLOW') {
+       return other == 'GREEN';
+    } else if(self == 'GREEN') {
+       return other == 'BLUE';
+    } else if(self == 'BLUE') {
+       return other == 'PURPLE';
+    } else if(self == 'PURPLE') {
+      return other == 'RED';
+    } else {
+      return false;
+    }
+}
+
+function isSpectrumPrevious(self: Artifact, other: Artifact) {
+  if(self == 'RED') {
+    return other == 'PURPLE';
+  } else if(self == 'ORANGE') {
+    return other == 'RED';
+  } else if(self == 'YELLOW') {
+    return other == 'ORANGE';
+  } else if(self == 'GREEN') {
+    return other == 'YELLOW';
+  } else if(self == 'BLUE') {
+    return other == 'GREEN';
+  } else if(self == 'PURPLE') {
+    return other == 'BLUE';
+  } else {
+    return false;
+  }
+}
+
+function findSpectra(prismState: Artifact[]) {
+  const remainingArtifacts: Artifact[][] = [];
+  const spectra: Artifact[][] = [];
+  remainingArtifacts.push(prismState.filter(a => a != 'NONE'));
+  for(let i = 6; i > 1; i--) {
+    for(let ii = 0; ii < remainingArtifacts.length; ii++) {
+      const artifacts = remainingArtifacts[ii];
+      if (artifacts.length < i) {
+        continue;
+      }
+      for(let j = 0; j < artifacts.length - i + 1; j++) {
+        const first = artifacts[j];
+        let last = artifacts[j + 1];
+        let isSequence = isSpectrumNext(first, last) || isSpectrumPrevious(first, last);
+        const isIncreasing = isSpectrumNext(first, last);
+        if(isSequence) {
+          for (let k = j + 2; k < j + i; k++) {
+            const next = artifacts[k];
+            if (isIncreasing ? !isSpectrumNext(last, next) : !isSpectrumPrevious(last, next)) {
+              isSequence = false;
+              break;
+            }
+            last = next;
+          }
+        }
+        if(isSequence) {
+          remainingArtifacts.splice(ii, 1);
+          ii--;
+          if(j > 0) {
+            remainingArtifacts.push(artifacts.slice(0, j));
+          }
+          spectra.push(artifacts.slice(j, j + i));
+          if(j + i < artifacts.length) {
+            remainingArtifacts.push(artifacts.slice(j + i, artifacts.length));
+          }
+          break;
+        }
+      }
+    }
+  }
+  return spectra;
+}
+
+function scorePrism(prismState: Artifact[]) {
+  const spectra = findSpectra(prismState);
+  const huePoints = new Set(prismState.filter(a => a != 'NONE')).size * 3
+  return huePoints + spectra.map(s => 2 ** s.length).reduce((a, b) => a + b, 0);
+}
+
+export default ScoreTable<components['schemas']['DecodeCriScore']>((match) => {
   const red_det = match.red_score_details;
   const blue_det = match.blue_score_details;
   return [
@@ -72,11 +156,18 @@ export default ScoreTable<components['schemas']['DecodeScore']>((match) => {
       blue_pts: blue_det.auto_robot1 ? 3 : 0,
     },
     {
-      desc: 'Robot 2 Leave',
+      desc: 'Robot 2 Location',
       red: red_det.auto_robot2 ? 'Yes' : 'No',
       blue: blue_det.auto_robot2 ? 'Yes' : 'No',
       red_pts: red_det.auto_robot2 ? 3 : 0,
       blue_pts: blue_det.auto_robot2 ? 3 : 0,
+    },
+    {
+      desc: 'Robot 3 Location',
+      red: red_det.auto_robot3 ? 'Yes' : 'No',
+      blue: blue_det.auto_robot3 ? 'Yes' : 'No',
+      red_pts: red_det.auto_robot3 ? 3 : 0,
+      blue_pts: blue_det.auto_robot3 ? 3 : 0,
     },
     {
       desc: 'Auto Total',
@@ -110,6 +201,13 @@ export default ScoreTable<components['schemas']['DecodeScore']>((match) => {
       blue_pts: motifScore(match.random, blue_det.teleop_classifier_state),
     },
     {
+      desc: 'Teleop Prism State',
+      red: red_det.prism_state.map((s, idx) => <ClassifierElement key={idx} element={s} />),
+      blue: blue_det.prism_state.map((s, idx) => <ClassifierElement key={idx} element={s} />),
+      red_pts: scorePrism(red_det.prism_state),
+      blue_pts: scorePrism(blue_det.prism_state),
+    },
+    {
       desc: 'Robot 1 Base',
       red: toTitleCase(red_det.teleop_robot1),
       blue: toTitleCase(blue_det.teleop_robot1),
@@ -122,10 +220,17 @@ export default ScoreTable<components['schemas']['DecodeScore']>((match) => {
       blue: toTitleCase(blue_det.teleop_robot2),
       red_pts: endLocationPoints[red_det.teleop_robot2],
       blue_pts: endLocationPoints[blue_det.teleop_robot2],
+    },
+    {
+      desc: 'Robot 3 Base',
+      red: toTitleCase(red_det.teleop_robot3),
+      blue: toTitleCase(blue_det.teleop_robot3),
+      red_pts: endLocationPoints[red_det.teleop_robot3],
+      blue_pts: endLocationPoints[blue_det.teleop_robot3],
       bonus: {
         label: 'Both Robots in Base',
-        redAccomplished: red_det.teleop_robot1 === 'FULL' && red_det.teleop_robot2 === 'FULL',
-        blueAccomplished: blue_det.teleop_robot1 === 'FULL' && blue_det.teleop_robot2 === 'FULL',
+        redAccomplished: [red_det.teleop_robot1 === 'FULL', red_det.teleop_robot2 === 'FULL', red_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2,
+        blueAccomplished: [blue_det.teleop_robot1 === 'FULL', blue_det.teleop_robot2 === 'FULL', blue_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2,
         value: 10
       }
     },

@@ -897,7 +897,7 @@ export interface components {
             number: number;
             event_id: number;
             /** @enum {string} */
-            season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore" | "CenterstageCriScore" | "IntoTheDeepScore" | "IntoTheDeepCriScore" | "DecodeScore";
+            season_score_type: "RoverRuckusScore" | "RoverRuckusCriScore" | "SkystoneScore" | "FreightFrenzyScore" | "FreightFrenzyCriScore" | "PowerPlayScore" | "PowerPlayCriScore" | "CenterstageScore" | "CenterstageCriScore" | "IntoTheDeepScore" | "IntoTheDeepCriScore" | "DecodeScore" | "DecodeCriScore";
             random?: number;
             red_score_total: number;
             red_score: {
@@ -906,7 +906,7 @@ export interface components {
                 endgame: number;
                 penalty: number;
             };
-            red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"] | components["schemas"]["DecodeScore"];
+            red_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"] | components["schemas"]["DecodeScore"] | components["schemas"]["DecodeCriScore"];
             red_seed?: number;
             red_teams: number[];
             red_surrogate: boolean[];
@@ -918,7 +918,7 @@ export interface components {
                 endgame: number;
                 penalty: number;
             };
-            blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"] | components["schemas"]["DecodeScore"];
+            blue_score_details: components["schemas"]["RoverRuckusScore"] | components["schemas"]["RoverRuckusCriScore"] | components["schemas"]["SkystoneScore"] | components["schemas"]["FreightFrenzyScore"] | components["schemas"]["FreightFrenzyCriScore"] | components["schemas"]["PowerPlayScore"] | components["schemas"]["PowerPlayCriScore"] | components["schemas"]["CenterstageScore"] | components["schemas"]["CenterstageCriScore"] | components["schemas"]["IntoTheDeepScore"] | components["schemas"]["IntoTheDeepCriScore"] | components["schemas"]["DecodeScore"] | components["schemas"]["DecodeCriScore"];
             blue_seed?: number;
             blue_teams: number[];
             blue_surrogate: boolean[];
@@ -1330,6 +1330,30 @@ export interface components {
             teleop_robot1: "NONE" | "PARTIAL" | "FULL";
             /** @enum {string} */
             teleop_robot2: "NONE" | "PARTIAL" | "FULL";
+            movement_rp: boolean;
+            goal_rp: boolean;
+            pattern_rp: boolean;
+            minor_fouls: number;
+            major_fouls: number;
+        };
+        DecodeCriScore: {
+            auto_classified_artifacts: number;
+            auto_overflow_artifacts: number;
+            auto_classifier_state: ("NONE" | "GREEN" | "PURPLE" | "GEM")[];
+            auto_robot1: boolean;
+            auto_robot2: boolean;
+            auto_robot3: boolean;
+            teleop_classified_artifacts: number;
+            teleop_overflow_artifacts: number;
+            teleop_depot_artifacts: number;
+            teleop_classifier_state: ("NONE" | "GREEN" | "PURPLE" | "GEM")[];
+            prism_state: ("NONE" | "GREEN" | "PURPLE" | "RED" | "ORANGE" | "YELLOW" | "BLUE")[];
+            /** @enum {string} */
+            teleop_robot1: "NONE" | "PARTIAL" | "FULL";
+            /** @enum {string} */
+            teleop_robot2: "NONE" | "PARTIAL" | "FULL";
+            /** @enum {string} */
+            teleop_robot3: "NONE" | "PARTIAL" | "FULL";
             movement_rp: boolean;
             goal_rp: boolean;
             pattern_rp: boolean;
