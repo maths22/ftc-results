@@ -77,7 +77,8 @@ type ScoreInterpretation<T extends ScoreType> = (match: SeasonScore<T>) => ({
   blue_pts?: number
 }))[]
 
-function MatchTeam({teamNumber, surrogate}: {teamNumber: number, surrogate?: boolean}) {
+function MatchTeam({teamNumber, surrogate}: {teamNumber?: number, surrogate?: boolean}) {
+  if(!teamNumber) return null;
   return <TextLink key={teamNumber} to={`/teams/${teamNumber}`} style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <div className={`team-avatar team-${teamNumber}`} style={{marginRight: '0.25em', '--avatar-size': 30}}></div>

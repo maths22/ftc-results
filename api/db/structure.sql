@@ -1,4 +1,4 @@
-\restrict 22RcnF9FO8elqSjUBNZa9yd7CyYoYgYJ08BQZA2epTc3NfG0NlJ0HzNqqC1CaLM
+\restrict SLUuEeLat8Wwi4aXnlX5k3ovssRxQimP4cEpmakIzafl4hHCE4QRmscwvos0oYx
 
 -- Dumped from database version 18.2 (Postgres.app)
 -- Dumped by pg_dump version 18.2 (Postgres.app)
@@ -2823,6 +2823,13 @@ CREATE INDEX get_delayed_jobs_index ON public.delayed_jobs USING btree (queue, p
 
 
 --
+-- Name: idx_on_event_id_event_division_id_phase_series_numb_9e9dea2907; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_event_id_event_division_id_phase_series_numb_9e9dea2907 ON public.matches USING btree (event_id, event_division_id, phase, series, number);
+
+
+--
 -- Name: index_access_requests_on_event_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3374,11 +3381,12 @@ ALTER TABLE ONLY public.event_divisions
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 22RcnF9FO8elqSjUBNZa9yd7CyYoYgYJ08BQZA2epTc3NfG0NlJ0HzNqqC1CaLM
+\unrestrict SLUuEeLat8Wwi4aXnlX5k3ovssRxQimP4cEpmakIzafl4hHCE4QRmscwvos0oYx
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260712220043'),
 ('20260709173058'),
 ('20260709155654'),
 ('20260708155232'),
