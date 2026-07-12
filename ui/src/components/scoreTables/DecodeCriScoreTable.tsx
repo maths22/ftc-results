@@ -226,13 +226,14 @@ export default ScoreTable<components['schemas']['DecodeCriScore']>((match) => {
       red: toTitleCase(red_det.teleop_robot3),
       blue: toTitleCase(blue_det.teleop_robot3),
       red_pts: endLocationPoints[red_det.teleop_robot3],
-      blue_pts: endLocationPoints[blue_det.teleop_robot3],
-      bonus: {
-        label: 'Both Robots in Base',
-        redAccomplished: [red_det.teleop_robot1 === 'FULL', red_det.teleop_robot2 === 'FULL', red_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2,
-        blueAccomplished: [blue_det.teleop_robot1 === 'FULL', blue_det.teleop_robot2 === 'FULL', blue_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2,
-        value: 10
-      }
+      blue_pts: endLocationPoints[blue_det.teleop_robot3]
+    },
+    {
+      desc: 'Two Robots Fully in Base',
+      red: [red_det.teleop_robot1 === 'FULL', red_det.teleop_robot2 === 'FULL', red_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2 ? 'Yes' : 'No',
+      blue: [blue_det.teleop_robot1 === 'FULL', blue_det.teleop_robot2 === 'FULL', blue_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2 ? 'Yes' : 'No',
+      red_pts: [red_det.teleop_robot1 === 'FULL', red_det.teleop_robot2 === 'FULL', red_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2 ? 10 : 0,
+      blue_pts: [blue_det.teleop_robot1 === 'FULL', blue_det.teleop_robot2 === 'FULL', blue_det.teleop_robot3 === 'FULL'].filter(x => x).length >= 2 ? 10 : 0,
     },
     {
       desc: 'Teleop Total',

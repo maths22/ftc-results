@@ -27,7 +27,7 @@ module ScoringSystem
       set_field_count db
 
       set_config db, "code", event.slug.downcase
-      set_config db, "onlineResultsUrl", "#{root_url}#{event.season.year}/events/#{event.slug}"
+      set_config db, "onlineResultsUrl", event.slug == "cri" ? "https://results.cri.fyi/#{event.season.year}" : "#{root_url}#{event.season.year}/events/#{event.slug}"
       set_config db, "name", event.name
       set_config db, "start", event.start_date.iso8601
       set_config db, "end", event.end_date.iso8601
