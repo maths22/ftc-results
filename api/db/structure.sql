@@ -1,4 +1,4 @@
-\restrict SLUuEeLat8Wwi4aXnlX5k3ovssRxQimP4cEpmakIzafl4hHCE4QRmscwvos0oYx
+\restrict dzrt8vrb7qjZqY2j1a1h1SZ0k9yGvrhoQSgdHSt4OLyPiIJWMMWhWNfhR7TtZMZ
 
 -- Dumped from database version 18.2 (Postgres.app)
 -- Dumped by pg_dump version 18.2 (Postgres.app)
@@ -1508,6 +1508,41 @@ ALTER SEQUENCE public.leagues_teams_id_seq OWNED BY public.leagues_teams.id;
 
 
 --
+-- Name: live_stream_urls; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.live_stream_urls (
+    id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    label character varying NOT NULL,
+    url character varying NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: live_stream_urls_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.live_stream_urls_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: live_stream_urls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.live_stream_urls_id_seq OWNED BY public.live_stream_urls.id;
+
+
+--
 -- Name: match_alliances; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2351,6 +2386,13 @@ ALTER TABLE ONLY public.leagues_teams ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: live_stream_urls id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.live_stream_urls ALTER COLUMN id SET DEFAULT nextval('public.live_stream_urls_id_seq'::regclass);
+
+
+--
 -- Name: match_alliances id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2685,6 +2727,14 @@ ALTER TABLE ONLY public.leagues
 
 ALTER TABLE ONLY public.leagues_teams
     ADD CONSTRAINT leagues_teams_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: live_stream_urls live_stream_urls_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.live_stream_urls
+    ADD CONSTRAINT live_stream_urls_pkey PRIMARY KEY (id);
 
 
 --
@@ -3131,6 +3181,13 @@ CREATE INDEX index_leagues_teams_on_team_id_and_league_id ON public.leagues_team
 
 
 --
+-- Name: index_live_stream_urls_on_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_live_stream_urls_on_event_id ON public.live_stream_urls USING btree (event_id);
+
+
+--
 -- Name: index_match_alliances_on_alliance_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3381,11 +3438,12 @@ ALTER TABLE ONLY public.event_divisions
 -- PostgreSQL database dump complete
 --
 
-\unrestrict SLUuEeLat8Wwi4aXnlX5k3ovssRxQimP4cEpmakIzafl4hHCE4QRmscwvos0oYx
+\unrestrict dzrt8vrb7qjZqY2j1a1h1SZ0k9yGvrhoQSgdHSt4OLyPiIJWMMWhWNfhR7TtZMZ
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260722153534'),
 ('20260712220043'),
 ('20260709173058'),
 ('20260709155654'),

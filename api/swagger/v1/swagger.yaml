@@ -119,7 +119,28 @@ components:
           type: string
         channel:
           type: string
-          description: Twitch channel event is streaming on
+          description: Twitch channel event is streaming on (deprecated)
+        live_streams:
+          type: array
+          description: List of live stream URLs for this event
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              label:
+                type: string
+              start_date:
+                type: string
+                format: date
+              end_date:
+                type: string
+                format: date
+            required:
+            - url
+            - label
+            - start_date
+            - end_date
         can_import:
           type: boolean
           description: Always false in public API
@@ -179,6 +200,7 @@ components:
       - city
       - state
       - country
+      - live_streams
       - can_import
       - divisions
       - has_practice

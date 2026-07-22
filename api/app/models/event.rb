@@ -14,6 +14,7 @@ class Event < ApplicationRecord
   has_many :event_divisions, dependent: :destroy
   has_many :awards, dependent: :destroy
   has_one :event_channel_assignment, dependent: :destroy
+  has_many :live_stream_urls, dependent: :destroy
 
   has_many :events_sponsors, dependent: :destroy
   has_many :sponsors, through: :events_sponsors

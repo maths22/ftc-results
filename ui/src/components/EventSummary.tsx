@@ -22,32 +22,84 @@ const Heading = styled('div')(({theme}) => ({
   padding: theme.spacing(2)
 }));
 
+const twitchRegex = /https?:\/\/(?:(?:(?:www|go|m)\.)?twitch\.tv\/|player\.twitch\.tv\/\?.*?\bchannel=)(?<channel>\w+)[^\s/]*/
+const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)(?<video_id>[\w\-_]+)\&?/
+
+function VideoPlayer({url}: {url: string}) {
+  if(url.match(twitchRegex)) {
+    const channel = url.match(twitchRegex)!.groups!.channel;
+    return <iframe
+        title="Twitch Player"
+        style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
+        src={`https://player.twitch.tv/?channel=${channel}&parent=${window.location.hostname}`}
+        frameBorder="0"
+        scrolling="no"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen>
+    </iframe>
+  } else if(url.match(youtubeRegex)) {
+    const videoId = url.match(youtubeRegex)!.groups!.video_id;
+    return <iframe
+        title="YouTube Player"
+        style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
+        src={`https://www.youtube.com/embed/${videoId}?playsinline=1&autoplay=1&mute=1`}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen>
+    </iframe>
+  } else {
+    return <span>Unsupported video URL (<a href={url} target="_blank" rel="noopener noreferrer">{url}</a>)</span>
+  }
+}
 
 function EventVideo({event}: {
   event: components['schemas']['event']
 }) {
   const [showVideo, setShowVideo] = useState(true);
-  const today = new Date();
-  today.setHours(0,0,0,0);
+  const [videoIndex, setVideoIndex] = useState(0)
   const isHappening = isEventHappening(event.start_date, event.end_date);
-  if(!event.channel || !isHappening) return null;
+  const legacyVideoEnabled = event.channel && isHappening
+
+  const today = Temporal.Now.plainDateISO(event.timezone)
+  const availableChannels = [...event.live_streams.filter(ls =>
+      Temporal.PlainDate.compare(ls.start_date, today) <= 0 && Temporal.PlainDate.compare(ls.end_date, today) >= 0
+  )]
+  if(legacyVideoEnabled) {
+    availableChannels.push({
+      url: `https://twitch.tv/${event.channel}`,
+      label: 'Stream',
+      start_date: event.start_date,
+      end_date: event.end_date
+    })
+  }
+  availableChannels.sort((a, b) => {
+    const dateCompare = Temporal.PlainDate.compare(a.start_date, b.start_date)
+    if(dateCompare != 0) {
+      return dateCompare
+    }
+    return a.label.localeCompare(b.label);
+  });
+
+  if(availableChannels.length === 0) return null;
 
   return <div style={{maxWidth: '50em', margin: '0 auto'}}>
-    <FormControlLabel
-        control={
-          <Switch checked={showVideo} onChange={(_, checked) => setShowVideo(checked)} />
-        }
-        label="Show Video"
-    />
-    { showVideo ? <div style={{position:'relative', paddingTop: '56%'}}>
-      <iframe
-          title="Twitch Player"
-          style={{position:'absolute',top:0,left:0,width:'100%', height:'100%'}}
-          src={`https://player.twitch.tv/?channel=${event.channel}&parent=${window.location.hostname}`}
-          frameBorder="0"
-          scrolling="no"
-          allowFullScreen>
-      </iframe>
+    <div style={{display: 'flex', marginBottom: '5px' }}>
+      <FormControlLabel
+          control={
+            <Switch checked={showVideo} onChange={(_, checked) => setShowVideo(checked)} />
+          }
+          label="Show Video"
+      />
+      {availableChannels.length > 1 && showVideo ? <div>
+        <Select value={videoIndex} onChange={(evt) => setVideoIndex(evt.target.value)}>
+          {availableChannels.map((v, index) => {
+            return <MenuItem key={index} value={index}>{v.label}</MenuItem>;
+          })}
+        </Select>
+      </div> : null}
+    </div>
+    { showVideo && availableChannels[videoIndex] ? <div style={{position:'relative', paddingTop: '56%'}}>
+      <VideoPlayer url={availableChannels[videoIndex].url} />
     </div> : null }
   </div>;
 }

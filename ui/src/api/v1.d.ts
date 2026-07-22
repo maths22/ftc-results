@@ -754,8 +754,17 @@ export interface components {
             city: string;
             state: string;
             country: string;
-            /** @description Twitch channel event is streaming on */
+            /** @description Twitch channel event is streaming on (deprecated) */
             channel?: string;
+            /** @description List of live stream URLs for this event */
+            live_streams: {
+                url: string;
+                label: string;
+                /** Format: date */
+                start_date: string;
+                /** Format: date */
+                end_date: string;
+            }[];
             /** @description Always false in public API */
             can_import: boolean;
             /** @description Link to download database (authenticated event owners only) */

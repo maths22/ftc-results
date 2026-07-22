@@ -23,6 +23,8 @@ json.country event.country
 
 json.channel event.channel_name if event.channel_name
 
+json.live_streams event.live_stream_urls, partial: 'live_streams/base_info', as: :live_stream_url
+
 json.import rails_blob_path(event.import, disposition: 'attachment') if event.import.attached? && can?(:manage_results, event)
 
 json.can_import can? :import_results, event
